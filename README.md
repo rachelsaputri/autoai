@@ -8540,3 +8540,153 @@ Grafik ini dapat diintegrasikan ke dalam pipeline CI/CD (seperti GitHub Actions 
 ```
 
 Dengan memanfaatkan `pipeline_dependency_graph.json`, tim operasi dapat beralih dari *debugging* reaktif ("Kenapa ini error?") menjadi *preventive maintenance* ("Perubahan X di skrip A akan berdampak pada skrip B, mari kita uji B terlebih dahulu").
+
+
+###### 4. Analisis Akar Masalah & Otomasi RCA (Root Cause Analysis)
+
+Untuk mengubah data log mentah menjadi wawasan operasional yang dapat ditindaklanjuti, tim ini memperkenalkan `log_analysis_and_rca_engine.py`. Modul ini bertindak sebagai "pusat kecerdasan" yang menjembatani gapan antara observabilitas teknis (traces) dan kepatuhan regulasi (verifications).
+
+Skrip ini tidak hanya melaporkan *apa* yang gagal, tetapi menjelaskan *mengapa* kegagalan tersebut terjadi dengan menganalisis korelasi temporal antara degradasi kinerja sistem dan titik-titik verifikasi kepatuhan.
+
+**Arsitektur Alur Kerja:**
+
+1.  **Ingesti Data Heterogen:**
+    *   Membaca `aggregated_trace.json`: Berisi jejak eksekusi mikro-service (latensi, status code, payload size). Sumber: `log_aggregator_parser.py`.
+    *   Membaca `verification_log.json`: Berisi hasil validasi aturan bisnis dan GDPR (passed/failed, reason codes). Sumber: `compliance_risk_visualizer.py`.
+2.  **Deteksi Anomali Heuristik:**
+    *   Menerapkan algoritma deteksi outlier pada metrik latensi untuk mengidentifikasi *bottleneck* sistemik.
+    *   Mengidentifikasi pola kegagalan batch yang berulang (>3 kali dalam jendela waktu 1 jam).
+3.  **Inferensi Penyebab Akar (RCA):**
+    *   Mengkorelasikan puncak latensi dengan kegagalan verifikasi spesifik.
+    *   Menentukan apakah kegagalan disebabkan oleh *timeout* eksternal, *memory leak*, atau kesalahan logika bisnis.
+4.  **Generasi Laporan Terstruktur:**
+    *   Mengoutput hasil dalam format JSON yang siap dikonsumsi oleh `compliance_audit_dashboard_generator.py` untuk visualisasi real-time dan `gdpr_compliance_reporter.py` untuk penyetelan notifikasi pelanggaran data.
+
+---
+
+### Dokumentasi Teknis: Metodologi Heuristik & Alur RCA
+
+Lampiran ini ditujukan untuk auditor forensik dan arsitek sistem untuk memverifikasi logika deteksi dalam `log_analysis_and_rca_engine.py`.
+
+#### 4.1. Metodologi Deteksi Anomali
+
+Skrip ini menggunakan pendekatan hibrida antara **Statistical Process Control (SPC)** dan **Rule-Based Heuristics** untuk meminimalkan *false positive*.
+
+**A. Deteksi Degradasi Kinerja (Latency Anomaly)**
+Kami menggunakan metode **Z-Score Rolling Window** pada dataset trace log.
+*   **Parameter:** Jendela waktu (`window_size`) default 60 menit.
+*   **Logika:**
+    $$ Z = rac{(X_t - \mu_{window})}{\sigma_{window}} $$
+    Jika $|Z| > 2.5$, titik data $X_t$ ditandai sebagai anomali kinerja.
+*   **Tujuan:** Mengidentifikasi skrip yang tiba-tiba mengalami peningkatan latensi di atas 2.5 deviasi standar dari rata-rata historis hari itu, yang sering kali indikasi awal dari *bottleneck* database atau ketergantungan layanan pihak ketiga (misal: AWS Lambda cold starts).
+
+**B. Deteksi Kegagalan Batch Berulang (Recurrence Pattern)**
+Untuk mencegah hilangnya data dalam pipeline kepatuhan, kami menerapkan deteksi pola frekuensi.
+*   **Kondisi:** Jika skrip tertentu mencatat `status: FAIL` lebih dari `min_occurrences` (default: 3) dalam `time_delta` (default: 300 detik).
+*   **Prioritas:** Kegagalan yang terulang dalam pola ini dikategorikan sebagai `SEVERITY: CRITICAL` karena mengindikasikan kegagalan sistemik, bukan fluktuasi transient.
+
+#### 4.2. Alur Kerja Inferensi Akar Masalah (RCA Workflow)
+
+Setelah anomali terdeteksi, skrip mengeksekusi rantai kausalitas berikut untuk mengidentifikasi sumber masalah:
+
+1.  **Langkah 1: Identifikasi *Root Node* dalam Graf Dependensi**
+    *   Menggunakan `pipeline_dependency_graph_generator.py` sebelumnya, kami memetakan skrip yang mendeteksi anomali ke node sumber (entry point).
+    *   Jika node sumber adalah `data_ingestion_engine.py`, fokus analisis dialihkan ke koneksi database dan parsing file masuk.
+
+2.  **Langkah 2: Korelasi Verifikasi Gagal**
+    *   Kami mencocokkan timestamp anomali kinerja dengan entri di `verification_log.json`.
+    *   **Skenario A (Korelasi Tinggi):** Latensi tinggi diikuti oleh `verification_status: TIMEOUT`.
+        *   *Kesimpulan:* Masalah infrastruktur/konektivitas.
+    *   **Skenario B (Korelasi Rendah):** Latensi normal, tetapi `verification_status: FAIL` dengan `reason: GDPR_FIELD_MISSING`.
+        *   *Kesimpulan:* Masalah kualitas data atau perubahan skema input.
+
+3.  **Langkah 3: Penentuan Severity Level**
+    *   Input `--severity-level` digunakan sebagai filter final.
+    *   Default: `INFO`.
+    *   Opsi: `LOW` (hanya notifikasi), `MEDIUM` (perlu tinjauan manusia), `HIGH` (trigger otomasi rollback/notifikasi darurat).
+
+#### 4.3. Struktur Output JSON
+
+Output dari `log_analysis_and_rca_engine.py` mengikuti skema berikut untuk memastikan kompatibilitas dengan dashboard audit:
+
+```json
+{
+  "analysis_id": "rca_20231027_001",
+  "timestamp": "2023-10-27T10:00:00Z",
+  "summary": {
+    "total_anomalies_detected": 4,
+    "critical_bottlenecks": 1,
+    "severity_distribution": {
+      "CRITICAL": 1,
+      "WARNING": 3
+    }
+  },
+  "findings": [
+    {
+      "finding_id": "F-001",
+      "affected_script": "compliance_dashboard_deployer.py",
+      "anomaly_type": "LATENCY_SPIKE",
+      "metric_value": 12500,
+      "baseline_value": 2500,
+      "root_cause_hypothesis": "High I/O wait on S3 read operations",
+      "correlated_verification_failure": null,
+      "recommendation": "Implement multipart download or check S3 request rate limits."
+    },
+    {
+      "finding_id": "F-002",
+      "affected_script": "gdpr_data_processor.py",
+      "anomaly_type": "RECURRING_BATCH_FAILURE",
+      "failure_count": 5,
+      "root_cause_hypothesis": "Schema mismatch in incoming CSV payload",
+      "correlated_verification_failure": {
+        "error_code": "GDPR_FIELD_MISSING",
+        "field_name": "user_consent_timestamp"
+      },
+      "recommendation": "Validate input schema before processing; update data validation rules."
+    }
+  ],
+  "metadata": {
+    "heuristic_version": "1.2.0",
+    "trace_file_hash": "a1b2c3...",
+    "verification_file_hash": "d4e5f6..."
+  }
+}
+```
+
+#### 4.4. Implementasi CLI dan Penggunaan
+
+Berikut adalah contoh penggunaan baris perintah untuk menjalankan analisis RCA secara manual atau melalui cron job:
+
+```bash
+# Contoh dasar: Analisis dengan severity level default (INFO)
+python log_analysis_and_rca_engine.py \
+  --trace ./logs/aggregated_trace.json \
+  --verification ./logs/verification_log.json \
+  --output ./reports/rca_report_20231027.json
+
+# Contoh lanjutan: Filter hanya masalah Critical/High, output ke path custom
+python log_analysis_and_rca_engine.py \
+  --trace ./logs/aggregated_trace.json \
+  --verification ./logs/verification_log.json \
+  --output ./reports/emergency_rca.json \
+  --severity-level HIGH
+```
+
+**Argumen Detail:**
+
+| Argumen | Tipe | Default | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `--trace` | `string` | `required` | Path absolut ke file `aggregated_trace.json` yang dihasilkan oleh *log aggregator*. |
+| `--verification` | `string` | `required` | Path absolut ke file `verification_log.json` yang dihasilkan oleh *risk visualizer*. |
+| `--output` | `string` | `required` | Path untuk menyimpan file JSON hasil analisis RCA. |
+| `--severity-level` | `enum` | `INFO` | Ambang batas keparahan untuk dilaporkan. Pilihan: `INFO`, `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`. |
+
+**Integrasi dengan Audit Forensik:**
+File output JSON yang dihasilkan dapat langsung dipindai oleh alat audit forensik untuk melacak jejak kepatuhan. Setiap `finding_id` dapat dikaitkan dengan log entri tertentu dalam *audit trail* resmi perusahaan, memungkinkan auditor untuk memverifikasi apakah tindakan korektif telah diambil terhadap temuan RCA tersebut.
+
+---
+
+### Referensi Silang (Cross-References)
+
+*   **Untuk Validasi Integrasi:** Lihat bagian [3. Otomatisasi dalam CI/CD](#3-otomatisasi-dalam-cicd) untuk melihat bagaimana deteksi *bottleneck* dapat memicu blok merger jika `severity-level` diatur ke `HIGH` pada pipeline CI.
+*   **Untuk Visualisasi:** Gunakan output dari skrip ini sebagai input ke `compliance_audit_dashboard_generator.py` untuk menampilkan peta panas (*heat map*) skrip bermasalah secara real-time.
