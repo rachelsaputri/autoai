@@ -1505,3 +1505,123 @@ if __name__ == "__main__":
 1.  **Backup Otomatis:** Selalu buat salinan cadangan (`backup`) dari `ID_MANUAL.md` sebelum menjalankan `auto_fixer.py` di lingkungan produksi.
 2.  **Uji Coba Terisolasi:** Jalankan skrip pertama kali pada *staging* environment atau dengan file CSV dummy untuk memastikan regex penyesuaian format Markdown Anda akurat.
 3.  **Review Changes:** Gunakan sistem versi (Git) untuk melihat diff perubahan yang dihasilkan sebelum meng-commit hasil perbaikan otomatis ini.
+
+
+### Monitoring & Deteksi Anomali ID Hantu
+
+Untuk menjaga integritas data secara proaktif, repository ini menyertakan skrip monitoring `id_sync_monitor.py`. Skrip ini dirancang untuk mendeteksi ketidakkonsistenan antara ID yang tercatat sebagai 'Active' dalam dokumentasi manual (`ID_MANUAL.md`) dan data log sistem terbaru yang terekspose melalui laporan rekonsiliasi (`reconciliation_report.csv`).
+
+Ketika sebuah ID ada di dalam manual tetapi tidak muncul dalam log sistem terbaru, skrip menganggap ID tersebut sebagai **"ID Hantu"** (Ghost ID). Jika jumlah ID hantu melebihi ambang batas yang ditentukan, sistem akan mengirimkan notifikasi peringatan secara real-time melalui webhook HTTP.
+
+#### Cara Penggunaan
+
+Jalankan skrip dari baris perintah (CLI) dengan menentukan path file input dan URL webhook target.
+
+```bash
+python id_sync_monitor.py \
+    --csv path/to/reconciliation_report.csv \
+    --md path/to/ID_MANUAL.md \
+    --webhook-url https://hooks.slack.com/services/YOUR/WEBHOOK/URL \
+    --threshold 5
+```
+
+#### Argumentasi CLI
+
+| Argument | Tipe | Deskripsi | Wajib |
+| :--- | :--- | :--- | :--- |
+| `--csv` | `str` | Path ke file CSV laporan rekonsiliasi yang berisi log sistem terbaru. | Ya |
+| `--md` | `str` | Path ke file Markdown manual (`ID_MANUAL.md`) yang menjadi referensi ID aktif. | Ya |
+| `--webhook-url` | `str` | URL endpoint webhook (misal: Slack, Discord, atau custom API) untuk mengirim notifikasi error. | Ya |
+| `--threshold` | `int` | Batas maksimum ID hantu yang diperbolehkan sebelum notifikasi dikirim. Default: `0` (selalu kirim jika ada anomali). | Tidak |
+
+#### Logika Pemrosesan
+
+1.  **Parsing Manual (`--md`):**
+    Skrip membaca `ID_MANUAL.md` dan mengekstrak semua ID yang ditandai sebagai 'Active'. Format asumsinya adalah baris yang mengandung ID unik, di mana status keaktifan dapat ditentukan melalui header YAML frontmatter atau komentar khusus di dalam file.
+
+2.  **Validasi Log Sistem (`--csv`):**
+    File CSV (`reconciliation_report.csv`) diparsing untuk mengumpulkan himpunan set `system_ids` yang valid dan aktif berdasarkan kolom timestamp atau status terbaru.
+
+3.  **Perbandingan (Diffing):**
+    Skrip menghitung selisih set:
+    $$ 	ext{Ghost IDs} = \{ 	ext{Manual IDs} \} - \{ 	ext{System IDs} \} $$
+
+4.  **Evaluasi Ambang Batang:**
+    *   Jika `len(Ghost IDs) > threshold`: Kirim notifikasi.
+    *   Jika `len(Ghost IDs) <= threshold`: Hentikan eksekusi tanpa output (silent success).
+
+5.  **Notifikasi Webhook:**
+    Jika kondisi ambang batas terpenuhi, skrip melakukan POST request JSON ke `--webhook-url` dengan payload berikut:
+
+    ```json
+    {
+      "text": "🚨 Anomali ID Terdeteksi",
+      "embeds": [
+        {
+          "title": "Deteksi ID Hantu",
+          "description": "Ditemukan ID hantu melebihi ambang batas.",
+          "fields": [
+            {
+              "name": "Jumlah ID Hantu",
+              "value": "<COUNT>",
+              "inline": true
+            },
+            {
+              "name": "Ambang Batas",
+              "value": "<THRESHOLD>",
+              "inline": true
+            }
+          ],
+          "color": 16711680,
+          "timestamp": "<ISO_TIMESTAMP>"
+        }
+      ]
+    }
+    ```
+
+#### Contoh Integrasi dengan GitHub Actions
+
+Anda dapat mengotomatisasi monitoring ini dengan menambahkan job ke `.github/workflows/sync-monitor.yml`:
+
+```yaml
+name: ID Sync Monitor
+on:
+  schedule:
+    # Jalankan setiap 6 jam
+    - cron: '0 */6 * * *'
+  workflow_dispatch: # Izinkan eksekusi manual
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install requests # Pastikan library requests terinstall
+
+      - name: Run ID Sync Monitor
+        env:
+          CSV_PATH: ./data/reconciliation_report.csv
+          MD_PATH: ./ID_MANUAL.md
+          WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          THRESHOLD: 0 # Kirim notifikasi jika ada 1 pun ID hantu
+        run: |
+          python id_sync_monitor.py \
+            --csv $CSV_PATH \
+            --md $MD_PATH \
+            --webhook-url $WEBHOOK_URL \
+            --threshold $THRESHOLD
+```
+
+#### Tips Troubleshooting
+
+*   **Format CSV:** Pastikan kolom yang berisi ID di CSV sesuai dengan format string ID di `ID_MANUAL.md` (misalnya, presisi case-sensitive dan penanganan whitespace).
+*   **Rate Limit Webhook:** Jika menggunakan Slack/Discord, hindari frekuensi eksekusi yang terlalu tinggi untuk menghindari pembatasan rate limit API.
+*   **Log Debug:** Untuk melihat detail ID hantu secara langsung di terminal, Anda dapat menambahkan flag `--verbose` (jika dikembangkan di masa depan) atau menyesuaikan skrip untuk mencetak hasil diff ke stdout.
