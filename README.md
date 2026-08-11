@@ -9211,3 +9211,170 @@ Untuk kemudahan pengguna non-kode (auditor bisnis), gunakan koleksi Postman beri
 6.  Verifikasi bahwa body respons menampilkan `"status": "VERIFIED"`.
 
 > **Catatan Auditor:** Simpan hasil tangkapan layar respons JSON ini sebagai lampiran bukti kepatuhan dalam laporan audit Anda.
+
+
+#### G. Eksekusi Kebijakan Penegakan Kepatuhan (Compliance Policy Enforcer)
+
+Modul `compliance_policy_enforcer.py` bertindak sebagai gerbang keamanan terakhir sebelum data dipublikasikan atau diakses oleh pemroses eksternal. Script ini membaca kebijakan kepatuhan yang dihasilkan dari Assessmen Dampak Perlindungan Data (GDPR/DPIA) dan secara otomatis menerapkan transformasi privasi tingkat lanjut pada dataset mentah.
+
+##### 1. Arsitektur dan Alur Kerja
+
+Script ini mengikuti prinsip *Secure-by-Design* dengan alur pemrosesan sebagai berikut:
+
+1.  **Inisialisasi Kebijakan:** Membaca `gdpr_dpia_report.json` untuk mengekstraksi daftar kolom yang memerlukan masking (misal: NIK, Email, Telepon) dan parameter sensitivitas ($k$-anonimitas).
+2.  **Pemuatan Data:** Membaca dataset mentah (format CSV atau Parquet) ke dalam struktur DataFrame yang efisien.
+3.  **Transformasi Berbasis Kebijakan:**
+    *   **Masking:** Mengganti karakter sensitif dengan simbol placeholder statis.
+    *   **Pseudonimisasi/K-Anonimitas:** Mengelompokkan record berdasarkan atribut quasi-identifiers dan menerapkan teknik generalisasi atau penyamaran agar setiap kelompok memiliki setidaknya $k$ entitas yang tidak dapat dibedakan.
+4.  **Manajemen Kunci (Opsional):** Jika enkripsi end-to-end diaktifkan, skrip akan mengelola kunci sesi secara sementara di memori (tidak disimpan di disk) untuk melindungi data hasil transformasi.
+5.  **Output:** Menulis data yang sudah dibersihkan ke file output atau menampilkan preview dalam mode simulasi.
+
+##### 2. Dokumentasi Teknis: Enkripsi Sisi Klien & Manajemen Kunci (Lampiran Auditor)
+
+Bagian ini disediakan khusus untuk tim keamanan dan auditor kepatuhan sebagai bukti implementasi teknis perlindungan data.
+
+###### A. Enkripsi Sisi Klien (Client-Side Encryption)
+
+Dalam arsitektur ini, data sensitif dienkripsi sebelum meninggalkan memori aplikasi atau disimpan ke dalam *data lake*. Ini memastikan bahwa bahkan jika terjadi kebocoran data pada penyimpanan persisten, data tetap tidak terbaca tanpa kunci dekripsi.
+
+*   **Standar Kriptografi:** Menggunakan algoritma **AES-256-GCM** (Advanced Encryption Standard dengan Galois/Counter Mode). GCM dipilih karena menyediakan *authenticated encryption*, yang menjamin kerahasiaan data sekaligus integritas (mendeteksi jika data telah dimodifikasi).
+*   **Implementasi Algoritma:**
+    ```python
+    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+    import os
+
+    class ClientSideEncryptor:
+        def __init__(self, key: bytes):
+            if len(key) != 32:
+                raise ValueError("Kunci AES-256 harus berukuran 32 byte.")
+            self.aesgcm = AESGCM(key)
+
+        def encrypt(self, data: bytes) -> tuple[bytes, bytes]:
+            # Generate 12-byte nonce (Number used once) yang acak dan aman
+            nonce = os.urandom(12)
+            # Encrypt data, termasuk metadata dalam associated_data
+            ciphertext = self.aesgcm.encrypt(nonce, data, None)
+            return nonce, ciphertext
+
+        def decrypt(self, nonce: bytes, ciphertext: bytes) -> bytes:
+            try:
+                return self.aesgcm.decrypt(nonce, ciphertext, None)
+            except Exception as e:
+                raise ValueError("Gagal mendekripsi data: Kunci salah atau data korup.", e)
+    ```
+*   **Keuntungan untuk Auditor:**
+    *   **Non-Repudiation:** Integrasi tag otentikasi dalam GCM mencegah modifikasi data tanpa terdeteksi.
+    *   **Kerahasiaan Persisten:** Data di disk terenkripsi, meminimalkan risiko paparan saat backup atau迁移 ke cloud storage.
+
+###### B. Manajemen Kunci (Key Management)
+
+Penggunaan enkripsi yang kuat menjadi sia-sia jika manajemen kuncinya lemah. `compliance_policy_enforcer.py` mengadopsi prinsip *Separation of Duties* dan *Least Privilege* dalam manajemen kunci:
+
+1.  **Pembagian Kunci (Key Splitting):**
+    *   **Master Key (MK):** Disimpan secara terpisah di *Hardware Security Module (HSM)* atau layanan manajemen kunci eksternal (misal: AWS KMS, Azure Key Vault). Tidak pernah memasuki memori aplikasi dalam bentuk plaintext.
+    *   **Data Encryption Key (DEK):** Kunci yang digunakan untuk mengenkripsi dataset spesifik. DEK dienkripsi oleh MK (wrapped) dan disimpan bersama metadata data.
+
+2.  **Rotasi Kunci:**
+    *   Skrip mendukung parameter rotasi otomatis. Setelah durasi tertentu atau setelah jumlah transaksi tertentu, DEK baru akan di-generate dan DEK lama akan dideaktivasi. Data yang telah dienkripsi dengan DEK lama dapat didekripsi dan dienkripsi ulang dengan DEK baru (*Key Rotation via Re-encryption*).
+
+3.  **Pencegahan Kebocoran Kunci (Memory Security):**
+    *   Kunci dekripsi hanya berada di memori selama sesi enkripsi/dekripsi berlangsung.
+    *   Setelah pemrosesan selesai, referensi kunci dihapus secara eksplisit dan *garbage collector* Python didorong untuk membersihkan memori menggunakan `del` dan `gc.collect()`.
+    *   **Catatan Keamanan:** Tidak ada kunci yang dicatat dalam log, debug output, atau file konfigurasi.
+
+###### C. Kepatuhan terhadap Regulasi
+
+Implementasi ini memenuhi persyaratan berikut:
+*   **GDPR Art. 32 (Keamanan Pemrosesan):** Implementasi enkripsi end-to-end dan pseudonimisasi tingkat tinggi.
+*   **PP 71/2019 (Indonesia):** Standar teknis keamanan sistem elektronik dan perlindungan data pribadi.
+*   **ISO/IEC 27001:** Kontrol A.10 (Kriptografi) dan A.12 (Operasi yang Aman).
+
+---
+
+##### 3. Penggunaan Script
+
+Script ini dirancang untuk diintegrasikan ke dalam pipeline CI/CD atau dijalankan secara manual sebelum distribusi data.
+
+**Struktur Argumentasi:**
+
+*   `--dpia` (string, wajib): Path absolut ke file `gdpr_dpia_report.json` yang berisi definisi kebijakan masking dan parameter $k$-anonimitas.
+*   `--dataset` (string, wajib): Path ke file data sumber. Mendukung format `.csv` dan `.parquet`.
+*   `--output` (string, wajib): Path tujuan untuk file data hasil transformasi (format akan menyesuaikan sumber, default `.parquet` disarankan untuk performa).
+*   `--dry-run` (flag, opsional): Jika diaktifkan, skrip tidak akan menulis file ke disk. Sebaliknya, skrip akan menampilkan ringkasan statistik transformasi dan sample baris pertama dari data hasil proses di konsol.
+
+**Contoh Eksekusi:**
+
+1.  **Mode Simulasi (Dry Run):**
+    ```bash
+    python compliance_policy_enforcer.py \
+        --dpia ./config/gdpr_dpia_report.json \
+        --dataset ./data/raw/customer_data.parquet \
+        --output ./data/processed/customer_data_anonymized.parquet \
+        --dry-run
+    ```
+    *Output yang diharapkan:* Ringkasan jumlah record yang diproses, daftar kolom yang dimasking, dan preview 5 baris pertama data terenkripsi.
+
+2.  **Mode Produksi (Penulisan File):**
+    ```bash
+    python compliance_policy_enforcer.py \
+        --dpia ./config/gdpr_dpia_report.json \
+        --dataset ./data/raw/customer_data.csv \
+        --output ./data/processed/customer_data_anonymized.parquet
+    ```
+
+3.  **Integrasi dengan Pipeline CI/CD (GitHub Actions Example):**
+    ```yaml
+    - name: Anonymize Sensitive Data
+      run: |
+        python compliance_policy_enforcer.py \
+          --dpia ${{ secrets.DPIA_REPORT_PATH }} \
+          --dataset ${{ github.workspace }}/data/input.csv \
+          --output ${{ github.workspace }}/data/output_clean.parquet \
+          --dry-run
+    ```
+
+##### 4. Panduan Penyusunan File `gdpr_dpia_report.json`
+
+Agar `compliance_policy_enforcer.py` dapat beroperasi dengan benar, file laporan DPIA harus mengikuti schema berikut:
+
+```json
+{
+  "metadata": {
+    "report_id": "GDPR-2023-001",
+    "version": "1.0",
+    "last_updated": "2023-10-27"
+  },
+  "privacy_rules": {
+    "k_anonymity": {
+      "enabled": true,
+      "k_value": 5,
+      "quasi_identifiers": ["age", "zip_code", "gender"]
+    },
+    "masking_rules": [
+      {
+        "column": "email",
+        "method": "partial_mask",
+        "params": {
+          "preserve_prefix": 2,
+          "preserve_suffix": 3,
+          "separator": "***"
+        }
+      },
+      {
+        "column": "national_id",
+        "method": "constant_mask",
+        "params": {
+          "mask_char": "X",
+          "keep_length": true
+        }
+      }
+    ]
+  },
+  "encryption": {
+    "enabled": false,
+    "algorithm": "AES-256-GCM"
+  }
+}
+```
+
+> **Peringatan Auditor:** Pastikan kolom `quasi_identifiers` yang ditentukan dalam JSON benar-benar mewakili variabel yang dapat digunakan untuk mengidentifikasi individu secara tidak langsung. Pemilihan $k$-value harus disesuaikan dengan risiko re-identifikasi berdasarkan ukuran dataset.
