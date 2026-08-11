@@ -9378,3 +9378,130 @@ Agar `compliance_policy_enforcer.py` dapat beroperasi dengan benar, file laporan
 ```
 
 > **Peringatan Auditor:** Pastikan kolom `quasi_identifiers` yang ditentukan dalam JSON benar-benar mewakili variabel yang dapat digunakan untuk mengidentifikasi individu secara tidak langsung. Pemilihan $k$-value harus disesuaikan dengan risiko re-identifikasi berdasarkan ukuran dataset.
+
+
+# Lampiran Teknis: Integrasi Kepatuhan Regulasi & Protokol Audit
+
+Bagian ini menyediakan dokumentasi teknis mendalam mengenai implementasi `gdpr_regulatory_api_connector.py`, protokol pertukaran data standar yang digunakan, dan prosedur penanganan respons negatif (rejection) dari otoritas perlindungan data. Materi ini dirancang sebagai referensi utama bagi auditor kepatuhan lintas yurisdiksi.
+
+## 1. Komponen Integrasi Aktif: `gdpr_regulatory_api_connector.py`
+
+Modul ini berfungsi sebagai jembatan antara sistem internal perusahaan dan otoritas perlindungan data eksternal (misalnya, Otoritas Perlindungan Data Pribadi di Indonesia, GDPR supervisory authority di Eropa, atau CCPA regulator di California). Modul ini tidak hanya bersifat pasif tetapi juga proaktif dalam mendeteksi anomali kepatuhan.
+
+### 1.1 Arsitektur dan Fungsi Utama
+
+Skrip ini bekerja dalam dua mode utama: **Monitoring Berkelanjutan** dan **Notifikasi Proaktif**.
+
+*   **Pemantauan Integritas Data:** Secara periodik membaca `gdpr_dpia_report.json` (Data Protection Impact Assessment) dan `evidence_chain_of_custody.json` untuk memverifikasi bahwa skor risiko tetap dalam batas toleransi yang ditentukan.
+*   **Deteksi Latensi Hak Subjek Data (DSR):** Memantau waktu respons terhadap permintaan "Hak untuk Dilupakan" (*Right to be Forgotten*). Jika waktu pemrosesan melebihi ambang batas regulasi (biasanya 30 hari kerja untuk GDPR, atau 45 hari untuk CCPA dengan perpanjangan), sistem akan memicu notifikasi kritis.
+*   **Pelaporan Otomatis:** Jika terdeteksi perubahan signifikan pada skor risiko atau pelanggaran SLA (Service Level Agreement) kepatuhan, sistem akan memformat laporan compliance dan mengirimkannya ke endpoint regulator melalui API.
+
+### 1.2 Argumentasi Baris Perintah (CLI)
+
+Skrip harus dijalankan menggunakan argumen berikut untuk memastikan konfigurasi yang aman dan dapat dilacak:
+
+```bash
+python gdpr_regulatory_api_connector.py \
+  --regulator-endpoint "https://api.data-protection-authority.id/v1/compliance/submit" \
+  --api-key "${REGULATOR_API_KEY}" \
+  --interval 15 \
+  --output "./logs/regulatory_communication.log"
+```
+
+| Argumen | Tipe | Deskripsi | Wajib? |
+| :--- | :--- | :--- | :--- |
+| `--regulator-endpoint` | `string` | URL API endpoint otoritas perlindungan data. Endpoint ini harus mendukung HTTPS dan autentikasi bearer/token. | Ya |
+| `--api-key` | `string` | Kredensial akses (API Key atau OAuth Token) untuk otoritas. Disarankan untuk mengambil dari *environment variable* daripada hardcode. | Ya |
+| `--interval` | `int` | Frekuensi pemantauan dalam menit. Menentukan seberapa sering file JSON dipindai untuk perubahan. Default: `60`. | Tidak |
+| `--output` | `string` | Path file log untuk mencatat semua komunikasi, timestamp deteksi, dan status pengiriman notifikasi. | Ya |
+
+### 1.3 Mekanisme Deteksi Perubahan Signifikan
+
+Sistem mendefinisikan "perubahan signifikan" berdasarkan dua metrik kunci:
+
+1.  **Perubahan Skor Risiko DPIA:**
+    Jika ada peningkatan skor risiko re-identifikasi (berdasarkan `quasi_identifiers` dan algoritma $k$-anonymity yang sudah dikonfigurasi) yang melebihi batas ambang (`risk_threshold`) yang ditetapkan dalam konfigurasi sistem, sistem akan menganggap hal ini sebagai insiden kepatuhan potensial.
+
+2.  **Pelanggaran Batas Waktu DSR:**
+    Sistem membandingkan `timestamp` permintaan penghapusan data dengan `timestamp` selesainya proses masking/deletion. Jika selisih waktu > `regulatory_time_limit` (misalnya, 30 hari), status DSR ditandai sebagai `NON_COMPLIANT` dan laporan otomatis dikirim ke regulator.
+
+## 2. Protokol Pertukaran Data Standar
+
+Untuk memastikan interoperabilitas dengan berbagai yurisdiksi, sistem ini mengadopsi standar **JSON-LD (JavaScript Object Notation for Linked Data)**. JSON-LD memungkinkan data kepatuhan untuk dibaca tidak hanya oleh mesin, tetapi juga oleh sistem hukum yang memerlukan konteks semantik tentang apa yang dimaksud dengan "Data Pribadi" atau "Penghapusan Data".
+
+### 2.1 Format JSON-LD untuk Pelaporan Keberlanjutan
+
+Berikut adalah contoh struktur JSON-LD yang digunakan saat mengirimkan laporan kepatuhan proaktif ke otoritas:
+
+```json
+{
+  "@context": {
+    "schema": "https://schema.org/",
+    "gdpr": "https://gdpr.eu/schema/",
+    "ccpa": "https://oagis.org/library/CCPA#",
+    "complianceStatus": "schema:status",
+    "riskScore": "https://vocabularies.data.gov/vocab/risk-scores#",
+    "subjectRights": "https://vocabularies.data.gov/vocab/subject-rights/"
+  },
+  "@type": "compliance:Report",
+  "datePublished": "2023-10-27T10:00:00Z",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Perusahaan Anda",
+    "legalName": "PT Contoh Indonesia"
+  },
+  "contentDetails": {
+    "@type": "DataProtectionReport",
+    "currentRiskScore": 12,
+    "thresholdLimit": 20,
+    "status": "COMPLIANT",
+    "lastAuditTimestamp": "2023-10-26T09:00:00Z",
+    "detailedMetrics": {
+      "maskingCoverage": 100,
+      "encryptionAtRest": true,
+      "encryptionInTransit": true,
+      "dsrComplianceRate": 98.5
+    }
+  }
+}
+```
+
+**Penting bagi Auditor:** Pastikan `@context` sesuai dengan yurisdiksi target. Misalnya, untuk laporan ke otoritas Indonesia, sertakan referensi ke regulasi PDP (Perlindungan Data Pribadi) dalam konteks kustom atau gunakan schema standar internasional yang dapat dipetakan kembali ke klausul PDP.
+
+## 3. Prosedur Penanganan Rejection dari Otoritas Eksternal
+
+Ketika otoritas perlindungan data menolak laporan kepatuhan atau menandai insiden sebagai "Non-Compliant", sistem harus menangani respons tersebut dengan ketat untuk menjaga audit trail yang valid.
+
+### 3.1 Matriks Penanganan Respons
+
+| Kode Respons HTTP | Status Kepatuhan | Tindakan Sistem | Tindakan Manuell (Audit) |
+| :--- | :--- | :--- | :--- |
+| `200 OK` | Compliant | Log sukses, hentikan alarm. | Tidak ada. |
+| `400 Bad Request` | Format Error | Reformat payload JSON-LD sesuai error detail. Coba kirim ulang sekali. | Review schema JSON-LD. |
+| `401 Unauthorized` | Akses Ditolak | Rotasi API Key / Token jika tersedia. Jika gagal, hentikan eksekusi dan beri tahu Admin. | Reset kredensial API di portal regulator. |
+| `409 Conflict` | Duplikat/Revisi | Catat ID laporan sebelumnya sebagai "Revisi". Kirim laporan korektif dengan flag `isCorrection: true`. | Tinjau alasan penolakan di portal regulator. |
+| `422 Unprocessable Entity` | Konten Tidak Sah | Identifikasi field yang gagal validasi (misal: skor risiko di luar range). Update konfigurasi lokal. | Kaji ulang metodologi penilaian risiko DPIA. |
+| `4xx General` | Rejection Umum | Tandai status sistem sebagai `PENDING_REGULATORY_REVIEW`. Mulai timer 24 jam untuk follow-up otomatis. | Hubungi legal/compliance officer untuk eskalasi manual. |
+| `5xx Server Error` | Gagal Teknis | Retry dengan backoff exponential. Jika > 3 kali gagal, kirim notifikasi ke tim engineering. | Tidak ada. |
+
+### 3.2 Prosedur Eskalasi Manual
+
+Jika status laporan berubah menjadi `REJECTED` atau `PENDING_REVIEW`, auditor wajib melakukan langkah berikut dalam waktu 48 jam:
+
+1.  **Analisis Root Cause:** Bandingkan data lokal (`gdpr_dpia_report.json`) dengan detail penolakan dari regulator.
+2.  **Koreksi Data:** Perbaiki anomali data yang menyebabkan penolakan (misalnya, kesalahan definisi `quasi_identifiers` atau ketidakakuratan timestamp DSR).
+3.  **Dokumentasi Perbaikan:** Simpan versi sebelumnya dan versi perbaikan dalam `version_control/compliance/` untuk keperluan audit trail.
+4.  **Kirim Ulang:** Jalankan ulang proses pengiriman dengan status `CORRECTED_SUBMISSION`.
+
+## 4. Panduan Keamanan untuk Integrasi API
+
+Untuk menjaga integritas komunikasi dengan otoritas eksternal, ikuti prinsip keamanan berikut:
+
+*   **Enkripsi Saluran:** Semua komunikasi harus menggunakan HTTPS dengan validasi sertifikat SSL/TLS yang ketat. Jangan pernah mengabaikan peringatan sertifikat dalam lingkungan produksi.
+*   **Manajemen Kredensial:** API Key (`--api-key`) tidak boleh disimpan dalam kode sumber. Gunakan *secret manager* atau *environment variables* yang terenkripsi.
+*   **Prinsip Minimal Privilege:** Token atau API Key yang digunakan harus dibatasi hanya pada endpoint pelaporan kepatuhan (`/compliance/submit`). Jangan berikan akses write ke endpoint sensitif seperti `/data/export`.
+*   **Logging Aman:** Pastikan file log (`--output`) tidak menyimpan kredensial sensitif atau data pribadi pelanggan (PII) yang belum dimask. Log hanya harus mencatat metadata komunikasi (timestamp, status code, endpoint).
+
+## 5. Kesimpulan untuk Auditor
+
+Implementasi `gdpr_regulatory_api_connector.py` dan protokol JSON-LD ini menunjukkan komitmen organisasi terhadap transparansi dan kepatuhan proaktif. Dengan mendeteksi risiko secara real-time dan menangani rejection secara terstruktur, organisasi dapat meminimalkan denda regulasi dan meningkatkan kepercayaan pemangku kepentingan. Pastikan untuk meninjau konfigurasi `--interval` dan `risk_threshold` setiap kuartal sesuai dengan perubahan dinamika bisnis dan lanskap regulasi yang berlaku.
