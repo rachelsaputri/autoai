@@ -379,3 +379,141 @@ Contoh bagaimana argumen ini dimanfaatkan dalam pipeline CI/CD:
     name: extracted-ids
     path: changelog_ids_${{ github.sha }}.csv
 ```
+
+
+### Validasi Integritas Data Ekstrak
+
+Setelah ID berhasil diekstrak dan disimpan ke dalam file CSV, langkah kritis berikutnya adalah memastikan kualitas data tersebut. Skrip `extract_ids_to_csv.py` melakukan ekstraksi berdasarkan pola yang ada dalam teks sumber, namun tidak melakukan validasi struktural yang ketat terhadap format ID yang dihasilkan.
+
+Berikut adalah skrip `validate_ids.py` yang dirancang untuk memeriksa setiap baris pada file CSV hasil ekstraksi. Skrip ini akan menandai ID yang tidak sesuai dengan standar format yang diharapkan.
+
+#### Spesifikasi Format ID yang Valid
+
+Skrip ini menggunakan ekspresi reguler (regex) berikut untuk validasi:
+```regex
+^[A-Z]{3}-\d{6}$
+```
+Penjelasan pola:
+- `^` dan `$`: Menandakan awal dan akhir string (ID tidak boleh memiliki karakter tambahan sebelum atau sesudah format).
+- `[A-Z]{3}`: Tepat tiga huruf kapital.
+- `-`: Satu karakter tanda hubung.
+- `\d{6}`: Tepat enam angka.
+
+Contoh ID **Valid**: `ABC-123456`, `XYZ-000001`
+Contoh ID **Tidak Valid**: `abc-123456` (huruf kecil), `AB-1234567` (format salah), `ABC-123` (angka kurang), `ABC_123456` (delimiter salah).
+
+#### Kode Sumber: `validate_ids.py`
+
+Salin kode berikut ke dalam file bernama `validate_ids.py` di direktori yang sama dengan skrip sebelumnya.
+
+```python
+import csv
+import re
+import sys
+
+# Definisi regex untuk format ID: 3 Huruf Besar - 6 Angka
+ID_PATTERN = re.compile(r'^[A-Z]{3}-\d{6}$')
+
+def validate_csv(input_csv_path: str) -> list:
+    """
+    Membaca file CSV dan memvalidasi setiap ID di kolom 'id' (atau kolom pertama).
+    
+    Args:
+        input_csv_path: Path ke file CSV hasil ekstraksi.
+        
+    Returns:
+        Daftar tuple berisi (baris, baris_asli, kesalahan) untuk ID yang tidak valid.
+    """
+    invalid_entries = []
+    
+    try:
+        with open(input_csv_path, mode='r', encoding='utf-8') as csvfile:
+            reader = csv.reader(csvfile)
+            
+            # Mengabaikan header jika ada, atau memproses semua baris tergantung kebutuhan.
+            # Di sini kita memproses semua baris untuk deteksi lengkap.
+            for line_number, row in enumerate(reader, start=1):
+                if not row:
+                    continue
+                
+                # Asumsi: Kolom pertama adalah ID. 
+                # Jika struktur CSV Anda berbeda, sesuaikan indeksnya (misal row[1]).
+                raw_id = row[0].strip()
+                
+                # Memastikan sel tidak kosong
+                if not raw_id:
+                    continue
+                    
+                # Validasi Regex
+                if not ID_PATTERN.match(raw_id):
+                    invalid_entries.append({
+                        'line': line_number,
+                        'raw_id': raw_id,
+                        'error': 'Format tidak sesuai dengan standar [A-Z]{3}-\d{6}'
+                    })
+                    
+    except FileNotFoundError:
+        print(f"Error: File '{input_csv_path}' tidak ditemukan.", file=sys.stderr)
+        sys.exit(1)
+    except IndexError:
+        print(f"Error: File CSV kosong atau tidak memiliki kolom data.", file=sys.stderr)
+        sys.exit(1)
+        
+    return invalid_entries
+
+def main():
+    if len(sys.argv) < 2:
+        print("Penggunaan: python validate_ids.py <path_file_csv>")
+        sys.exit(1)
+        
+    csv_file = sys.argv[1]
+    print(f"Memvalidasi ID dari: {csv_file}...")
+    
+    invalid_data = validate_csv(csv_file)
+    
+    if not invalid_data:
+        print("✅ Semua ID valid! Tidak ditemukan pelanggaran format.")
+    else:
+        print(f"
+⚠️ Ditemukan {len(invalid_data)} ID tidak valid:")
+        print("-" * 50)
+        for entry in invalid_data:
+            print(f"Baris #{entry['line']}: '{entry['raw_id']}'")
+        print("-" * 50)
+        sys.exit(1) # Exit code 1 menandakan ada error validasi
+
+if __name__ == "__main__":
+    main()
+```
+
+#### Cara Penggunaan
+
+Skrip ini menerima path ke file CSV sebagai argumen positional.
+
+```bash
+# Validasi file hasil ekstraksi default
+python validate_ids.py results.csv
+
+# Validasi file spesifik dari pipeline CI/CD
+python validate_ids.py changelog_ids_a1b2c3d4.csv
+```
+
+#### Integrasi dengan Pipeline CI/CD
+
+Skrip validasi sangat berguna untuk mencegah "garbage in, garbage out" pada sistem downstream. Anda dapat menambahkannya sebagai tahap verifikasi setelah ekstraksi di GitHub Actions.
+
+Tambahkan langkah berikut di setelah langkah *Ekstrak ID* pada file YAML Anda:
+
+```yaml
+  - name: Validasi Format ID
+    run: |
+      python validate_ids.py changelog_ids_${{ github.sha }}.csv
+```
+
+Jika skrip menemukan ID yang tidak valid, workflow akan gagal (fail). Ini memberikan umpan balik instan kepada pengembang bahwa ada anomali dalam log atau changelog yang mungkin melewatkan pola ekstraksi awal, sehingga dapat segera diperbaiki sebelum artifact diunggah.
+
+#### Pertimbangan Tambahan
+
+1.  **Struktur CSV**: Kode di atas mengasumsikan ID berada di **kolom pertama** (index `0`) dari setiap baris CSV. Jika skrip `extract_ids_to_csv.py` Anda menghasilkan header CSV atau kolom lain sebagai kolom pertama, Anda mungkin perlu menyesuaikan indeks `row[0]` atau menambahkan parameter untuk menentukan nama kolom ID.
+2.  **Encoding**: Skrip menggunakan `utf-8` secara default. Jika file sumber Anda menggunakan encoding lain (seperti `latin-1`), sesuaikan parameter `encoding` pada fungsi `open()`.
+3.  **Ekspansi Regex**: Jika standar ID perusahaan Anda berkembang (misalnya menambahkan angka di awal atau huruf di akhir), Anda cukup memperbarui variabel `ID_PATTERN` di bagian atas skrip tanpa perlu mengubah logika inti.
