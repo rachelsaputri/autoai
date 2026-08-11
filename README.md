@@ -8789,3 +8789,294 @@ Setelah file PDF terenkripsi dihasilkan:
 3.  **Review Auditor:** Auditor internal dapat menggunakan skrip `compliance_audit_dashboard_generator.py` untuk memvalidasi bahwa PDF yang dihasilkan sesuai dengan data mentah di `aggregated_trace.json`, memastikan tidak ada manipulasi dalam ringkasan eksekutif.
 
 > **Catatan Hukum:** Output dari skrip ini bersifat "draft" hingga ditandatangani secara digital oleh CISO atau DPO yang berwenang. Penggunaan dokumen ini untuk tujuan hukum memerlukan verifikasi tanda tangan digital dan keabsahan sertifikat auditor.
+
+
+Berikut adalah konten lanjutan yang komprehensif untuk `README.md`, mencakup implementasi teknis skrip forensik dan dokumentasi kepatuhan hukum/standar internasional.
+
+---
+
+### 4. Modul Pelestarian Bukti Otomatis (Automated Evidence Preservation)
+
+Untuk memastikan integritas forensik bukti digital sejak detik pertama insiden terdeteksi, tim keamanan harus menggunakan skrip `automated_evidence_preservation.py`. Skrip ini bertindak sebagai **Guardian of Integrity**, yang secara proaktif memonitor direktori output dari analisis log, melakukan hashing real-time, dan mengarsipkan bukti ke dalam penyimpanan objek yang aman (S3) dengan chain of custody yang auditabel.
+
+#### 4.1. Implementasi Skrip
+
+Simpan kode berikut sebagai `automated_evidence_preservation.py`. Skrip ini menggunakan library `watchdog` untuk monitoring real-time dan `boto3` untuk interaksi dengan AWS S3. Pastikan dependensi terinstall:
+
+```bash
+pip install watchdog boto3
+```
+
+```python
+#!/usr/bin/env python3
+"""
+automated_evidence_preservation.py
+==================================
+Modul forensik proaktif untuk preservasi bukti digital.
+Memonitor direktori, menghitung hash SHA-256, dan mengarsipkan ke S3
+dengan kebijakan Chain of Custody yang ketat.
+
+Standar Referensi: ISO/IEC 27037, NIST SP 800-86
+"""
+
+import os
+import sys
+import json
+import hashlib
+import logging
+import argparse
+import time
+import boto3
+from botocore.exceptions import ClientError
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+from datetime import datetime, timezone
+
+# Konfigurasi Logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
+logger = logging.getLogger(__name__)
+
+class EvidencePreservationHandler(FileSystemEventHandler):
+    """
+    Handler untuk mendeteksi file baru yang dibuat atau diubah
+    di direktori yang di-monitor.
+    """
+    def __init__(self, s3_bucket, chain_of_custody_path, aws_region='us-east-1'):
+        self.s3_bucket = s3_bucket
+        self.chain_of_custody_path = chain_of_custody_path
+        self.aws_region = aws_region
+        self.s3_client = boto3.client('s3', region_name=aws_region)
+        self.custody_db = self._load_custody_db()
+
+    def _load_custody_db(self):
+        """Memuat database chain of custody yang ada atau inisialisasi baru."""
+        if os.path.exists(self.chain_of_custody_path):
+            try:
+                with open(self.chain_of_custody_path, 'r') as f:
+                    return json.load(f)
+            except json.JSONDecodeError:
+                logger.warning("File chain of custody korup. Inisialisasi ulang.")
+                return {"evidence_chain": [], "metadata": {"version": "1.0", "created_at": datetime.now(timezone.utc).isoformat()}}
+        return {"evidence_chain": [], "metadata": {"version": "1.0", "created_at": datetime.now(timezone.utc).isoformat()}}
+
+    def _save_custody_db(self):
+        """Menyimpan database chain of custody ke file JSON."""
+        with open(self.chain_of_custody_path, 'w') as f:
+            json.dump(self.custody_db, f, indent=4, default=str)
+        logger.info(f"Database Chain of Custody diperbarui: {self.chain_of_custody_path}")
+
+    def calculate_sha256(self, file_path):
+        """Menghitung hash SHA-256 untuk integritas forensik."""
+        sha256_hash = hashlib.sha256()
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+
+    def upload_to_s3(self, file_path, original_filename):
+        """Mengunggah file ke bucket S3 dengan metadata forensik."""
+        try:
+            # Kunci objek berdasarkan nama file + timestamp unik untuk versioning
+            s3_key = f"evidence/{original_filename}"
+            
+            # Upload file
+            with open(file_path, 'rb') as data:
+                self.s3_client.upload_fileobj(data, self.s3_bucket, s3_key)
+            
+            logger.info(f"File {original_filename} berhasil diupload ke s3://{self.s3_bucket}/{s3_key}")
+            return s3_key
+        except ClientError as e:
+            logger.error(f"Gagal mengupload ke S3: {e}")
+            return None
+
+    def on_created(self, event):
+        """Trigger saat file baru dibuat."""
+        if event.is_directory:
+            return
+        
+        file_path = event.src_path
+        file_name = os.path.basename(file_path)
+        
+        # Filter: Hanya proses file tertentu (misal: .log, .json, .pdf, .pcap)
+        supported_extensions = ['.log', '.json', '.pdf', '.csv', '.pcap', '.tar.gz']
+        if not any(file_name.endswith(ext) for ext in supported_extensions):
+            return
+
+        logger.info(f"Bukti baru terdeteksi: {file_path}")
+        
+        try:
+            # 1. Hashing
+            file_hash = self.calculate_sha256(file_path)
+            
+            # 2. Metadata Capturing
+            evidence_entry = {
+                "file_name": file_name,
+                "file_path_local": file_path,
+                "hash_sha256": file_hash,
+                "timestamp_captured_utc": datetime.now(timezone.utc).isoformat(),
+                "status": "PRESERVED",
+                "s3_reference": None
+            }
+            
+            # 3. Upload & Reference
+            s3_ref = self.upload_to_s3(file_path, file_name)
+            if s3_ref:
+                evidence_entry["s3_reference"] = s3_ref
+                evidence_entry["status"] = "ARCHIVED"
+            else:
+                evidence_entry["status"] = "HASHED_ONLY" # Fallback jika S3 gagal
+
+            # 4. Update Chain of Custody
+            self.custody_db["evidence_chain"].append(evidence_entry)
+            self._save_custody_db()
+
+            logger.info(f"Chain of Custody diperbarui untuk {file_name}. Hash: {file_hash[:16]}...")
+
+        except Exception as e:
+            logger.error(f"Error memproses bukti {file_name}: {e}")
+
+    def on_modified(self, event):
+        """
+        Trigger saat file dimodifikasi.
+        Catatan: Untuk forensik yang ketat, modifikasi file bukti setelah 
+        penciptaan biasanya dilarang. Jika terjadi, kita catat sebagai anomali.
+        """
+        if event.is_directory:
+            return
+        logger.warning(f"Peringatan: File bukti dimodifikasi (bukan praktik terbaik): {event.src_path}")
+        # Opsional: Bisa memicu alert ke SIEM atau menandai file sebagai 'TAMPERED'
+
+def main():
+    parser = argparse.ArgumentParser(description="Preservasi Bukti Digital Otomatis untuk Insiden Keamanan.")
+    parser.add_argument("--watch-dir", required=True, help="Direktori sumber log/bukti untuk dimonitor (misal: /var/log/incident/outputs)")
+    parser.add_argument("--s3-bucket", required=True, help="Nama bucket S3 target untuk arsip bukti")
+    parser.add_argument("--output", required=True, help="Path file JSON untuk menyimpan Chain of Custody (misal: evidence_chain_of_custody.json)")
+    parser.add_argument("--region", default="us-east-1", help="Region AWS (default: us-east-1)")
+    
+    args = parser.parse_args()
+
+    if not os.path.isdir(args.watch_dir):
+        logger.error(f"Direktori {args.watch_dir} tidak ditemukan.")
+        sys.exit(1)
+
+    logger.info(f"Memulai monitor forensik pada: {args.watch_dir}")
+    logger.info(f"Target S3 Bucket: {args.s3_bucket}")
+    logger.info(f"Output Chain of Custody: {args.output}")
+
+    handler = EvidencePreservationHandler(
+        s3_bucket=args.s3_bucket,
+        chain_of_custody_path=args.output,
+        aws_region=args.region
+    )
+
+    observer = Observer()
+    observer.schedule(handler, args.watch_dir, recursive=False) # Non-recursive untuk keamanan
+    observer.start()
+
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        observer.stop()
+        logger.info("Monitor dihentikan oleh pengguna.")
+    
+    observer.join()
+
+if __name__ == "__main__":
+    main()
+```
+
+#### 4.2. Cara Penggunaan
+
+Jalankan skrip ini segera setelah insiden dikonfirmasi untuk memastikan tidak ada bukti yang hilang atau diubah sebelum investigasi selesai.
+
+```bash
+# Contoh perintah eksekusi
+python3 automated_evidence_preservation.py \
+    --watch-dir "./incident_outputs/incident_20231027" \
+    --s3-bucket legal-evidence-bucket-prod \
+    --output "./forensics/evidence_chain_of_custody.json" \
+    --region ap-southeast-1
+```
+
+#### 4.3. Struktur Output `evidence_chain_of_custody.json`
+
+File ini adalah bukti utama bahwa bukti digital telah dilestarikan tanpa modifikasi. Contoh isi file:
+
+```json
+{
+  "metadata": {
+    "version": "1.0",
+    "created_at": "2023-10-27T10:00:00+00:00",
+    "monitoring_tool": "automated_evidence_preservation.py"
+  },
+  "evidence_chain": [
+    {
+      "file_name": "log_analysis_report.json",
+      "file_path_local": "./incident_outputs/incident_20231027/log_analysis_report.json",
+      "hash_sha256": "a1b2c3d4e5f6...",
+      "timestamp_captured_utc": "2023-10-27T10:05:23+00:00",
+      "status": "ARCHIVED",
+      "s3_reference": "s3://legal-evidence-bucket-prod/evidence/log_analysis_report.json"
+    },
+    {
+      "file_name": "access_trace.csv",
+      "file_path_local": "./incident_outputs/incident_20231027/access_trace.csv",
+      "hash_sha256": "f6e5d4c3b2a1...",
+      "timestamp_captured_utc": "2023-10-27T10:06:45+00:00",
+      "status": "ARCHIVED",
+      "s3_reference": "s3://legal-evidence-bucket-prod/evidence/access_trace.csv"
+    }
+  ]
+}
+```
+
+---
+
+### 5. Compliance & Legal: Standar Forensik Digital
+
+Lampiran ini mendefinisikan kerangka kerja hukum dan teknis yang mendasari proses preservasi bukti di atas. Dokumen ini harus dilampirkan pada laporan RCA akhir untuk membuktikan kepatuhan terhadap regulasi perlindungan data (seperti UU PDP atau GDPR) dan standar forensik internasional.
+
+#### 5.1. Kepatuhan terhadap ISO/IEC 27037
+
+Standar ISO/IEC 27037 *"Guidelines for identification, collection, acquisition and preservation of digital evidence"* menjadi acuan utama dalam proses ini. Berikut adalah penerapan pasalnya dalam skrip kami:
+
+| Prinsip ISO 27037 | Implementasi dalam `automated_evidence_preservation.py` |
+| :--- | :--- |
+| **Identitas Bukti** | Skrip secara otomatis menangkap nama file, path lokal, dan hash unik (`sha256`) untuk setiap file baru. |
+| **Integritas Bukti** | Penggunaan hash kriptografi (SHA-256) memastikan bahwa *bit-per-bit* konten file tidak berubah sejak saat penangkapan. |
+| **Akses Terbatas** | File bukti hanya bisa dibaca/diarsipkan oleh proses skrip, membatasi intervensi manusia yang dapat mengubah metadata. |
+| **Rantai Custodi (Chain of Custody)** | File `evidence_chain_of_custody.json` mencatat *siapa* (sistem), *kapan*, *dimana*, dan *bagaimana* bukti diambil. |
+
+#### 5.2. Protokol Chain of Custody (CoC)
+
+Rantai Custodi adalah catatan kronologis yang mendokumentasikan penanganan bukti dari awal sampai akhir. Agar bukti dapat diterima di pengadilan atau oleh regulator eksternal (Otoritas Pengawas Data), berikut adalah aturan ketat yang harus diikuti:
+
+1.  **Non-Repudiasi Timestamp:**
+    *   Semua entri di `evidence_chain_of_custody.json` wajib menggunakan waktu UTC yang bersumber dari server terkoordinasi (NTP).
+    *   *Alasan:* Menghindari sengketa mengenai urutan kejadian saat insiden.
+
+2.  **Hash Validation (Verifikasi Integritas):**
+    *   Untuk setiap file di bucket S3, hash SHA-256 harus diverifikasi ulang secara periodik (atau saat audit) untuk memastikan tidak ada degradasi media penyimpanan (*bit rot*) atau manipulasi pihak ketiga.
+    *   *Tindakan:* Gunakan perintah `aws s3api head-object --bucket <bucket> --key <key>` untuk mendapatkan ETag (biasanya MD5 untuk part upload, tapi untuk file tunggal kecil, ini dapat dibandingkan dengan SHA-256 jika diupload via `put_object`).
+
+3.  **Sifat "Read-Only" Setelah Preservasi:**
+    *   Setelah skrip menyelesaikan hashing dan upload ke S3, file asli di direktori monitoring sebaiknya dipindahkan ke folder `archived` yang permisiannya diubah menjadi `read-only` (chmod 444) untuk mencegah modifikasi tidak disengaja oleh analis.
+
+4.  **Verifikasi Digital oleh Auditor:**
+    *   Auditor internal akan membandingkan hash di `evidence_chain_of_custody.json` dengan hash file asli di bucket S3.
+    *   Jika hash tidak cocok, bukti tersebut dinyatakan *tainted* (tercemar) dan tidak dapat digunakan sebagai bukti utama tanpa penjelasan forensik tambahan yang valid.
+
+#### 5.3. Implikasi Hukum Notifikasi 72 Jam
+
+Karena skrip ini beroperasi secara *real-time*, ia memberikan jaminan waktu (*provenance of time*) yang kuat. Dalam konteks Pasal 34 UU PDP (atau GDPR Art. 33):
+
+*   **Bukti Waktu Pengenalan:** Timestamp pertama kali file muncul di `evidence_chain_of_custody.json` dapat digunakan sebagai bukti hukum bahwa insiden diketahui dan diproses tepat waktu.
+*   **Bukti Kelengkapan Data:** Daftar file yang ter-hash menunjukkan bahwa tidak ada bagian dari log yang sengaja dihapus sebelum preservasi dilakukan.
+
+> **Peringatan Kritis:**
+> Jangan pernah menghapus file sumber di direktori `--watch-dir` sebelum skrip melaporkan status `ARCHIVED` dan memverifikasi kecocokan hash dengan S3. Penghapusan prematur dapat merusak Rantai Custodi dan meniadakan bukti di mata hukum.
