@@ -722,3 +722,299 @@ Anda dapat menambahkan langkah ini setelah `validate_ids.py` berhasil dijalankan
 ```
 
 Langkah ini memastikan bahwa setiap kali pipeline berjalan, Anda mendapatkan arsip dokumentasi yang dapat diunduh untuk keperluan audit atau referensi cepat tanpa perlu membuka log GitHub Actions.
+
+
+Berikut adalah materi lanjutan untuk dokumen `README.md` Anda. Konten ini dirancang untuk melengkapi bagian sebelumnya dengan memberikan solusi visualisasi data pasca-validasi.
+
+---
+
+### Visualisasi Dashboard Interaktif
+
+Setelah dokumentasi Markdown (`ID_MANUAL.md`) dihasilkan, langkah selanjutnya adalah mengubah data tersebut menjadi visual yang mudah dicerna. Skrip `dashboard_generator.py` dirancang khusus untuk membaca file Markdown hasil validasi, mengekstraksi statistik kunci (total ID, status valid/gagal, distribusi), dan menghasilkan file HTML statis yang interaktif.
+
+Dashboard ini menggunakan **Jinja2** untuk templating dan **Chart.js** untuk rendering grafik, memungkinkan Anda melihat status validasi secara real-time langsung di browser tanpa memerlukan server backend.
+
+#### 1. Prasyarat
+
+Pastikan Anda telah menginstal pustaka `jinja2` dan `chartjs` (jika diperlukan untuk fitur lanjutan, namun skrip ini menggunakan CDN Chart.js sehingga tidak perlu instalasi lokal untuk grafik).
+
+```bash
+pip install jinja2
+```
+
+#### 2. Cara Penggunaan
+
+Jalankan skrip dengan menentukan path ke file Markdown input dan path output HTML.
+
+```bash
+python dashboard_generator.py --input docs/ID_MANUAL.md --output docs/dashboard.html
+```
+
+**Argumen:**
+- `--input` (required): Path ke file `ID_MANUAL.md` yang dihasilkan oleh pipeline sebelumnya.
+- `--output` (default: `dashboard.html`): Path tempat file HTML dashboard akan disimpan.
+
+#### 3. Fitur Dashboard
+
+File `index.html` yang dihasilkan mencakup:
+1.  **Ringkasan Statistik**: Kartu ringkasan yang menampilkan Total ID, Jumlah Valid, dan Jumlah Invalid.
+2.  **Grafik Batang (Bar Chart)**: Visualisasi distribusi status validasi menggunakan Chart.js.
+3.  **Tabel Detail**: Daftar lengkap semua ID beserta status validasinya, lengkap dengan tombol pencarian dan pemfilteran (sorting) bawaan browser.
+
+#### 4. Kode Skrip: `dashboard_generator.py`
+
+Simpan kode berikut sebagai `dashboard_generator.py` dalam direktori proyek Anda.
+
+```python
+import argparse
+import re
+import json
+from pathlib import Path
+from jinja2 import Template
+
+# Template Jinja2 untuk Dashboard HTML
+# Menggunakan CDN Chart.js sehingga tidak perlu instalasi library JS
+DASHBOARD_TEMPLATE = """
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Validasi ID</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 20px; background-color: #f4f6f9; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #333; text-align: center; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: #fff; padding: 20px; border-radius: 8px; border-left: 5px solid #007bff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .stat-card.valid { border-left-color: #28a745; }
+        .stat-card.invalid { border-left-color: #dc3545; }
+        .stat-card h3 { margin: 0 0 10px 0; font-size: 14px; color: #666; text-transform: uppercase; }
+        .stat-card p { margin: 0; font-size: 24px; font-weight: bold; color: #333; }
+        .chart-container { margin-bottom: 30px; height: 300px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f8f9fa; font-weight: 600; }
+        tr:hover { background-color: #f1f1f1; }
+        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .status-valid { background-color: #d4edda; color: #155724; }
+        .status-invalid { background-color: #f8d7da; color: #721c24; }
+        .search-box { margin-bottom: 15px; padding: 10px; width: 100%; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dashboard Validasi ID</h1>
+        
+        <!-- Ringkasan Statistik -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total ID</h3>
+                <p>{{ total_ids }}</p>
+            </div>
+            <div class="stat-card valid">
+                <h3>Valid</h3>
+                <p>{{ valid_count }}</p>
+            </div>
+            <div class="stat-card invalid">
+                <h3>Invalid</h3>
+                <p>{{ invalid_count }}</p>
+            </div>
+        </div>
+
+        <!-- Grafik Chart.js -->
+        <div class="chart-container">
+            <canvas id="validationChart"></canvas>
+        </div>
+
+        <!-- Tabel Detail -->
+        <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Cari ID..." class="search-box">
+        <table id="detailsTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Status</th>
+                    <th>Pesan Validasi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td>
+                        <span class="status-badge {% if item.status == 'Valid' %}status-valid{% else %}status-invalid{% endif %}">
+                            {{ item.status }}
+                        </span>
+                    </td>
+                    <td>{{ item.message }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Inisialisasi Chart
+        const ctx = document.getElementById('validationChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Valid', 'Invalid'],
+                datasets: [{
+                    label: 'Jumlah ID',
+                    data: [{{ valid_count }}, {{ invalid_count }}],
+                    backgroundColor: ['#28a745', '#dc3545'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                }
+            }
+        });
+
+        // Fungsi Pencarian Tabel Sederhana
+        function filterTable() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("searchInput");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("detailsTable");
+            tr = table.getElementsByTagName("tr");
+            for (i = 1; i < tr.length; i++) { // Mulai dari 1 untuk melewati header
+                td = tr[i].getElementsByTagName("td")[0]; // Kolom pertama adalah ID
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+"""
+
+def parse_markdown_to_stats(md_file_path: str) -> dict:
+    """
+    Memparse file ID_MANUAL.md untuk mengekstrak data statistik dan detail.
+    
+    Asumsi format ID_MANUAL.md:
+    - Header berisi judul.
+    - Baris tabel markdown untuk setiap ID: | ID | Status | Pesan |
+    """
+    items = []
+    valid_count = 0
+    invalid_count = 0
+    
+    try:
+        with open(md_file_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+            
+        for line in lines:
+            line = line.strip()
+            # Mencari baris yang mengandung pipa '|' dan bukan header
+            if '|' in line and line.startswith('|'):
+                # Split baris berdasarkan pipa
+                parts = [p.strip() for p in line.split('|')[1:-1]]
+                
+                # Pastikan format minimal ada ID, Status, Pesan
+                if len(parts) >= 2:
+                    id_val = parts[0]
+                    status = parts[1]
+                    message = parts[2] if len(parts) > 2 else ""
+                    
+                    items.append({
+                        "id": id_val,
+                        "status": status,
+                        "message": message
+                    })
+                    
+                    if status.lower() == 'valid':
+                        valid_count += 1
+                    else:
+                        invalid_count += 1
+                        
+    except FileNotFoundError:
+        print(f"Error: File {md_file_path} tidak ditemukan.")
+        exit(1)
+    except Exception as e:
+        print(f"Terjadi kesalahan saat memparse file: {e}")
+        exit(1)
+        
+    return {
+        "items": items,
+        "total_ids": len(items),
+        "valid_count": valid_count,
+        "invalid_count": invalid_count
+    }
+
+def generate_dashboard(data: dict, output_path: str):
+    """
+    Menghasilkan file HTML menggunakan template Jinja2.
+    """
+    template = Template(DASHBOARD_TEMPLATE)
+    html_content = template.render(**data)
+    
+    try:
+        output_dir = Path(output_path).parent
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(html_content)
+            
+        print(f"Dashboard berhasil dibuat di: {output_path}")
+        
+    except Exception as e:
+        print(f"Error saat menulis file HTML: {e}")
+        exit(1)
+
+def main():
+    parser = argparse.ArgumentParser(description="Generate Dashboard HTML dari file ID_MANUAL.md")
+    parser.add_argument('--input', required=True, help='Path ke file ID_MANUAL.md input.')
+    parser.add_argument('--output', default='dashboard.html', help='Path file output HTML (default: dashboard.html).')
+    
+    args = parser.parse_args()
+    
+    print(f"Membaca data dari: {args.input}")
+    stats_data = parse_markdown_to_stats(args.input)
+    
+    print("Menghasilkan dashboard HTML...")
+    generate_dashboard(stats_data, args.output)
+
+if __name__ == "__main__":
+    main()
+```
+
+#### 5. Integrasi ke Pipeline CI/CD (Lanjutan)
+
+Untuk mengotomatisasi pembuatan dashboard setiap kali validasi berhasil, tambahkan langkah baru di akhir workflow GitHub Actions Anda. Langkah ini akan memanggil `dashboard_generator.py` setelah `generate_doc.py` selesai.
+
+```yaml
+          - name: Generate ID Documentation
+            if: success()
+            run: |
+              python generate_doc.py --csv changelog_ids_${{ github.sha }}.csv --output docs/ID_MANUAL_${{ github.sha }}.md
+
+          # TAMBAHKAN LANGKAH BARU INI
+          - name: Generate Dashboard HTML
+            if: success()
+            run: |
+              python dashboard_generator.py --input docs/ID_MANUAL_${{ github.sha }}.md --output docs/dashboard_${{ github.sha }}.html
+
+          - name: Upload Documentation Artifact
+            uses: actions/upload-artifact@v3
+            with:
+              name: id-manual-report
+              path: |
+                docs/ID_MANUAL_*.md
+                docs/dashboard_*.html
+```
+
+Dengan perubahan ini, artifact yang diunduh tidak hanya berisi dokumentasi teks (`ID_MANUAL.md`), tetapi juga file `dashboard.html` yang dapat dibuka langsung di browser untuk inspeksi visual cepat.
