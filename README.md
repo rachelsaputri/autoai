@@ -5058,3 +5058,247 @@ Orchestrator tidak memicu remediasi untuk semua anomali. Ia menerapkan filter be
 *   **Logging**: Semua aksi remediasi dan kegagalan harus dicatat ke log terpusat (misalnya, ELK Stack atau CloudWatch) untuk audit trail di masa depan.
 
 Dengan mengintegrasikan `anomaly_response_orchestrator.py`, Anda mengubah pipeline dari sekadar alat observasi menjadi sistem defensif aktif yang mampu merespons ancaman secara real-time.
+
+
+##### Orkestrasi Pipeline dengan `pipeline_orchestrator.py`
+
+Untuk memfasilitasi alur kerja end-to-end yang koheren, paket ini menyertakan `pipeline_orchestrator.py`. Skrip ini bertindak sebagai *entry point* utama yang mengelola eksekusi berurutan dari seluruh modul dalam pipeline: dari ekstraksi data (`id_exporter.py`) hingga respons otomatis (`anomaly_response_orchestrator.py`). Selain menjalankan langkah demi langkah, skrip ini juga mencakup mekanisme ketahanan (resilience) melalui *retry logic* dan *rollback* otomatis jika terjadi kegagalan pada tahap kritis.
+
+**Fitur Utama:**
+*   **Eksekusi Berurutan:** Menjalankan setiap modul dalam urutan logis untuk memastikan integritas data antar tahap.
+*   **Konfigurasi Terpusat:** Mendukung file konfigurasi YAML untuk mengatur parameter setiap modul secara dinamis tanpa mengubah kode sumber.
+*   **Manajemen Lingkungan:** Mendukung variabel lingkungan dan flag untuk membedakan antara lingkungan pengembangan (`development`) dan produksi (`production`).
+*   **Mekanisme Retry & Rollback:** Secara otomatis mencoba ulang langkah yang gagal hingga batas maksimum konfigurasi, dan jika gagal terus-menerus, akan membalikkan dampak dari langkah-langkah sebelumnya (jika didukung oleh modul yang bersangkutan) untuk menjaga konsistensi sistem.
+
+###### Argumentasi Skrip
+
+| Argumen | Deskripsi | Default |
+| :--- | :--- | :--- |
+| `--config <path>` | Path absolut atau relatif ke file konfigurasi YAML pipeline. Wajib disertakan. | N/A |
+| `--env <environment>` | Lingkungan eksekusi (`development` atau `production`). Mempengaruhi tingkat verbose logging dan batas retry. | `development` |
+| `--max-retries <int>` | Jumlah maksimal percobaan ulang untuk setiap tahap yang gagal. | `3` |
+| `--disable-rollback` | Jika flag ini disertakan, sistem tidak akan mencoba membalikkan perubahan jika remediasi gagal. | `False` |
+
+###### Contoh Penggunaan
+
+Jalankan pipeline penuh dengan konfigurasi produksi dan logging verbose:
+
+```bash
+python pipeline_orchestrator.py --config ./config/pipeline_config.yaml --env production --max-retries 5
+```
+
+Jalankan dalam mode development dengan menonaktifkan fitur rollback (mode eksperimen):
+
+```bash
+python pipeline_orchestrator.py --config ./config/dev_config.yaml --env development --disable-rollback
+```
+
+###### Struktur Konfigurasi YAML
+
+File konfigurasi YAML harus didefinisikan sesuai dengan struktur berikut. Setiap tahap dapat memiliki parameternya sendiri yang akan diteruskan ke modul yang bersangkutan.
+
+```yaml
+pipeline:
+  name: "Security Anomaly Response Pipeline"
+  stages:
+    - name: "id_exporter"
+      module: "id_exporter"
+      enabled: true
+      params:
+        input_dir: "/var/data/raw_logs"
+        output_file: "output/exported_ids.json"
+    
+    - name: "statistical_analysis"
+      module: "statistical_analysis"
+      enabled: true
+      params:
+        window_size: 3600
+        output_file: "output/statistical_anomalies.csv"
+
+    - name: "correlation_analysis"
+      module: "correlation_analysis"
+      enabled: true
+      params:
+        json_input: "output/exported_ids.json"
+        csv_input: "output/statistical_anomalies.csv"
+        output_file: "output/correlation_analysis.json"
+
+    - name: "auto_remediation"
+      module: "anomaly_response_orchestrator"
+      enabled: true
+      params:
+        dry_run: false
+        webhook_url: "https://hooks.slack.com/services/..."
+        correlation_threshold: 0.8
+
+  settings:
+    max_retries: 3
+    enable_rollback: true
+    log_level: "INFO"
+```
+
+###### Logika Retry dan Rollback
+
+1.  **Retry Logic:** Jika sebuah tahap (stage) mengembalikan kode exit non-nol, orchestrator akan mencatat kegagalan dan mencoba mengeksekusi ulang tahap tersebut hingga `max_retries` tercapai. Jeda antar percobaan menggunakan *exponential backoff* untuk mengurangi beban pada sumber daya sistem.
+2.  **Rollback Mechanism:** Jika `max_retries` tercapai dan tahap tetap gagal:
+    *   Jika `enable_rollback` adalah `true`, orchestrator akan mengidentifikasi semua tahap yang *sukses* sebelum tahap yang gagal.
+    *   Orchestrator akan memanggil fungsi `undo()` atau mekanisme serupa pada modul-modul tersebut untuk mengembalikan sistem ke kondisi sebelumnya.
+    *   Notifikasi kegagalan dikirimkan ke tim keamanan (jika webhook terkonfigurasi).
+    *   Eksekusi pipeline dihentikan dengan kode error.
+
+---
+
+### Deployment and Operations
+
+Bagian ini menjelaskan metode deployment yang direkomendasikan untuk menjalankan `pipeline_orchestrator.py` dalam lingkungan produksi. Dua metode utama didukung: **Systemd Service** (untuk server berbasis Linux) dan **Kubernetes Pod** (untuk arsitektur containerized).
+
+#### 1. Deployment dengan Systemd (Linux)
+
+Method ini cocok untuk server dedicated yang menjalankan pipeline sebagai proses persisten.
+
+**Langkah 1: Buat User Khusus**
+Sebaiknya jalankan service dengan user non-root untuk keamanan.
+```bash
+sudo useradd --system --no-create-home --shell /bin/false pipeline_user
+```
+
+**Langkah 2: Buat File Service**
+Buat file `/etc/systemd/system/pipeline-orchestrator.service` dengan konten berikut:
+
+```ini
+[Unit]
+Description=Security Anomaly Response Pipeline Orchestrator
+After=network.target postgresql.service # Sesuaikan dengan dependensi layanan lain
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=pipeline_user
+Group=pipeline_user
+WorkingDirectory=/opt/pipeline
+ExecStart=/usr/bin/python3 /opt/pipeline/pipeline_orchestrator.py --config /opt/pipeline/config/pipeline_config.yaml --env production
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Keamanan Lingkungan
+ProtectSystem=strict
+ReadWritePaths=/opt/pipeline/output /opt/pipeline/logs
+Environment=WEBHOOK_URL=https://hooks.slack.com/services/...
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
+```
+
+**Langkah 3: Aktifkan dan Jalankan Service**
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable pipeline-orchestrator
+sudo systemctl start pipeline-orchestrator
+sudo systemctl status pipeline-orchestrator
+```
+
+**Log Management:**
+Gunakan `journalctl` untuk memantau log secara real-time:
+```bash
+sudo journalctl -u pipeline-orchestrator -f
+```
+
+#### 2. Deployment dengan Kubernetes
+
+Method ini direkomendasikan untuk lingkungan cloud-native yang membutuhkan skalabilitas dan manajemen lifecycle otomatis.
+
+**Manifest Deployment (`pipeline-deployment.yaml`)**
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: anomaly-pipeline
+  namespace: security-ops
+  labels:
+    app: anomaly-pipeline
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: anomaly-pipeline
+  template:
+    metadata:
+      labels:
+        app: anomaly-pipeline
+    spec:
+      containers:
+      - name: pipeline-orchestrator
+        image: your-registry/anomaly-pipeline:latest
+        command: ["python", "pipeline_orchestrator.py"]
+        args: ["--config", "/app/config/pipeline_config.yaml", "--env", "production"]
+        env:
+        - name: WEBHOOK_URL
+          valueFrom:
+            secretKeyRef:
+              name: pipeline-secrets
+              key: webhook-url
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: pipeline-secrets
+              key: db-password
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
+          readOnly: true
+        - name: output-volume
+          mountPath: /app/output
+      volumes:
+      - name: config-volume
+        configMap:
+          name: pipeline-config-cm
+      - name: output-volume
+        emptyDir: {} # Atau gunakan PVC jika perlu persistensi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pipeline-config-cm
+  namespace: security-ops
+data:
+  pipeline_config.yaml: |
+    pipeline:
+      name: "K8s Deployed Pipeline"
+      stages:
+        - name: "id_exporter"
+          ...
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pipeline-secrets
+  namespace: security-ops
+type: Opaque
+stringData:
+  webhook-url: "https://hooks.slack.com/services/..."
+  db-password: "super-secret-password"
+```
+
+**Pertimbangan Operasi Kubernetes:**
+*   **ConfigMap & Secrets:** Pisahkan konfigurasi teknis (YAML) dan kredensial (Secrets) untuk keamanan.
+*   **Persistent Volumes:** Jika tahap remediasi memerlukan penyimpanan hasil log atau state yang awan, gunakan `PersistentVolumeClaim` alih-alih `emptyDir`.
+*   **Health Checks:** Pertimbangkan untuk menambahkan `livenessProbe` dan `readinessProbe` jika pipeline berjalan sebagai long-running process, meskipun untuk pipeline batch, restart otomatis pada kegagalan sudah sering cukup.
+
+#### Monitoring dan Observabilitas
+
+Untuk kedua metode deployment, pastikan bahwa output log terintegrasi dengan sistem observabilitas pusat Anda:
+
+1.  **Struktur Log JSON:** Pastikan `pipeline_orchestrator.py` mencetak log dalam format JSON agar mudah diparse oleh log aggregator.
+2.  **Health Check Endpoint:** Jika pipeline diubah menjadi service HTTP (opsional), tambahkan endpoint `/health` yang mengembalikan status kesehatan pipeline terakhir.
+3.  **Alerting:** Aturlah alerting berdasarkan level log `ERROR` atau `CRITICAL` di log aggregator (ELK, CloudWatch, dll) untuk notifikasi instan ke tim keamanan.
