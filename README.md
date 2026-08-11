@@ -10097,3 +10097,91 @@ Untuk memastikan konsistensi data dari tingkat kode hingga tingkat dewan direksi
 6.  **Archive:** Semua file JSON (kebijakan, RCA, dampak finansial) di-hash dan disimpan ke dalam `evidence_archive` untuk audit trail.
 
 > **Peringatan Keamanan:** File `risk_financial_impact.json` mengandung data sensitif mengenai eksposur finansial organisasi. File ini harus dienkripsi saat diam (at-rest) dan hanya dapat diakses oleh personel dengan otoritas level `ROLE_CISO` atau `ROLE_DPO`.
+
+
+Berikut adalah konten lanjutan untuk dokumentasi `README.md` Anda. Bagian ini mencakup implementasi teknis skrip simulasi (`compliance_financial_drainage_calculator.py`) dan penjelasan mendalam mengenai model finansial jangka panjang untuk keperluan strategi dewan direksi.
+
+Silakan salin dan tempel konten berikut ke bagian akhir file `README.md` Anda, tepat setelah bagian **"7.7 Alur Kerja Terintegrasi (End-to-End Governance Workflow)"**.
+
+---
+
+### 7.8 Simulasi Skenario Kerugian Finansial Terburuk (Worst-Case Scenario Simulation)
+
+Untuk memperkuat posisi negosiasi dengan pemangku kepentingan eksternal (asuransi) dan internal (dewan direksi), organisasi harus mampu memproyeksikan dampak agregat dari kegagalan kepatuhan berlapis (*cascade failure*). Modul ini mensimulasikan skenario di mana pelanggaran terjadi secara simultan pada **Artikel 32 (Keamanan)**, **Artikel 33 (Notifikasi)**, dan **Artikel 34 (Komunikasi ke Subjek Data)** GDPR.
+
+#### A. Implementasi Skenario `compliance_financial_drainage_calculator.py`
+
+Skrip ini mengambil output dari kuantifier risiko (`risk_financial_impact.json`) dan aturan kebijakan (`policy_rules_v1.json`) untuk menghitung proyeksi biaya masa depan dengan menerapkan *Regulatory Inflation Factor* dan diskonto arus kas.
+
+**Struktur Eksekusi:**
+
+```bash
+python compliance_financial_drainage_calculator.py \
+    --financial-input path/to/risk_financial_impact.json \
+    --policy-input path/to/policy_rules_v1.json \
+    --projection-years 5 \
+    --regulatory-inflation-rate 5.0 \
+    --output path/to/risk_future_projection.json
+```
+
+**Deskripsi Argumen:**
+| Argumen | Tipe | Default | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `--financial-input` | String | *Required* | Path ke file output `risk_financial_impact.json` dari kuantifier risiko dasar. |
+| `--policy-input` | String | *Required* | Path ke file `policy_rules_v1.json` untuk menentukan batas denda maksimum hukum dan multiplikator. |
+| `--projection-years` | Integer | `5` | Durasi proyeksi dalam tahun untuk memodelkan dampak jangka panjang. |
+| `--regulatory-inflation-rate` | Float | `5.0` | Persentase kenaikan denda/hukuman tahunan akibat inflasi regulasi dan kenaikan standar industri. |
+| `--output` | String | *Required* | Path tujuan untuk menyimpan file `risk_future_projection.json`. |
+
+**Logika Simulasi Multiplikasi `Dollar-Per-Record`:**
+Skrip menerapkan logika berikut untuk menghitung *Aggregated Liability*:
+1.  **Base Impact Extraction:** Mengambil `expected_value` dari input finansial.
+2.  **Cascade Multiplier:** Jika status kepatuhan pada Article 32, 33, dan 34 semuanya gagal (*false*), skenario ini mengaktifkan multiplikator agregat. Denda GDPR dapat mencapai 20 juta EUR atau 4% dari omzet global tahunan (mana yang lebih tinggi). Skrip memperkirakan komponen "4% omzet" berbasis rasio industri yang disuntikkan dari `policy_rules_v1.json`.
+3.  **Regulatory Inflation:** Menerapkan rumus compound interest:
+    $$ Future\_Cost = Base\_Cost 	imes (1 + Inflation\_Rate)^{Years} $$
+4.  **Output:** Menghasilkan file JSON yang berisi rincian biaya tahunan yang diproyeksikan, total NPV (Net Present Value) dari kewajiban hukum, dan buffer likuiditas yang diperlukan.
+
+---
+
+#### B. Lampiran Strategi Jangka Panjang: Model Diskonto Arus Kas untuk Kepatuhan (Compliance DCF Model)
+
+Bagian ini disediakan khusus untuk **Dewan Direksi** dan **C-Level Executives** sebagai dasar keputusan investasi dalam infrastruktur keamanan dan kepatuhan hukum.
+
+##### 1. Filosofi "Cost of Non-Compliance" vs "Cost of Compliance"
+Kepatuhan sering dipandang sebagai pusat biaya (*cost center*). Namun, melalui model **Discounted Cash Flow (DCF)**, kita memposisikan kepatuhan sebagai *risk mitigation asset* yang melindungi arus kas organisasi dari eksposur likuiditas tiba-tiba (*tail risk*).
+
+##### 2. Komponen Model DCF Kepatuhan
+Untuk menghitung Nilai Sekarang Bersih (*Net Present Value - NPV*) dari kewajiban kepatuhan di masa depan, kita menggunakan variabel berikut:
+
+*   **$C_t$ (Cash Outflow pada Tahun $t$):** Total eksposur finansial pada tahun ke-$t$, termasuk:
+    *   Denda Regulator (GDPR, PO/UU PDP).
+    *   Biaya Litigasi dan Ganti Rugi.
+    *   Biaya Reputasi (estimasi penurunan valuasi saham berdasarkan studi elastisitas).
+    *   Biaya Operasional Remediasi (DL/OL, Forensik, Notifikasi).
+*   **$r$ (Tingkat Diskonto / Discount Rate):** Representasi dari biaya modal organisasi ($WACC$) ditambah *Risk Premium* khusus industri teknologi. Untuk industri fintech/siber, disarankan menggunakan $r = 12\% - 15\%$ untuk mencerminkan volatilitas tinggi risiko operasional.
+*   **$n$ (Periode Proyeksi):** Jangka waktu pemulihan reputasi dan kepatuhan (biasanya 3-5 tahun pasca insiden besar).
+
+##### 3. Rumus Perhitungan NPV Eksposur Masa Depan
+$$ NPV_{future\_liability} = \sum_{t=1}^{n} rac{C_t}{(1 + r)^t} $$
+
+Di mana $C_t$ dihitung dengan menerapkan *Regulatory Inflation Factor* ($i$) terhadap biaya dasar insiden:
+$$ C_t = C_0 	imes (1 + i)^t $$
+
+##### 4. Interpretasi untuk Dewan Direksi
+
+*   **Skenario Baseline (Tanpa Insiden):** Jika organisasi mempertahankan tingkat kepatuhan tinggi, $NPV_{future\_liability}$ mendekati 0. Investasi hanya berupa biaya operasional rutin (*OpEx*).
+*   **Skenario Insiden (What-If):** Jika terjadi *cascade failure* (seperti yang dimodelkan dalam `compliance_financial_drainage_calculator.py`), $NPV_{future\_liability}$ akan bernilai signifikan.
+    *   *Contoh:* Jika eksposur awal ($C_0$) adalah $100,000,000 USD, dengan inflasi regulasi 5% dan diskonto 12% selama 5 tahun, Total Liabilitas yang Didiskonto (PV) mungkin terlihat lebih kecil secara nominal di tahun-tahun akhir, namun **dampak likuiditas arus kas tahunan ($C_t$) pada tahun-tahun awal bisa melumpuhkan operasi.**
+
+##### 5. Rekomendasi Strategis
+
+1.  **Pemisahan Anggaran "Risk Capital":**
+    Dewan direksi disarankan untuk mengalokasikan dana cadangan (*reserve fund*) yang setara dengan $NPV_{worst\_case\_scenario}$ dari simulasi skenario terburuk. Dana ini harus likuid dan terpisah dari operasional harian.
+    
+2.  **Hedging Melalui Asuransi:**
+    Gunakan output `risk_financial_impact.json` untuk menentukan nilai *Deductible* yang realistis. Jangan memilih polis dengan premi termurah, tetapi pilih polis yang mampu menampung *gap* likuiditas pada tahun ke-1 dan ke-2 pasca insiden (fase paling kritis secara finansial).
+
+3.  **Kepatuhan sebagai Pendukung Valuasi:**
+    Data kepatuhan GDPR yang auditable dan terdokumentasi dapat meningkatkan valuasi perusahaan saat *Due Diligence* untuk M&A atau IPO. Kerugian reputasi yang diproyeksikan dalam model DCF ini harus dikonversi menjadi penurunan *Multiple* valuasi pasar perusahaan (misal: penurunan EV/EBITDA sebesar 0.5x akibat catatan kepatuhan buruk).
+
+> **Catatan Audit:** Semua asumsi diskonto dan inflasi regulasi yang digunakan dalam kalkulator ini harus ditinjau ulang setiap kuartal oleh Departemen Keuangan bersama Legal Counsel untuk memastikan relevansi dengan lanskap hukum terbaru.
