@@ -9080,3 +9080,134 @@ Karena skrip ini beroperasi secara *real-time*, ia memberikan jaminan waktu (*pr
 
 > **Peringatan Kritis:**
 > Jangan pernah menghapus file sumber di direktori `--watch-dir` sebelum skrip melaporkan status `ARCHIVED` dan memverifikasi kecocokan hash dengan S3. Penghapusan prematur dapat merusak Rantai Custodi dan meniadakan bukti di mata hukum.
+
+
+Berikut adalah konten lanjutan yang direkomendasikan untuk ditambahkan ke bagian **Deployment and Operations** dalam `README.md`. Konten ini dirancang untuk melengkapi protokol keamanan, panduan teknis implementasi API, dan instruksi validasi kepatuhan.
+
+---
+
+### 5.4. Gerbang API Kepatuhan (`compliance_api_gateway.py`)
+
+Untuk memfasilitasi pemeriksaan kepatuhan oleh auditor eksternal dan sistem otomatis tanpa membuka akses langsung ke basis data forensik, solusi ini menyediakan `compliance_api_gateway.py`. Gerbang ini bertindak sebagai lapisan abstraksi yang aman, memblokir akses langsung ke file mentah (`evidence_chain_of_custody.json` dan `gdpr_dpia_report.json`) dan hanya menyediakan endpoint yang terverifikasi integritasnya.
+
+#### A. Spesifikasi Teknis dan Arsitektur
+
+Gateway ini dibangun di atas arsitektur microservice ringan, membaca konfigurasi alur kerja dari `pipeline_dependency_graph_generator.py` untuk menentukan dependensi logika. Fitur keamanan inti meliputi:
+
+1.  **Validasi JWT (JSON Web Token):** Semua permintaan harus menyertakan header `Authorization: Bearer <token>`. Token diverifikasi menggunakan kunci simetris (`--auth-key`) yang dikonfigurasi selama deploy.
+2.  **Rate Limiting (Batasan Laju):**
+    *   Mencegah serangan *brute-force* atau *denial of service*.
+    *   Batas default: 100 permintaan per menit per IP.
+    *   Jika batas terlewati, respons `429 Too Many Requests` dikirim dan dicatat di log audit.
+3.  **Audit Trail Terintegrasi:**
+    *   Setiap akses ke API dicatat secara krusial ke dalam file `aggregated_trace.json`.
+    *   Catatan mencakup: `timestamp`, `ip_address`, `endpoint`, `user_identity`, `status_code`, dan `hash_verified` (jika relevan).
+    *   File ini tidak dapat dimodifikasi oleh proses API biasa (append-only log).
+
+#### B. Endpoint RESTful
+
+| Endpoint | Metode | Deskripsi | Parameter Wajib | Respons Sukses (200) |
+| :--- | :---: | :--- | :--- | :--- |
+| `/evidence/{hash}` | `GET` | Verifikasi integritas file bukti berdasarkan hash SHA-256. | `{hash}`: Hash 64 karakter (hex). | JSON berisi metadata custodi & status verifikasi (`VERIFIED`, `TAMPERED`, `NOT_FOUND`). |
+| `/dpia` | `GET` | Mengunduh ringkasan laporan *Data Protection Impact Assessment* (DPIA). | Tidak ada (Auth Required). | JSON berisi entri risiko GDPR, langkah mitigasi, dan status kepatuhan. |
+
+#### C. Inisialisasi Server
+
+Jalankan gateway dengan argumen berikut untuk memastikan keamanan dan tracing yang ketat:
+
+```bash
+python compliance_api_gateway.py \
+    --port 8443 \
+    --auth-key "SuperSecretKeyForJWTSigning2024!" \
+    --evidence-json "/var/data/forensics/evidence_chain_of_custody.json" \
+    --dpia-json "/var/data/compliance/gdpr_dpia_report.json"
+```
+
+> **Catatan Keamanan:** Nilai `--auth-key` harus disimpan dalam variabel lingkungan atau *secrets manager* pada produksi, jangan di-hardcode di skrip CLI.
+
+#### D. Panduan Verifikasi kepatuhan (cURL & Postman)
+
+Berikut adalah panduan praktis untuk memvalidasi API menggunakan `cURL` atau Postman.
+
+**1. Mendapatkan Token JWT (Simulasi Internal)**
+*Asumsi: Sistem menyediakan endpoint `/auth/token` atau token dibagikan secara offline untuk demo.*
+
+```bash
+# Contoh permintaan untuk mendapatkan token (jika endpoint tersedia)
+curl -X POST http://localhost:8443/auth/token \
+     -H "Content-Type: application/json" \
+     -d '{"sub": "auditor_01", "role": "external_auditor"}'
+
+# Simpan token untuk digunakan di langkah berikutnya
+TOKEN="<token_yang_diperoleh>"
+```
+
+**2. Memverifikasi Integritas Bukti (`GET /evidence/{hash}`)**
+
+Gunakan hash SHA-256 dari file bukti yang ada di Rantai Custodi.
+
+```bash
+curl -X GET "http://localhost:8443/evidence/a1b2c3d4e5f6..." \
+     -H "Authorization: Bearer $TOKEN" \
+     -H "Accept: application/json"
+```
+
+*Respons Contoh (Sukses):*
+```json
+{
+  "status": "VERIFIED",
+  "hash": "a1b2c3d4...",
+  "metadata": {
+    "captured_by": "sensor_alpha",
+    "captured_at": "2023-10-27T10:00:00Z",
+    "integrity_check_passed": true
+  }
+}
+```
+
+*Respons Contoh (Gagal/Terjempar):*
+```json
+{
+  "status": "TAMPERED",
+  "hash": "a1b2c3d4...",
+  "error_message": "Hash tidak cocok dengan entri di evidence_chain_of_custody.json."
+}
+```
+
+**3. Mengunduh Laporan Risiko GDPR (`GET /dpia`)**
+
+```bash
+curl -X GET "http://localhost:8443/dpia" \
+     -H "Authorization: Bearer $TOKEN" \
+     -H "Accept: application/json"
+```
+
+#### E. Konfigurasi Firewall dan Jaringan
+
+Agar gateway tetap aman di lingkungan produksi, terapkan aturan firewall berikut:
+
+1.  **Blokir Akses Publik Langsung:**
+    *   Port `8443` **tidak boleh** terbuka ke internet publik (`0.0.0.0/0`).
+    *   Izinkan akses hanya dari IP CIDR auditor eksternal dan subnet internal sistem monitoring.
+
+2.  **Enkripsi TLS/SSL:**
+    *   Meskipun contoh di atas menggunakan HTTP untuk demonstrasi lokal, produksi **wajib** menggunakan HTTPS.
+    *   Pastikan sertifikat SSL terpasang pada *reverse proxy* (Nginx/Apache) di depan `compliance_api_gateway.py`.
+
+3.  **Penanganan Gagal Otentikasi:**
+    *   Konfigurasi firewall atau WAF (Web Application Firewall) untuk memblokir IP yang melakukan >5 percobaan otentikasi gagal dalam 60 detik.
+
+#### F. Validasi Melalui Postman
+
+Untuk kemudahan pengguna non-kode (auditor bisnis), gunakan koleksi Postman berikut:
+
+1.  Buat Request Baru dengan metode `GET`.
+2.  Atur URL: `{{base_url}}/evidence/{{hash_to_verify}}`.
+3.  Pergi ke tab **Headers**.
+4.  Tambahkan Header:
+    *   Key: `Authorization`
+    *   Value: `Bearer {{access_token}}`
+5.  Klik **Send**.
+6.  Verifikasi bahwa body respons menampilkan `"status": "VERIFIED"`.
+
+> **Catatan Auditor:** Simpan hasil tangkapan layar respons JSON ini sebagai lampiran bukti kepatuhan dalam laporan audit Anda.
