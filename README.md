@@ -1744,3 +1744,305 @@ Tambahkan blok berikut di antara langkah `Install dependencies` dan `Run ID Sync
 1.  **Konsistensi Data:** Memisahkan proses parsing sumber (MD) dari proses validasi (Sync Monitor) mengurangi risiko kesalahan parsing di waktu eksekusi monitor.
 2.  **Debugging Mudah:** File `valid_ids.yaml` yang dihasilkan dapat ditinjau secara manual jika terjadi masalah dalam sinkronisasi, memberikan transparansi tentang daftar ID yang dianggap "valid" oleh sistem.
 3.  **Performa:** Ekspor YAML hanya dilakukan sekali per workflow run, bukan pada setiap baris CSV, sehingga lebih efisien jika dataset besar.
+
+
+# Panduan Implementasi: Skrip `id_exporter.py`
+
+Bagian ini menjelaskan secara teknis implementasi skrip `id_exporter.py`, yang berperan sebagai lapisan abstraksi antara sumber data mentah (`ID_MANUAL.md`) dan sistem validasi terstruktur (`valid_ids.yaml`). Skrip ini dirancang untuk mengubah dokumen Markdown yang mungkin kompleks menjadi struktur data Python yang seragam, siap dikonsumsi oleh pipeline CI/CD.
+
+## Arsitektur Skrip
+
+Skrip ini mengikuti prinsip *single responsibility*: hanya bertanggung jawab untuk membaca, mem-parsing, dan mengekspor data. Tidak ada logika bisnis validasi yang tertanam di dalamnya, memisahkan kekhawatiran (*separation of concerns*) antara ekstraksi data dan validasi logika.
+
+### Dependensi
+Pastikan lingkungan Python Anda memiliki library berikut:
+*   `argparse` (Bawaan Python)
+*   `pyyaml` (Instalasi: `pip install pyyaml`)
+*   `datetime` (Bawaan Python)
+*   `re` (Bawaan Python, opsional tergantung regex parser)
+
+### Implementasi Kode
+
+Salin kode berikut ke dalam file bernama `id_exporter.py`:
+
+```python
+#!/usr/bin/env python3
+"""
+id_exporter.py
+
+Skrip untuk mengekstrak metadata ID dari file Markdown manual dan
+menyimpannya ke dalam format YAML yang terstruktur.
+
+Digunakan sebagai jembatan sebelum menjalankan ID Sync Monitor.
+"""
+
+import argparse
+import yaml
+import re
+import os
+import sys
+from datetime import datetime
+from typing import List, Dict, Optional
+
+# Struktur Metadata yang Diinginkan
+class IDMetadata:
+    def __init__(self, id_value: str, frequency: Optional[int] = None, 
+                 status: str = "unknown", last_updated: Optional[str] = None):
+        self.id_value = id_value
+        self.frequency = frequency
+        self.status = status
+        self.last_updated = last_updated or datetime.now().isoformat()
+
+    def to_dict(self) -> Dict:
+        data = {"id": self.id_value}
+        if self.frequency is not None:
+            data["frequency"] = self.frequency
+        if self.status and self.status != "unknown":
+            data["status"] = self.status
+        if self.last_updated:
+            data["last_updated"] = self.last_updated
+        return data
+
+def parse_manual_markdown(file_path: str) -> List[Dict]:
+    """
+    Membaca file Markdown dan mengekstrak blok metadata ID.
+    
+    Asumsi Format Markdown (contoh):
+    ---
+    - id: ID-001
+      status: active
+      frequency: 10
+      last_updated: 2023-10-01T12:00:00
+    ---
+    Atau menggunakan heading per item:
+    ### ID-001
+    status: active
+    frequency: 10
+    """
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File tidak ditemukan: {file_path}")
+
+    with open(file_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    parsed_ids = []
+    
+    # Strategi Parsing 1: Mencoba format YAML/Key-Value di dalam blok Markdown
+    # Regex ini mencari pola 'id: VALUE' diikuti oleh field opsional lainnya
+    # Ini adalah pendekatan yang lebih robust untuk file yang sudah difinalisasi
+    
+    # Pola untuk satu blok ID
+    # Kita akan mencari setiap blok yang dimulai dengan 'id:'
+    lines = content.split('
+')
+    current_id_data = {}
+    is_new_block = False
+    
+    for line in lines:
+        stripped_line = line.strip()
+        
+        # Deteksi awal blok baru berdasarkan prefix 'id:' atau heading '# ... ID-...'
+        # Contoh Heading: ### ID-MANUAL-123
+        heading_match = re.match(r'^#{1,6}\s+ID[0-9A-Z-]+\s*$', stripped_line)
+        id_line_match = re.match(r'^id:\s*(.+)$', stripped_line)
+        
+        if heading_match or id_line_match:
+            # Simpan data blok sebelumnya jika ada
+            if current_id_data and 'id' in current_id_data:
+                parsed_ids.append(current_id_data)
+            
+            # Reset untuk blok baru
+            current_id_data = {}
+            is_new_block = True
+            
+            if heading_match:
+                # Ambil ID dari heading (asumsi format Heading: # Header ID-XXX)
+                # Jika heading hanya berisi ID, ambil kata terakhir
+                parts = stripped_line.split()
+                current_id_data['id'] = parts[-1]
+            elif id_line_match:
+                current_id_data['id'] = id_line_match.group(1).strip()
+                
+        elif is_new_block:
+            # Parsing field lain dalam blok yang sama
+            if re.match(r'^status:\s*(.+)', stripped_line):
+                current_id_data['status'] = re.match(r'^status:\s*(.+)', stripped_line).group(1).strip()
+            elif re.match(r'^frequency:\s*(.+)', stripped_line):
+                freq_str = re.match(r'^frequency:\s*(.+)', stripped_line).group(1).strip()
+                try:
+                    current_id_data['frequency'] = int(freq_str)
+                except ValueError:
+                    # Jika frequency bukan integer, biarkan sebagai string atau handle error
+                    pass
+            elif re.match(r'^last_updated:\s*(.+)', stripped_line):
+                current_id_data['last_updated'] = re.match(r'^last_updated:\s*(.+)', stripped_line).group(1).strip()
+            
+            # Jika menemukan baris kosong atau baris baru yang tidak sesuai pola, 
+            # bisa menandakan akhir blok (tergantung struktur file).
+            # Untuk fleksibilitas, kita asumsikan blok berlanjut sampai 'id:' berikutnya.
+            
+    # Jangan lupa menyimpan blok terakhir
+    if current_id_data and 'id' in current_id_data:
+        parsed_ids.append(current_id_data)
+
+    return parsed_ids
+
+def validate_parsed_data(data_list: List[Dict]) -> List[Dict]:
+    """
+    Validasi dasar terhadap data yang telah diparsing.
+    Memastikan setiap entri memiliki kunci 'id' yang tidak kosong.
+    """
+    valid_ids = []
+    errors = []
+    
+    for idx, item in enumerate(data_list):
+        if not item.get('id'):
+            errors.append(f"Baris {idx}: Metadata ID tidak valid (tidak ada kunci 'id').")
+            continue
+        
+        # Normalisasi status
+        status = item.get('status', 'unknown').lower()
+        if status not in ['active', 'inactive', 'pending', 'unknown']:
+            # Tandai status yang tidak dikenal sebagai pending/unknown untuk keamanan
+            item['status'] = 'pending'
+        
+        valid_ids.append(item)
+        
+    if errors:
+        for error in errors:
+            print(f"Warning: {error}", file=sys.stderr)
+            
+    if not valid_ids:
+        raise ValueError("Tidak ada ID valid yang diekstrak dari file Markdown.")
+        
+    return valid_ids
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Ekstrak metadata ID dari Markdown dan simpan ke YAML.",
+        formatter_class=argparse.RawTextHelpFormatter
+    )
+    parser.add_argument(
+        '--manual', 
+        type=str, 
+        required=True, 
+        help="Path ke file Markdown manual (misal: ID_MANUAL.md)"
+    )
+    parser.add_argument(
+        '--output', 
+        type=str, 
+        required=True, 
+        help="Path ke file YAML output (misal: valid_ids.yaml)"
+    )
+    
+    args = parser.parse_args()
+    
+    print(f"Memulai ekstraksi data dari: {args.manual}")
+    
+    try:
+        # 1. Parse
+        raw_data = parse_manual_markdown(args.manual)
+        print(f"Ditemukan {len(raw_data)} blok data kandidat.")
+        
+        # 2. Validasi
+        valid_data = validate_parsed_data(raw_data)
+        print(f"Setelah validasi, tersisa {len(valid_data)} ID yang valid.")
+        
+        # 3. Ekspor ke YAML
+        # Konversi list of dict menjadi list of IDMetadata objects lalu ke dict
+        id_metadata_objects = [
+            IDMetadata(
+                id_value=item['id'],
+                frequency=item.get('frequency'),
+                status=item.get('status', 'unknown'),
+                last_updated=item.get('last_updated')
+            ) for item in valid_data
+        ]
+        
+        yaml_output_data = [obj.to_dict() for obj in id_metadata_objects]
+        
+        # Pastikan direktori output ada
+        output_dir = os.path.dirname(os.path.abspath(args.output))
+        if output_dir and not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+        with open(args.output, 'w', encoding='utf-8') as f:
+            yaml.dump(
+                yaml_output_data, 
+                f, 
+                default_flow_style=False, 
+                allow_unicode=True,
+                sort_keys=False  # Pertahankan urutan jika penting
+            )
+            
+        print(f"Berhasil menyimpan {len(yaml_output_data)} ID ke: {args.output}")
+        
+    except FileNotFoundError as e:
+        print(f"Error File: {e}", file=sys.stderr)
+        sys.exit(1)
+    except ValueError as e:
+        print(f"Error Data: {e}", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error Tak Terduga: {e}", file=sys.stderr)
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
+```
+
+## Penjelasan Detail Fitur
+
+### 1. Parsing Fleksibel
+Fungsi `parse_manual_markdown` dirancang untuk menangani dua format umum yang sering ditemukan dalam dokumentasi teknis:
+*   **Format YAML-inside-MD:** Menggunakan regex untuk mendeteksi kunci `id:`, `status:`, dll.
+*   **Format Heading-based:** Mendeteksi header Markdown (`### ID-XYZ`) sebagai pembatas blok data.
+
+Ini memberikan toleransi terhadap variasi dalam penulisan `ID_MANUAL.md` tanpa harus mengubah kode skrip secara drastis.
+
+### 2. Validasi Data Masuk (Data Validation)
+Sebelum data ditulis ke disk, fungsi `validate_parsed_data` menjalankan sanity check:
+*   Memastikan setiap entri memiliki kunci `id`.
+*   Menormalisasi nilai `status` ke dalam set nilai yang dikenal (`active`, `inactive`, `pending`, `unknown`). Jika terdapat nilai liar (misal: "ok" atau "valid"), sistem secara otomatis将其转换为 `pending` untuk mencegah false positive dalam monitor sinkronisasi.
+*   Memberikan *warning* ke stderr jika ada data yang dilewati, memungkinkan auditor mengetahui data apa yang hilang.
+
+### 3. Struktur Output YAML
+Output YAML yang dihasilkan (`valid_ids.yaml`) akan memiliki struktur seperti berikut:
+
+```yaml
+- id: ID-001
+  status: active
+  frequency: 15
+  last_updated: '2023-10-27T10:00:00'
+- id: ID-002
+  status: inactive
+  frequency: 2
+  last_updated: '2023-10-26T14:30:00'
+```
+
+Struktur ini flat dan mudah dibaca oleh `id_sync_monitor.py` maupun manusia yang melakukan debugging manual.
+
+## Cara Penggunaan
+
+Setelah menyimpan kode di atas sebagai `id_exporter.py`, jalankan perintah berikut di terminal Anda:
+
+```bash
+python id_exporter.py --manual ID_MANUAL.md --output valid_ids.yaml
+```
+
+### Contoh Error Handling
+Jika file `ID_MANUAL.md` tidak ditemukan:
+```text
+Error File: File tidak ditemukan: ID_MANUAL_MISSING.md
+```
+
+Jika file Markdown kosong atau tidak mengandung pola ID yang valid:
+```text
+Ditemukan 0 blok data kandidat.
+Error Data: Tidak ada ID valid yang diekstrak dari file Markdown.
+```
+
+## Tips Perawatan
+
+*   **Update Format Markdown:** Jika struktur `ID_MANUAL.md` berubah (misalnya, menambahkan field baru seperti `owner`), cukup tambahkan regex baru di dalam fungsi `parse_manual_markdown` dan class `IDMetadata`.
+*   **Testing:** Gunakan file Markdown contoh dengan data yang salah (misal: status "error", frekuensi string) untuk memastikan fungsi `validate_parsed_data` menangani anomali dengan baik sebelum diintegrasikan ke pipeline utama.
