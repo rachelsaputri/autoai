@@ -9820,3 +9820,151 @@ Untuk mempermudah proses pemeriksaan (due diligence) oleh auditor hukum, tim IT 
 *   **Legal/Compliance Officer:** Bertanggung jawab atas penafsiran hasil validasi dalam konteks peraturan yang berlaku.
 
 Dengan menggabungkan otomasi teknis ini dengan prosedur dokumentasi yang ketat, organisasi tidak hanya mematuhi regulasi GDPR/CCPA, tetapi juga membangun posis defendabilitas yang kuat jika terjadi insiden data di masa depan.
+
+
+Berikut adalah konten lanjutan yang komprehensif untuk bagian "Compliance & Legal" dalam dokumentasi `README.md`. Bagian ini dirancang untuk menjembatani kesenjangan antara persyaratan hukum (GDPR/CCPA) dan implementasi teknis (Policy-as-Code), lengkap dengan spesifikasi teknis skripCompiler Kebijakan.
+
+---
+
+## 7. Policy-as-Code: Dari Regulasi ke Eksekusi Sistem
+
+Dalam kerangka kepatuhan modern, kebijakan tidak boleh lagi merupakan dokumen statis yang hanya dibaca manusia. Pendekatan **Policy-as-Code** menuntut bahwa setiap persyaratan hukum (seperti "data subjek harus memiliki hak untuk dilupakan") diterjemahkan menjadi aturan logika yang dapat diverifikasi, diaudit, dan dieksekusi secara otomatis oleh infrastruktur TI.
+
+Bagian ini mendefinisikan arsitektur terjemahan hukum, spesifikasi teknis *Policy Compiler*, dan pemetaan kontrol NIST SP 800-53 untuk memastikan bahwa kepatuhan tidak hanya didokumentasikan, tetapi di-enforcing.
+
+### 7.1 Kerangka Kerja Penerjemahan Kebijakan (Policy Translation Framework)
+
+Sistem ini menggunakan prinsip *Declarative Compliance*, di mana keadaan sistem ("state") dibandingkan dengan kebijakan yang dideklarasikan ("policy"). Proses terjemahan dilakukan melalui tiga lapisan:
+
+1.  **Lapisan Penafsiran Hukum (Legal Interpretation Layer):**
+    *   Mengambil teks regulasi (GDPR Art. 17, CCPA §1798.100) dan mengubahnya menjadi predikat logika.
+    *   *Contoh:* "Hapus data pribadi" $ightarrow$ `delete_data_subject_record(identity_id)`.
+2.  **Lapisan Konsistensi Konteks (Contextual Consistency Layer):**
+    *   Mengintegrasikan data dari `automated_gdpr_impact_assessment.py` (risiko) dan `log_analysis_and_rca_engine.py` (akar masalah).
+    *   Jika Dampak Penilaian Privasi (DPIA) menunjukkan risiko tinggi untuk pemrosesan data tertentu, maka kontrol akses menjadi lebih ketat (*restrictive-by-default*).
+    *   Jika RCA mengidentifikasi celah keamanan sebelumnya, maka aturan enkripsi tambahan diterapkan pada aset terkait.
+3.  **Lapisan Eksekusi Teknis (Technical Enforcement Layer):**
+    *   Menghasilkan file konfigurasi JSON (`policy_rules_v1.json`) yang dibaca oleh `compliance_policy_enforcer.py` (untuk tindakan back-end) dan `compliance_api_gateway.py` (untuk pembatasan akses front-end).
+
+### 7.2 Spesifikasi Teknis: Policy Compiler
+
+Alat utama untuk menerjemah kebijakan ini adalah `compliance_governance_policy_compiler.py`. Script ini bertindak sebagai *bridge* antara tim Legal/Compliance dan tim Engineering.
+
+#### 7.2.1 Deskripsi Fungsional
+Script ini membaca dua sumber kebenaran utama:
+1.  **DPIA Report (`gdpr_dpia_report.json`):** Berisi penilaian risiko, jenis data sensitif, dan basis hukum pemrosesan.
+2.  **RCA Report (`rca_report.json`):** Berisi historis insiden, celah keamanan yang teridentifikasi, dan rekomendasi perbaikan.
+
+Outputnya adalah **Konfigurasi Kebijakan Terenkripsi** yang memuat aturan otomatisasi (misalnya: "Enkripsi AES-256 wajib untuk kolom PII jenis 'Health_Data'") dan batasan akses API (misalnya: "Role `analyst` tidak boleh mengakses endpoint `/api/v1/subjects/{id}/ssn`").
+
+#### 7.2.2 Antarmuka Baris Perintah (CLI)
+
+```bash
+python compliance_governance_policy_compiler.py \
+    --dpia /path/to/automated_gdpr_impact_assessment/output/gdpr_dpia_report.json \
+    --rca /path/to/log_analysis_and_rca_engine/output/rca_report.json \
+    --output /path/to/output/policy_rules_v1.json \
+    --policy-id v1.2.0-20231027
+```
+
+**Argumen Detail:**
+
+| Argumen | Tipe | Deskripsi |
+| :--- | :--- | :--- |
+| `--dpia` | `str` | Path absolut ke file JSON hasil penilaian dampak privasi (DPIA). File ini menentukan tingkat sensitivitas data dan risiko hukum. |
+| `--rca` | `str` | Path absolut ke file JSON hasil analisis akar masalah (RCA). File ini menentukan mitigasi keamanan yang harus diterapkan sebagai kondisi prasyarat kepatuhan. |
+| `--output` | `str` | Path file keluaran untuk menyimpan konfigurasi kebijakan yang dihasilkan. |
+| `--policy-id` | `str` | Identifier unik untuk versi kebijakan ini. Format disarankan: `[Major].[Minor].[Patch]-[Timestamp]`. Wajib untuk audit trail versiolis kebijakan. |
+
+#### 7.2.3 Contoh Struktur Output (`policy_rules_v1.json`)
+
+File hasil kompilasi akan memiliki struktur berikut yang siap dieksekusi oleh sistem downstream:
+
+```json
+{
+  "policy_id": "v1.2.0-20231027",
+  "generated_at": "2023-10-27T10:00:00Z",
+  "compliance_frameworks": ["GDPR", "CCPA"],
+  "enforcement_rules": {
+    "data_handling": [
+      {
+        "rule_id": "ER-001",
+        "source": "DPIA-Risk-High",
+        "action": "encrypt_column",
+        "target_field": "employee_ssn",
+        "algorithm": "AES-256-GCM",
+        "key_management": "HSM-Provider-A"
+      },
+      {
+        "rule_id": "ER-002",
+        "source": "GDPR-Art-17",
+        "action": "enable_retention_policy",
+        "duration_days": 30,
+        "condition": "after_deletion_request"
+      }
+    ],
+    "api_gateway_restrictions": [
+      {
+        "rule_id": "AG-001",
+        "source": "RCA-Vuln-Authorization",
+        "method": "GET",
+        "path_pattern": "/api/v1/customers/*/financials",
+        "allowed_roles": ["finance_admin"],
+        "deny_default": true
+      }
+    ]
+  },
+  "dependency_validation": {
+    "rca_items_resolved": true,
+    "dpias_signed_by_dpo": true
+  }
+}
+```
+
+### 7.3 Pemetaan Kontrol NIST SP 800-53 ke Implementasi Sistem
+
+Untuk memenuhi standar auditor internasional, setiap aturan yang dihasilkan oleh *Compiler* harus dapat dilacak kembali (traceable) ke kontrol NIST SP 800-53 Rev. 5. Tabel berikut menjelaskan bagaimana regulasi hukum diterjemahkan menjadi kontrol teknis spesifik.
+
+| Kontrol NIST SP 800-53 | Regulasi Terkait | Implementasi dalam Policy-as-Code | Validasi Teknis |
+| :--- | :--- | :--- | :--- |
+| **AC-2** (Account Management) | GDPR Art. 5(1)(c) (Minimisasi Data) | `compiler.py` memindai RCA untuk entitas dengan akses berlebih yang tidak diperlukan ("excessive privileges") dan menghasilkan aturan `deny_default` di API Gateway. | Cek log API Gateway menolak akses oleh role yang tidak terdaftar dalam whitelist `policy_rules`. |
+| **AC-3** (Access Enforcement) | CCPA §1798.100 (Hak Penyangkalan) | Aturan otomatisasi diterapkan pada database layer untuk mengunci akses PII berdasarkan status "opt-out" dari tabel preferensi pengguna. | Query SQL pada tabel audit membuktikan tidak ada read-access dari user `non-admin` saat flag `opt_out=True`. |
+| **AU-2** (Audit Events) | GDPR Art. 30 (Record of Processing) | Setiap perubahan pada `policy_rules.json` dicatat ke ledger immutable. Enforcer mencatat setiap deny/allow decision. | Validator `audit_chain_integrity_validator.py` memeriksa integritas hash log audit terhadap `evidence_chain_of_custody.json`. |
+| **SI-4** (System Monitoring) | GDPR Art. 32 (Security of Processing) | Jika RCA mendeteksi pola anomali waktu (potensi tampering), Policy Compiler secara otomatis menonaktifkan endpoint API yang rentan hingga manual override dilakukan. | Dashboard monitoring menampilkan status "Policy Enforced" dengan metrik latency dan blocked requests. |
+| **SC-28** (Protection of Data at Rest) | GDPR Art. 25 (Data Protection by Design) | Jika DPIA menyoroti risiko tinggi terhadap data sensitif (kesehatan, biometrik), Compiler memaksa penggunaan enkripsi homomorfik atau tokenisasi. | Scan konfigurasi database memverifikasi flag `encryption_enabled=true` untuk kolom yang ditandai sensitif oleh DPIA. |
+
+### 7.4 Alur Kerja Due Diligence untuk Auditor
+
+Untuk memudahkan proses pemeriksaan oleh auditor eksternal, ikuti prosedur berikut saat menggunakan artefak yang dihasilkan oleh *Policy Compiler*:
+
+1.  **Verifikasi Konsistensi Input:**
+    *   Pastikan file `gdpr_dpia_report.json` dan `rca_report.json` yang digunakan sebagai input adalah versi final yang telah ditandatangani oleh DPO (Data Protection Officer) dan Kepala Keamanan.
+    *   Gunakan argumen `--policy-id` yang sama dengan yang tercantum dalam dokumen kebijakan hukum organisasi.
+
+2.  **Cek Celah Kepatuhan (Compliance Gap Analysis):**
+    *   Lihat field `"dependency_validation"` di `policy_rules_v1.json`.
+    *   Jika `"rca_items_resolved": false`, berarti ada insiden sebelumnya yang belum diperbaiki, dan kebijakan ini **tidak akan di-enforcement secara penuh** (mode *fail-open* dengan logging tinggi). Ini adalah indikasi risiko hukum yang harus didiskusikan dengan Legal.
+
+3.  **Uji Eksekusi Kontrol:**
+    *   Jalankan `compliance_policy_enforcer.py --dry-run --config policy_rules_v1.json`.
+    *   Hasil output harus mencocokkan predikat logika yang dijelaskan di bagian **7.2.3**.
+
+4.  **Audit Trail:**
+    *   Simpan `policy_rules_v1.json` bersama dengan log eksekusi compiler ke dalam arsip bukti (`evidence_archive`).
+    *   Hash dari file JSON tersebut harus dicatat di `evidence_chain_of_custody.json` sebagai bagian dari rantai kepemilikan bukti digital.
+
+### 7.5 Tanggung Jawab dan Akuntabilitas (Update)
+
+Seiring dengan adopsi *Policy-as-Code*, peran akuntabilitas sedikit berubah dari sekadar "penyusun kebijakan" menjadi "arhitektur kepatuhan":
+
+*   **Tim Legal/Compliance:**
+    *   Bertanggung jawab atas akurasi pemetaan aturan hukum ke dalam *predikat logika* awal.
+    *   Meninjau dan menyetujui output `policy_rules_v1.json` sebelum deployment produksi.
+*   **Tim Security Engineering:**
+    *   Bertanggung jawab atas integritas skrip `compliance_governance_policy_compiler.py`.
+    *   Memastikan bahwa *enforcement rules* yang dihasilkan dapat diimplementasikan tanpa menyebabkan gangguan layanan (*denial of service*) yang tidak sah.
+*   **Auditor Internal:**
+    *   Memverifikasi bahwa setiap perubahan pada `policy_rules_v1.json` melalui proses *Change Management* yang ketat dan tercatat.
+    *   Melakukan sampling acak terhadap aturan API Gateway untuk memastikan tidak ada kebocoran data akibat konfigurasi yang salah.
+
+Dengan mengimplementasikan struktur ini, organisasi tidak hanya memenuhi kewajiban hukum, tetapi juga menciptakan ekosistem di mana kepatuhan adalah fungsi bawaan dari sistem, bukan lapisan tambahan yang reaktif.
