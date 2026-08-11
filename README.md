@@ -4590,3 +4590,159 @@ Jika Anda ingin memvisualisasikan riwayat audit ini di Grafana, Anda dapat mengg
 
 1.  **Izin File:** Pastikan pengguna yang menjalankan `compliance_history_logger.py` memiliki izin baca (`r`) pada file sertifikat dan izin tulis (`w`) pada direktori database.
 2.  **Integritas Database:** Untuk lingkungan produksi tinggi, pertimbangkan untuk mengaktifkan WAL (Write-Ahead Logging) pada SQLite (`PRAGMA journal_mode=WAL;`) untuk meningkatkan konkurensi dan ketahanan terhadap korupsi saat crash.
+
+
+**Ekspor Data ke Format Parquet**
+
+Untuk mendukung analisis data skala besar (*big data*) dan integrasi dengan ekosistem data modern (seperti Apache Spark, Dask, atau alat BI yang mendukung format kolom), tool ini menyertakan modul pengimpor data ke format **Parquet**. Format Parquet menawarkan kompresi yang jauh lebih efisien dan kecepatan pembacaan yang signifikan dibandingkan format baris tradisional seperti CSV atau JSON.
+
+Buat file `compliance_exporter.py` dengan konten berikut:
+
+```python
+#!/usr/bin/env python3
+"""
+compliance_exporter.py
+
+Skrip ini membaca database SQLite dari compliance_history_logger.py dan mengekspor
+seluruh riwayat audit ke dalam format Parquet.
+
+Fitur:
+- Membaca database SQLite secara aman.
+- Mengonversi data ke format Parquet menggunakan library `pyarrow`.
+- Mendukung penentuan path database sumber dan file output tujuan.
+"""
+
+import argparse
+import sqlite3
+import sys
+from pathlib import Path
+
+# Pastikan pyarrow terinstal. Install dengan: pip install pyarrow pandas
+try:
+    import pandas as pd
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+except ImportError:
+    print("Error: Library 'pyarrow' dan 'pandas' diperlukan.")
+    print("Silakan instal menggunakan: pip install pyarrow pandas")
+    sys.exit(1)
+
+
+def connect_db(db_path: str) -> sqlite3.Connection:
+    """Membuka koneksi ke database SQLite."""
+    if not Path(db_path).exists():
+        raise FileNotFoundError(f"Database tidak ditemukan: {db_path}")
+    
+    conn = sqlite3.connect(db_path)
+    return conn
+
+
+def fetch_audit_data(conn: sqlite3.Connection) -> pd.DataFrame:
+    """
+    Mengambil seluruh data dari tabel compliance_audit.
+    
+    Returns:
+        DataFrame pandas yang berisi riwayat audit.
+    """
+    query = "SELECT * FROM compliance_audit"
+    try:
+        df = pd.read_sql_query(query, conn)
+        if df.empty:
+            print("Peringatan: Tabel audit kosong atau tidak ada data.")
+        return df
+    except sqlite3.OperationalError as e:
+        print(f"Error saat membaca database: {e}")
+        sys.exit(1)
+
+
+def export_to_parquet(df: pd.DataFrame, output_path: str, compression: str = 'snappy') -> None:
+    """
+    Mengekspor DataFrame ke file Parquet.
+    
+    Args:
+        df: DataFrame pandas sumber.
+        output_path: Path lengkap untuk file output .parquet.
+        compression: Jenis kompresi ('snappy', 'gzip', 'brotli', dll).
+    """
+    try:
+        # Konversi timestamp menjadi datetime object jika belum, untuk kompatibilitas Parquet
+        if 'timestamp' in df.columns:
+            df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
+            
+        table = pa.Table.from_pandas(df)
+        pq.write_table(table, output_path, compression=compression)
+        print(f"Berhasil mengekspor data ke: {output_path}")
+        
+    except Exception as e:
+        print(f"Gagal mengekspor ke Parquet: {e}")
+        sys.exit(1)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Ekspor riwayat audit compliance dari SQLite ke Parquet."
+    )
+    parser.add_argument(
+        '--db-path', 
+        type=str, 
+        default='compliance_history.db',
+        help='Path ke file database SQLite sumber (default: compliance_history.db)'
+    )
+    parser.add_argument(
+        '--output', 
+        type=str, 
+        default='compliance_audit.parquet',
+        help='Path ke file Parquet tujuan (default: compliance_audit.parquet)'
+    )
+    parser.add_argument(
+        '--compression', 
+        type=str, 
+        default='snappy',
+        help='Metode kompresi Parquet: snappy, gzip, brotli (default: snappy)'
+    )
+
+    args = parser.parse_args()
+
+    print(f"Memuat database dari: {args.db_path}")
+    conn = connect_db(args.db_path)
+    
+    print("Membaca data audit...")
+    df = fetch_audit_data(conn)
+    
+    print(f"Mengekspor {len(df)} baris ke Parquet...")
+    export_to_parquet(df, args.output, compression=args.compression)
+    
+    conn.close()
+    print("Selesai.")
+
+
+if __name__ == '__main__':
+    main()
+```
+
+### Cara Penggunaan
+
+Pastikan prasyarat pustaka telah terinstal:
+```bash
+pip install pyarrow pandas
+```
+
+Jalankan skrip untuk mengekspor data:
+```bash
+# Menggunakan path default
+python compliance_exporter.py
+
+# Menentukan path database dan output secara manual
+python compliance_exporter.py --db-path /var/lib/compliance/my_audit.db --output /data/reports/audit_q1.parquet
+```
+
+### Analisis Performa dan Kompatibilitas
+
+1.  **Efisiensi Penyimpanan**: File Parquet yang dihasilkan biasanya jauh lebih kecil dibandingkan format JSON atau CSV, berkat kompresi kolom (*columnar compression*). Format `snappy` menawarkan keseimbangan terbaik antara kecepatan kompresi dan rasio kompresi, sementara `gzip` menawarkan kompresi lebih tinggi namun membutuhkan lebih banyak CPU.
+2.  **Integrasi Big Data**: File Parquet yang dihasilkan dapat langsung dibaca oleh:
+    *   **Apache Spark**: `spark.read.parquet("compliance_audit.parquet")`
+    *   **Dask**: `dd.read_parquet("compliance_audit.parquet")`
+    *   **Pandas**: `pd.read_parquet("compliance_audit.parquet")`
+3.  **Timestamp Handling**: Skrip ini secara otomatis menangani kolom `timestamp` dari SQLite dan mengonversinya menjadi tipe data `datetime64` native di Parquet, memastikan kompatibilitas waktu yang akurat di ekosistem data lainnya.
+
+> **Catatan:** Jika database Anda sangat besar (>1GB), pertimbangkan untuk menggunakan *batch processing* atau library `dask` untuk menghindari penggunaan memori berlebih saat konversi ke DataFrame.
