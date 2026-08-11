@@ -8121,3 +8121,143 @@ A: **DILARANG KERAS.** Simulasi ini hanya boleh dijalankan di lingkungan *Stagin
 
 **Q: Bagaimana cara membersihkan data trace lama?**
 A: File `aggregated_trace.json` bersifat append-only untuk keperluan audit. Untuk membersihkan, lakukan arsipasi ke *Evidence Repository* (S3 Bucket/Klasifikasi Retensi) dan hapus file asli setelah konfirmasi backup, sesuai kebijakan retensi data perusahaan.
+
+
+### 7. Automated Deployment & Compliance Visualization
+
+Bagian ini mendokumentasikan skrip pen-deploy utama yang bertugas memvalidasi integritas visual, mengompresi aset, dan mendistribusikan dashboard ke infrastruktur publik.
+
+#### 7.1. Deskripsi `compliance_dashboard_deployer.py`
+
+Skrrip ini berfungsi sebagai *bridge* otomatisasi antara generator visual (`compliance_audit_dashboard_generator.py`) dan infrastruktur awan. Tugas utamanya meliputi:
+1.  **Validasi Struktur:** Memastikan file HTML yang dihasilkan valid dan memuat referensi ke peta risiko (`risk_roa_map.json`).
+2.  **Optimisasi Aset:** Mengecek dan mengompres aset statis (CSS, JS, Chart.js) untuk mengurangi waktu muat di sisi klien.
+3.  **Deployment S3:** Mengupload dashboard dan peta ke bucket S3 dengan kebijakan `public-read`.
+4.  **Cache Invalidation:** Memicu invalidasi cache pada CloudFront Distribution setelah update konten.
+
+#### 7.2. Instalasi & Prasyarat
+
+Pastikan lingkungan Python Anda memiliki library berikut:
+```bash
+pip install boto3 beautifulsoup4 requests python-dotenv
+```
+
+Konfigurasi lingkungan AWS Credentials:
+Pastikan variabel lingkungan `AWS_ACCESS_KEY_ID` dan `AWS_SECRET_ACCESS_KEY` telah dikonfigurasi di lingkungan deployment, atau gunakan profile AWS yang aktif (`aws configure`).
+
+#### 7.3. Parameter Komando
+
+Jalankan skrip menggunakan argument berikut:
+
+| Argument | Tipe | Deskripsi | Default |
+| :--- | :--- | :--- | :--- |
+| `--html` | String | Path absolut atau relatif ke file `compliance_audit_dashboard.html`. | `./output/compliance_audit_dashboard.html` |
+| `--map-json` | String | Path ke file `risk_roa_map.json` yang dihasilkan oleh visualizer risiko. | `./output/risk_roa_map.json` |
+| `--s3-bucket` | String | Nama bucket S3 target untuk deployment. | `public-compliance-reports` |
+| `--cloudfront-distribution` | String | ID distribusi CloudFront untuk memicu invalidasi cache. | *Required* |
+
+**Contoh Eksekusi:**
+```bash
+python compliance_dashboard_deployer.py \
+    --html ./dist/dashboard.html \
+    --map-json ./dist/risk_map.json \
+    --s3-bucket public-compliance-reports \
+    --cloudfront-distribution E123456789ABC
+```
+
+#### 7.4. Alur Kerja Internal
+
+1.  **Pre-flight Check:**
+    *   Memverifikasi keberadaan file HTML dan JSON.
+    *   Memvalidasi struktur JSON peta risiko (harus mengandung key `layers` dan `metadata`).
+2.  **HTML Validation:**
+    *   Menggunakan parser HTML untuk memastikan tag `</body>` tertutup dengan benar.
+    *   Memastikan tag `<script>` atau `<link>` mengarah ke sumber eksternal yang terpercaya (untuk Chart.js dan library grafik lainnya).
+3.  **Asset Compression (Optional):**
+    *   Jika opsi `--compress` diaktifkan, skrip akan mem-parse HTML dan mengompres blok CSS/JS inline menggunakan algoritma Gzip/Zlib sebelum upload.
+4.  **S3 Upload:**
+    *   Upload `compliance_audit_dashboard.html` dengan MIME type `text/html`.
+    *   Upload `risk_roa_map.json` dengan MIME type `application/json`.
+    *   Set metadata header `Content-Type` dan `Cache-Control: max-age=3600`.
+5.  **CloudFront Invalidation:**
+    *   Membuat permintaan invalidation path `/*` pada distribusi CloudFront yang diberikan.
+    *   Menunggu status invalidation menjadi `Completed` sebelum mengklaim deployment sukses.
+
+---
+
+### 8. Deployment and Operations Guide
+
+Bagian ini membahas konfigurasi teknis infrastruktur agar dashboard compliance dapat diakses oleh auditor eksternal (stakeholder luar) dengan aman namun tanpa hambatan navigasi.
+
+#### 8.1. Konfigurasi CORS (Cross-Origin Resource Sharing)
+
+Karena dashboard mungkin diakses dari domain auditor yang berbeda dari domain hosting, konfigurasi CORS di bucket S3 diperlukan agar browser mengizinkan pemuatan aset dinamis (seperti font atau data JSON eksternal jika dipisah).
+
+**Bucket Policy / CORS Configuration:**
+
+Tambahkan konfigurasi berikut pada bucket `public-compliance-reports`:
+
+```json
+[
+    {
+        "AllowedHeaders": [
+            "*"
+        ],
+        "AllowedMethods": [
+            "GET",
+            "HEAD"
+        ],
+        "AllowedOrigins": [
+            "https://auditor-portal.company.com",
+            "https://external-auditor-firm.com"
+        ],
+        "ExposeHeaders": [
+            "ETag",
+            "x-amz-request-id"
+        ],
+        "MaxAgeSeconds": 3000
+    }
+]
+```
+*Catatan: Ganti `AllowedOrigins` dengan domain resmi auditor yang terverifikasi. Hindari menggunakan `"*"` pada `AllowedOrigins` untuk lingkungan produksi yang sensitif.*
+
+#### 8.2. Header Keamanan di CloudFront
+
+Untuk mencegah serangan seperti Clickjacking dan XSS saat dashboard diakses oleh auditor, terapkan *Response Headers* berikut pada CloudFront Distribution atau S3 Static Website Hosting:
+
+| Header | Nilai | Alasan Keamanan |
+| :--- | :--- | :--- |
+| `Content-Security-Policy` | `default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com;` | Membatasi sumber eksekusi script dan muatan gambar hanya dari sumber terpercaya. |
+| `X-Frame-Options` | `DENY` | Mencegah iframe embedding dari domain lain (menghindari clickjacking). |
+| `X-Content-Type-Options` | `nosniff` | Mencegah browser memuat file sebagai tipe yang berbeda dari yang dinyatakan. |
+| `Strict-Transport-Security` (HSTS) | `max-age=31536000; includeSubDomains` | Memaksa browser menggunakan HTTPS selama 1 tahun, mencegah downgrade ke HTTP. |
+
+#### 8.3. Monitoring & Troubleshooting Deployment
+
+1.  **Verifikasi Akses Auditor:**
+    Setelah deployment, auditor eksternal harus dapat membuka URL dashboard tanpa diminta kredensial AWS (karena akses `public-read`). Jika terjadi *403 Forbidden*, periksa:
+    *   Apakah bucket policy mengizinkan akses `public-read`?
+    *   Apakah CloudFront OAI (Origin Access Identity) dikonfigurasi jika menggunakan S3 Private? *(Dalam skenario ini, S3 Public).*
+    *   Apakah Header HSTS memblokir akses jika auditor mengakses melalui HTTP?
+
+2.  **Invalidasi Cache Gagal:**
+    Jika dashboard tidak menampilkan pembaruan setelah skrip berjalan:
+    *   Periksa log CloudFront untuk melihat status invalidation ID.
+    *   Tunggu hingga status berubah dari `InProgress` ke `Completed`.
+    *   Hapus cache browser auditor atau gunakan *Hard Refresh* (Ctrl+F5).
+
+3.  **Error Validasi HTML:**
+    Jika skrip mengembalikan error `ValidationFailed`, periksa file HTML sumber. Pastikan tidak ada tag HTML yang rusak yang mungkin terjadi akibat kesalahan template pada `compliance_audit_dashboard_generator.py`.
+
+---
+
+### 9. Reference & Appendices
+
+#### A. Daftar File Output Simulasi
+
+| File | Asal Script | Tujuan |
+| :--- | :--- | :--- |
+| `aggregated_trace.json` | `simulation_orchestrator.py` | Bukti audit teknis (log tindakan). |
+| `compliance_audit_dashboard.html` | `compliance_audit_dashboard_generator.py` | Visualisasi hasil kepatuhan. |
+| `risk_roa_map.json` | `compliance_risk_visualizer.py` | Data peta risiko operasional. |
+| `deployment_log.txt` | `compliance_dashboard_deployer.py` | Log keberhasilan/inovasi deployment. |
