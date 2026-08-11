@@ -2151,3 +2151,253 @@ Skrip ini menggunakan retry mechanism sederhana. Jika koneksi gagal, skrip akan 
 ### 4. Pengembangan Lanjutan
 *   **Webhook Support:** Anda dapat memperluas skrip ini untuk menambahkan endpoint Slack/Discord webhook sebagai alternatif email, terutama untuk tim DevOps yang lebih responsif terhadap notifikasi instan.
 *   **Filtering Lanjutan:** Tambahkan argumen `--exclude-status` untuk mengecualikan status tertentu dari notifikasi jika ada status "Deprecated" yang sudah ditangani secara manual dan tidak memerlukan alarm.
+
+
+## Deteksi Kadaluarsa Validasi (Validation Expiry Check)
+
+Selain mendeteksi status deprecated, penting juga untuk memastikan bahwa ID yang masih berstatus **Active** memiliki metadata validasi yang terkini. Skrip `id_compliance_checker.py` dirancang untuk menjalankan audit kompliance berkala, memastikan tidak ada ID "Active" yang terlupakan atau tidak diverifikasi dalam jangka waktu tertentu.
+
+### 1. Overview Skrip
+
+Skrip ini bekerja sebagai layer keamanan tambahan dengan fokus pada integritas data. Alur kerjanya adalah sebagai berikut:
+
+1.  Membaca file YAML input (output dari `id_exporter.py` atau skrip pendeteksi lain).
+2.  Memfilter entri yang memiliki `status: "Active"`.
+3.  Memeriksa field `last_validation_timestamp`.
+    *   Jika field kosong atau hilang, dianggap **Expired**.
+    *   Jika field berisi timestamp, skrip menghitung selisih waktu dengan waktu saat ini (`now`).
+    *   Jika selisih waktu > 7 hari (168 jam), maka ID tersebut ditandai sebagai **Expired Validation**.
+4.  Menghasilkan file CSV containing daftar ID yang tidak memenuhi kriteria validasi.
+
+### 2. Instalasi dan Dependensi
+
+Pastikan library berikut terinstall di environment Python Anda:
+
+```bash
+pip install pyyaml pandas python-dateutil
+```
+
+*   `pyyaml`: Untuk parsing file YAML.
+*   `pandas`: Untuk pembuatan laporan CSV yang efisien.
+*   `python-dateutil`: Untuk parsing string timestamp yang robust (mendukung berbagai format ISO 8601).
+
+### 3. Implementasi Skrip (`id_compliance_checker.py`)
+
+Simpan kode berikut sebagai `id_compliance_checker.py`:
+
+```python
+#!/usr/bin/env python3
+"""
+id_compliance_checker.py
+Verifies that 'Active' IDs have a validation timestamp within the last 7 days.
+
+Usage:
+    python id_compliance_checker.py --yaml input_data.yaml --output expired_report.csv
+"""
+
+import argparse
+import csv
+import sys
+from datetime import datetime, timedelta
+from pathlib import Path
+
+import yaml
+import pandas as pd
+from dateutil import parser as date_parser
+
+
+# Konfigurasi
+DAYS_THRESHOLD = 7
+REQUIRED_FIELDS = ["id", "status", "last_validation_timestamp"]
+
+
+def load_yaml_data(yaml_path: str) -> list:
+    """Memuat dan memvalidasi struktur dasar data YAML."""
+    path = Path(yaml_path)
+    if not path.exists():
+        raise FileNotFoundError(f"File YAML tidak ditemukan: {yaml_path}")
+    
+    with open(path, 'r', encoding='utf-8') as f:
+        try:
+            data = yaml.safe_load(f)
+        except yaml.YAMLError as e:
+            raise ValueError(f"Error parsing YAML: {e}")
+
+    # Handle jika data berupa dictionary tunggal atau list
+    if isinstance(data, dict):
+        return [data]
+    elif isinstance(data, list):
+        return data
+    else:
+        raise ValueError("Format YAML tidak didukung. Harap gunakan List atau Dictionary.")
+
+
+def parse_timestamp(ts_value) -> datetime:
+    """Membantu memparse string timestamp menjadi objek datetime."""
+    if ts_value is None:
+        return None
+    
+    try:
+        # dateutil.parser handles many ISO 8601 variants automatically
+        return date_parser.parse(str(ts_value))
+    except (ValueError, TypeError) as e:
+        print(f"Warning: Tidak dapat memparse timestamp '{ts_value}'. Dianggap invalid.", file=sys.stderr)
+        return None
+
+
+def check_compliance(ids_data: list) -> pd.DataFrame:
+    """
+    Memindai data dan mengembalikan DataFrame berisi ID yang kadaluarsa validasinya.
+    """
+    expired_ids = []
+    current_time = datetime.now()
+    cutoff_time = current_time - timedelta(days=DAYS_THRESHOLD)
+
+    print(f"[*] Memulai pemeriksaan kompliance. Batas waktu: {cutoff_time.isoformat()}")
+    print(f"[*] Total entri data: {len(ids_data)}")
+
+    for entry in ids_data:
+        # Pastikan entri adalah dictionary
+        if not isinstance(entry, dict):
+            continue
+
+        # Ambil status (default ke None jika tidak ada)
+        status = entry.get("status")
+        
+        # Hanya proses jika status adalah "Active"
+        if status != "Active":
+            continue
+
+        # Ambil ID dan Timestamp
+        record_id = entry.get("id", "UNKNOWN_ID")
+        raw_timestamp = entry.get("last_validation_timestamp")
+
+        # Logika Pendeteksian Kadaluarsa
+        is_expired = False
+        reason = ""
+
+        if raw_timestamp is None or raw_timestamp == "":
+            is_expired = True
+            reason = "Metadata Hilang (Null/Empty)"
+        else:
+            timestamp_obj = parse_timestamp(raw_timestamp)
+            
+            if timestamp_obj is None:
+                # Jika parsing gagal, anggap expired karena data tidak valid
+                is_expired = True
+                reason = "Format Timestamp Invalid"
+            elif timestamp_obj < cutoff_time:
+                is_expired = True
+                reason = f"Terlalu Lama (> {DAYS_THRESHOLD} hari)"
+
+        if is_expired:
+            expired_ids.append({
+                "id": record_id,
+                "status": "Active",
+                "last_validation_timestamp": raw_timestamp,
+                "expiry_reason": reason,
+                "last_valid": timestamp_obj.isoformat() if timestamp_obj else "N/A"
+            })
+
+    # Buat DataFrame
+    if expired_ids:
+        df = pd.DataFrame(expired_ids)
+        print(f"[!] Ditemukan {len(df)} ID yang kadaluarsa validasinya.")
+        return df
+    else:
+        print("[✓] Tidak ada ID yang kadaluarsa. Semua validasi aktif.")
+        return pd.DataFrame(columns=["id", "status", "last_validation_timestamp", "expiry_reason", "last_valid"])
+
+
+def save_report(df: pd.DataFrame, output_path: str):
+    """Menyimpan laporan ke dalam file CSV."""
+    df.to_csv(output_path, index=False)
+    print(f"[+] Laporan berhasil disimpan ke: {output_path}")
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Periksa kepatuhan validasi timestamp untuk ID berstatus Active."
+    )
+    parser.add_argument(
+        "--yaml", 
+        required=True, 
+        help="Path ke file input YAML (hasil dari id_exporter.py)"
+    )
+    parser.add_argument(
+        "--output", 
+        required=True, 
+        help="Path ke file output CSV untuk laporan kompliance"
+    )
+
+    args = parser.parse_args()
+
+    try:
+        # 1. Load Data
+        print(f"[*] Memuat data dari: {args.yaml}")
+        data = load_yaml_data(args.yaml)
+        
+        # 2. Proses Logika
+        report_df = check_compliance(data)
+        
+        # 3. Simpan Output
+        if not report_df.empty:
+            save_report(report_df, args.output)
+        else:
+            # Opsional: Buat file kosong jika tidak ada error, atau skip
+            print("Tidak ada laporan yang dihasilkan (semua bersih).")
+            
+    except Exception as e:
+        print(f"[ERROR] Terjadi kesalahan: {e}", file=sys.stderr)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
+```
+
+### 4. Cara Penggunaan
+
+#### Command Line Basic
+Untuk menjalankan pemeriksaan dan menghasilkan laporan:
+
+```bash
+python id_compliance_checker.py --yaml valid_ids.yaml --output compliance_report.csv
+```
+
+#### Output CSV
+File `compliance_report.csv` akan memiliki struktur kolom berikut:
+
+| Kolom | Deskripsi |
+| :--- | :--- |
+| `id` | ID unik yang berstatus Active. |
+| `status` | Selalu "Active" (karena ini adalah filter). |
+| `last_validation_timestamp` | Nilai timestamp asli dari YAML. |
+| `expiry_reason` | Alasan mengapa dianggap kadaluarsa (misal: "Terlalu Lama"). |
+| `last_valid` | Timestamp parsed yang dianggap valid (ISO format). |
+
+### 5. Integrasi dengan Pipeline existing
+
+Skrip ini dapat digabungkan dengan `id_alert_engine.py` untuk membuat pipeline monitoring end-to-end.
+
+**Skenario Alur Kerja:**
+
+1.  **Ekspor:** `id_exporter.py` menghasilkan `data_daily.yaml`.
+2.  **Audit:** `id_compliance_checker.py` membaca `data_daily.yaml` dan menghasilkan `audit_expired.csv`.
+3.  **Alerting:** Skrip notifikasi (atau skrip baru) membaca `audit_expired.csv`. Jika baris ada, kirim email/notifikasi Slack kepada tim pemeliharaan untuk segera memvalidasi ID tersebut.
+
+**Contoh Integrasi Cron:**
+
+Tambahkan baris berikut ke `crontab -e` untuk menjalankan audit setiap pagi:
+
+```cron
+# Jalankan eksport data jam 00:00, lalu audit kompliance jam 01:00
+0 0 * * * /usr/bin/python3 /opt/scripts/id_exporter.py --output /opt/data/daily.yaml
+0 1 * * * /usr/bin/python3 /opt/scripts/id_compliance_checker.py --yaml /opt/data/daily.yaml --output /var/log/compliance_expired.csv >> /var/log/compliance_check.log 2>&1
+```
+
+### 6. Pertimbangan Teknis
+
+*   **Timezone Awareness:** Skrip ini menggunakan `datetime.now()` yang bersifat lokal (naive). Jika server Anda berada di timezone berbeda dengan sumber data timestamp, pastikan untuk mengkonfigurasi timezone secara eksplisit (misal, menggunakan `pytz` atau `zoneinfo`) sebelum melakukan perbandingan waktu.
+*   **Performa:** Untuk file YAML dengan ratusan ribu entri, penggunaan `pandas` membantu mempercepat proses filtering. Namun, parsing YAML tetap menjadi bottleneck I/O. Untuk skenario big data, pertimbangkan untuk mengonversi YAML ke Parquet atau JSON lines.
+*   **Ekstensi Threshold:** Jika kebijakan perusahaan berubah menjadi 30 hari, Anda dapat mengubah variabel `DAYS_THRESHOLD = 7` menjadi `30` atau menambahkan argumen `--days 30` pada argparse di masa depan.
