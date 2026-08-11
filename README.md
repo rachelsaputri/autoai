@@ -4909,3 +4909,99 @@ Anda dapat menyertakan langkah ini dalam pipeline CI/CD Anda setelah proses dete
 ```
 
 Artifak HTML yang diunggah ini dapat diunduh oleh tim operasional untuk dianalisis lebih lanjut tanpa perlu menjalankan infrastruktur lokal.
+
+
+### Otomatisasi Deployment Dashboard
+
+Untuk memastikan bahwa laporan anomali statis tidak hanya dihasilkan secara lokal, tetapi juga tersedia untuk tim operasional kapan saja, proyek ini menyediakan skrip utilitas `auto_dashboard_deployment.py`. Skrip ini membaca file HTML yang dihasilkan dan data CSV sumbernya, melakukan validasi integritas dasar, lalu mengunggah aset tersebut ke tujuan penyimpanan yang telah dikonfigurasi.
+
+#### Fitur Utama
+
+*   **Validasi Integritas**: Memverifikasi keberadaan dan ukuran minimum file sebelum upload untuk mencegah distribusi file kosong atau rusak.
+*   **Dukungan Multi-Target**: Mendukung pengiriman ke Amazon S3 (menggunakan `boto3`) atau penyimpanan via SCP/SFTP (menggunakan `paramiko`).
+*   **Manajemen Kredensial Terpusat**: Kredensial akses tidak dilewatkan sebagai argumen command-line (yang berisiko terekam di riwayat shell), melainkan dibaca dari file konfigurasi eksternal.
+*   **Logging Terstruktur**: Output log berwarna untuk memudahkan monitoring proses upload.
+
+#### Instalasi Dependensi
+
+Skrip ini memerlukan dependensi berikut. Pastikan untuk menginstalnya sebelum menjalankan skrip:
+
+```bash
+pip install boto3 paramiko
+```
+
+#### Penggunaan Dasar
+
+Jalankan skrip dengan memberikan path ke file dashboard HTML, data CSV, serta konfigurasi kredensial dan target tujuan.
+
+```bash
+python auto_dashboard_deployment.py \
+    --html output/anomaly_dashboard.html \
+    --csv output/statistical_anomalies.csv \
+    --target s3 \
+    --credentials config/aws_s3_config.json
+```
+
+**Catatan:** Untuk SCP/SFTP, ubah `--target` menjadi `scp` atau `sftp` dan sesuaikan struktur file kredensial (format YAML atau JSON untuk hostname, username, dan private key passphrase).
+
+#### Struktur Argumen
+
+| Argumen | Tipe | Deskripsi | Wajib |
+| :--- | :--- | :--- | :--- |
+| `--html` | String | Path absolut atau relatif ke file `dashboard.html` yang dihasilkan. | Ya |
+| `--csv` | String | Path absolut atau relatif ke file `statistical_anomalies.csv`. | Ya |
+| `--target` | Enum | Tujuan penyimpanan: `s3` atau `scp`. | Ya |
+| `--credentials` | String | Path ke file JSON/YAML yang berisi kredensial akses. | Ya |
+| `--bucket` | String | *(Opsional, hanya untuk S3)* Nama bucket S3 tujuan. Jika tidak diberikan, akan dibaca dari file kredensial. | Tidak |
+
+#### Contoh File Kredensial
+
+File kredensial dapat disesuaikan formatnya sesuai dengan target. Berikut adalah contoh untuk **S3**:
+
+```json
+{
+    "aws_access_key_id": "YOUR_ACCESS_KEY",
+    "aws_secret_access_key": "YOUR_SECRET_KEY",
+    "region_name": "ap-southeast-1",
+    "bucket_name": "company-data-anomalies-2024"
+}
+```
+
+Berikut adalah contoh untuk **SCP**:
+
+```json
+{
+    "hostname": "192.168.1.100",
+    "port": 22,
+    "username": "deploy_user",
+    "key_file": "/path/to/private_key",
+    "remote_dir": "/var/www/anomalies/reports"
+}
+```
+
+#### Integrasi Lanjutan dengan CI/CD
+
+Anda dapat menyederhanakan pipeline GitHub Actions sebelumnya dengan mengganti langkah upload artifact statis dengan skrip ini. Hal ini memungkinkan dashboard langsung dipublikasikan ke storage permanen atau web server internal.
+
+```yaml
+# Contoh snippet GitHub Actions - Lanjutan
+- name: Install Deployment Dependencies
+  run: pip install boto3 paramiko
+
+- name: Deploy Dashboard to S3/SCP
+  env:
+    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  run: |
+    python auto_dashboard_deployment.py \
+      --html artifacts/anomaly_dashboard.html \
+      --csv output/statistical_anomalies.csv \
+      --target s3 \
+      --credentials .ci_s3_credentials.json
+```
+
+#### Catatan Keamanan
+
+1.  **Jangan Komit Kredensial**: Pastikan file yang merujuk ke `--credentials` ditambahkan ke `.gitignore`.
+2.  **Iminimisasi Privilase**: Gunakan IAM Role atau User dengan hak akses minimal hanya untuk menulis (put/object/upload) ke bucket atau direktori target.
+3.  **Validasi Output**: Pastikan file `dashboard.html` yang dihasilkan oleh `statistical_anomaly_dashboard.py` mengandung tag `<html>` yang valid sebelum melakukan upload, untuk mencegah korupsa data di sisi penerima.
