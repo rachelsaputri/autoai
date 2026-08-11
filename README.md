@@ -4746,3 +4746,77 @@ python compliance_exporter.py --db-path /var/lib/compliance/my_audit.db --output
 3.  **Timestamp Handling**: Skrip ini secara otomatis menangani kolom `timestamp` dari SQLite dan mengonversinya menjadi tipe data `datetime64` native di Parquet, memastikan kompatibilitas waktu yang akurat di ekosistem data lainnya.
 
 > **Catatan:** Jika database Anda sangat besar (>1GB), pertimbangkan untuk menggunakan *batch processing* atau library `dask` untuk menghindari penggunaan memori berlebih saat konversi ke DataFrame.
+
+
+### Deteksi Anomali Statistik dengan `parquet_anomaly_detector.py`
+
+Setelah mengekspor data ke format Parquet, langkah selanjutnya dalam pipeline kepatuhan adalah mengidentifikasi pola yang menyimpang secara signifikan. Modul `parquet_anomaly_detector.py` disediakan untuk melakukan analisis statistik deskriptif dan deteksi outlier menggunakan metode *Interquartile Range* (IQR) pada kolom diskrepansi frekuensi.
+
+#### Fitur Utama
+*   **Analisis Kolom Diskrepansi**: Secara otomatis mengidentifikasi kolom yang mengandung nilai diskrepansi (misalnya: `frequency_discrepancy` atau kolom serupa tergantung skema data Anda).
+*   **Metode IQR (Interquartile Range)**: Menggunakan rumus statistik standar $Q1 - 1.5 	imes IQR$ dan $Q3 + 1.5 	imes IQR$ untuk menetapkan batas outlier.
+*   **Skor Deviasi**: Menghitung seberapa jauh setiap anomali menyimpang dari batas kuartil terdekat, memberikan metrik "keparahan" anomali.
+*   **Konfigurasi Fleksibel**: Memungkinkan penyesuaian sensitivitas deteksi melalui parameter multiplier.
+
+#### Prasyarat
+Pastikan pustaka berikut telah terinstal:
+
+```bash
+pip install pyarrow pandas numpy
+```
+
+#### Cara Penggunaan
+
+Berikut adalah contoh penggunaan dasar untuk mendeteksi anomali dari file hasil ekspor sebelumnya:
+
+```bash
+# Menggunakan parameter default (IQR Multiplier = 1.5)
+python parquet_anomaly_detector.py \
+    --input /data/reports/audit_q1.parquet \
+    --output statistical_anomalies.csv
+
+# Menentukan batas outlier yang lebih ketat (Multiplier = 2.0)
+python parquet_anomaly_detector.py \
+    --input /data/reports/audit_q1.parquet \
+    --output strict_anomalies.csv \
+    --iqr-multiplier 2.0
+```
+
+#### Penjelasan Argumen
+| Argumen | Tipe | Default | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `--input` | `str` | `None` | Path ke file input `.parquet`. Wajib diisi. |
+| `--output` | `str` | `statistical_anomalies.csv` | Path untuk file output CSV berisi daftar anomali. |
+| `--iqr-multiplier` | `float` | `1.5` | Faktor pengali untuk menghitung batas atas dan bawah IQR. Nilai lebih tinggi mengurangi False Positives namun mungkin melewatkan anomali kecil. |
+
+#### Struktur Output CSV
+
+File CSV yang dihasilkan (`statistical_anomalies.csv`) akan mengandung kolom-kolom berikut:
+
+1.  `id`: Identifier unik dari entitas yang anomali (diambil dari kolom ID di Parquet).
+2.  `column_name`: Nama kolom tempat diskrepansi ditemukan.
+3.  `original_value`: Nilai diskrepansi asli yang terdeteksi sebagai outlier.
+4.  `lower_bound`: Batas bawah IQR untuk kolom tersebut.
+5.  `upper_bound`: Batas atas IQR untuk kolom tersebut.
+6.  `deviation_score`: Skor deviasi yang dihitung sebagai jarak nilai terhadap batas yang relevan (misalnya: `value - upper_bound` jika di atas, atau `lower_bound - value` jika di bawah). Skor yang lebih tinggi menunjukkan anomali yang lebih ekstrem.
+
+#### Logika Deteksi
+
+1.  **Pembacaan Data**: File Parquet dibaca ke dalam DataFrame Pandas menggunakan `pyarrow` backend untuk efisiensi memori.
+2.  **Identifikasi Kolom Target**: Skrip mencari kolom numerik yang berpotensi menyimpan data frekuensi atau diskrepansi. Jika nama kolom spesifik diketahui, pengguna dapat memodifikasi skrip atau menambahkan argumen `--target-column`.
+3.  **Perhitungan Statistik**:
+    *   Hitung Kuartil 1 ($Q1$) dan Kuartil 3 ($Q3$).
+    *   Hitung Interquartile Range: $IQR = Q3 - Q1$.
+    *   Tentukan batas:
+        *   $Lower\_Bound = Q1 - (multiplier 	imes IQR)$
+        *   $Upper\_Bound = Q3 + (multiplier 	imes IQR)$
+4.  **Filtering Anomali**: Baris di mana nilai target $< Lower\_Bound$ atau $> Upper\_Bound$ ditandai sebagai anomali.
+5.  **Ekspotasi**: Hasil diekspor ke CSV, mengurutkan data berdasarkan `deviation_score` secara menurun agar anomali paling signifikan terlihat di bagian atas.
+
+#### Tips Optimasi
+
+*   **Penanganan Null Values**: Skrip secara otomatis mengabaikan nilai `NaN` selama perhitungan statistik. Pastikan data Anda bersih atau lakukan preprocessing di tahap ekspor jika diperlukan.
+*   **Ukuran File Besar**: Untuk file Parquet berukuran raksasa (>5GB), pertimbangkan untuk menggunakan chunking dengan `pandas.read_parquet(..., engine='pyarrow', columns=['id', 'target_column'])` untuk mengurangi penggunaan memori RAM sebelum melakukan perhitungan IQR.
+*   **Pemilihan Multiplier**:
+    *   Gunakan `1.5` untuk standar industri (mengidentifikasi outlier moderat).
+    *   Gunakan `3.0` atau lebih tinggi jika hanya ingin menangkap error data yang sangat kritis atau *systemic failures*.
