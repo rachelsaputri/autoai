@@ -7266,3 +7266,116 @@ File `risk_roa_map.json` yang dihasilkan digunakan oleh `compliance_audit_dashbo
 3.  Mengekspor laporan PDF dari tampilan visual untuk lampiran resmi ke otoritas pengawas.
 
 Dokumentasi ini memastikan bahwa setiap perubahan pada algoritma klasifikasi risiko atau pemetaan regulasi harus dicatat dalam log perubahan versi dan disetujui oleh Data Protection Officer (DPO) sebelum dipromosikan ke produksi.
+
+
+### 5.6 Enforcement Engine: `compliance_policy_enforcer.py`
+
+Modul `compliance_policy_enforcer.py` berfungsi sebagai *gatekeeper teknis* yang menerjemahkan rekomendasi kebijakan dari assessment GDPR (`automated_gdpr_impact_assessment.py`) menjadi tindakan penyaringan data konkret. Modul ini memastikan bahwa data yang dikirimkan ke lingkungan analitik atau pihak ketiga telah mematuhi prinsip *Privacy by Design* melalui pseudonimisasi dan k-anonimitas sebelum dipublikasikan.
+
+#### Arsitektur Eksekusi Kebijakan
+
+Alur kerja eksekutor kebijakan mengikuti pipeline berikut:
+
+1.  **Inisialisasi Konteks:** Membaca `gdpr_dpia_report.json` untuk memuat aturan masking (`masking_rules`), daftar Identifikasi Pribadi (ID Sensitif), dan konfigurasi parameter k-anonimitas (`k_value`).
+2.  **Pemuatan Data:** Membaca dataset mentah (CSV atau Parquet) ke dalam struktur data in-memory (misalnya, DataFrame Pandas atau PyArrow Table).
+3.  **Transformasi Berlapis:**
+    *   **Pseudonimisasi:** Mengganti nilai ID sensitif (misal: `email`, `national_id`) dengan token acak yang tetap (`stable pseudonym`) menggunakan salt berdasarkan konfigurasi.
+    *   **K-Anonimitas:** Mengelompokkan atribut semi-identifiers (misal: `age`, `postal_code`, `gender`) ke dalam kuasik (`quasi-identifiers`) untuk memastikan setiap kelompok memiliki minimal `k` entitas yang indistinguishable.
+4.  **Validasi Pra-Ekspor:** Memastikan bahwa tidak ada rekombinasi kuasik yang menyebabkan re-identifikasi individu (menghitung ukuran kuasik vs threshold `k`).
+5.  **Eksekusi Output:** Menulis dataset yang telah diproses ke path tujuan atau menampilkan ringkasan perubahan jika mode `--dry-run` aktif.
+
+#### Antarmuka Baris Perintah (CLI)
+
+Skrip ini dirancang untuk dapat diintegrasikan ke dalam pipeline CI/CD atau dijalankan secara manual oleh tim kepatuhan.
+
+```bash
+# Contoh eksekusi standar
+python compliance_policy_enforcer.py \
+    --dpia gdpr_dpia_report.json \
+    --dataset raw_customer_data.parquet \
+    --output anonymized_customer_data.parquet
+
+# Contoh mode simulasi (Dry-Run) untuk audit perubahan
+python compliance_policy_enforcer.py \
+    --dpia gdpr_dpia_report.json \
+    --dataset raw_customer_data.parquet \
+    --output output_test.parquet \
+    --dry-run
+```
+
+**Deskripsi Argumen:**
+
+| Argumen | Tipe | Wajib | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `--dpia` | `str` | Ya | Path absolut atau relatif ke file `gdpr_dpia_report.json` yang berisi aturan masking dan konfigurasi sensitivitas. |
+| `--dataset` | `str` | Ya | Path ke file data mentah dalam format `.csv` atau `.parquet`. |
+| `--output` | `str` | Ya | Path tujuan untuk file data hasil transformasi (pseudonimisasi & k-anonim). |
+| `--dry-run` | `flag` | Tidak | Jika flag ini ada, skrip akan melakukan validasi dan menghitung statistik perubahan tanpa menulis file output ke disk. |
+
+#### Implementasi Teknis: Enkripsi Sisi Klien & Manajemen Kunci (Key Management)
+
+*Bagian ini merupakan Lampiran Arsitektur Keamanan untuk Auditor. Dokumen ini menjelaskan mekanisme di balik proses pseudonimisasi dan enkripsi yang diterapkan oleh `compliance_policy_enforcer.py`.*
+
+##### 6.1 Prinsip Pseudonimisasi Deterministik vs Non-Deterministik
+
+Dalam konteks GDPR, *pseudonimisasi* didefinisikan sebagai pengolahan data pribadi sedemikian rupa sehingga data tersebut tidak dapat lagi dikaitkan dengan subjek data tertentu tanpa menggunakan informasi tambahan.
+
+Skrip ini menerapkan dua jenis transformasi berdasarkan sensitivitas field:
+
+1.  **Pseudonimisasi Deterministik (Stable Mapping):**
+    *   **Gunakan untuk:** Field yang membutuhkan relasi antar tabel (misal: `customer_id` di tabel transaksi dan tabel profil).
+    *   **Mekanisme:** Menggunakan fungsi hash kriptografis (SHA-256) dengan *salt* statis yang disimpan dalam Key Vault.
+    *   **Rumus:** `Token = HMAC-SHA256(key=StaticSalt, message=OriginalValue)`
+    *   **Keuntungan:** Konsistensi data antar lingkungan (dev/test/prod) tetap terjaga jika kunci yang sama digunakan.
+    *   **Risiko:** Jika kunci bocor, seluruh dataset dapat dikembalikan. Oleh karena itu, kunci ini dienkripsi di *rest* menggunakan kunci master yang dikelola oleh HSM (Hardware Security Module) atau AWS KMS/Azure Key Vault.
+
+2.  **Pseudonimisasi Non-Deterministik (One-Way Hash):**
+    *   **Gunakan untuk:** Field yang hanya perlu diverifikasi keunikan tanpa relasi lintas tabel (misal: `email` dalam dataset marketing).
+    *   **Mekanisme:** Hash tunggal tanpa salt atau dengan salt acak per batch.
+    *   **Rumus:** `Hash = SHA-256(OriginalValue + RandomSalt)`
+    *   **Keuntungan:** Tidak mungkin merekonstruksi nilai asli atau mengaitkan record antar batch jika salt berubah.
+
+##### 6.2 Manajemen Kunci (Key Management Lifecycle)
+
+Kepatuhan terhadap standar enkripsi sisi klien (*client-side encryption*) memerlukan manajemen kunci yang ketat. `compliance_policy_enforcer.py` tidak menyimpan kunci dalam kode sumber atau file konfigurasi lokal yang tidak terenkripsi.
+
+**Alur Manajemen Kunci:**
+
+1.  **Penyimpanan Kunci (At Rest):**
+    *   Kunci Master (Master Encryption Key - MEK) disimpan di *Cloud KMS* (Key Management Service) yang terstandarisasi (misal: AWS KMS, Azure Key Vault, GCP Cloud KMS).
+    *   Kunci Data (Data Encryption Key - DEK) digunakan untuk mengenkripsi data spesifik. DEK dienkripsi menggunakan MEK sebelum disimpan di metadata database.
+
+2.  **Pengambilan Kunci (Key Retrieval):**
+    *   Saat eksekusi dimulai, skrip menghubungi *Key Management Service (KMS)* menggunakan kredensial IAM/RBAC yang telah dikonfigurasi di lingkungan eksekusi (misal: Instance Profile di AWS atau Managed Identity di Azure).
+    *   Hanya DEK yang didekripsi untuk keperluan transformasi in-memory. MEK tidak pernah meninggalkan layanan KMS.
+
+3.  **Rotasi Kunci (Key Rotation):**
+    *   Kebijakan rotasi otomatis diatur di level KMS (biasanya setiap 1-2 tahun untuk MEK).
+    *   Saat rotasi terjadi, DEK lama harus dienkripsi ulang (re-wrapped) dengan MEK baru. Skrip `compliance_policy_enforcer.py` mendukung parameter `--key-version` untuk memastikan kompatibilitas dengan versi kunci yang berlaku saat pemrosesan data historis.
+
+4.  **Pemusnahan Kunci (Key Destruction):**
+    *   Jika data tertentu perlu dihapus hakiki (*right to be forgotten*), skrip dapat memicu penghapusan DEK terkait atau menandai MEK untuk non-aktif.
+    *   Dalam skenario "Hapus Hakiki", jika DEK sudah dimusnahkan tanpa *backup* yang aman, data yang terenkripsi menjadi tidak dapat dipulihkan, sehingga secara teknis memenuhi syarat penghapuran total.
+
+##### 6.3 Komputasi K-Anonimitas
+
+Untuk memenuhi syarat anonimitas statistik, skrip menerapkan algoritma *Top-Down Specialization* atau *Bottom-Up Generalization* untuk atribut kuantitatif dan kategorikal.
+
+*   **Identifikasi Quasi-Identifiers (QI):** Field seperti `Age`, `Zip Code`, `Gender` diidentifikasi sebagai QI karena kombinasi unik mereka dapat mengidentifikasi individu.
+*   **Proses Generalisasi:**
+    *   Nilai numerik seperti `Age` dibinsikan menjadi interval (misal: 20-30, 31-40).
+    *   Nilai kategori seperti `Zip Code` digeneralisasi ke prefix 3 digit pertama.
+*   **Verifikasi Threshold K:**
+    *   Setelah generalisasi, skrip menghitung ukuran setiap *equivalence class* (kelompok dengan nilai QI identik).
+    *   Jika `len(group) < k` (default `k=5`), data tersebut akan di-*suppress* (dianggap NULL atau dihapus) atau digeneralisasi lebih lanjut hingga threshold terpenuhi.
+    *   Log verifikasi disimpan dalam `audit_log.json` untuk keperluan audit kepatuhan.
+
+##### 6.4 Pertimbangan Auditor: Jejak Audit (Audit Trail)
+
+Setiap eksekusi `compliance_policy_enforcer.py` menghasilkan artefak audit yang harus disimpan bersama data hasil:
+
+1.  **Manifest File:** JSON yang berisi hash SHA-256 dari input, output, dan versi skrip yang digunakan.
+2.  **Log Transformasi:** Rekam jejak perubahan nilai (jumlah baris yang dipseudonimisasi, jumlah baris yang di-suppress).
+3.  **Bukti Kunci:** Metadata yang menunjuk ke ID versi kunci KMS yang digunakan selama enkripsi, memastikan ketertelusuran (traceability) kunci.
+
+Lampiran ini memastikan bahwa proses teknis tidak hanya mematuhi regulasi, tetapi juga dapat diverifikasi secara independen oleh auditor eksternal berdasarkan jejak digital yang tidak dapat diubah.
