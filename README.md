@@ -8690,3 +8690,102 @@ File output JSON yang dihasilkan dapat langsung dipindai oleh alat audit forensi
 
 *   **Untuk Validasi Integrasi:** Lihat bagian [3. Otomatisasi dalam CI/CD](#3-otomatisasi-dalam-cicd) untuk melihat bagaimana deteksi *bottleneck* dapat memicu blok merger jika `severity-level` diatur ke `HIGH` pada pipeline CI.
 *   **Untuk Visualisasi:** Gunakan output dari skrip ini sebagai input ke `compliance_audit_dashboard_generator.py` untuk menampilkan peta panas (*heat map*) skrip bermasalah secara real-time.
+
+
+### Ekspor Laporan Kepatuhan & Legal (Compliance RCA Exporter)
+
+Modul ini dirancang khusus untuk jembatan antara data teknis teknis forensik log dan kebutuhan kepatuhan regulasi (GDPR, NIST SP 800-61). Tujuannya adalah mengonversi temuan teknis mentah menjadi dokumen hukum yang sah, terstruktur, dan siap untuk diaudit oleh regulator atau dewan direksi.
+
+#### Instalasi dan Penggunaan
+
+Pastikan pustaka `fpdf2` (atau `reportlab`) serta `pycryptodome` untuk enkripsi terinstal sebelum menjalankan skrip.
+
+```bash
+pip install fpdf2 pycryptodome
+```
+
+**Contoh Dasar:**
+Mengonversi laporan RCA standar menjadi PDF terenkripsi untuk presentasi eksekutif.
+
+```bash
+python compliance_rca_dashboard_exporter.py \
+  --rca-json ./reports/emergency_rca.json \
+  --verification-log ./logs/verification_log.json \
+  --output ./legal_reports/incident_report_Q3_2023_encrypted.pdf \
+  --password "StrongP@ssw0rd!"
+```
+
+**Argumen Detail:**
+
+| Argumen | Tipe | Default | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `--rca-json` | `string` | `required` | Path ke file JSON hasil `log_analysis_and_rca_engine.py` yang berisi temuan akar masalah. |
+| `--verification-log` | `string` | `required` | Path ke `verification_log.json` dari *archive_integrity_verifier* untuk membuktikan keutuhan bukti digital. |
+| `--output` | `string` | `required` | Path absolut untuk file PDF terenkripsi yang dihasilkan. |
+| `--password` | `string` | `required` | Password untuk mengunci PDF. Wajib digunakan untuk memenuhi standar kerahasiaan data sensitif. |
+| `--auditor-id` | `string` | `N/A` | ID Unik Auditor Internal yang menandatangani laporan (digunakan untuk hash tanda tangan digital dalam metadata). |
+
+---
+
+#### Arsitektur Ekspor dan Proses Konversi
+
+Skrip ini tidak hanya sekadar "mencetak" JSON ke PDF, tetapi melakukan transformasi semantik untuk memenuhi standar legal:
+
+1.  **Ekstraksi Kronologi (Timeline Extraction):**
+    *   Mengurutkan entri dari `rca_json` berdasarkan timestamp kejadian (*incident_start_time*) hingga *remediation_complete*.
+    *   Mengintegrasikan data dari `verification_log` untuk menunjukkan kapan integritas log diverifikasi (menutup celah *gap analysis*).
+
+2.  **Kuantifikasi Dampak Kepatuhan (Compliance Impact Quantification):**
+    *   Memetakan temuan teknis (`severity: CRITICAL`) ke kategori pelanggaran GDPR/NIST.
+    *   Contoh: Jika temuan melibatkan akses ke PII (Personally Identifiable Information) tanpa otorisasi, skrip otomatis menandai bagian ini sebagai **"Potential GDPR Article 33 Violation"** dalam ringkasan eksekutif.
+
+3.  **Generasi Tanda Tangan Digital (Digital Signature Attachment):**
+    *   Menghasilkan hash SHA-256 dari konten PDF.
+    *   Menambahkan metadata sertifikat auditor internal ke dalam struktur PDF menggunakan kunci simetris/asimetris (tergantung konfigurasi kebijakan perusahaan) sebagai bukti non-repudiasi bahwa dokumen tidak diubah sejak pencetakan.
+
+---
+
+### Panduan Kepatuhan & Legal: Standar Penyusunan Laporan Insiden RCA
+
+Bagian ini merujuk pada kerangka kerja internasional untuk memastikan bahwa laporan yang dihasilkan oleh skrip di atas dapat diterima secara hukum dan teknis oleh regulator.
+
+#### 1. Kerangka NIST SP 800-61 Rev. 2 (Computer Security Incident Handling Guide)
+
+Sesuai panduan NIST, laporan akhir insiden (*Incident Post-Incident Activity*) harus mencakup elemen berikut yang diotomatisasi oleh `compliance_rca_dashboard_exporter.py`:
+
+*   **Ringkasan Insiden (Incident Summary):** Harus jelas menyatakan *what, when, where,* dan *who*. Skrip ini mengisi bidang ini dari agregasi log temporal.
+*   **Kronologi Deteksi dan Respons:** Timeline harus memisahkan antara *deteksi awal* dan *konfirmasi insiden*. Data dari `verification_log` digunakan untuk membuktikan bahwa bukti tidak dirusak setelah deteksi awal.
+*   **Analisis Kerugian dan Dampak:** Bukan hanya kerugian finansial, tetapi juga dampak terhadap kepercayaan pemangku kepentingan. Skrip ini menghitung estimasi waktu downtime dan volume data terpengaruh sebagai metrik dasar.
+*   **Tindakan Korektif (Corrective Actions):** Daftar tindakan spesifik untuk mencegah rekurensi. Ini harus tautan langsung ke tiket JIRA/ServiceNow yang ditangani oleh tim rekayasa.
+
+#### 2. Kepatuhan GDPR: Artikel 33 & 34 (Notifikasi Pelanggaran Data)
+
+Jika insiden melibatkan *Personal Data*, laporan RCA harus memenuhi syarat notifikasi ke Otoritas Pengawas Data (DPO/Supervisory Authority) dalam waktu 72 jam.
+
+*   **Sifat Pelanggaran:** Laporan harus secara eksplisit menyebutkan kategori data pribadi yang terpengaruh (misal: data kesehatan, keuangan, identitas).
+*   **Dampak yang Diharapkan:** Penjelasan tentang risiko bagi hak dan kebebasan individu. Skrip ini membantu dengan menyoroti temuan `HIGH`/`CRITICAL` yang terkait dengan akses data sensitif.
+*   **Tindakan yang Diambil:** Deskripsi langkah-langkah mitigasi yang sudah dilakukan atau direncanakan.
+
+#### 3. Template Lampiran Teknis (Technical Appendix)
+
+Untuk mendukung investigasi eksternal, lampiran teknis dalam PDF harus menyertakan tabel berikut (dihasilkan otomatis oleh skrip):
+
+| Field | Deskripsi | Sumber Data |
+| :--- | :--- | :--- |
+| `Evidence_Hash_SHA256` | Hash unik dari bukti log mentah untuk integritas forensik. | `verification_log.json` |
+| `Incident_ID` | Referensi unik dari sistem ticketing. | `rca_json` metadata |
+| `Root_Cause_Code` | Kode klasifikasi penyebab utama (misal: `CONFIG_ERROR`, `MALWARE`). | `log_analysis_and_rca_engine.py` |
+| `Data_Subjects_Affected` | Estimasi jumlah individu yang terdampak. | Aggregasi log akses PII |
+| `Remediation_Status` | Status penyelesaian (Open/Closed/Pending). | `rca_json` status field |
+
+---
+
+#### Integrasi dengan Proses Audit
+
+Setelah file PDF terenkripsi dihasilkan:
+
+1.  **Pengarsipan Aman:** File harus diupload ke *Secure Document Management System* (DMS) dengan tag `LEGAL-INCIDENT`.
+2.  **Bukti Non-Repudiasi:** Hash PDF dan hash bukti log (dari lampiran teknis) harus dicatat dalam *Immutable Audit Ledger* perusahaan.
+3.  **Review Auditor:** Auditor internal dapat menggunakan skrip `compliance_audit_dashboard_generator.py` untuk memvalidasi bahwa PDF yang dihasilkan sesuai dengan data mentah di `aggregated_trace.json`, memastikan tidak ada manipulasi dalam ringkasan eksekutif.
+
+> **Catatan Hukum:** Output dari skrip ini bersifat "draft" hingga ditandatangani secara digital oleh CISO atau DPO yang berwenang. Penggunaan dokumen ini untuk tujuan hukum memerlukan verifikasi tanda tangan digital dan keabsahan sertifikat auditor.
