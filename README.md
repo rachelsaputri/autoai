@@ -3666,3 +3666,120 @@ Untuk memastikan laporan disparansi diperbarui secara rutin setelah log dianalis
 ```
 
 *Catatan: Jeda waktu (`1 1 * * *`) digunakan untuk memastikan `log_analyzer.py` selesai berjalan dan menghasilkan file JSON sebelum `yaml_audit_reporter.py` mencoba membacanya.*
+
+
+# 3. Analisis Korelasi Keamanan dan Disparansi
+
+Setelah laporan disparansi (`disparity_report.csv`) dan log audit keamanan (`security_audit.log`) dihasilkan, langkah selanjutnya adalah menganalisis hubungan antara kedua data tersebut. Modul ini bertujuan untuk mengidentifikasi apakah ID dengan tingkat disparansi tinggi (selisih frekuensi > 10%) secara statistik berkorelasi dengan pola anomali keamanan yang terdeteksi sebelumnya.
+
+## Pendekatan Teknis
+
+Script `disparity_correlator.py` melakukan langkah-langkah berikut:
+
+1.  **Parsing Data Disparansi**: Membaca file CSV yang dihasilkan oleh `yaml_audit_reporter.py` dan memfilter ID yang memiliki `disparity_percentage` > 10%.
+2.  **Parsing Log Keamanan**: Membaca file log keamanan (format teks standar atau JSON, sesuaikan parser jika format berbeda) dan mengekstrak event anomali yang relevan dengan ID yang dipantau.
+3.  **Transformasi Fitur**: Mengubah data menjadi format numerik untuk analisis statistik:
+    *   Variabel X: Tingkat Disparansi (biner: 1 jika > 10%, 0 jika tidak).
+    *   Variabel Y: Frekuensi Anomali Keamanan per ID.
+4.  **Analisis Korelasi Pearson**: Menghitung koefisien korelasi Pearson (`r`) untuk mengukur kekuatan dan arah hubungan linear antara disparansi dan anomali keamanan.
+5.  **Identifikasi Risiko Gabungan**: Menghasilkan daftar ID yang memiliki baik disparansi tinggi maupun kejadian anomali keamanan yang signifikan.
+6.  **Ekspor Hasil**: Menyimpan hasil analisis statistik dan daftar risiko ke dalam file JSON yang terstruktur.
+
+## Persyaratan Sistem
+
+Pastikan lingkungan Python Anda memiliki pustaka analisis data berikut terinstal:
+
+```bash
+pip install pandas scipy
+```
+
+*Catatan: Jika tidak ingin menggunakan `pandas` dan `scipy`, script dapat diadaptasi menggunakan pustaka standar, namun rekomendasi ini memberikan akurasi dan kemudahan parsing yang lebih baik.*
+
+## Dokumentasi Argumen Script
+
+Script `disparity_correlator.py` menerima argumen baris perintah untuk menentukan lokasi file input dan output.
+
+| Argumen | Deskripsi | Tipe | Default |
+| :--- | :--- | :--- | :--- |
+| `--disparity-csv` | Path absolut atau relatif ke file CSV hasil `yaml_audit_reporter.py` | `str` | `disparity_report.csv` |
+| `--security-log` | Path absolut atau relatif ke file log audit keamanan (`security_audit.log`) | `str` | `security_audit.log` |
+| `--output` | Path tujuan untuk menyimpan hasil analisis dalam format JSON | `str` | `correlation_analysis.json` |
+
+### Contoh Penggunaan
+
+```bash
+python disparity_correlator.py \
+  --disparity-csv /reports/disparity_check.csv \
+  --security-log /var/log/security_audit.log \
+  --output /reports/correlation_analysis.json
+```
+
+## Struktur Output JSON
+
+Hasil analisis disimpan dalam file JSON (`correlation_analysis.json`) dengan struktur sebagai berikut:
+
+```json
+{
+  "summary": {
+    "total_ids_analyzed": 150,
+    "ids_with_high_disparity": 25,
+    "ids_with_security_anomalies": 18,
+    "pearson_correlation_coefficient": 0.65,
+    "interpretation": "Moderate positive correlation detected."
+  },
+  "risk_ids": [
+    {
+      "id": "USER_1023",
+      "disparity_percentage": 15.4,
+      "security_anomaly_count": 3,
+      "severity": "HIGH"
+    },
+    {
+      "id": "SYS_009",
+      "disparity_percentage": 12.1,
+      "security_anomaly_count": 1,
+      "severity": "MEDIUM"
+    }
+  ]
+}
+```
+
+**Penjelasan Field:**
+*   `summary.pearson_correlation_coefficient`: Nilai antara -1 hingga 1. Nilai positif menunjukkan bahwa semakin tinggi disparansi, semakin tinggi kemungkinan anomali keamanan.
+*   `summary.interpretation`: Evaluasi tekstual sederhana berdasarkan nilai koefisien korelasi.
+*   `risk_ids`: Daftar ID yang memenuhi kriteria risiko gabungan (disparansi > 10% DAN memiliki catatan anomali keamanan).
+
+## Integrasi ke Cronjob
+
+Untuk mengotomatisasi analisis korelasi ini, tambahkan entri cronjob di bawah job yang sudah ada untuk menghasilkan laporan disparansi. Pastikan job ini dijalankan *setelah* job `yaml_audit_reporter.py` selesai.
+
+Tambahkan baris berikut ke `crontab`:
+
+```cron
+# Jalankan log analyzer (Sudah ada)
+0 1 * * * /usr/bin/python3 /opt/scripts/log_analyzer.py >> /var/log/log_analyzer.log 2>&1
+
+# Jalankan audit disparansi (Sudah ada)
+1 1 * * * /usr/bin/python3 /opt/scripts/yaml_audit_reporter.py \
+  --yaml /data/id_metadata.yaml \
+  --log-json /var/log/analyzer/summary.json \
+  --output /reports/disparity_check.csv >> /var/log/yaml_audit.log 2>&1
+
+# **BARU**: Jalankan analisis korelasi setelah disparansi selesai
+# Asumsi: security_audit.py berjalan rutin menghasilkan security_audit.log
+5 1 * * * /usr/bin/python3 /opt/scripts/disparity_correlator.py \
+  --disparity-csv /reports/disparity_check.csv \
+  --security-log /var/log/security_audit.log \
+  --output /reports/correlation_analysis.json >> /var/log/correlation_audit.log 2>&1
+```
+
+**Catatan Penting:**
+1.  **Urutan Eksekusi**: Jeda waktu (`5 1 * * *`) diberikan 4 menit setelah job disparansi (`1 1 * * *`) untuk memastikan file CSV disparansi sudah tertutup dan siap dibaca.
+2.  **Ketersediaan Log Keamanan**: Pastikan `security_audit.log` sudah terupdate sebelum timestamp 01:05. Jika `security_audit.py` berjalan pada waktu lain, sesuaikan jadwal cron atau tambahkan logikadeadlock/retry dalam script jika log belum tersedia.
+3.  **Monitor Log**: Periksa `/var/log/correlation_audit.log` secara berkala untuk mendeteksi kesalahan parsing format log keamanan yang berubah.
+
+## Pertimbangan Keamanan dan Privasi
+
+Karena script ini menggabungkan data operasional (disparansi frekuensi) dengan data keamanan (anomali), pastikan:
+*   Akses ke file `security_audit.log` dan `correlation_analysis.json` dibatasi hanya untuk user sistem yang relevan (misal: `root` atau user `security-auditor`).
+*   Jika data yang dianalisis mengandung informasi PII (Personally Identifiable Information), pastikan pipeline enkripsi atau anonymisasi diterapkan sebelum data masuk ke dalam proses korelasi ini.
