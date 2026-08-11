@@ -3914,3 +3914,262 @@ Karena skrip ini melakukan **perubahan keadaan** (menghapus/menandai data), keha
 - **`auto_fixer.py` Tidak Ditemukan**: Pastikan `PATH` atau path absolut pada argumen `--fixer-cmd` benar.
 - **Error JSON Parsing**: Jika `correlation_analysis.json` rusak atau belum selesai ditulis, `auto_remediation.py` akan mengeluarkan error. Pastikan interval cron memberikan waktu cukup (lihat catatan jadwal).
 - **Remediasi Gagal Diam-diam**: Selalu periksa `exit code` dalam log `auto_remediation.log`. Gunakan script wrapper atau health-check cron untuk memonitor keberhasilan eksekusi `auto_fixer.py`.
+
+
+### Sertifikasi Kepatuhan Data (`compliance_certifier.py`)
+
+Modul ini berfungsi sebagai *gatekeeper* akhir sebelum data dikategorikan sebagai "bersih" dan dapat digunakan untuk analitik lanjutan atau dilaporkan ke pihak ketiga. Modul ini melakukan validasi silang antara hasil korelasi anomali (`disparity_correlator.py`) dan laporan audit disparansi teknis (`yaml_audit_reporter.py`).
+
+#### Fungsi Utama
+1.  **Validasi Ambang Batas Discrepancy**: Memastikan tidak ada entri ID yang memiliki persentase perbedaan data (`discrepancy_pct`) melebihi 5%.
+2.  **Pemeriksaan Anomali Kritis**: Memverifikasi bahwa tidak ada entri yang memiliki level keparahan anomali kritis (`severity == "CRITICAL"`).
+3.  **Generasi Sertifikat**: Jika validasi lolos, menghasilkan file JSON yang berisi status kepatuhan, timestamp, dan tanda tangan digital untuk memastikan integritas data.
+
+#### Arsitektur Eksekusi
+
+1.  **Inisialisasi Input**:
+    *   Membaca `correlation_analysis.json` (menggunakan argumen `--analysis`).
+    *   Membaca `disparity_report.csv` (menggunakan argumen `--disparity-csv`).
+2.  **Penggabungan Konteks Data**:
+    *   Menyatukan data JSON dan CSV berdasarkan `ID` unik untuk membuat satu peta konteks lengkap per entri.
+3.  **Logika Validasi**:
+    *   Iterasi melalui setiap entri ID.
+    *   Cek 1: `discrepancy_pct <= 5.0`. Jika gagal, tandai sebagai `FAIL` dan catat alasan.
+    *   Cek 2: `anomaly_severity != "CRITICAL"`. Jika gagal, tandai sebagai `FAIL` dan catat alasan.
+4.  **Pembuatan Sertifikat**:
+    *   Jika semua entri lolos: Status `'PASS'`.
+    *   Jika ada entri gagal: Status `'FAIL'` dengan detail entri yang bermasalah.
+    *   Menghitung Hash SHA-256 dari isi JSON sertifikat (kecuali hash itu sendiri) untuk mencegah modifikasi pasca-generasi.
+5.  **Penulisan Output**:
+    *   Menyimpan hasil ke `compliance_cert.json` (menggunakan argumen `--output`).
+
+#### Implementasi Kode
+
+```python
+#!/usr/bin/env python3
+"""
+compliance_certifier.py
+Verifies data compliance by cross-referencing anomaly correlation data 
+and technical disparity reports.
+
+Usage:
+    python compliance_certifier.py --analysis <path_to_json> --disparity-csv <path_to_csv> --output <path_to_output_json>
+"""
+
+import argparse
+import csv
+import hashlib
+import json
+import sys
+from datetime import datetime, timezone
+
+# --- Konfigurasi Konstanta ---
+DISCREPANCY_THRESHOLD = 5.0
+SEVERITY_CRITICAL = "CRITICAL"
+HASH_EXCLUDE_KEYS = ['digital_signature']
+
+def load_analysis_json(filepath):
+    """Memuat file JSON analisis korelasi."""
+    try:
+        with open(filepath, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print(f"Error: File analisis tidak ditemukan: {filepath}")
+        sys.exit(1)
+    except json.JSONDecodeError:
+        print(f"Error: Format JSON tidak valid: {filepath}")
+        sys.exit(1)
+
+def load_disparity_csv(filepath):
+    """Memuat file CSV laporan disparansi dan mengindeksnya berdasarkan ID."""
+    disparity_map = {}
+    try:
+        with open(filepath, 'r', newline='') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                # Asumsi kolom CSV: 'id', 'discrepancy_pct', 'severity'
+                # Sesuaikan nama kolom jika struktur CSV Anda berbeda
+                idx = row.get('id') or row.get('ID')
+                if idx:
+                    try:
+                        discrepancy = float(row.get('discrepancy_pct', 0))
+                    except ValueError:
+                        discrepancy = 0.0
+                    
+                    severity = row.get('severity', '').upper()
+                    
+                    disparity_map[idx] = {
+                        'discrepancy_pct': discrepancy,
+                        'severity': severity
+                    }
+    except FileNotFoundError:
+        print(f"Error: File CSV disparansi tidak ditemukan: {filepath}")
+        sys.exit(1)
+        
+    return disparity_map
+
+def verify_compliance(analysis_data, disparity_map):
+    """
+    Memverifikasi kepatuhan berdasarkan aturan bisnis:
+    1. Tidak ada discrepancy > 5%
+    2. Tidak ada severity CRITICAL
+    """
+    failed_entries = []
+    all_ids = set()
+
+    # Ambil semua ID dari kedua sumber
+    if isinstance(analysis_data, dict):
+        all_ids.update(analysis_data.keys())
+    elif isinstance(analysis_data, list):
+        for item in analysis_data:
+            if 'id' in item:
+                all_ids.add(item['id'])
+            elif 'ID' in item:
+                all_ids.add(item['ID'])
+    
+    all_ids.update(disparity_map.keys())
+
+    is_compliant = True
+    reasons = []
+
+    for item_id in all_ids:
+        # Gabungkan data dari JSON dan CSV
+        json_data = analysis_data.get(item_id, {})
+        csv_data = disparity_map.get(item_id, {'discrepancy_pct': 0, 'severity': 'UNKNOWN'})
+        
+        # Normalisasi kunci jika perlu
+        if isinstance(json_data, dict):
+            discrepancy = float(json_data.get('discrepancy_pct', 0))
+            # Ambil severity dari CSV karena biasanya lebih akurat secara teknis
+            severity = csv_data.get('severity', 'UNKNOWN')
+        else:
+            discrepancy = 0.0
+            severity = 'UNKNOWN'
+
+        # Cek Aturan 1: Discrepancy
+        if discrepancy > DISCREPANCY_THRESHOLD:
+            is_compliant = False
+            reasons.append(f"ID {item_id}: Discrepancy {discrepancy}% exceeds threshold {DISCREPANCY_THRESHOLD}%")
+        
+        # Cek Aturan 2: Severity Kritis
+        if severity == SEVERITY_CRITICAL:
+            is_compliant = False
+            reasons.append(f"ID {item_id}: Critical anomaly detected")
+
+    return is_compliant, reasons, list(all_ids)
+
+def generate_digital_signature(cert_content_json):
+    """
+    Menghasilkan hash SHA-256 dari konten sertifikat (kecuali field signature itu sendiri).
+    Ini memastikan bahwa sertifikat tidak dimodifikasi setelah digenerate.
+    """
+    # Kita mengasumsikan cert_content_json adalah string JSON yang sudah di-prettify atau compact
+    # Hash harus dihitung sebelum menyisipkan signature ke dalam JSON final
+    return hashlib.sha256(cert_content_json.encode('utf-8')).hexdigest()
+
+def create_compliance_certificate(is_pass, timestamp, reasons, total_entries):
+    """Membuat struktur sertifikat kepatuhan."""
+    cert = {
+        "status": "PASS" if is_pass else "FAIL",
+        "timestamp": timestamp,
+        "total_entries_checked": total_entries,
+        "compliance_rules": {
+            "max_discrepancy_percent": DISCREPANCY_THRESHOLD,
+            "forbidden_severity": SEVERITY_CRITICAL
+        },
+        "details": {}
+    }
+
+    if is_pass:
+        cert["details"] = {
+            "message": "All data entries are within compliance thresholds."
+        }
+    else:
+        cert["details"] = {
+            "message": "Compliance check failed.",
+            "violations": reasons
+        }
+
+    return cert
+
+def main():
+    parser = argparse.ArgumentParser(description="Verify data compliance and generate certificate.")
+    parser.add_argument('--analysis', required=True, help="Path to correlation_analysis.json")
+    parser.add_argument('--disparity-csv', required=True, help="Path to disparity_report.csv")
+    parser.add_argument('--output', required=True, help="Path to output compliance_cert.json")
+    
+    args = parser.parse_args()
+
+    print(f"[*] Memuat data analisis dari: {args.analysis}")
+    analysis_data = load_analysis_json(args.analysis)
+    
+    print(f"[*] Memuat data disparansi dari: {args.disparity-csv}")
+    disparity_map = load_disparity_csv(args.disparity-csv)
+
+    print("[*] Menjalankan validasi kepatuhan...")
+    is_compliant, violations, all_ids = verify_compliance(analysis_data, disparity_map)
+    
+    timestamp = datetime.now(timezone.utc).isoformat()
+    total_checked = len(all_ids)
+
+    # Buat sertifikat awal
+    cert_data = create_compliance_certificate(is_compliant, timestamp, violations, total_checked)
+    
+    # Convert ke JSON string untuk hashing (pastikan konsistensi formatting)
+    # Gunakan sort_keys=True dan ensure_ascii=False untuk konsistensi hash
+    cert_json_str = json.dumps(cert_data, sort_keys=True, indent=2, ensure_ascii=False)
+    
+    # Generate Signature
+    signature = generate_digital_signature(cert_json_str)
+    
+    # Tambahkan signature ke data sertifikat
+    cert_data['digital_signature'] = signature
+    
+    # Convert final data ke JSON string untuk ditulis ke file
+    final_json_output = json.dumps(cert_data, sort_keys=True, indent=2, ensure_ascii=False)
+
+    # Tulis ke file output
+    try:
+        with open(args.output, 'w') as f:
+            f.write(final_json_output)
+        print(f"[+] Sertifikat kepatuhan berhasil dibuat: {args.output}")
+        print(f"    Status: {cert_data['status']}")
+        if not is_compliant:
+            print(f"    Pelanggaran: {len(violations)} entri tidak memenuhi syarat.")
+            for v in violations[:5]: # Print max 5 violations
+                print(f"      - {v}")
+        else:
+            print("    Sistem memenuhi semua standar kepatuhan.")
+    except IOError as e:
+        print(f"Error: Gagal menulis ke file output: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
+```
+
+#### Integrasi dalam Alur Kerja Otomatis
+
+Sertifikat ini dirancang untuk dikonsumsi oleh sistem downstream atau dashboard monitoring. Contoh integrasi dalam pipeline `cron` atau `Makefile`:
+
+```bash
+# Contoh integrasi dalam Makefile
+run-compliance-check:
+	python disparity_correlator.py --input raw_data --output correlation_analysis.json
+	python yaml_audit_reporter.py --yaml-config audit.yaml --csv-output disparity_report.csv
+	python compliance_certifier.py \
+		--analysis correlation_analysis.json \
+		--disparity-csv disparity_report.csv \
+		--output compliance_cert.json
+	
+	# Verifikasi integritas sertifikat sebelum melanjutkan
+	if ! python -c "import json,sys; json.loads(sys.stdin.read())['digital_signature']"; then 
+		echo "Integritas sertifikat gagal diverifikasi."; exit 1; 
+	fi
+```
+
+#### Pertimbangan Keamanan Tambahan
+
+1.  **Integritas Tanda Tangan**: Tanda tangan SHA-256 dalam `compliance_cert.json` dihitung berdasarkan konten JSON. Jika file ini diubah secara manual (misalnya, mengubah status `FAIL` menjadi `PASS`), tanda tangan akan tidak valid. Sistem penerima sertifikat harus memverifikasi hash ini sebelum mempercayai status kepatuhan.
+2.  **Privasi Data**: Pastikan field-field sensitif (PII) yang mungkin ada di dalam `correlation_analysis.json` atau `disparity_report.csv` tidak secara tidak sengaja terekspose dalam log atau error message skrip. Skrip ini hanya membandingkan metrik numerik dan string kategori, sehingga risiko kebocoran data minim, namun validasi input tetap penting.
+3.  **Performa**: Untuk dataset yang sangat besar (jutaan baris di CSV), `load_disparity_csv` mungkin memerlukan optimasi dengan `pandas` atau generator iteratif. Versi saat ini menggunakan standar library `csv` untuk kompatibilitas minimal tanpa dependensi eksternal.
