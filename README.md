@@ -4820,3 +4820,92 @@ File CSV yang dihasilkan (`statistical_anomalies.csv`) akan mengandung kolom-kol
 *   **Pemilihan Multiplier**:
     *   Gunakan `1.5` untuk standar industri (mengidentifikasi outlier moderat).
     *   Gunakan `3.0` atau lebih tinggi jika hanya ingin menangkap error data yang sangat kritis atau *systemic failures*.
+
+
+Berikut adalah draf konten lanjutan untuk `README.md` yang dirancang untuk melengkapi dokumentasi teknis Anda. Konten ini berfokus pada implementasi visualisasi menggunakan pendekatan *Static HTML + Chart.js* untuk menghindari kompleksitas instalasi server Grafana yang berat, sambil tetap memberikan interaktivitas dan performa tinggi untuk analisis data.
+
+---
+
+### Visualisasi Anomali Statistik
+
+Setelah file `statistical_anomalies.csv` berhasil diekspor oleh skrip pendeteksi, langkah selanjutnya adalah analisis visual untuk memahami pola, sebaran, dan ekstremitas dari anomali yang terdeteksi. Untuk tujuan ini, kami menyediakan skrip `statistical_anomaly_dashboard.py`.
+
+Skrip ini tidak memerlukan instalasi backend server Grafana yang kompleks. Sebaliknya, ia memindai file CSV, memproses datanya, dan menghasilkan file **HTML statis** yang terintegrasi dengan **Chart.js**. File HTML ini dapat dibuka langsung di browser apa pun untuk menyajikan dashboard interaktif.
+
+#### Fitur Dashboard
+*   **Distribusi Skor Deviasi**: Histogram yang menunjukkan sebaran frekuensi anomali berdasarkan tingkat keparahan (`deviation_score`).
+*   **Distribusi per Kolom**: Pie chart atau Bar chart yang menunjukkan proporsi anomali per kolom (`column_name`) untuk mengidentifikasi area data yang paling tidak stabil.
+*   **Top 10 Anomali Ekstrem**: Tabel ringkasan yang menampilkan 10 entitas dengan skor deviasi tertinggi untuk investigasi cepat.
+*   **Tanpa Backend**: Hasilnya adalah file `.html` mandiri yang dapat dibagikan atau di-hosting pada server statis mana pun.
+
+#### Penggunaan
+
+Jalankan skrip dari baris perintah untuk menghasilkan file HTML dashboard.
+
+```bash
+python statistical_anomaly_dashboard.py --csv statistical_anomalies.csv --port 8080
+```
+
+**Argumen yang Tersedia:**
+
+| Argumen | Deskripsi | Default | Wajib |
+| :--- | :--- | :--- | :--- |
+| `--csv` | Path ke file output CSV dari `parquet_anomaly_detector.py`. | `statistical_anomalies.csv` | Ya |
+| `--port` | Port lokal untuk menjalankan server HTTP sederhana guna menyajikan file HTML. | `8080` | Tidak |
+| `--output` | Nama file HTML yang akan dihasilkan. | `dashboard.html` | Tidak |
+
+**Contoh Penggunaan Lanjutan:**
+
+Jika Anda memiliki file dengan nama kustom dan ingin mengubah port agar tidak konflik dengan layanan lain:
+
+```bash
+python statistical_anomaly_dashboard.py --csv hasil_deteksi_2023.csv --port 9090 --output laporan_anomali.html
+```
+
+Setelah skrip selesai berjalan, server lokal akan dimulai. Buka browser dan akses `http://localhost:9090` (sesuaikan dengan port yang Anda tentukan) untuk melihat dashboard.
+
+#### Struktur Visualisasi
+
+Dashboard yang dihasilkan mencakup tiga bagian utama:
+
+1.  **Ringkasan Eksekutif**: Menampilkan total anomali yang terdeteksi, nilai `multiplier` yang digunakan, dan rentang skor deviasi minimum/maksimum.
+2.  **Analisis Distribusi (Chart.js)**:
+    *   *Histogram Deviasi*: Memetakan frekuensi kemunculan pada rentang skor tertentu. Ini membantu menentukan apakah anomali menyebar merata atau terkonsentrasi di area ekstrem.
+    *   *Breakdown per Kolom*: Mengidentifikasi kolom mana yang paling banyak menghasilkan outlier.
+3.  **Tabel Detail**: Sebuah tabel HTML responsif yang memuat 50 baris pertama anomali dengan skor tertinggi, lengkap dengan tombol untuk menyalin `id` atau menyalin seluruh baris ke clipboard.
+
+#### Pertimbangan Performa
+
+Karena pendekatan ini memuat seluruh dataset CSV ke dalam memori browser untuk rendering grafik, skrip ini dioptimalkan untuk menangani file CSV dengan ukuran hingga **100MB - 500MB** pada mesin dengan RAM moderat (8GB+).
+
+*   **Untuk Dataset Sangat Besar**: Jika file CSV berukuran sangat besar, pertimbangkan untuk menggunakan argumen sampling di tahap preprocessing sebelum dashboard dibuat, atau gunakan solusi backend Grafana sebenarnya yang dapat menangani pemindaian data secara asinkron.
+*   **Format File**: File HTML yang dihasilkan bersifat statis. Tidak ada data mentah yang dikirim ke server eksternal. Semua pemrosesan terjadi di sisi klien (client-side JavaScript) di browser Anda, sehingga privasi data tetap terjaga.
+
+#### Contoh Output Terminal
+
+```text
+[INFO] Membaca file: statistical_anomalies.csv
+[INFO] Total baris data ditemukan: 1,240
+[INFO] Menginisialisasi renderer Chart.js...
+[INFO] Server statis dimulai di http://0.0.0.0:8080
+[INFO] Dashboard berhasil dibuat: dashboard.html
+[NOTES] Tekan Ctrl+C untuk menghentikan server.
+```
+
+#### Integrasi dengan Pipeline CI/CD
+
+Anda dapat menyertakan langkah ini dalam pipeline CI/CD Anda setelah proses deteksi anomali selesai.
+
+```yaml
+# Contoh snippet GitHub Actions
+- name: Generate Anomaly Dashboard
+  run: |
+    python statistical_anomaly_dashboard.py --csv output/statistical_anomalies.csv --output artifacts/anomaly_dashboard.html
+- name: Upload Dashboard Artifact
+  uses: actions/upload-artifact@v3
+  with:
+    name: anomaly-dashboard
+    path: artifacts/anomaly_dashboard.html
+```
+
+Artifak HTML yang diunggah ini dapat diunduh oleh tim operasional untuk dianalisis lebih lanjut tanpa perlu menjalankan infrastruktur lokal.
