@@ -6680,3 +6680,169 @@ Skrip akan secara otomatis menyisipkan blok `env:` ke dalam setiap job yang memb
 *   **Update Dependensi:** Setiap kali `requirements.txt` diperbarui, jalankan ulang `compliance_ci_integrator.py` untuk memastikan versi library dalam workflow CI/CD sinkron.
 *   **Review Workflow yang Dihasilkan:** Meskipun skrip ini mengotomatisasi pembuatan file YAML, tinjau file `.github/workflows/compliance.yml` atau `.gitlab-ci.yml` secara berkala untuk memastikan tidak ada perubahan struktur pipeline yang tidak diinginkan.
 *   **Rotasi Token:** Lakukan rotasi token CI/CD secara berkala (setiap 90 hari) dan update di bagian Secrets/Variables sesuai instruksi platform masing-masing.
+
+
+### 4.4. Penilaian Dampak Perlindungan Data (DPIA) Otomatis dengan `automated_gdpr_impact_assessment.py`
+
+Bagian ini mendeskripsikan implementasi lapisan keamanan proaktif untuk mematuhi persyaratan **General Data Protection Regulation (GDPR)** dan regulasi privasi data lainnya. Skrip `automated_gdpr_impact_assessment.py` dirancang untuk berjalan *pre-commit* atau sebagai tahap awal dalam pipeline CI/CD, sebelum `pipeline_orchestrator.py` mengeksekusi logika bisnis inti.
+
+Tujuan utamanya adalah memprediksi risiko pelanggaran privasi berdasarkan volume dan jenis data sensitif yang diproses, serta menghasilkan laporan formal (DPIA Report) yang siap diaudit.
+
+#### Metodologi Penilaian Risiko
+
+Metodologi ini mengikuti kerangka kerja **Privacy by Design** dan mengintegrasikan dua sumber kebenaran teknis:
+
+1.  **Definisi Skema Data (`id_exporter.py`)**: Membaca struktur data mentah untuk mengidentifikasi field yang mengandung Personal Data (PD) atau Special Category Data (SCD) seperti NIK, alamat, kesehatan, biometrik, dll.
+2.  **Aturan Masking (`compliance_data_governance.py`)**: Memvalidasi apakah field yang diidentifikasi telah dikonfigurasi dengan metode *tokenization*, *hashing*, atau *anonymization* yang sesuai standar keamanan.
+
+**Alur Penilaian:**
+1.  **Identifikasi**: Skrip memindai definisi skema data untuk menemukan field bertipe sensitif.
+2.  **Validasi Proteksi**: Memeriksa apakah setiap field sensitif memiliki aturan masking yang aktif dan tepat di konfigurasi governance.
+3.  **Kuantifikasi Risiko**: Menghitung skor risiko berdasarkan:
+    *   Jumlah field sensitif tanpa proteksi yang memadai.
+    *   Volume estimasi data sensitif (berdasarkan ukuran dataset atau sample rate).
+    *   Tingkat kerentanan metode masking (misal: `SHA256` vs `AES-256-GCM`).
+4.  **Generasi Rekomendasi**: Menyusun rekomendasi mitigasi spesifik (misal: "Aktifkan masking untuk field `email`") dan menentukan status kepatuhan (`PASS`/`FAIL`) berdasarkan ambang batas risiko yang dikonfigurasi.
+
+#### Instalasi dan Konfigurasi
+
+Pastikan skrip ini memiliki akses baca ke modul-modul dependensi:
+*   `id_exporter`: Harus diekspor sebagai modul Python atau module path yang valid.
+*   `compliance_data_governance`: Harus berisi dictionary/rule engine untuk aturan masking.
+
+#### Usage Instructions
+
+Jalankan skrip dari direktori root proyek Anda untuk melakukan pra-pemeriksaan privasi.
+
+```bash
+python automated_gdpr_impact_assessment.py \
+  --schema-def id_exporter.py \
+  --masking-rules compliance_data_governance.py \
+  --risk-threshold 50 \
+  --output gdpr_dpia_report.json
+```
+
+**Penjelasan Argumen:**
+
+| Argumen | Deskripsi | Contoh Nilai |
+| :--- | :--- | :--- |
+| `--schema-def` | Path atau nama modul Python yang mendefinisikan skema data export/import. | `id_exporter.py` |
+| `--masking-rules` | Path atau nama modul Python yang berisi konfigurasi aturan masking dan sanitasi data. | `compliance_data_governance.py` |
+| `--risk-threshold` | Angka integer (0-100) yang menentukan batas maksimal risiko yang dapat ditoleransi. Jika skor hasil > threshold, pipeline akan diblokir. | `50` |
+| `--output` | Path file output untuk menyimpan laporan DPIA dalam format JSON. | `gdpr_dpia_report.json` |
+
+#### Contoh Output Laporan (`gdpr_dpia_report.json`)
+
+Laporan yang dihasilkan bersifat machine-readable dan human-readable, dirancang untuk memudahkan auditor eksternal.
+
+```json
+{
+  "report_id": "dpia-20231027-001",
+  "timestamp": "2023-10-27T10:00:00Z",
+  "assessment_summary": {
+    "total_fields_analyzed": 45,
+    "sensitive_fields_found": 12,
+    "protected_fields": 10,
+    "unprotected_fields": 2,
+    "risk_score": 25,
+    "threshold": 50,
+    "compliance_status": "PASS"
+  },
+  "risk_factors": {
+    "volume_risk": "Low",
+    "data_category_risk": "Medium",
+    "masking_coverage": "83.3%"
+  },
+  "flagged_fields": [
+    {
+      "field_name": "user_biometric_hash",
+      "data_category": "Special Category Data",
+      "current_protection": "None",
+      "recommended_action": "Implement AES-256 encryption or tokenization. Immediate masking required."
+    },
+    {
+      "field_name": "device_ip_address",
+      "data_category": "Personal Data",
+      "current_protection": "Partial Masking",
+      "recommended_action": "Ensure full anonymization (e.g., last octet removal) before storage."
+    }
+  ],
+  "automated_recommendations": [
+    "Update `compliance_data_governance.py` to include AES-256 rule for field `user_biometric_hash`.",
+    "Review ETL pipeline stage for `device_ip_address` to enforce strict anonymization."
+  ]
+}
+```
+
+#### Integrasi dengan Pipeline CI/CD
+
+Untuk memastikan kepatuhan, tambahkan langkah ini di workflow GitHub Actions atau GitLab CI sebelum eksekusi utama:
+
+**GitHub Actions (`.github/workflows/compliance.yml`):**
+
+```yaml
+- name: Run GDPR DPIA Assessment
+  run: |
+    python automated_gdpr_impact_assessment.py \
+      --schema-def id_exporter.py \
+      --masking-rules compliance_data_governance.py \
+      --risk-threshold 50 \
+      --output gdpr_dpia_report.json
+
+- name: Check Compliance Status
+  run: |
+    STATUS=$(python -c "import json; data=json.load(open('gdpr_dpia_report.json')); print(data['assessment_summary']['compliance_status'])")
+    if [ "$STATUS" != "PASS" ]; then
+      echo "::error::DPIA Assessment FAILED. Risk score exceeds threshold. See gdpr_dpia_report.json for details."
+      exit 1
+    fi
+```
+
+Jika skrip mengembalikan status `FAIL`, pipeline akan terhenti dan developer wajib memperbaiki celah keamanan yang diidentifikasi sebelum dapat melakukan merge.
+
+---
+
+### Lampiran Teknis untuk Auditor Eksternal: Metodologi Penilaian Risiko Privasi
+
+Bagian ini menyajikan rincian teknis metode kuantifikasi risiko yang digunakan dalam `automated_gdpr_impact_assessment.py` untuk keperluan transparansi dan audit eksternal.
+
+#### 1. Definisi Variabel Risiko
+
+Skor risiko ($R_{total}$) dihitung menggunakan formula berbobot:
+
+$$ R_{total} = (W_v 	imes S_v) + (W_d 	imes S_d) + (W_m 	imes S_m) $$
+
+Dimana:
+*   $S_v$: Skor Kerentanan Volume (Berdasarkan jumlah record sensitif yang diproses).
+*   $S_d$: Skor Kerentanan Kategori Data (Berdasarkan sensitivitas field, misal: Kesehatan > Nama).
+*   $S_m$: Skor Kerentanan Masking (Berbasis kekokohan algoritma perlindungan).
+*   $W$: Bobot konstanta yang dapat dikonfigurasi (Default: $W_v=0.3, W_d=0.4, W_m=0.3$).
+
+#### 2. Klasifikasi Data Sensitif
+
+Modul `id_exporter` diklasifikasikan ke dalam kategori berikut (mengacu pada GDPR Art. 9):
+*   **High Sensitivity (SCD)**: Biometrik, Genetik, Kesehatan, Keyakinan Politik/Agama, Orientasi Seksual.
+*   **Medium Sensitivity (PII)**: NIK, NPWP, Alamat Lengkap, Email, Nomor Telepon.
+*   **Low Sensitivity (Non-PII)**: ID User Anonim, Timestamp, Kategori Produk.
+
+#### 3. Matriks Penilaian Masking
+
+Metode masking dinilai berdasarkan standar NIST dan GDPR "pseudonymisation" guidelines:
+
+| Metode Masking | Skor Kerentanan ($S_m$) | Keterangan |
+| :--- | :---: | :--- |
+| **Plaintext** | 100 | Tidak ada perlindungan (Auto-Fail). |
+| **Hash (SHA-256)** | 60 | Dapat di-brute-force dengan rainbow table jika salt tidak digunakan. |
+| **Tokenization (Lookup)** | 40 | Aman jika token store terpisah dan terenkripsi. |
+| **AES-256-GCM** | 10 | Standar industri untuk enkripsi homogen. |
+| **Anonymization (K-Anonymity)** | 5 | Data tidak dapat ditautkan kembali ke subjek. |
+
+#### 4. Kriteria Penerimaan Risiko (Risk Threshold)
+
+*   **Green Zone ($R_{total} \leq 30$)**: Risiko rendah. Proses otomatis diizinkan.
+*   **Yellow Zone ($30 < R_{total} \leq 70$)**: Risiko sedang. Diperlukan review manual dari DPO (Data Protection Officer) sebelum deploy.
+*   **Red Zone ($R_{total} > 70$)**: Risiko tinggi. Deployment diblokir secara otomatis. Celah keamanan harus ditinjau ulang dalam jangka waktu < 48 jam.
+
+#### 5. Log Audit dan Jejak Tangan
+
+Setiap eksekusi skrip menghasilkan file JSON unik yang di-timestamp. File ini disimpan dalam artifact CI/CD dan dipertahankan selama 5 tahun sesuai dengan retensi data audit regulasi keuangan dan privasi. Auditor eksternal dapat memverifikasi integritas laporan menggunakan checksum SHA-256 dari file `gdpr_dpia_report.json` yang di-commit ke branch `compliance-history`.
