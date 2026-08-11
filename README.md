@@ -1375,3 +1375,133 @@ Untuk menjaga integritas data secara otomatis, Anda dapat menambahkan langkah in
 3.  Tambahkan pemeriksaan: Jika jumlah baris dengan `Rekomendasi` mengandung kata "Invalid" atau "Hantu" melebihi ambang batas tertentu (misalnya > 0), pipeline dapat ditandai sebagai **GAGAL (FAIL)** atau mengirim notifikasi ke tim DevOps/Backend untuk investigasi.
 
 Ini memastikan bahwa setiap ID yang digunakan dalam aplikasi selalu sesuai dengan standar yang ditetapkan, mengurangi risiko *data drift* dan kesalahan operasional.
+
+
+## Fitur Otomatisasi Perbaikan: `auto_fixer.py`
+
+Untuk mengurangi beban manual dalam menangani temuan anomali data, tersedia skrip `auto_fixer.py`. Skrip ini dirancang untuk membaca laporan rekonsiliasi yang dihasilkan oleh `id_reconciliation.py` dan melakukan tindakan korektif langsung pada file sumber `ID_MANUAL.md`.
+
+### Kapabilitas Utama
+
+Skrip ini melakukan pembersihan data cerdas berdasarkan kolom `Rekomendasi` dalam file CSV:
+
+1.  **Penghapusan "ID Hantu" (Ghost ID):**
+    *   Jika status adalah `ID Hantu` (biasanya ditemukan di dokumentasi tetapi tidak ada di log sistem), skrip akan **menghapus baris** entri tersebut dari file Markdown secara permanen.
+    *   *Catatan:* Pastikan Anda memiliki backup file asli sebelum menjalankan mode ini, karena penghapusan bersifat destruktif pada file target.
+
+2.  **Penandaan "ID Tidak Valid" (Invalid ID):**
+    *   Jika status adalah `ID Tidak Valid` (ditemukan di log tetapi tidak ada/dapat diverifikasi di dokumentasi), skrip tidak menghapus entri. Sebaliknya, ia menambahkan metadata meta-comment di bawah entri tersebut:
+        ```markdown
+        <!-- {status: deprecated, reason: mismatch} -->
+        ```
+    *   Ini memastikan audit trail tetap terjaga sementara menandai bahwa entri tersebut tidak lagi relevan secara operasional.
+
+### Cara Penggunaan
+
+Skrip ini menerima dua argumen baris perintah untuk fleksibilitas penggunaan:
+
+*   `--input`: Path ke file CSV hasil rekonsiliasi (`reconciliation_report.csv`).
+*   `--output`: Path ke file Markdown tujuan (`ID_MANUAL.md`). Jika tidak disediakan, skrip akan mencoba memperbarui file `ID_MANUAL.md` di direktori yang sama dengan input secara default.
+
+#### Sintaks Dasar
+
+```bash
+python auto_fixer.py --input reconciliation_report.csv --output ID_MANUAL.md
+```
+
+#### Contoh Skenario
+
+1.  **Perbaikan Cepat di Lingkungan Lokal:**
+    ```bash
+    python auto_fixer.py --input ./data/reconciliation_report.csv
+    ```
+    *(Asumsi: Output akan menimpa `./data/ID_MANUAL.md` atau file Markdown terdekat yang terdeteksi).*
+
+2.  **Dry Run (Opsional - Disarankan untuk Verifikasi Awal):**
+    Meskipun skrip utama melakukan pembaruan, disarankan untuk melihat preview perubahan dengan membuka file CSV terlebih dahulu. Untuk keamanan tambahan, Anda dapat menyalin file Markdown asli ke `ID_MANUAL.md.bak` sebelum menjalankan skrip.
+
+### Prasyarat Teknis
+
+*   **Library:** Skrip ini hanya menggunakan library standar Python (`csv`, `argparse`, `pathlib`). Tidak ada instalasi package tambahan (`pip install`) yang diperlukan.
+*   **Format Input:** File CSV harus memiliki header `ID`, `Status_Documentation`, `Status_Log`, dan `Rekomendasi` sesuai dengan output standar `id_reconciliation.py`.
+*   **Struktur Markdown:** File `ID_MANUAL.md` diharapkan menggunakan format tabel standar atau list format di mana setiap ID berada pada baris terpisah yang dapat diidentifikasi secara unik.
+
+### Contoh Kode `auto_fixer.py`
+
+Berikut adalah implementasi dasar dari skrip tersebut untuk referensi integrasi:
+
+```python
+#!/usr/bin/env python3
+import argparse
+import csv
+import re
+import os
+from pathlib import Path
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Auto-fix ID issues in documentation based on reconciliation report.")
+    parser.add_argument("--input", required=True, help="Path to the reconciliation_report.csv")
+    parser.add_argument("--output", default="ID_MANUAL.md", help="Path to the output markdown file")
+    return parser.parse_args()
+
+def process_fix(input_csv, output_md):
+    # Membaca laporan rekonsiliasi
+    issues = []
+    with open(input_csv, mode='r', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            recom = row.get('Rekomendasi', '')
+            if 'ID Hantu' in recom:
+                issues.append(('remove', row['ID']))
+            elif 'ID Tidak Valid' in recom:
+                issues.append(('mark', row['ID']))
+    
+    if not issues:
+        print("No issues found to fix.")
+        return
+
+    # Membaca file Markdown asli
+    with open(output_md, mode='r', encoding='utf-8') as f:
+        lines = f.readlines()
+
+    new_lines = []
+    # Menggunakan regex sederhana untuk mendeteksi baris ID (sesuaikan pola dengan format MD Anda)
+    # Asumsi: Baris ID dimulai dengan format PRO-QAS atau mirip
+    id_pattern = re.compile(r'^(PRO|QAS)-\d{6}')
+
+    for line in lines:
+        match = id_pattern.match(line)
+        if match:
+            current_id = match.group(0)
+            
+            # Cek apakah ID ini perlu dihapus
+            if ('remove', current_id) in issues:
+                # Skip baris ini (efek delete)
+                continue
+            
+            # Cek apakah ID perlu ditandai
+            if ('mark', current_id) in issues:
+                new_lines.append(line)
+                # Tambahkan komentar deprecation setelah baris ID
+                new_lines.append(f'<!-- {{status: deprecated, reason: mismatch}} -->
+')
+                continue
+        
+        new_lines.append(line)
+
+    # Menulis kembali file
+    with open(output_md, mode='w', encoding='utf-8') as f:
+        f.writelines(new_lines)
+    
+    print(f"Processing complete. Fixed file saved to {output_md}")
+
+if __name__ == "__main__":
+    args = parse_args()
+    process_fix(args.input, args.output)
+```
+
+### Best Practice Integrasi
+
+1.  **Backup Otomatis:** Selalu buat salinan cadangan (`backup`) dari `ID_MANUAL.md` sebelum menjalankan `auto_fixer.py` di lingkungan produksi.
+2.  **Uji Coba Terisolasi:** Jalankan skrip pertama kali pada *staging* environment atau dengan file CSV dummy untuk memastikan regex penyesuaian format Markdown Anda akurat.
+3.  **Review Changes:** Gunakan sistem versi (Git) untuk melihat diff perubahan yang dihasilkan sebelum meng-commit hasil perbaikan otomatis ini.
