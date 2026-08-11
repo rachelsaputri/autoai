@@ -3141,3 +3141,93 @@ if (chartData.labels && chartData.values) {
 }
 ```
 Ini mencegah tampilan error visual pada halaman HTML jika pipeline data gagal.
+
+
+### Penambahan Modul Audit Keamanan Data
+
+Untuk melengkapi pipeline pemantauan data, kami menyertakan skrip `security_audit.py`. Skrip ini berfungsi sebagai lapisan pertahanan tambahan untuk mendeteksi anomali integritas data sebelum dipublikasikan ke dashboard. Skrip ini melakukan cross-referensi antara laporan rekonsiliasi CSV dan dokumen referensi ID Manual untuk mengidentifikasi pola ancaman seperti "ID Hantu" (ID yang muncul berulang kali dalam konteks tidak valid) atau upaya manipulasi data melalui duplikasi entri.
+
+#### Prasyarat
+
+Pastikan file berikut tersedia di jalur yang didefinisikan:
+1.  `reconciliation_report.csv`: Laporan hasil rekonsiliasi data harian.
+2.  `ID_MANUAL.md`: Dokumen referensi yang berisi daftar ID valid, status, dan metadata tambahan.
+
+#### Instalasi dan Penggunaan
+
+Skrip ini dapat dijalankan secara mandiri atau diintegrasikan ke dalam alur kerja otomatisasi yang sama dengan `excel_parser.py` dan `json_to_dashboard_updater.py`.
+
+```bash
+python3 security_audit.py \
+  --csv /data/reconciliation_report.csv \
+  --md /data/ID_MANUAL.md \
+  --webhook-url "https://hooks.example.com/security-alerts" \
+  --threshold 5
+```
+
+#### Parameter Argumen
+
+| Argumen | Tipe | Deskripsi |
+| :--- | :--- | :--- |
+| `--csv` | `string` | Jalur absolut atau relatif ke file laporan rekonsiliasi (`.csv`). |
+| `md` | `string` | Jalur ke file daftar ID manual (`.md`). |
+| `--webhook-url` | `string` | URL endpoint webhook untuk mengirimkan laporan risiko jika anomali terdeteksi. |
+| `--threshold` | `int` | Jumlah maksimum anomali yang diizinkan sebelum skrip mengirim notifikasi risiko (default: `0`). |
+
+#### Mekanisme Deteksi Anomali
+
+Skrip melakukan analisis berbasis aturan sebagai berikut:
+
+1.  **Validasi Eksistensi ID**: Skrip membaca `ID_MANUAL.md` untuk membangun kamus ID valid. Setiap ID dalam `reconciliation_report.csv` yang tidak ditemukan di kamus ini dikategorikan sebagai **Unknown ID**.
+2.  **Deteksi "ID Hantu"**: Jika sebuah ID yang tidak valid atau unknown muncul lebih dari satu kali dalam laporan rekonsiliasi dengan status yang sama (misalnya, "Failed" atau "Invalid"), hal ini dicatat sebagai indikasi **ID Hantu**.
+3.  **Pola Manipulasi**: Kombinasi ID yang sering muncul dengan status anomali digunakan untuk menghitung skor risiko.
+
+Jika jumlah anomali yang terdeteksi melebihi nilai `--threshold`, skrip akan menyusun payload JSON berisi ringkasan temuan dan mengirimkannya ke `--webhook-url`.
+
+#### Contoh Payload Webhook
+
+Jika anomali terdeteksi, payload yang dikirim ke webhook memiliki struktur berikut:
+
+```json
+{
+  "alert_type": "SECURITY_AUDIT_FAILURE",
+  "timestamp": "2023-10-27T02:15:00Z",
+  "anomaly_count": 7,
+  "threshold_breached": true,
+  "details": [
+    {
+      "id": "GHOST_ID_001",
+      "occurrences": 3,
+      "status": "Invalid",
+      "severity": "HIGH"
+    },
+    {
+      "id": "UNKNOWN_REF_99",
+      "occurrences": 2,
+      "status": "Missing",
+      "severity": "MEDIUM"
+    }
+  ],
+  "summary": "Total 7 anomali terdeteksi. Teridentifikasi potensi 'ID Hantu' pada referensi GHOST_ID_001."
+}
+```
+
+> **Catatan Keamanan:**
+> *   Pastikan kredensial webhook (jika diperlukan) disimpan dalam variabel lingkungan, bukan di hardcode dalam skrip.
+> *   Gunakan HTTPS untuk `--webhook-url` untuk memastikan enkripsi data saat transit.
+> *   Untuk produksi, pertimbangkan untuk menambahkan validasi HMAC pada sisi server penerima webhook untuk memverifikasi bahwa permintaan berasal dari sumber yang tepercaya.
+
+#### Integrasi dengan Cron
+
+Tambahkan entri berikut ke `crontab -e` untuk menjalankan audit keamanan segera setelah data rekonsiliasi tersedia (misalnya, 15 menit setelah tengah malam):
+
+```cron
+# Jalankan audit keamanan data
+# Menjalankan 15 menit setelah tengah malam
+15 0 * * * /usr/bin/python3 /opt/scripts/security_audit.py \
+  --csv /data/reconciliation_report.csv \
+  --md /data/ID_MANUAL.md \
+  --webhook-url "https://hooks.example.com/security-alerts" \
+  --threshold 3 \
+  >> /var/log/security_audit.log 2>&1
+```
