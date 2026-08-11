@@ -1,4 +1,4 @@
-name: Auto Edit README
+name: AI Self-Prompting README Updater
 
 on:
   workflow_dispatch:
@@ -14,7 +14,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run Loop
+      - name: Run Self-Improving Loop
         env:
           OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
         run: |
@@ -23,28 +23,84 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
+          # Buat file history.txt jika belum ada
+          if [ ! -f history.txt ]; then
+            echo "Mulai dari topik awal: Pengembangan sistem AI mandiri dan basis pengetahuan." > history.txt
+          fi
+
+          # Buat file README.md jika belum ada
+          if [ ! -f README.md ]; then
+            echo "# Documentasi AI Self-Improving" > README.md
+          fi
+
           for i in {1..6}
           do
-            RANDOM_PROMPT="Tuliskan 1 kalimat unik dan acak nomor ID: $RANDOM-$(date +%s)"
+            # Read last entries from history and README
+            HISTORY_CONTEXT=$(tail -n 20 history.txt | tr '\n' ' ')
+            README_CONTEXT=$(tail -n 30 README.md | tr '\n' ' ')
 
-            RESPONSE=$(curl -s -X POST "$URL" \
-              -H "Authorization: Bearer $OPENAI_KEY" \
-              -H "Content-Type: application/json" \
-              -d '{
-                "model": "Qwen3.6-35B-A3B-fp8-no-thinking",
-                "messages": [
-                  {"role": "user", "content": "'"$RANDOM_PROMPT"'"}
+            # 1. AI Generate Prompt Baru berdasarkan history dan README
+            PROMPT_PAYLOAD=$(jq -n \
+              --arg model "Qwen3.6-35B-A3B-fp8-no-thinking" \
+              --arg history "$HISTORY_CONTEXT" \
+              --arg readme "$README_CONTEXT" \
+              '{
+                model: $model,
+                messages: [
+                  {
+                    role: "user",
+                    content: ("Berdasarkan riwayat prompt berikut:\n" + $history + "\n\nDan isi README terakhir:\n" + $readme + "\n\nBuatlah 1 perintah/prompt baru yang logis untuk melanjutkan, memperdalam, atau memperluas konten README tersebut. Berikan HANYA teks prompt baru tersebut tanpa penjelasan tambahan.")
+                  }
                 ]
               }')
 
-            TEXT=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // "Update $(date)"')
+            NEW_PROMPT_RESP=$(curl -s -X POST "$URL" \
+              -H "Authorization: Bearer $OPENAI_KEY" \
+              -H "Content-Type: application/json" \
+              -d "$PROMPT_PAYLOAD")
 
-            echo -e "\n\n$TEXT" >> README.md
+            GENERATED_PROMPT=$(echo "$NEW_PROMPT_RESP" | jq -r '.choices[0].message.content // empty')
 
-            git add README.md
-            git commit -m "docs: auto update README [$(date +'%H:%M:%S')]" || true
-            git push
+            if [ -z "$GENERATED_PROMPT" ]; then
+              GENERATED_PROMPT="Lanjutkan pembahasan materi sebelumnya dengan memberikan penjelasan teknis yang lebih detail."
+            fi
+
+            # Catat prompt baru ke history.txt
+            echo "[$(date +'%Y-%m-%d %H:%M:%S')] $GENERATED_PROMPT" >> history.txt
+
+            # 2. AI Generate Konten README berdasarkan prompt baru dan konteks README saat ini
+            CONTENT_PAYLOAD=$(jq -n \
+              --arg model "Qwen3.6-35B-A3B-fp8-no-thinking" \
+              --arg prompt "$GENERATED_PROMPT" \
+              --arg readme "$README_CONTEXT" \
+              '{
+                model: $model,
+                messages: [
+                  {
+                    role: "system",
+                    content: "Anda adalah penulis dokumentasi teknis. Tuliskan konten lanjutan yang komprehensif, terstruktur, dan langsung menambah nilai informasi."
+                  },
+                  {
+                    role: "user",
+                    content: ("Konten README saat ini:\n" + $readme + "\n\nTugas:\n" + $prompt + "\n\nTuliskan bab/materi lanjutan untuk ditempel ke README.md. Gunakan format Markdown yang rapi.")
+                  }
+                ]
+              }')
+
+            NEW_CONTENT_RESP=$(curl -s -X POST "$URL" \
+              -H "Authorization: Bearer $OPENAI_KEY" \
+              -H "Content-Type: application/json" \
+              -d "$CONTENT_PAYLOAD")
+
+            GENERATED_CONTENT=$(echo "$NEW_CONTENT_RESP" | jq -r '.choices[0].message.content // empty')
+
+            if [ -n "$GENERATED_CONTENT" ]; then
+              echo -e "\n\n$GENERATED_CONTENT" >> README.md
+
+              git add history.txt README.md
+              git commit -m "docs: expand README & update prompt history [$(date +'%H:%M:%S')]" || true
+              git push
+            fi
 
             sleep 30
           done
-          
