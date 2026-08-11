@@ -3783,3 +3783,134 @@ Tambahkan baris berikut ke `crontab`:
 Karena script ini menggabungkan data operasional (disparansi frekuensi) dengan data keamanan (anomali), pastikan:
 *   Akses ke file `security_audit.log` dan `correlation_analysis.json` dibatasi hanya untuk user sistem yang relevan (misal: `root` atau user `security-auditor`).
 *   Jika data yang dianalisis mengandung informasi PII (Personally Identifiable Information), pastikan pipeline enkripsi atau anonymisasi diterapkan sebelum data masuk ke dalam proses korelasi ini.
+
+
+## Automasi Remediasi Berbasis Risiko (`auto_remediation.py`)
+
+Setelah proses korelasi menghasilkan `correlation_analysis.json`, sistem dilengkapi dengan modul otomatisasi untuk menangani temuan berisiko tinggi. Skrip `auto_remediation.py` bertindak sebagai "pengambil keputusan" yang mengevaluasi skor risiko gabungan dan memicu tindakan perbaikan melalui `auto_fixer.py`.
+
+### Fitur Utama
+- **Pencocokan Risiko Tinggi**: Memfilter ID yang memiliki skor gabungan di atas ambang batas tertentu (`high_risk_threshold`).
+- **Integrasi dengan Fixer**: Mengirimkan daftar ID yang perlu ditindaklanjuti ke `auto_fixer.py`.
+- **Mode Simulasi (`--dry-run`)**: Menampilkan aksi yang *akan* diambil tanpa mengubah file atau menjalankan `auto_fixer.py`. Berguna untuk validasi logika bisnis sebelum eksekusi nyata.
+- **Mode Paksa (`--force`)**: Melewati konfirmasi interaktif atau delay waktu tunggu, langsung mengeksekusi `auto_fixer.py`.
+- **Pelaporan Terstruktur**: Mencatat setiap keputusan (remediasi vs skip) ke dalam log audit yang terstruktur.
+
+### Instalasi dan Prasyarat
+Pastikan skrip berikut tersedia di path yang ditentukan:
+- `/opt/scripts/auto_remediation.py`
+- `/opt/scripts/auto_fixer.py`
+
+Skrip ini memerlukan akses baca ke `/reports/correlation_analysis.json` dan eksekusi untuk `auto_fixer.py`.
+
+### Penggunaan Dasar
+
+#### 1. Mode Simulasi (Dry Run)
+Gunakan mode ini untuk memverifikasi ID mana yang akan ditargetkan tanpa melakukan perubahan apa pun.
+
+```bash
+/usr/bin/python3 /opt/scripts/auto_remediation.py --dry-run
+```
+
+**Contoh Output:**
+```text
+[INFO] Loading correlation analysis from /reports/correlation_analysis.json
+[INFO] High risk threshold set to: 80
+[FINDING] ID-12345: Combined Score 92 -> ACTION: REMEDIATE
+[FINDING] ID-67890: Combined Score 85 -> ACTION: REMEDIATE
+[SKIP] ID-11111: Combined Score 75 -> Below threshold
+[DRY RUN COMPLETE]: 2 IDs identified for remediation. No changes made.
+```
+
+#### 2. Mode Eksekusi Normal (Dengan Konfirmasi)
+Skrip akan meminta konfirmasi sebelum mengeksekusi `auto_fixer.py`.
+
+```bash
+/usr/bin/python3 /opt/scripts/auto_remediation.py
+```
+
+**Contoh Output:**
+```text
+[INFO] Loading correlation analysis from /reports/correlation_analysis.json
+[INFO] High risk threshold set to: 80
+[FINDING] ID-12345: Combined Score 92 -> ACTION: REMEDIATE
+[FINDING] ID-67890: Combined Score 85 -> ACTION: REMEDIATE
+[CONFIRM] Execute auto_fixer.py for 2 IDs? (y/N): y
+[EXEC] Running: /opt/scripts/auto_fixer.py --ids ID-12345,ID-67890 --action quarantine
+[RESULT] auto_fixer.py completed successfully. Exit code: 0
+[INFO] Remediation process finished.
+```
+
+#### 3. Mode Paksa (Force)
+Digunakan untuk skrip otomatis atau pipeline CI/CD di mana interaksi tidak dimungkinkan.
+
+```bash
+/usr/bin/python3 /opt/scripts/auto_remediation.py --force
+```
+
+### Parameter Argumen
+
+| Argumen | Tipe | Default | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `--input` | `str` | `/reports/correlation_analysis.json` | Path ke file hasil korelasi. |
+| `--output-log` | `str` | `/var/log/remediation_audit.log` | Path ke file log audit remediasi. |
+| `--threshold` | `int` | `80` | Skor minimum gabungan untuk dianggap risiko tinggi. |
+| `--dry-run` | `flag` | `False` | Simulasi tanpa eksekusi `auto_fixer.py`. |
+| `--force` | `flag` | `False` | Lewati konfirmasi user, langsung eksekusi. |
+| `--fixer-cmd` | `str` | `/opt/scripts/auto_fixer.py` | Path ke skrip penindaklanjuti (fixer). |
+
+### Integrasi dengan Cron
+
+Tambahkan baris berikut ke `crontab` untuk menjalankan remediasi secara otomatis setelah analisis korelasi selesai.
+
+> **PENTING**: Jadwal ini harus menunggu `disparity_correlator.py` selesai (lihat bagian *Urutan Eksekusi* sebelumnya).
+
+```cron
+# **BARU**: Otomatisasi Remediasi untuk ID Berisiko Tinggi
+# Menjalankan 10 menit setelah job korelasi (5 1 * * *)
+# Memberikan buffer 5 menit untuk memastikan file JSON korelasi sudah lengkap dan ditulis
+15 1 * * * /usr/bin/python3 /opt/scripts/auto_remediation.py \
+  --input /reports/correlation_analysis.json \
+  --output-log /var/log/remediation_audit.log \
+  --force \
+  --threshold 80 >> /var/log/auto_remediation.log 2>&1
+```
+
+**Catatan Jadwal:**
+1.  `0 1`: Log Analyzer.
+2.  `1 1`: Audit Disparansi (CSV Output).
+3.  `5 1`: Korelasi (JSON Output).
+4.  `15 1`: **Remediasi Otomatis**.
+
+Jeda 10 menit dari akhir korelasi (`5 1`) memastikan waktu bagi sistem file untuk sinkronisasi dan penutupan file, serta memberi waktu bagi proses korelasi yang lambat untuk selesai tanpa memblokir jadwal pagi berikutnya.
+
+### Alur Kerja Eksekusi (`auto_remediation.py`)
+
+1.  **Parsing Input**: Membaca `correlation_analysis.json`.
+2.  **Filtering**: Mengiterasi setiap entri ID. Jika `combined_score >= threshold`, ID tersebut dimasukkan ke dalam antrian remediasi.
+3.  **Pre-execution Check**:
+    *   Jika `--dry-run` aktif, cetak daftar ID target dan keluar.
+    *   Jika tidak aktif, siapkan argumen untuk `auto_fixer.py`.
+4.  **Eksekusi Fixer**:
+    *   Membangun perintah: `<fixer_cmd> --ids <list_ids> --action <default_action>`.
+    *   Jika `--force` tidak aktif, tampilkan ringkasan dan minta konfirmasi.
+    *   Jalankan `auto_fixer.py` menggunakan `subprocess.run()`.
+5.  **Pasca-Eksekusi**:
+    *   Periksa `exit code` dari `auto_fixer.py`.
+    *   Catat hasil sukses/gagal ke log audit.
+    *   (Opsional) Kirim notifikasi (email/Slack) jika ada kegagalan remediasi.
+
+### Pertimbangan Keamanan untuk Remediasi Otomatis
+
+Karena skrip ini melakukan **perubahan keadaan** (menghapus/menandai data), kehati-hatian ekstra diperlukan:
+
+1.  **Least Privilege**: User yang menjalankan `auto_remediation.py` harus memiliki izin eksekusi untuk `auto_fixer.py` dan izin tulis pada log, tetapi **tidak** perlu akses `root` penuh kecuali diperlukan oleh `auto_fixer.py`.
+2.  **Audit Trail Lengkap**: Log `/var/log/remediation_audit.log` harus dipertahankan sebagai bagian dari bukti audit kepatuhan. Jangan hapus log ini secara otomatis.
+3.  **Rollback Plan**: Pastikan `auto_fixer.py` mendukung parameter `--rollback` atau mencatat checksum sebelum perubahan, sehingga jika `auto_remediation.py` memicu tindakan yang salah, ada mekanisme untuk mengembalikan keadaan.
+4.  **Pencegahan DDoS Remediasi**: Tetapkan `--threshold` yang tinggi secara default. Jangan pernah menjalankan remediasi otomatis dengan threshold 0 tanpa pengawasan manusia, kecuali pada lingkungan terisolasi (sandbox).
+
+### Troubleshooting
+
+- **`auto_fixer.py` Tidak Ditemukan**: Pastikan `PATH` atau path absolut pada argumen `--fixer-cmd` benar.
+- **Error JSON Parsing**: Jika `correlation_analysis.json` rusak atau belum selesai ditulis, `auto_remediation.py` akan mengeluarkan error. Pastikan interval cron memberikan waktu cukup (lihat catatan jadwal).
+- **Remediasi Gagal Diam-diam**: Selalu periksa `exit code` dalam log `auto_remediation.log`. Gunakan script wrapper atau health-check cron untuk memonitor keberhasilan eksekusi `auto_fixer.py`.
