@@ -4173,3 +4173,206 @@ run-compliance-check:
 1.  **Integritas Tanda Tangan**: Tanda tangan SHA-256 dalam `compliance_cert.json` dihitung berdasarkan konten JSON. Jika file ini diubah secara manual (misalnya, mengubah status `FAIL` menjadi `PASS`), tanda tangan akan tidak valid. Sistem penerima sertifikat harus memverifikasi hash ini sebelum mempercayai status kepatuhan.
 2.  **Privasi Data**: Pastikan field-field sensitif (PII) yang mungkin ada di dalam `correlation_analysis.json` atau `disparity_report.csv` tidak secara tidak sengaja terekspose dalam log atau error message skrip. Skrip ini hanya membandingkan metrik numerik dan string kategori, sehingga risiko kebocoran data minim, namun validasi input tetap penting.
 3.  **Performa**: Untuk dataset yang sangat besar (jutaan baris di CSV), `load_disparity_csv` mungkin memerlukan optimasi dengan `pandas` atau generator iteratif. Versi saat ini menggunakan standar library `csv` untuk kompatibilitas minimal tanpa dependensi eksternal.
+
+
+Berikut adalah konten lanjutan yang dirancang untuk langsung disalin dan ditempel ke bagian **"Integrasi Sistem"** dalam file `README.md` Anda. Konten ini mencakup dokumentasi skrip REST API dan panduan implementasinya.
+
+***
+
+#### Penyajian Data melalui REST API Dashboard
+
+Untuk memudahkan visualisasi data kepatuhan dan pemantauan anomali secara real-time, proyek ini menyertakan modul `compliance_dashboard_api.py`. Modul ini menggunakan **Flask** untuk menyajikan endpoint JSON yang mudah dikonsumsi oleh frontend dashboard (seperti Grafana, Kibana, atau custom web app) atau sistem monitoring otomatis.
+
+##### Struktur File Skrip
+
+Simpan kode berikut sebagai `compliance_dashboard_api.py`:
+
+```python
+import json
+import argparse
+import sys
+import os
+from flask import Flask, jsonify, abort
+from flask_cors import CORS  # Opsional: untuk akses lintas domain jika diperlukan
+
+def load_json_file(filepath):
+    """Memuat file JSON dan menangani error dasar."""
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print(f"Error: File tidak ditemukan: {filepath}", file=sys.stderr)
+        sys.exit(1)
+    except json.JSONDecodeError:
+        print(f"Error: Format JSON tidak valid pada: {filepath}", file=sys.stderr)
+        sys.exit(1)
+
+def create_app(cert_path, analysis_path):
+    app = Flask(__name__)
+    
+    # Load data saat inisialisasi (bisa dioptimalkan dengan caching jika dataset besar)
+    try:
+        compliance_cert = load_json_file(cert_path)
+        analysis_data = load_json_file(analysis_path)
+    except Exception as e:
+        print(f"Gagal memuat data awal: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    @app.route('/status', methods=['GET'])
+    def get_compliance_status():
+        """
+        Endpoint untuk menampilkan status sertifikat kepatuhan.
+        Returns:
+            JSON: Sertifikat kepatuhan lengkap.
+        """
+        return jsonify(compliance_cert)
+
+    @app.route('/anomalies', methods=['GET'])
+    def get_high_risk_anomalies():
+        """
+        Endpoint untuk mengambil daftar ID dengan risiko tinggi/anomali.
+        Asumsi: Struktur analysis_data memiliki key 'anomalies' atau 'high_risk_ids'.
+        Sesuaikan key ini dengan output aktual dari disparity_correlator.py.
+        """
+        # Contoh logika peng ekstrakan: Mengambil item di mana 'risk_score' > threshold
+        # Sesuaikan dengan struktur data aktual Anda.
+        anomalies = []
+        
+        # Misal struktur data: {"results": [{"id": "123", "score": 0.9}, ...]}
+        results = analysis_data.get('results', [])
+        
+        # Filter data berdasarkan threshold (contoh: 0.8)
+        threshold = 0.8 
+        anomalies = [
+            item for item in results 
+            if item.get('risk_score', 0) > threshold
+        ]
+
+        return jsonify({
+            "count": len(anomalies),
+            "items": anomalies
+        })
+
+    @app.route('/health', methods=['GET'])
+    def health_check():
+        return jsonify({"status": "healthy"}), 200
+
+    return app
+
+def main():
+    parser = argparse.ArgumentParser(description='Compliance Dashboard API')
+    parser.add_argument('--cert', required=True, help='Path ke file compliance_cert.json')
+    parser.add_argument('--analysis', required=True, help='Path ke file correlation_analysis.json')
+    parser.add_argument('--port', type=int, default=5000, help='Port untuk menjalankan server (default: 5000)')
+    parser.add_argument('--host', default='0.0.0.0', help='Host interface (default: 0.0.0.0)')
+    
+    args = parser.parse_args()
+
+    app = create_app(cert_path=args.cert, analysis_path=args.analysis)
+    
+    print(f"Starting Compliance Dashboard API on http://{args.host}:{args.port}")
+    print(f"Loading cert: {args.cert}")
+    print(f"Loading analysis: {args.analysis}")
+    
+    app.run(host=args.host, port=args.port)
+
+if __name__ == "__main__":
+    main()
+```
+
+##### Instalasi Dependensi
+
+Skrip ini memerlukan library `Flask`. Jika Anda menggunakan `requirements.txt`, pastikan menambahkan:
+
+```text
+Flask>=2.0.0
+flask-cors>=3.0.0
+```
+
+Install dengan perintah:
+```bash
+pip install flask flask-cors
+```
+
+##### Penggunaan API
+
+Skrip dijalankan dari command line dengan argumen path file output dari pipeline kepatuhan Anda:
+
+```bash
+# Menjalankan server di port 8080
+python compliance_dashboard_api.py \
+    --cert compliance_cert.json \
+    --analysis correlation_analysis.json \
+    --port 8080
+```
+
+##### Dokumentasi Endpoint
+
+Setelah server berjalan, Anda dapat berinteraksi dengan API melalui HTTP GET requests.
+
+**1. Verifikasi Kesehatan API**
+Memastikan server sedang aktif dan siap menerima permintaan.
+*   **Endpoint:** `GET /health`
+*   **Response:**
+    ```json
+    {
+      "status": "healthy"
+    }
+    ```
+
+**2. Status Kepatuhan (Compliance Status)**
+Mengembalikan konten lengkap dari sertifikat kepatuhan (`compliance_cert.json`), termasuk tanda tangan digital, status final, dan metadata timestamp.
+*   **Endpoint:** `GET /status`
+*   **Response:**
+    ```json
+    {
+      "certificate_version": "1.0",
+      "timestamp": "2023-10-27T10:00:00Z",
+      "overall_status": "PASS",
+      "digital_signature": "a1b2c3...",
+      "details": {
+        "total_checks": 150,
+        "passed": 148,
+        "failed": 2
+      }
+    }
+    ```
+
+**3. Daftar Anomali Berisiko Tinggi**
+Mengembalikan daftar entitas atau ID yang memiliki skor risiko di atas ambang batas tertentu. Endpoint ini menghitung filter secara dinamis berdasarkan data analisis yang dimuat.
+*   **Endpoint:** `GET /anomalies`
+*   **Response:**
+    ```json
+    {
+      "count": 3,
+      "items": [
+        {
+          "id": "USER_0042",
+          "risk_score": 0.95,
+          "category": "disparity",
+          "details": "Significant variance detected in region X"
+        },
+        {
+          "id": "PROC_101",
+          "risk_score": 0.88,
+          "category": "anomaly",
+          "details": "Outlier in transaction volume"
+        }
+      ]
+    }
+    ```
+
+##### Integrasi dengan Monitoring (Grafana/Prometheus)
+
+Anda dapat menggunakan endpoint `/status` untuk memantau status kepatuhan secara otomatis. Contoh penggunaan sederhana menggunakan `curl` di dalam cron job untuk mengirimkan alert jika status berubah menjadi `FAIL`:
+
+```bash
+# Cek status kepatuhan setiap 15 menit
+STATUS=$(curl -s http://localhost:8080/status | jq -r '.overall_status')
+
+if [ "$STATUS" == "FAIL" ]; then
+    echo "ALERT: Compliance check failed. Check /status endpoint for details." | mail -s "Compliance Alert" admin@example.com
+fi
+```
+
+> **Catatan Performa:** Versi dasar ini memuat seluruh file JSON ke dalam memori saat server dimulai. Untuk dataset dengan ukuran ratusan MB, pertimbangkan untuk mengimplementasikan *caching* (misalnya menggunakan Redis) atau mengganti pemrosesan data dengan database SQL/NoSQL untuk query yang lebih efisien pada endpoint `/anomalies`.
