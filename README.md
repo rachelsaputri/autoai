@@ -2671,3 +2671,165 @@ Untuk mengotomatisasi pembuatan laporan harian, tambahkan baris berikut ke `cron
     import os
     os.chmod(output_path, 0o640)  # Hanya owner dan group yang bisa baca
     ```
+
+
+### 7.7. Ekstraksi Data Lanjutan dengan `excel_parser.py`
+
+Setelah laporan Excel dihasilkan, seringkali diperlukan pemrosesan lanjutan untuk integrasi dengan sistem monitoring, notifikasi email, atau dashboard analitik. Untuk tujuan tersebut, skrip `excel_parser.py` menyediakan kemampuan untuk mengekstrak data spesifik dari sheet `Audit_Kadaluarsa` dan mengonversinya menjadi format JSON yang mudah diproses oleh aplikasi lain.
+
+Skrip ini secara khusus dirancang untuk mengidentifikasi entitas dengan status `'Expired Validation'` dan memetakan alasan kadaluarsanya, menghasilkan output terstruktur berikut:
+
+```json
+{
+  "extracted_at": "2023-10-27T02:15:00",
+  "total_expired": 2,
+  "expired_items": [
+    {
+      "id": "ID-1001",
+      "status": "Expired Validation",
+      "expiry_reason": "Certificate Expired"
+    },
+    {
+      "id": "ID-1045",
+      "status": "Expired Validation",
+      "expiry_reason": "License Revoked"
+    }
+  ]
+}
+```
+
+#### Instalasi Ketergantungan
+
+Skrip ini bergantung pada perpustakaan `openpyxl` untuk membaca file Excel dan `pandas` (opsional, namun disarankan) untuk manipulasi data yang lebih efisien, atau `xlrd` jika menggunakan format `.xls` lama. Untuk format `.xlsx` modern, pastikan `openpyxl` terinstall:
+
+```bash
+pip install openpyxl
+```
+
+#### Implementasi Skrip
+
+Simpan kode berikut sebagai `/opt/scripts/excel_parser.py`:
+
+```python
+#!/usr/bin/env python3
+"""
+excel_parser.py
+Mengekstrak data dari sheet 'Audit_Kadaluarsa' pada file Excel hasil 
+id_report_generator.py dan menghasilkan file JSON ringkasan untuk ID 
+dengan status 'Expired Validation'.
+
+Contoh Penggunaan:
+    python3 excel_parser.py --input /reports/audit_laporan_20231027.xlsx --output /data/expired_summary.json
+"""
+
+import argparse
+import json
+import os
+import sys
+from datetime import datetime
+
+try:
+    import openpyxl
+    import pandas as pd
+except ImportError:
+    print("Error: Diperlukan library 'openpyxl' dan 'pandas'. Instal dengan: pip install openpyxl pandas", file=sys.stderr)
+    sys.exit(1)
+
+def extract_expired_data(input_path, output_path):
+    """
+    Membaca file Excel, memfilter status 'Expired Validation', dan menyimpan hasil ke JSON.
+    """
+    if not os.path.exists(input_path):
+        print(f"Error: File input tidak ditemukan: {input_path}", file=sys.stderr)
+        sys.exit(1)
+
+    try:
+        # Load workbook dan ambil sheet 'Audit_Kadaluarsa'
+        wb = openpyxl.load_workbook(input_path, read_only=True, data_only=True)
+        
+        # Cek apakah sheet 'Audit_Kadaluarsa' ada
+        if 'Audit_Kadaluarsa' not in wb.sheetnames:
+            print(f"Error: Sheet 'Audit_Kadaluarsa' tidak ditemukan dalam file {input_path}.", file=sys.stderr)
+            wb.close()
+            sys.exit(1)
+
+        ws = wb['Audit_Kadaluarsa']
+        expired_items = []
+        
+        # Asumsi header ada di baris pertama. Sesuaikan indeks kolom jika strukturnya berbeda.
+        # Biasanya: Col A = ID, Col B = Status, Col C = Expiry_Reason
+        # Kita iterasi dimulai dari baris kedua (index 1) karena baris 1 adalah header
+        
+        for row_idx, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
+            if len(row) < 3:
+                continue
+                
+            item_id = row[0]
+            status = row[1]
+            reason = row[2]
+
+            # Filter hanya status yang tepat 'Expired Validation' (case-insensitive untuk keamanan)
+            if status and str(status).strip().lower() == 'expired validation':
+                expired_items.append({
+                    "id": str(item_id).strip() if item_id else "",
+                    "status": status,
+                    "expiry_reason": str(reason).strip() if reason else "Unknown"
+                })
+
+        wb.close()
+
+        # Susun output JSON
+        summary = {
+            "extracted_at": datetime.now().isoformat(),
+            "total_expired": len(expired_items),
+            "expired_items": expired_items
+        }
+
+        # Tulis ke file output
+        output_dir = os.path.dirname(output_path)
+        if output_dir and not os.path.exists(output_dir):
+            os.makedirs(output_dir, exist_ok=True)
+
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(summary, f, indent=4, ensure_ascii=False)
+
+        print(f"Berhasil. {len(expired_items)} entitas kadaluarsa diekstrak ke {output_path}")
+
+    except Exception as e:
+        print(f"Terjadi kesalahan saat memproses file: {e}", file=sys.stderr)
+        sys.exit(1)
+
+def main():
+    parser = argparse.ArgumentParser(description="Ekstrak data audit kadaluarsa dari Excel ke JSON.")
+    parser.add_argument('--input', required=True, help='Path ke file Excel input (misal: /reports/audit_laporan_YYYYMMDD.xlsx)')
+    parser.add_argument('--output', required=True, help='Path ke file JSON output')
+    
+    args = parser.parse_args()
+    extract_expired_data(args.input, args.output)
+
+if __name__ == "__main__":
+    main()
+```
+
+#### Otomatisasi Pas-Proses (Post-Processing Cron)
+
+Untuk menjaga alur otomatisasi tetap lancar, tambahkan entri `cron` baru setelah generator laporan selesai, agar data JSON selalu siap untuk dikirim ke sistem monitoring atau diproses lebih lanjut.
+
+Tambahkan baris berikut ke `crontab -e`:
+
+```cron
+# Jalankan parser data 02:05 (5 menit setelah generator laporan selesai)
+# Menggunakan glob untuk mencocokkan file hari ini jika nama file dinamis, 
+# atau sesuaikan path sesuai kebutuhan. Di sini kita asumsikan kita mencari file terbaru.
+0 2 * * * /usr/bin/python3 /opt/scripts/excel_parser.py \
+  --input /reports/audit_laporan_$(date +\%Y\%m\%d).xlsx \
+  --output /data/expired_summary_$(date +\%Y\%m\%d).json >> /var/log/excel_parser.log 2>&1
+```
+
+> **Catatan Penting:** Pastikan direktori `/data/` sudah ada dan memiliki izin tulis yang sesuai untuk user yang menjalankan cron job. Jika struktur nama file Excel berubah, argumen `--input` pada crontab perlu disesuaikan.
+
+#### Pertimbangan Skalabilitas
+
+1.  **Kinerja pada File Besar:** Jika laporan Excel mengandung ratusan ribu baris, pembacaan sel-per-sel (`ws.iter_rows`) bisa menjadi lambat. Untuk kasus tersebut, pertimbangkan untuk menggunakan `pandas.read_excel` dengan parameter `engine='openpyxl'` dan filter dataframe sebelum konversi JSON, atau gunakan mode `read_only=True` yang sudah diterapkan dalam skrip di atas untuk menghemat memori.
+2.  **Validasi Schema:** Output JSON dihasilkan dengan schema tetap. Jika downstream system memerlukan field tambahan (misalnya `timestamp_of_expiry`), pastikan kolom tersebut ada di sheet Excel dan ditambahkan ke dalam logika `append` pada skrip.
+3.  **Handelling Missing Values:** Skrip ini memberikan nilai default `"Unknown"` jika kolom alasan kadaluarsa kosong. Ini mencegah error JSON serialization dan memudahkan debugging di dashboard downstream.
