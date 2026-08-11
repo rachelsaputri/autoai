@@ -6316,3 +6316,96 @@ Sesuai dengan prinsip *Accountability* (Akuntabilitas) dalam GDPR:
 *   Jangan pernah mengubah file JSON atau Database setelah skrip dijalankan. Jika diperlukan koreksi, buat *new verification* baru dan arsipkan sebagai versi yang diperbarui, bukan menimpa data lama.
 
 > **Peringatan Hukum:** Laporan ini bersifat teknis dan statistik. Tidak menggantikan nasihat hukum. Keputusan final mengenai kepatuhan hukum harus melibatkan penasihat hukum perusahaan dan tim kepatuhan (Compliance Officer).
+
+
+#### 5. Otomasi Pemrosesan Permintaan Penghapusan (Right to be Forgotten)
+
+Untuk meningkatkan efisiensi dan mengurangi potensi human error dalam menangani permintaan penghapusan data sesuai Pasal 17 GDPR, ekosistem ini menyediakan skrip antarmuka otomatis: `auto_gdpr_deletion_request.py`. Skrip ini bertindak sebagai jembatan antara penerimaan permintaan eksternal dan eksekusi teknis pemusnahan data, sekaligus memastikan jejak audit (audit trail) tetap utuh.
+
+##### 5.1. Alur Kerja Pemrosesan
+
+Skrip dirancang untuk berjalan secara *stateless* namun meninggalkan jejak *stateful* melalui database. Alur eksekusinya adalah sebagai berikut:
+
+1.  **Validasi Input:** Membaca file JSON permintaan yang berisi daftar `user_ids` atau `entity_ids` target.
+2.  **Pencabutan Akses & Penghapusan Data:**
+    *   Menandai baris data yang relevan di `compliance_history.db` dengan status `DELETED` (soft delete) atau menghapus entri secara fisik (*hard delete*) sesuai kebijakan retensi yang dikonfigurasi.
+    *   Menghapus referensi data mentah (*raw data*) dari arsip sementara atau cache jika ada, namun **tidak** menghapus data historis yang sudah terverifikasi dan diarsipkan statis (sesuai prinsip *immutable archive*).
+3.  **Pencatatan Jejak Audit:** Menambahkan entri baru ke `verification_log.json` yang mendokumentasikan:
+    *   Waktu eksekusi (`timestamp`).
+    *   ID permintaan unik (`request_id`).
+    *   Daftar ID yang diproses.
+    *   Status hasil (`SUCCESS`, `PARTIAL_SUCCESS`, atau `FAILED`).
+4.  **Regenerasi Laporan Bukti:** Secara otomatis memicu `gdpr_compliance_reporter.py` dengan konfigurasi terbaru untuk menghasilkan dokumen bukti pemusnahan yang dapat diverifikasi oleh auditor.
+5.  **Notifikasi:** Mengirimkan hasil ringkasan pemrosesan ke alamat email yang ditentukan.
+
+##### 5.2. Struktur File Input (`request.json`)
+
+File input harus mengikuti format JSON berikut untuk memastikan kompatibilitas dengan parser skrip:
+
+```json
+{
+  "request_metadata": {
+    "request_id": "REQ-20231027-001",
+    "requested_by": "user@example.com",
+    "legal_basis": "Article 17 GDPR (Right to Erasure)",
+    "priority": "HIGH"
+  },
+  "target_entities": [
+    {
+      "entity_id": "USR-8842",
+      "type": "customer_profile"
+    },
+    {
+      "entity_id": "USR-9921",
+      "type": "customer_profile"
+    }
+  ]
+}
+```
+
+*Catatan: Pastikan `entity_id` sesuai dengan format kunci primer yang digunakan di `compliance_history.db`.*
+
+##### 5.3. Eksekusi Skrip
+
+Jalankan skrip dengan menyertakan path ke file permintaan, path database, dan alamat email penerima notifikasi.
+
+```bash
+python auto_gdpr_deletion_request.py \
+  --request-json audits/deletion_requests/req_20231027.json \
+  --db-path data/compliance_history.db \
+  --notify-email compliance-officer@perusahaan.com
+```
+
+**Argumen Detail:**
+
+| Argumen | Deskripsi | Contoh Nilai | Wajib |
+| :--- | :--- | :--- | :--- |
+| `--request-json` | Path absolut atau relatif ke file JSON berisi daftar ID target penghapusan. | `requests/req_001.json` | Ya |
+| `--db-path` | Path ke file database SQLite utama yang menyimpan riwayat kepatuhan. | `data/compliance_history.db` | Ya |
+| `--notify-email` | Alamat email penerima laporan hasil pemrosesan dan status notifikasi. | `admin@perusahaan.com` | Ya |
+| `--dry-run` | *(Opsional)* Jalankan skrip tanpa mengubah data database atau mengirim email. Hanya menampilkan log preview. | `true` | Tidak |
+| `--output-dir` | *(Opsional)* Direktori khusus untuk menyimpan laporan PDF yang di-generate ulang. Default: `audits/`. | `audits/manual_review/` | Tidak |
+
+##### 5.4. Output dan Notifikasi
+
+Setelah skrip selesai dieksekusi, dua hal utama akan terjadi:
+
+1.  **Update Laporan Bukti:**
+    Skrip secara otomatis memanggil `gdpr_compliance_reporter.py`. File PDF/DOCX baru akan dihasilkan di dalam direktori output yang ditentukan (default: `audits/`). File ini akan mencakup:
+    *   Ringkasan permintaan penghapusan yang baru saja diproses.
+    *   Bukti bahwa data target telah dihapus/tidak dapat diakses.
+    *   Pembaruan pada metrik `privacy_analysis.masking_success_rate` untuk refleksi status kepatuhan terkini.
+
+2.  **Email Notifikasi:**
+    Isi email berisi:
+    *   Subjek: `[GDPR Action] Deletion Request [REQ_ID] Processed`
+    *   Body: Status eksekusi (Sukses/Gagal), jumlah entitas yang diproses, dan link langsung ke file laporan PDF hasil regenerasi.
+    *   Lampiran: Salinan laporan PDF untuk arsip komunikasi resmi.
+
+##### 5.5. Pertimbangan Keamanan dan Privasi dalam Eksekusi
+
+*   **Immutable Archives:** Pastikan skrip tidak menghapus file `verification_log.json` lama atau arsip statis. Penghapusan hanya berlaku pada *active data* dan *cache*. Bukti bahwa data *pernah* ada harus tetap terjaga untuk kepatuhan hukum jangka panjang.
+*   **Penanganan Error:** Jika skrip gagal menghapus satu atau lebih entitas (misalnya, karena kunci asing/FK constraint atau izin akses), skrip akan mencatat kegagalan spesifik di log dan tetap melanjutkan entitas lain yang bisa diproses. Status akhir di log akan menjadi `PARTIAL_SUCCESS`.
+*   **Pembersihan Resource:** Skrip akan menutup koneksi database dan membersihkan variabel lingkungan sensitif segera setelah eksekusi selesai untuk mencegah kebocoran memori atau data sisa di memori sistem.
+
+> **Best Practice:** Selalu jalankan `--dry-run` terlebih dahulu pada lingkungan *staging* yang memiliki replika data yang sama dengan produksi untuk memverifikasi logika penghapusan sebelum diterapkan pada data sensitif pengguna nyata.
