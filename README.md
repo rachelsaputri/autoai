@@ -1254,3 +1254,124 @@ File JSON yang dihasilkan (`id_analysis.json`) memiliki struktur berikut:
 *   **`unique_ids`**: Daftar ID yang ditemukan, diurutkan secara alfabetis. Berguna untuk memastikan ID tertentu muncul dalam log.
 *   **`top_frequent_ids`**: ID yang paling sering muncul dalam log. Jika ID tertentu muncul secara tidak wajar (terlalu sering atau terlalu sedikit), ini bisa menjadi indikator error atau duplikasi log.
 *   **`total_ids_found`**: Total kemunculan semua ID. Bandingkan dengan jumlah ID unik untuk mendeteksi repetisi.
+
+
+# ID Reconciliation Script
+
+Skrip `id_reconciliation.py` dirancang untuk melakukan validasi silang (reconciliation) antara daftar ID yang didokumentasikan secara resmi dalam `ID_MANUAL.md` dengan ID yang tercatat dalam log aplikasi hasil analisis oleh `log_analyzer.py`.
+
+Tujuan utama dari proses ini adalah mendeteksi inkonsistensi data, seperti:
+*   **ID Hantu (Ghost IDs):** ID yang ada di dokumentasi tetapi tidak pernah muncul dalam log operasional.
+*   **ID Tidak Valid (Invalid/Unknown IDs):** ID yang muncul dalam log tetapi tidak terdaftar dalam dokumentasi standar, yang mungkin mengindikasikan data korup, input user ilegal, atau kesalahan konfigurasi.
+*   **ID Valid & Aktif:** ID yang muncul di kedua sumber, mengonfirmasi integritas data.
+
+## Prasyarat
+
+Pastikan lingkungan Python Anda memiliki library berikut diinstal. Library ini digunakan untuk parsing Markdown dan manipulasi CSV.
+
+```bash
+pip install pandas python-markdown
+```
+
+> **Catatan:** Jika Anda menggunakan lingkungan virtual yang ketat atau preferensi instalasi berbasis konstitusi, pastikan versi `pandas` dan `python-markdown` kompatibel dengan versi Python yang Anda gunakan (direkomendasikan Python 3.7+).
+
+## Cara Penggunaan
+
+Jalankan skrip dari direktori root proyek setelah `log_analyzer.py` selesai dijalankan dan menghasilkan file JSON ringkasan.
+
+```bash
+python id_reconciliation.py
+```
+
+### Alur Kerja Skrip
+
+1.  **Inisialisasi:** Skrip akan mencari file `ID_MANUAL.md` di direktori saat ini.
+2.  **Parsing Dokumentasi:**
+    *   Membaca konten `ID_MANUAL.md`.
+    *   Mengekstrak semua ID yang terdaftar dalam format standar (misalnya, baris yang berisi pola `ID: [PATTERN]` atau tabel Markdown).
+    *   *Asumsi:* Skrip menggunakan regex sederhana untuk menangkap ID yang diawali dengan prefix standar (seperti `PRO-` atau `QAS-`). Anda dapat menyesuaikan regex di variabel `VALID_ID_PATTERN` di dalam skrip jika format dokumentasi berubah.
+3.  **Parsing Log Ringkasan:**
+    *   Membaca file output JSON dari `log_analyzer.py` (default: `log_summary.json`).
+    *   Mengekstrak daftar `unique_ids` dari kunci `unique_ids` dalam JSON.
+4.  **Perbandingan Logika:**
+    *   Membuat set ID dari dokumentasi (`doc_ids`) dan set ID dari log (`log_ids`).
+    *   Menghitung union dan intersection untuk menentukan status setiap ID.
+5.  **Generasi Laporan:**
+    *   Menyimpan hasil perbandingan ke `reconciliation_report.csv`.
+
+## Struktur Output: `reconciliation_report.csv`
+
+File CSV yang dihasilkan akan memiliki struktur berikut:
+
+| Kolom | Deskripsi | Contoh Nilai |
+| :--- | :--- | :--- |
+| **ID** | Kode identifier yang diperiksa. | `PRO-000001` |
+| **Status_Documentation** | Apakah ID ditemukan dalam `ID_MANUAL.md`. | `FOUND`, `NOT_FOUND` |
+| **Status_Log** | Apakah ID ditemukan dalam `log_summary.json`. | `FOUND`, `NOT_FOUND` |
+| **Rekomendasi** | Tindakan yang disarankan berdasarkan status. | "Verifikasi aktivasi", "Hapus dari dokumentasi", "Investigasi sumber ID asing" |
+
+### Logika Rekomendasi
+
+Skrip memberikan rekomendasi berbasis aturan sebagai berikut:
+
+*   **Jika `ID` ada di Dokumen tapi TIDAK ada di Log:**
+    *   *Status:* `FOUND` / `NOT_FOUND`
+    *   *Rekomendasi:* **"ID Hantu: Verifikasi apakah ID ini aktif atau perlu dihapus dari dokumentasi."**
+    *   *Insight:* ID ini mungkin sudah di-deprecate, atau sistem gagal mencatat event untuk ID tersebut.
+
+*   **Jika `ID` TIDAK ada di Dokumen tapi ADA di Log:**
+    *   *Status:* `NOT_FOUND` / `FOUND`
+    *   *Rekomendasi:* **"ID Tidak Valid: Investigasi sumber ID ini. Kemungkinan data korup atau input ilegal."**
+    *   *Insight:* Ini adalah indikator risiko tinggi. ID baru mungkin belum didokumentasikan, atau terjadi kesalahan penomoran.
+
+*   **Jika `ID` ada di kedua sumber:**
+    *   *Status:* `FOUND` / `FOUND`
+    *   *Rekomendasi:* **"Valid: Tidak ada tindakan diperlukan."**
+    *   *Insight:* Integritas data terjaga.
+
+*   **Jika `ID` tidak ada di keduanya:**
+    *   *(Skenario ini umumnya tidak muncul dalam output karena skrip menggabungkan union dari kedua sumber, namun jika ada, statusnya akan `NOT_FOUND`/`NOT_FOUND`)*.
+
+## Konfigurasi Skrip
+
+Skrip menggunakan konstanta berikut di bagian atas file `id_reconciliation.py`. Anda dapat menyesuaikannya sesuai kebutuhan proyek:
+
+```python
+# Konstanta Input/Output
+INPUT_DOC_FILE = "ID_MANUAL.md"
+INPUT_LOG_JSON = "log_summary.json"  # Pastikan nama ini sesuai dengan output log_analyzer.py
+OUTPUT_CSV = "reconciliation_report.csv"
+
+# Regex untuk mendeteksi ID dalam Markdown
+# Contoh: Mencari pola seperti "PRO-12345" atau "QAS-67890"
+# Sesuaikan ekspresi ini jika format ID Anda berbeda
+VALID_ID_PATTERN = r'(PRO|QAS)-\d{6}'
+```
+
+## Contoh Output CSV
+
+Berikut adalah contoh isi `reconciliation_report.csv` setelah skrip dijalankan:
+
+```csv
+ID,Status_Documentation,Status_Log,Rekomendasi
+PRO-000001,FOUND,FOUND,Valid: Tidak ada tindakan diperlukan.
+PRO-000002,FOUND,NOT_FOUND,ID Hantu: Verifikasi apakah ID ini aktif atau perlu dihapus dari dokumentasi.
+PRO-000003,NOT_FOUND,FOUND,ID Tidak Valid: Investigasi sumber ID ini. Kemungkinan data korup atau input ilegal.
+QAS-123456,FOUND,FOUND,Valid: Tidak ada tindakan diperlukan.
+```
+
+## Troubleshooting
+
+*   **File tidak ditemukan:** Pastikan `ID_MANUAL.md` dan file JSON output dari `log_analyzer.py` berada di direktori yang sama dengan skrip `id_reconciliation.py`.
+*   **ID tidak terdeteksi:** Periksa regex `VALID_ID_PATTERN`. Jika ID Anda memiliki format yang berbeda (misalnya prefix lain atau panjang digit berbeda), perbarui ekspresi reguler tersebut.
+*   **Error parsing Markdown:** Skrip ini menggunakan pendekatan regex sederhana. Untuk dokumen Markdown yang sangat kompleks dengan tabel nesting, pertimbangkan untuk menggunakan library `pandas` langsung untuk membaca tabel Markdown, atau konversi `ID_MANUAL.md` menjadi format JSON/CSV terstruktur terlebih dahulu.
+
+## Integrasi CI/CD
+
+Untuk menjaga integritas data secara otomatis, Anda dapat menambahkan langkah ini ke pipeline CI/CD Anda:
+
+1.  Jalankan `log_analyzer.py` setiap kali build baru di-deploy ke lingkungan staging.
+2.  Jalankan `id_reconciliation.py` setelah log generator selesai.
+3.  Tambahkan pemeriksaan: Jika jumlah baris dengan `Rekomendasi` mengandung kata "Invalid" atau "Hantu" melebihi ambang batas tertentu (misalnya > 0), pipeline dapat ditandai sebagai **GAGAL (FAIL)** atau mengirim notifikasi ke tim DevOps/Backend untuk investigasi.
+
+Ini memastikan bahwa setiap ID yang digunakan dalam aplikasi selalu sesuai dengan standar yang ditetapkan, mengurangi risiko *data drift* dan kesalahan operasional.
