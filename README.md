@@ -238,3 +238,144 @@ python extract_ids_to_csv.py --input CHANGELOG.md --output changelog_ids.csv
 ```
 
 Hal ini dapat diimplementasikan dengan modul `argparse` di Python untuk fleksibilitas lebih lanjut.
+
+
+### Implementasi Argument Parsing dengan `argparse`
+
+Untuk mendukung integrasi CI/CD dan fleksibilitas penggunaan di lingkungan produksi, skrip diperbarui untuk menerima parameter file input dan output melalui baris perintah menggunakan modul `argparse` bawaan Python. Pendekatan ini menghilangkan kebutuhan untuk mengedit skrip secara manual ketika mengubah sumber data atau lokasi penyimpanan hasil.
+
+Berikut adalah implementasi kode yang mencakup parsing argumen, validasi input, dan penanganan kasus tanpa hasil (empty result):
+
+```python
+import argparse
+import csv
+import os
+import sys
+from collections import Counter
+from datetime import datetime
+
+def extract_ids_from_file(filepath):
+    """
+    Membaca file Markdown dan mengekstrak ID yang mengandung substring '1786433'.
+    """
+    if not os.path.exists(filepath):
+        print(f"Error: File '{filepath}' tidak ditemukan.", file=sys.stderr)
+        sys.exit(1)
+
+    ids = []
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            for line in f:
+                # Asumsi logika ekstraksi: mencari baris yang mengandung substring ID tertentu
+                if '1786433' in line:
+                    # Contoh ekstraksi sederhana: ambil token pertama jika dipisah spasi atau tanda baca
+                    # Sesuaikan regex atau logika split dengan format CHANGELOG.md Anda
+                    parts = line.strip().split()
+                    for part in parts:
+                        if '1786433' in part:
+                            ids.append(part)
+    except Exception as e:
+        print(f"Error membaca file: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    return ids
+
+def write_output_csv(output_path, ids_counter):
+    """
+    Menulis hasil frekuensi ID ke file CSV.
+    """
+    try:
+        with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            # Menulis header dengan timestamp sebagai komentar (opsional, tergantung preferensi parser)
+            writer.writerow([f"# Eksekusi dilakukan pada: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", "ID", "Frequency"])
+            
+            if not ids_counter:
+                print("Peringatan: Tidak ada ID yang ditemukan dengan substring target.", file=sys.stderr)
+                # Opsional: Menulis baris kosong atau header saja jika tidak ada data
+                return
+
+            for id_val, count in ids_counter.items():
+                writer.writerow([id_val, count])
+    except Exception as e:
+        print(f"Error menulis file output: {e}", file=sys.stderr)
+        sys.exit(1)
+
+def main():
+    parser = argparse.ArgumentParser(description="Ekstrak ID unik dari file Markdown ke CSV.")
+    parser.add_argument('--input', required=True, help='Path ke file input (misal: CHANGELOG.md)')
+    parser.add_argument('--output', required=True, help='Path ke file output CSV')
+
+    args = parser.parse_args()
+
+    # 1. Validasi Input Awal
+    if not os.path.exists(args.input):
+        print(f"Error: File input '{args.input}' tidak ditemukan.", file=sys.stderr)
+        sys.exit(1)
+
+    # 2. Proses Ekstraksi
+    raw_ids = extract_ids_from_file(args.input)
+    
+    # 3. Hitung Frekuensi
+    id_counter = Counter(raw_ids)
+
+    # 4. Penanganan Kasus "Tidak Ditemukan"
+    if not id_counter:
+        print("Peringatan: Tidak ditemukan ID yang mengandung substring target dalam file input.", file=sys.stderr)
+        # Kita tetap boleh menulis header CSV kosong untuk konsistensi struktur file,
+        # atau mengabaikan pembuatan file jika ingin total silent.
+        # Di sini kita memilih menulis header kosong agar file output tetap terbentuk.
+
+    # 5. Tulis Output
+    write_output_csv(args.output, id_counter)
+    
+    print(f"Proses selesai. Hasil disimpan di: {args.output}")
+
+if __name__ == "__main__":
+    main()
+```
+
+#### Penjelasan Perubahan Penting
+
+1.  **Argumen Wajib (`required=True`)**:
+    Flag `--input` dan `--output` ditetapkan sebagai wajib. Ini mencegah skrip berjalan tanpa informasi lokasi file, yang sering menjadi penyebab *runtime error* dalam skrip otomatis.
+    
+2.  **Logging ke `stderr`**:
+    Pesan peringatan atau error (seperti file tidak ditemukan atau tidak ada ID yang cocok) dialirkan ke `sys.stderr`. Ini adalah standar industri CLI karena memungkinkan pipeline CI/CD untuk membedakan antara *output data* (stdout) dan *pesan status/error* (stderr). Hal ini memudahkan monitoring log yang bersih.
+
+3.  **Penanganan Empty Result**:
+    Jika `Counter` kosong (tidak ada ID yang cocok), skrip tidak akan menulis baris data apa pun ke dalam CSV, tetapi tetap akan mencatat pesan peringatan ke stderr. Ini penting untuk mendeteksi masalah data sumber atau perubahan format dokumen sumber tanpa menghentikan proses karena *exception*.
+
+4.  **Struktur Modular**:
+    Logika dipisah menjadi fungsi `extract_ids_from_file` dan `write_output_csv`. Ini meningkatkan keterbacaan dan memungkinkan unit testing yang lebih mudah untuk masing-masing komponen.
+
+### Contoh Penggunaan Lanjutan
+
+Setelah menerapkan perubahan di atas, skrip dapat dijalankan dengan berbagai kombinasi file:
+
+```bash
+# Menggunakan file default CHANGELOG.md
+python extract_ids_to_csv.py --input CHANGELOG.md --output results.csv
+
+# Menggunakan file log aplikasi yang berbeda
+python extract_ids_to_csv.py --input app_logs_2023.txt --output extracted_ids_q4.csv
+
+# Cek apakah ada error jika file tidak ada (akan muncul di stderr)
+python extract_ids_to_csv.py --input missing_file.txt --output output.csv
+```
+
+#### Integrasi Sederhana di GitHub Actions (YAML)
+
+Contoh bagaimana argumen ini dimanfaatkan dalam pipeline CI/CD:
+
+```yaml
+- name: Ekstrak ID dari Changelog
+  run: |
+    python extract_ids_to_csv.py --input CHANGELOG.md --output changelog_ids_${{ github.sha }}.csv
+    
+- name: Upload Artifact ID
+  uses: actions/upload-artifact@v3
+  with:
+    name: extracted-ids
+    path: changelog_ids_${{ github.sha }}.csv
+```
