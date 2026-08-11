@@ -5005,3 +5005,56 @@ Anda dapat menyederhanakan pipeline GitHub Actions sebelumnya dengan mengganti l
 1.  **Jangan Komit Kredensial**: Pastikan file yang merujuk ke `--credentials` ditambahkan ke `.gitignore`.
 2.  **Iminimisasi Privilase**: Gunakan IAM Role atau User dengan hak akses minimal hanya untuk menulis (put/object/upload) ke bucket atau direktori target.
 3.  **Validasi Output**: Pastikan file `dashboard.html` yang dihasilkan oleh `statistical_anomaly_dashboard.py` mengandung tag `<html>` yang valid sebelum melakukan upload, untuk mencegah korupsa data di sisi penerima.
+
+
+#### Integrasi Sistem: Orchestrator Otomasi
+
+Untuk menyelesaikan siklus deteksi-analisis-respons secara otomatis, proyek ini menyertakan **Anomaly Response Orchestrator** (`anomaly_response_orchestrator.py`). Skrip ini bertindak sebagai "otak" dari pipeline keamanan, yang bertugas menggabungkan hasil deteksi statistik dari `parquet_anomaly_detector.py` dengan hasil analisis korelasi dari `disparity_correlator.py`.
+
+Tujuan utama skrip ini adalah mengidentifikasi outlier yang bukan hanya mencurig secara statistik, tetapi juga memiliki korelasi tinggi dengan indikator keamanan (security indicators), lalu memicu alur remediasi otomatis melalui `auto_remediation.py`. Dengan pendekatan ini, kita mengurangi waktu deteksi dan respons (MTTD/MTTR) secara signifikan.
+
+##### Cara Penggunaan
+
+Skrip ini dirancang untuk dijalankan setelah proses analisis selesai. Berikut adalah contoh perintah dasar:
+
+```bash
+python anomaly_response_orchestrator.py \
+    --anomaly-csv output/statistical_anomalies.csv \
+    --analysis-json output/correlation_analysis.json \
+    --webhook-failover https://hooks.slack.com/services/...
+```
+
+##### Argumen Baris Perintah
+
+*   `--anomaly-csv <path>`: **(Wajib)** Path ke file CSV yang dihasilkan oleh `parquet_anomaly_detector.py`. File ini berisi daftar anomali statistik yang terdeteksi.
+*   `--analysis-json <path>`: **(Wajib)** Path ke file JSON yang dihasilkan oleh `disparity_correlator.py`. File ini memuat hasil analisis korelasi antar variabel.
+*   `--dry-run`: **(Opsional)** Jika flag ini disertakan, skrip akan mensimulasikan keputusan remediasi tanpa benar-benar memanggil `auto_remediation.py`. Output hanya akan dicetak ke log untuk verifikasi logika pemfilteran.
+*   `--webhook-failover <url>`: **(Opsional)** URL Webhook (misalnya Slack, Discord, atau Microsoft Teams). Jika proses remediasi otomatis gagal atau ditolak oleh sistem tujuan, skrip akan mengirim notifikasi gagal ke URL ini agar tim keamanan dapat intervensi manual.
+
+##### Logika Pemfilteran dan Pemicu Remediasi
+
+Orchestrator tidak memicu remediasi untuk semua anomali. Ia menerapkan filter bertingkat:
+
+1.  **Pencocokan ID**: Skrip mencocokkan `anomaly_id` dari CSV anomali statistik dengan kunci dalam JSON analisis korelasi.
+2.  **Ambang Batas Korelasi**: Hanya anomali dengan skor korelasi keamanan (`security_correlation_score`) di atas ambang batas tertentu (default: `0.8`) yang dipertimbangkan.
+3.  **Pemanggilan Remediasi**: Untuk setiap anomali yang lolos filter, skrip memanggil `auto_remediation.py` secara asinkron (atau sinkron, tergantung konfigurasi) dengan `anomaly_id` tersebut sebagai argumen.
+
+##### Contoh Output Log
+
+```text
+[INFO] Memuat data anomali dari: output/statistical_anomalies.csv
+[INFO] Memuat data analisis dari: output/correlation_analysis.json
+[INFO] Ditemukan 5 anomali dengan korelasi keamanan > 0.8
+[INFO] Menjalankan remediasi untuk ANOMALY-2023-001...
+[SUCCESS] Remediasi ANOMALY-2023-001 berhasil dieksekusi.
+[WARN] Remediasi ANOMALY-2023-004 ditolak oleh sistem target. Mengirim notifikasi gagal ke webhook.
+[INFO] Proses orchestrator selesai.
+```
+
+##### Pertimbangan Keamanan dan Scalability
+
+*   **Idempotensi**: Pastikan `auto_remediation.py` dapat menangani pemanggilan berulang untuk `anomaly_id` yang sama tanpa menyebabkan error atau duplikasi tindakan.
+*   **Manajemen Webhook**: Simpan URL webhook di variabel lingkungan (`WEBHOOK_URL`) atau file konfigurasi yang tidak terkunci di repositori, bukan di kode sumber.
+*   **Logging**: Semua aksi remediasi dan kegagalan harus dicatat ke log terpusat (misalnya, ELK Stack atau CloudWatch) untuk audit trail di masa depan.
+
+Dengan mengintegrasikan `anomaly_response_orchestrator.py`, Anda mengubah pipeline dari sekadar alat observasi menjadi sistem defensif aktif yang mampu merespons ancaman secara real-time.
