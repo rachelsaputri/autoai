@@ -6409,3 +6409,113 @@ Setelah skrip selesai dieksekusi, dua hal utama akan terjadi:
 *   **Pembersihan Resource:** Skrip akan menutup koneksi database dan membersihkan variabel lingkungan sensitif segera setelah eksekusi selesai untuk mencegah kebocoran memori atau data sisa di memori sistem.
 
 > **Best Practice:** Selalu jalankan `--dry-run` terlebih dahulu pada lingkungan *staging* yang memiliki replika data yang sama dengan produksi untuk memverifikasi logika penghapusan sebelum diterapkan pada data sensitif pengguna nyata.
+
+
+Berikut adalah lanjutan konten dokumentasi yang komprehensif, dirancang untuk disalin dan ditempel langsung ke dalam `README.md` setelah bagian **5.5. Pertimbangan Keamanan dan Privasi dalam Eksekusi**.
+
+---
+
+##### 5.6. Otomatisasi Audit & Generasi Dokumentasi Kepatuhan (Compliance Audit)
+
+Untuk memenuhi persyaratan pelaporan reguler dan transparansi terhadap regulator (seperti Otoritas Perlindungan Data Pribadi), sistem menyediakan skrip utilitas `gdpr_automated_audit_gen.py`. Skrip ini berfungsi sebagai jembatan otomatisasi yang mengumpulkan bukti teknis, mengekstrak metrik kinerja, dan menyelaraskan dokumentasi internal (`README.md`) dengan status kepatuhan terkini.
+
+###### 5.6.1. Deskripsi Fungsional
+Skrip ini tidak mengubah data pengguna secara langsung, melainkan fokus pada **audit trail** dan **dokumentasi**. Alur kerjanya meliputi:
+1.  **Pengumpulan Data:** Membaca arsip verifikasi dari `archive_integrity_verifier.py` dan hasil pelaporan teknis dari `gdpr_compliance_reporter.py`.
+2.  **Analisis Metrik:** Menghitung *Success Rate* masking data dan rata-rata waktu pemrosesan per permintaan.
+3.  **Generasi Markdown:** Menyusun ringkasan audit dalam format Markdown yang terstruktur.
+4.  **Sinkronisasi Dokumen:** Menambahkan entri baru ke bagian **"Compliance & Legal"** di `README.md` tanpa mengganggu struktur dokumen lainnya.
+5.  **Pencegahan Duplikasi:** Memvalidasi timestamp agar tidak terjadi duplikasi entri audit untuk periode yang sama.
+
+###### 5.6.2. Argumen Kombaris (CLI Arguments)
+
+| Argumen | Deskripsi | Tipe Data | Wajib | Contoh Default |
+| :--- | :--- | :--- | :--- | :--- |
+| `--log` | Path absolut/relatif ke file `verification_log.json` yang dihasilkan oleh `archive_integrity_verifier.py`. | `string` | Ya | `logs/archive_verification_20231027.json` |
+| `--report` | Path absolut/relatif ke file laporan JSON hasil generate dari `gdpr_compliance_reporter.py`. | `string` | Ya | `reports/gdpr_report_oct2023.json` |
+| `--readme-path` | Path ke file `README.md` proyek yang ingin diperbarui bagian Compliance-nya. | `string` | Ya | `README.md` |
+| `--dry-run` | *(Opsional)* Tampilkan preview perubahan Markdown tanpa menulis ke file README. | `boolean` | Tidak | `false` |
+
+**Contoh Eksekusi:**
+```bash
+python gdpr_automated_audit_gen.py \
+    --log "./data/archive_verification_latest.json" \
+    --report "./reports/compliance_report_latest.json" \
+    --readme-path "./README.md" \
+    --dry-run
+```
+
+###### 5.6.3. Alur Logika Ekstraksi Metrik
+
+Skrip melakukan parsing terhadap dua sumber data utama untuk menghasilkan metrik yang disajikan di dokumentasi:
+
+1.  **Keberhasilan Masking (`masking_success_rate`):**
+    *   Mengambil daftar entitas yang ditandai sebagai `VERIFIED_MASKED` dari `verification_log.json`.
+    *   Dihitung: $rac{	ext{Total Entitas Terverifikasi}}{	ext{Total Permintaan Diproses}} 	imes 100\%$.
+    *   Hasil dibulatkan ke dua angka di belakang koma.
+
+2.  **Efisiensi Pemrosesan (`avg_processing_time_ms`):**
+    *   Mengambil selisih waktu `start_timestamp` dan `end_timestamp` dari setiap entri di `gdpr_compliance_reporter.py`.
+    *   Menghitung rata-rata keseluruhan untuk memberikan indikasi performa sistem saat memproses hak penghapusan.
+
+###### 5.6.4. Struktur Output di README
+
+Entri baru akan disisipkan di bawah header `##### Compliance & Legal` dengan format tabel berikut:
+
+| Tanggal Audit | Sumber Permintaan | Metrik Masking | Rata-rata Waktu | Status Kepatuhan |
+| :--- | :--- | :--- | :--- | :--- |
+| `YYYY-MM-DD HH:MM` | `REQ_001, REQ_002...` | `99.8%` | `1.2s` | `PASS` |
+
+*   **Status Kepatuhan:** Otomatis ditetapkan sebagai `PASS` jika masking rate > 95% dan tidak ada error fatal di log. Sebaliknya, akan ditetapkan sebagai `REVIEW_REQUIRED`.
+
+###### 5.6.5. Validasi & Pencegahan Duplikasi
+
+Untuk menjaga integritas historis dokumentasi, skrip implements validasi ketat:
+1.  **Pencarian Timestamp Eksisting:** Skrip membaca bagian `Compliance & Legal` pada `README.md` yang ditargetkan.
+2.  **Pencocokan ID Periode:** Jika timestamp audit yang akan ditambahkan sudah ada (berdasarkan hari/waktu pembuatan laporan), skrip akan menolak penulisan.
+3.  **Fallback:** Jika duplikasi terdeteksi, skrip akan berhenti dan mengeluarkan peringatan:
+    > `Warning: Audit entry for timestamp [TIMESTAMP] already exists in README. Aborting write to prevent duplication.`
+
+###### 5.6.6. Integrasi dengan CI/CD (Best Practice)
+
+Disarankan untuk menjadwalkan eksekusi skrip ini sebagai tahap akhir dari pipeline CI/CD harian atau mingguan. Berikut adalah contoh konfigurasi GitHub Actions sederhana:
+
+```yaml
+name: Weekly GDPR Compliance Update
+on:
+  schedule:
+    - cron: '0 9 * * 1' # Setiap Senin jam 09:00
+
+jobs:
+  update-compliance-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          persist-credentials: false # Diperlukan untuk commit balik
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Audit Gen & Update README
+        run: |
+          python gdpr_automated_audit_gen.py \
+            --log "logs/weekly_archive.json" \
+            --report "reports/weekly_gdpr.json" \
+            --readme-path "README.md"
+          
+      - name: Commit Changes
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "bot@perusahaan.com"
+          git add README.md
+          git commit -m "Auto-update: GDPR Compliance Audit [$(date +'%Y-%m-%d')]" || echo "No changes to commit"
+          git push
+```
+
+> **Catatan Penting:** Pastikan token akses repository memiliki hak *write* ke branch utama jika skrip ini diotomatisasi melalui CI/CD. Untuk eksekusi manual, pastikan Anda memiliki hak tulis pada file `README.md`.
