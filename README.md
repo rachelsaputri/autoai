@@ -9968,3 +9968,132 @@ Seiring dengan adopsi *Policy-as-Code*, peran akuntabilitas sedikit berubah dari
     *   Melakukan sampling acak terhadap aturan API Gateway untuk memastikan tidak ada kebocoran data akibat konfigurasi yang salah.
 
 Dengan mengimplementasikan struktur ini, organisasi tidak hanya memenuhi kewajiban hukum, tetapi juga menciptakan ekosistem di mana kepatuhan adalah fungsi bawaan dari sistem, bukan lapisan tambahan yang reaktif.
+
+
+Berikut adalah konten lanjutan untuk dokumentasi `README.md`, yang dirancang untuk dilampirkan langsung setelah bagian **7.5 Tanggung Jawab dan Akuntabilitas**. Konten ini memperkenalkan komponen kuantifikasi risiko (`compliance_risk_quantifier.py`) dan memberikan landasan metodologis yang diperlukan untuk pemahaman dewan direksi dan fungsi kepatuhan.
+
+---
+
+### 7.6 Kuantifikasi Risiko Finansial (Compliance Risk Quantifier)
+
+Untuk mengubah kepatuhan dari biaya operasional menjadi metrik manajemen risiko yang terukur, organisasi menggunakan skrip `compliance_risk_quantifier.py`. Alat ini berfungsi sebagai jembatan antara temuan teknis (RCA) dan dampak bisnis, dengan mengonversi celah kepatuhan menjadi estimasi kerugian finansial yang dapat ditanggung.
+
+#### 7.6.1 Eksekusi dan Parameter
+
+Skrip ini memerlukan input dari compiler kebijakan dan mesin analisis akar masalah untuk melakukan korelasi data. Gunakan perintah berikut untuk menjalankan kuantifikasi risiko:
+
+```bash
+python compliance_risk_quantifier.py \
+  --policy-rules compliance_output/policy_rules_v1.json \
+  --rca log_analysis/rca_report.json \
+  --dollar-per-record 150 \
+  --annual-revenue 50000000 \
+  --output output/risk_financial_impact.json
+```
+
+**Daftar Argumen:**
+
+| Argumen | Deskripsi | Default | Wajib |
+| :--- | :--- | :--- | :--- |
+| `--policy-rules` | Path ke file `policy_rules_v1.json` yang dihasilkan oleh `compliance_governance_policy_compiler.py`. | `-` | Ya |
+| `--rca` | Path ke file `rca_report.json` dari `log_analysis_and_rca_engine.py`. | `-` | Ya |
+| `--dollar-per-record` | Estimasi biaya pemulihan dan reputasi per satu rekam data sensitif yang bocor. | `150` USD | Tidak |
+| `--annual-revenue` | Turnover tahunan organisasi dalam mata uang lokal (USD). Diperlukan untuk kalkulasi denda GDPR maksimal (4%). | `-` | Ya |
+| `--output` | Path file JSON untuk menyimpan laporan dampak finansial (`risk_financial_impact.json`). | `./risk_financial_impact.json` | Tidak |
+
+#### 7.6.2 Struktur Output Laporan (`risk_financial_impact.json`)
+
+Output yang dihasilkan menyajikan tiga skenario risiko utama untuk mendukung pengambilan keputusan strategis:
+
+1.  **`min_impact` (Lower Bound):** Skenario teroptimis di mana celah kepatuhan bersifat isolatif, tidak melibatkan data individu yang teridentifikasi, dan tidak memicu investigasi regulator eksternal. Meliputi biaya internal remediasi dasar.
+2.  **`expected_value` (Likely Scenario):** Estimasi probabilitas-weighted loss berdasarkan frekuensi insiden historis (dari RCA) dan tingkat keberhasilan eksekusi kontrol. Ini adalah angka yang disarankan untuk dialokasikan dalam anggaran kontinjensi tahunan.
+3.  **`max_impact` (Upper Bound / Worst Case):** Skenario katastrofi di mana celah mengarah pada pelanggaran skala besar, pemicu denda GDPR maksimal (4% dari turnover global), tuntutan kelas (class-action lawsuit), dan downtime operasional penuh selama pemulihan forensik.
+
+**Contoh Snippet Output:**
+
+```json
+{
+  "assessment_id": "RA-2023-10-27-001",
+  "timestamp": "2023-10-27T14:30:00Z",
+  "inputs_summary": {
+    "policy_rules": "policy_rules_v1.json",
+    "rca_items_analyzed": 12,
+    "critical_gaps_found": 2
+  },
+  "financial_estimates": {
+    "min_impact_usd": 15000,
+    "expected_value_usd": 850000,
+    "max_impact_usd": 20500000
+  },
+  "risk_breakdown": {
+    "gdpenalty_exposure_usd": 20000000,
+    "forensic_costs_usd": 150000,
+    "business_interruption_usd": 350000,
+    "reputational_damage_usd": 200000
+  },
+  "recommendation": "Immediate remediation required for GAP-SEC-04 to reduce Expected Value by 40%."
+}
+```
+
+#### 7.6.3 Metodologi Penilaian Risiko Finansial dan Asumsi Akuntansi
+
+Bagian ini mendefinisikan landasan teknis dan asumsi akuntansi yang digunakan oleh `compliance_risk_quantifier.py`. Dokumen ini bersifat terbuka untuk review oleh Auditor Internal dan Departemen Keuangan sebelum digunakan untuk penentuan premi asuransi siber.
+
+**A. Model Denda GDPR (General Data Protection Regulation)**
+
+Sesuai Pasal 83 GDPR, denda administratif dapat mencapai hingga **20 juta EUR atau 4% dari omzet tahunan global tahunan penuh**, mana yang lebih tinggi.
+
+*   **Kalkulasi Eksposur Maksimal:**
+    $$ 	ext{MaxGDPEndowment} = \max(20,000,000 	imes 	ext{FXRate}, 	ext{AnnualRevenue} 	imes 0.04) $$
+    *Di mana `FXRate` adalah kurs konversi EUR ke USD pada hari penilaian risiko.*
+*   **Asumsi Probabilitas Penalti Penuh:** Model ini menggunakan faktor pengali konservatif **0.8** untuk `max_impact`, asumsinya adalah regulator cenderung memberikan denda maksimal hanya dalam kasus pelanggaran sistematis yang diabaikan.
+
+**B. Biaya Forensik Digital dan Pemulihan**
+
+Biaya ini mencakup jasa vendor pihak ketiga untuk investigasi insiden, notifikasi kepada individu yang terdampak, dan pemulihan sistem.
+
+*   **Rumus Dasar:**
+    $$ 	ext{CostForensics} = (	ext{RecordsAffected} 	imes 	ext{CostPerRecord}) + 	ext{FixedBaseInvestigation} $$
+*   **Asumsi `CostPerRecord` ($150 USD default):**
+    1.  **Notifikasi:** $15 per surat/email notifikasi wajib hukum.
+    2.  **Kredit Monitoring:** $100 per tahun untuk layanan pemantauan kredit selama 2 tahun.
+    3.  **Dukungan Pelanggan:** $35 untuk biaya call center dan dukungan hukum awal.
+    *Catatan: Nilai ini dapat disesuaikan dengan regulasi lokal (misalnya, California CCPA memiliki standar biaya notifikasi yang berbeda).*
+
+**C. Kerugian Interupsi Bisnis (Business Interruption)**
+
+Estimasi pendapatan yang hilang selama masa *downtime* operasional akibat lockdown sistem untuk keperluan investigasi atau remediasi darurat.
+
+*   **Rumus:**
+    $$ 	ext{CostInterruption} = 	ext{AverageDailyRevenue} 	imes 	ext{EstimatedDowntimeDays} $$
+*   **Asumsi Downtime:** Berdasarkan data RCA sebelumnya, estimasi waktu pemulihan titik-ke-titik (Recovery Point Objective) untuk celah kritis ditetapkan sebesar **72 jam (3 hari)**.
+
+**D. Faktor Koreksi Reputasi dan Reputasi**
+
+Kerugian reputasi adalah yang paling sulit diukur namun memiliki dampak jangka panjang terbesar. Model ini menggunakan pendekatan *Tag-Along Equity Value*.
+
+*   **Metodologi:** Menggunakan koefisien elastisitas harga saham terhadap berita negatif keamanan siber (berdasarkan studi empiris McKinsey/Javelin Strategy).
+*   **Asumsi:** Penurunan nilai pasar sebesar **2-5%** dari kapitalisasi pasar harian pada hari pengumuman insiden, dialokasikan ke dalam komponen `reputational_damage_usd`.
+
+**E. Integrasi dengan Premi Asuransi Siber**
+
+Hasil output `risk_financial_impact.json` harus digunakan oleh Departemen Keuangan untuk negosiasi polis asuransi:
+
+1.  **Retensi Risiko (Retention/Deductible):** Dianjurkan untuk menetapkan retensi setinggi `min_impact` atau `20%` dari `expected_value`, mana yang lebih tinggi.
+2.  **Coverage Limit:** Limit asuransi harus mencakup `expected_value` ditambah buffer **25%** untuk biaya legal yang tidak terduga.
+3.  **Mandatoris Compliance Gap:** Polis asuransi dapat dikondisikan (warranted) dengan syarat tidak ada celah kritis dengan status `"rca_items_resolved": false` pada saat klaim diajukan.
+
+---
+
+### 7.7 Alur Kerja Terintegrasi (End-to-End Governance Workflow)
+
+Untuk memastikan konsistensi data dari tingkat kode hingga tingkat dewan direksi, ikuti alur kerja terintegrasi berikut:
+
+1.  **Development:** Tim Engineering mengembangkan fitur baru dan menyalakan `compliance_governance_policy_compiler.py` untuk memvalidasi konfigurasi terhadap `policy_rules_v1.json`.
+2.  **Analysis:** Jika ada anomali atau insiden sebelumnya, `log_analysis_and_rca_engine.py` dijalankan untuk menghasilkan `rca_report.json`.
+3.  **Validation:** DPO menandatangani `gdpr_dpia_report.json` dan Kepala Keamanan menandatangani hasil kompilasi kebijakan.
+4.  **Quantification:** Administrator Sistem menjalankan `compliance_risk_quantifier.py` dengan kedua file input di atas.
+5.  **Review:** Tim Compliance mereview `risk_financial_impact.json`. Jika `expected_value` melebihi ambang batas toleransi risiko organisasi (Risk Appetite), fitur tidak dapat di-deploy ke produksi hingga celah diperbaiki.
+6.  **Archive:** Semua file JSON (kebijakan, RCA, dampak finansial) di-hash dan disimpan ke dalam `evidence_archive` untuk audit trail.
+
+> **Peringatan Keamanan:** File `risk_financial_impact.json` mengandung data sensitif mengenai eksposur finansial organisasi. File ini harus dienkripsi saat diam (at-rest) dan hanya dapat diakses oleh personel dengan otoritas level `ROLE_CISO` atau `ROLE_DPO`.
