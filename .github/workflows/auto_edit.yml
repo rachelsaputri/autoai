@@ -1,0 +1,50 @@
+name: Auto Edit README
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
+
+jobs:
+  auto-commit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Loop
+        env:
+          OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
+        run: |
+          URL="https://ai.tioo.eu.org/v1/chat/completions"
+
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          for i in {1..6}
+          do
+            RANDOM_PROMPT="Tuliskan 1 kalimat unik dan acak nomor ID: $RANDOM-$(date +%s)"
+
+            RESPONSE=$(curl -s -X POST "$URL" \
+              -H "Authorization: Bearer $OPENAI_KEY" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "model": "Qwen3.6-35B-A3B-fp8-no-thinking",
+                "messages": [
+                  {"role": "user", "content": "'"$RANDOM_PROMPT"'"}
+                ]
+              }')
+
+            TEXT=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // "Update $(date)"')
+
+            echo -e "\n\n$TEXT" >> README.md
+
+            git add README.md
+            git commit -m "docs: auto update README [$(date +'%H:%M:%S')]" || true
+            git push
+
+            sleep 30
+          done
+          
