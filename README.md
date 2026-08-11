@@ -7147,3 +7147,122 @@ Sebagai entitas yang menjalankan `compliance_policy_enforcer.py`, tim teknis men
 ---
 
 *Dokumentasi ini berlaku untuk versi `v2.1.0` dari framework compliance. Setiap perubahan pada algoritma kriptografi atau kebijakan rotasi kunci harus memicu update dokumentasi ini dan notifikasi ke Data Protection Officer (DPO).*
+
+
+**5. Alat Visualisasi Peta Jalan Remediasi (Compliance Risk Visualizer)**
+
+Bagian ini mendokumentasikan skrip `compliance_risk_visualizer.py`, komponen kritis dalam pipeline kepatuhan yang menerjemahkan temuan teknis menjadi peta visual interaktif. Alat ini berfungsi sebagai jembatan antara data mental audit (DPia dan Anomali Statistik) dan dashboard auditor, memfasilitasi prioritas remediasi berbasis risiko.
+
+### 5.1 Arsitektur dan Alur Data
+
+`compliance_risk_visualizer.py` bertindak sebagai *aggregator* dan *transformer*. Skrip ini membaca input dari dua sumber utama yang dihasilkan oleh modul analisis sebelumnya:
+1.  `automated_gdpr_impact_assessment.py`: Menghasilkan laporan dampak perlindungan data (`gdpr_dpia_report.json`).
+2.  `parquet_anomaly_detector.py`: Menghasilkan catatan anomali statistik (`statistical_anomalies.csv`).
+
+Data kemudian diproses untuk mengekstrak metadata kepatuhan, menilai urgensi, dan memetakan temuan ke standar regulasi yang relevan. Output akhir adalah struktur JSON yang dioptimalkan untuk rendering D3.js, yang dapat dikonsumsi langsung oleh `compliance_audit_dashboard_generator.py`.
+
+### 5.2 Spesifikasi Eksekusi
+
+Skrip ini dirancang untuk berjalan sebagai bagian dari pipeline CI/CD atau eksekusi manual tim keamanan. Argument baris perintah (CLI) disediakan untuk fleksibilitas lingkungan.
+
+**Sintaks Penggunaan:**
+
+```bash
+python compliance_risk_visualizer.py \
+    --dpia-json path/to/automated_reports/gdpr_dpia_report.json \
+    --anomaly-csv path/to/analysis/statistical_anomalies.csv \
+    --output path/to/output/risk_roa_map.json \
+    --color-scheme wcag-aa-contrast
+```
+
+**Deskripsi Argumen:**
+
+| Argumen | Tipe | Deskripsi Wajib | Default |
+| :--- | :--- | :--- | :--- |
+| `--dpia-json` | String | Path absolut atau relatif ke file JSON hasil assessment GDPR. | N/A (Required) |
+| `--anomaly-csv` | String | Path absolut atau relatif ke file CSV hasil deteksi anomali statistik. | N/A (Required) |
+| `--output` | String | Path tujuan untuk file JSON peta risiko (`risk_roa_map.json`). | `./risk_roa_map.json` |
+| `--color-scheme` | String | Palet warna untuk kepatuhan WCAG 2.1. Pilihan: `wcag-aa-contrast`, `colorblind-safe`, `legacy-high-contrast`. | `wcag-aa-contrast` |
+
+### 5.3 Metodologi Visualisasi Risiko
+
+Peta Jalan Remediasi dirancang berdasarkan prinsip *Risk-Based Auditing*. Berikut adalah metodologi teknis yang digunakan untuk memetakan temuan:
+
+1.  **Normalisasi Metadata Kelemahan:**
+    Setiap temuan dari DPIA dan Anomali Statistik dinormalisasi ke objek standar yang mencakup:
+    *   `finding_id`: Identifier unik.
+    *   `source_module`: Sumber data asli.
+    *   `severity_score`: Skor numerik 1-10.
+    *   `compliance_frameworks`: Array string (misal: `["GDPR Art. 32", "NIST SP 800-53"]`).
+
+2.  **Klasifikasi Urgensi (Priority Triage):**
+    Temuan dikategorikan menjadi tiga tingkat urgensi berdasarkan kombinasi skor risiko dan dampak potensial:
+    *   **High (Kritis):** Memerlukan remediasi dalam < 24 jam. Biasanya melibatkan pelanggaran kerahasiaan data langsung atau kegagalan kontrol akses utama.
+    *   **Medium (Signifikan):** Memerlukan remediasi dalam < 7 hari. Termasuk anomali statistik yang menunjukkan potensi kebocoran data tidak langsung atau ketidaksesuaian konfigurasi minor.
+    *   **Low (Minim):** Memerlukan remediasi dalam siklus pengembangan berikutnya. Termasuk best practice yang belum diimplementasikan atau dokumentasi yang kurang lengkap.
+
+3.  **Pemetaan Regulasi Berbasis Hirarki:**
+    Untuk menghindari redundansi, temuan yang memengaruhi banyak standar (misal, GDPR dan PCI-DSS) dikelompokkan di tingkat tertinggi hierarki regulatory. Visualisasi menggunakan *clustered nodes* di mana satu node teknis dapat terhubung ke beberapa lingkaran kepatuhan.
+
+4.  **Standar Aksesibilitas Warna (WCAG 2.1 Level AA):**
+    Pilihan `--color-scheme` memastikan bahwa peta risiko dapat diakses oleh auditor dengan disabilitas penglihatan. Palet `wcag-aa-contrast` memastikan rasio kontras minimum 4.5:1 antara teks dan latar belakang, serta penggunaan pola (bukan hanya warna) untuk membedakan kategori urgensi pada mode cetak hitam-putih.
+
+### 5.4 Struktur Output JSON (`risk_roa_map.json`)
+
+File output `risk_roa_map.json` memiliki struktur berikut, yang siap dikonsumsi oleh generator dashboard:
+
+```json
+{
+  "metadata": {
+    "generated_at": "2023-10-27T10:00:00Z",
+    "version": "v2.1.0",
+    "color_palette": "wcag-aa-contrast"
+  },
+  "risk_clusters": {
+    "High": {
+      "count": 2,
+      "findings": [
+        {
+          "id": "F-2023-001",
+          "title": "Unencrypted Data at Rest in Temp Directory",
+          "source": "automated_gdpr_impact_assessment.py",
+          "regulatory_impact": ["GDPR Art. 32", "ISO 27001 A.10.1.1"],
+          "remediation_priority": "Immediate",
+          "coordinates": { "x": 100, "y": 200 }
+        }
+      ]
+    },
+    "Medium": {
+      "count": 5,
+      "findings": [
+        {
+          "id": "F-2023-005",
+          "title": "Statistical Anomaly in Key Rotation Logs",
+          "source": "parquet_anomaly_detector.py",
+          "regulatory_impact": ["PCI-DSS Req 3.6"],
+          "remediation_priority": "Short-term",
+          "coordinates": { "x": 150, "y": 300 }
+        }
+      ]
+    },
+    "Low": {
+      "count": 12,
+      "findings": [...]
+    }
+  },
+  "legend": {
+    "High": "#D32F2F",
+    "Medium": "#FBC02D",
+    "Low": "#388E3C"
+  }
+}
+```
+
+### 5.5 Integrasi dengan Auditor
+
+File `risk_roa_map.json` yang dihasilkan digunakan oleh `compliance_audit_dashboard_generator.py` untuk merender grafik interaktif. Auditor dapat:
+1.  Mengklik cluster "High" untuk melihat detail temuan spesifik.
+2.  Memfilter temuan berdasarkan framework regulasi (misal, hanya menampilkan pelanggaran GDPR).
+3.  Mengekspor laporan PDF dari tampilan visual untuk lampiran resmi ke otoritas pengawas.
+
+Dokumentasi ini memastikan bahwa setiap perubahan pada algoritma klasifikasi risiko atau pemetaan regulasi harus dicatat dalam log perubahan versi dan disetujui oleh Data Protection Officer (DPO) sebelum dipromosikan ke produksi.
