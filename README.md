@@ -2401,3 +2401,273 @@ Tambahkan baris berikut ke `crontab -e` untuk menjalankan audit setiap pagi:
 *   **Timezone Awareness:** Skrip ini menggunakan `datetime.now()` yang bersifat lokal (naive). Jika server Anda berada di timezone berbeda dengan sumber data timestamp, pastikan untuk mengkonfigurasi timezone secara eksplisit (misal, menggunakan `pytz` atau `zoneinfo`) sebelum melakukan perbandingan waktu.
 *   **Performa:** Untuk file YAML dengan ratusan ribu entri, penggunaan `pandas` membantu mempercepat proses filtering. Namun, parsing YAML tetap menjadi bottleneck I/O. Untuk skenario big data, pertimbangkan untuk mengonversi YAML ke Parquet atau JSON lines.
 *   **Ekstensi Threshold:** Jika kebijakan perusahaan berubah menjadi 30 hari, Anda dapat mengubah variabel `DAYS_THRESHOLD = 7` menjadi `30` atau menambahkan argumen `--days 30` pada argparse di masa depan.
+
+
+### 7. Pembuatan Laporan Audit Terpadu (`id_report_generator.py`)
+
+Untuk memenuhi kebutuhan pelaporan manajemen dan audit eksternal, skrip `id_report_generator.py` disediakan sebagai tahap akhir dalam pipeline. Skrip ini berfungsi sebagai agregator data yang menggabungkan sumber data mentah (YAML) dengan hasil pemrosesan kompliance (CSV) menjadi satu dokumen Excel yang terstruktur dan siap cetak.
+
+#### 7.1. Arsitektur dan Output
+
+Skrip ini tidak melakukan perhitungan logika bisnis baru, melainkan fokus pada **penggabungan data (data joining)** dan **formatting**. Output yang dihasilkan adalah file Excel (`.xlsx`) dengan tiga sheet (tab) terpisah untuk memudahkan navigasi oleh auditor:
+
+1.  **`Data_ID`**: Memuat data mentah dari file YAML asli (`id_exporter.py` output). Ini berfungsi sebagai "ground truth" untuk setiap entri ID.
+2.  **`Audit_Kadaluarsa`**: Memuat detail pelanggaran dari file CSV (`id_compliance_checker.py` output). Sheet ini berfokus pada entri yang telah ditandai tidak valid.
+3.  **`Ringkasan_Eksekusi`**: Berisi metadata teknis tentang laporan ini, termasuk timestamp generasi, path file input yang digunakan, dan status eksekusi skrip. Ini sangat penting untuk *audit trail* (jejak audit).
+
+#### 7.2. Instalasi Dependensi
+
+Skrip ini menggunakan pustaka `openpyxl` untuk manipulasi file Excel. Pastikan dependensi ini terinstall di lingkungan Python Anda:
+
+```bash
+pip install openpyxl
+```
+
+#### 7.3. Penggunaan (Usage)
+
+Skrip dapat dijalankan dari baris perintah dengan menyediakan path untuk file input dan output.
+
+**Sintaks:**
+```bash
+python id_report_generator.py --yaml <path_to_yam_file> --audit-csv <path_to_csv_file> --output <path_to_output_xlsx>
+```
+
+**Contoh Eksekusi:**
+```bash
+python id_report_generator.py \
+  --yaml /opt/data/daily.yaml \
+  --audit-csv /var/log/compliance_expired.csv \
+  --output /reports/audit_laporan_20231027.xlsx
+```
+
+#### 7.4. Struktur Kode Skrip
+
+Berikut adalah implementasi lengkap untuk `id_report_generator.py`:
+
+```python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+id_report_generator.py
+
+Skrip ini membaca data dari file YAML (hasil id_exporter.py) dan 
+file CSV (hasil id_compliance_checker.py) untuk menggabungkannya menjadi 
+laporan Excel (.xlsx) yang terstruktur.
+
+Sheet Output:
+1. Data_ID: Data mentah dari YAML.
+2. Audit_Kadaluarsa: Detail pelanggaran dari CSV.
+3. Ringkasan_Eksekusi: Metadata laporan.
+"""
+
+import argparse
+import os
+import sys
+import yaml
+import csv
+import pandas as pd
+from datetime import datetime
+from openpyxl import Workbook
+from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
+
+# Konfigurasi Style Dasar untuk Excel
+HEADER_FONT = Font(bold=True, color="FFFFFF")
+HEADER_FILL = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
+HEADER_BORDER = Border(left=Side(style='thin'), right=Side(style='thin'),
+                       top=Side(style='thin'), bottom=Side(style='thin'))
+HEADER_ALIGNMENT = Alignment(horizontal="center", vertical="center")
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Generate combined Audit Report from YAML and CSV sources.")
+    parser.add_argument('--yaml', required=True, help="Path to the exported YAML file (from id_exporter.py)")
+    parser.add_argument('--audit-csv', required=True, help="Path to the compliance audit CSV file (from id_compliance_checker.py)")
+    parser.add_argument('--output', required=True, help="Path for the output Excel file (.xlsx)")
+    return parser.parse_args()
+
+def load_yaml_data(yaml_path):
+    """Memuat data dari file YAML."""
+    if not os.path.exists(yaml_path):
+        raise FileNotFoundError(f"File YAML tidak ditemukan: {yaml_path}")
+    
+    with open(yaml_path, 'r', encoding='utf-8') as f:
+        # Asumsi: YAML berisi daftar dictionary atau struktur yang dapat dikonversi ke DataFrame
+        # Jika YAML memiliki struktur root key, sesuaikan dengan mengakses key tersebut.
+        # Contoh: yaml_data = yaml.safe_load(f)
+        # Untuk fleksibilitas, kita coba load sebagai list atau dict.
+        raw_data = yaml.safe_load(f)
+    
+    if isinstance(raw_data, list):
+        return pd.DataFrame(raw_data)
+    elif isinstance(raw_data, dict):
+        # Jika YAML berisi satu objek besar, konversi ke baris tunggal atau flatten
+        # Di sini kita asumsikan untuk demo kita convert dict sederhana ke df
+        return pd.DataFrame([raw_data])
+    else:
+        raise ValueError("Format YAML tidak didukung. Harap gunakan List atau Dict.")
+
+def load_csv_data(csv_path):
+    """Memuat data dari file CSV hasil audit."""
+    if not os.path.exists(csv_path):
+        raise FileNotFoundError(f"File CSV Audit tidak ditemukan: {csv_path}")
+    return pd.read_csv(csv_path)
+
+def apply_excel_formatting(ws, dataframe):
+    """
+    Memformat Header kolom di worksheet Excel agar terlihat profesional.
+    """
+    ws.auto_filter.ref = ws.dimensions
+    for cell in ws[1]:
+        cell.font = HEADER_FONT
+        cell.fill = HEADER_FILL
+        cell.border = HEADER_BORDER
+        cell.alignment = HEADER_ALIGNMENT
+    return ws
+
+def generate_report(yaml_path, csv_path, output_path):
+    print(f"[INFO] Memuat data YAML dari: {yaml_path}")
+    df_yaml = load_yaml_data(yaml_path)
+    
+    print(f"[INFO] Memuat data CSV Audit dari: {csv_path}")
+    df_csv = load_csv_data(csv_path)
+    
+    print("[INFO] Membuat workbook Excel...")
+    wb = Workbook()
+    
+    # --- Sheet 1: Data_ID ---
+    ws_data = wb.active
+    ws_data.title = "Data_ID"
+    
+    # Bersihkan sheet awal jika ada
+    wb.remove(wb["Sheet"])
+    
+    # Tulis data
+    for r_idx, row in enumerate(df_yaml.values, 1):
+        for c_idx, value in enumerate(row, 1):
+            cell = ws_data.cell(row=r_idx, column=c_idx, value=value)
+    
+    # Tulis headers
+    for col_idx, col_name in enumerate(df_yaml.columns, 1):
+        cell = ws_data.cell(row=1, column=col_idx, value=col_name)
+        cell.font = HEADER_FONT
+        cell.fill = HEADER_FILL
+        cell.border = HEADER_BORDER
+        cell.alignment = HEADER_ALIGNMENT
+        
+    ws_data.auto_filter.ref = ws_data.dimensions
+    # Set kolom width otomatis (sederhana)
+    for column in ws_data.columns:
+        max_length = 0
+        column_letter = column[0].column_letter
+        for cell in column:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        adjusted_width = (max_length + 2) * 1.2
+        ws_data.column_dimensions[column_letter].width = adjusted_width
+
+    # --- Sheet 2: Audit_Kadaluarsa ---
+    ws_audit = wb.create_sheet("Audit_Kadaluarsa")
+    
+    for r_idx, row in enumerate(df_csv.values, 1):
+        for c_idx, value in enumerate(row, 1):
+            cell = ws_audit.cell(row=r_idx, column=c_idx, value=value)
+
+    for col_idx, col_name in enumerate(df_csv.columns, 1):
+        cell = ws_audit.cell(row=1, column=col_idx, value=col_name)
+        cell.font = HEADER_FONT
+        cell.fill = HEADER_FILL
+        cell.border = HEADER_BORDER
+        cell.alignment = HEADER_ALIGNMENT
+        
+    ws_audit.auto_filter.ref = ws_audit.dimensions
+    for column in ws_audit.columns:
+        max_length = 0
+        column_letter = column[0].column_letter
+        for cell in column:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        adjusted_width = (max_length + 2) * 1.2
+        ws_audit.column_dimensions[column_letter].width = adjusted_width
+
+    # --- Sheet 3: Ringkasan_Eksekusi ---
+    ws_summary = wb.create_sheet("Ringkasan_Eksekusi")
+    
+    summary_data = [
+        ["Parameter", "Nilai"],
+        ["Timestamp Generated", datetime.now().strftime("%Y-%m-%d %H:%M:%S")],
+        ["File Input YAML", os.path.abspath(yaml_path)],
+        ["File Input CSV", os.path.abspath(csv_path)],
+        ["Total Entri ID (YAML)", len(df_yaml)],
+        ["Total Pelanggaran Ditemukan (CSV)", len(df_csv)],
+        ["Status", "Berhasil"],
+        ["Versi Skrip", "1.0"]
+    ]
+    
+    for r_idx, row in enumerate(summary_data, 1):
+        for c_idx, value in enumerate(row, 1):
+            cell = ws_summary.cell(row=r_idx, column=c_idx, value=value)
+            if r_idx == 1:
+                cell.font = HEADER_FONT
+                cell.fill = HEADER_FILL
+                cell.border = HEADER_BORDER
+            else:
+                # Merge cell untuk label jika perlu, atau rata kiri
+                cell.alignment = Alignment(horizontal="left")
+
+    # Simpan file
+    try:
+        wb.save(output_path)
+        print(f"[SUCCESS] Laporan berhasil dibuat: {os.path.abspath(output_path)}")
+    except PermissionError:
+        print(f"[ERROR] Gagal menyimpan file. Pastikan path '{output_path}' tidak sedang terbuka atau memiliki izin baca/tulis.", file=sys.stderr)
+        sys.exit(1)
+
+def main():
+    args = parse_arguments()
+    try:
+        generate_report(args.yaml, args.audit_csv, args.output)
+    except Exception as e:
+        print(f"[ERROR] Terjadi kesalahan selama proses pembuatan laporan: {str(e)}", file=sys.stderr)
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
+```
+
+#### 7.5. Integrasi ke Cron Job
+
+Untuk mengotomatisasi pembuatan laporan harian, tambahkan baris berikut ke `crontab -e`. Skrip ini akan dijalankan segera setelah proses audit selesai.
+
+```cron
+# Jalankan eksport data jam 00:00
+0 0 * * * /usr/bin/python3 /opt/scripts/id_exporter.py --output /opt/data/daily.yaml
+
+# Jalankan audit kompliance jam 01:00
+0 1 * * * /usr/bin/python3 /opt/scripts/id_compliance_checker.py --yaml /opt/data/daily.yaml --output /var/log/compliance_expired.csv >> /var/log/compliance_check.log 2>&1
+
+# Jalankan generator laporan jam 02:00 (setelah audit selesai)
+0 2 * * * /usr/bin/python3 /opt/scripts/id_report_generator.py \
+  --yaml /opt/data/daily.yaml \
+  --audit-csv /var/log/compliance_expired.csv \
+  --output /reports/audit_laporan_$(date +\%Y\%m\%d).xlsx >> /var/log/report_generation.log 2>&1
+```
+
+#### 7.6. Pertimbangan Lanjutan untuk Laporan Excel
+
+1.  **Formatting Kondisi (Conditional Formatting):**
+    Jika Anda ingin menyorot baris dengan risiko tinggi di sheet `Audit_Kadaluarsa`, Anda dapat menggunakan fitur `openpyxl` untuk menambahkan conditional formatting. Misalnya, beri warna merah pada kolom `expiry_reason` jika mengandung kata "Critical".
+
+2.  **Pengaturan Koneksi Data (Data Validation):**
+    Untuk sheet `Data_ID`, jika daftar ID-nya sangat panjang, pertimbangkan untuk membatasi tampilan hanya pada kolom kunci (seperti `ID_Number`, `Status`, `Last_Valid`) untuk menjaga ukuran file tetap kecil dan performa Excel tetap ringan.
+
+3.  **Keamanan:**
+    Pastikan file Excel yang dihasilkan (`/reports/`) memiliki izin akses yang terbatas jika mengandung data sensitif. Gunakan `os.chmod` di dalam skrip atau set izin folder secara sistemik.
+    ```python
+    import os
+    os.chmod(output_path, 0o640)  # Hanya owner dan group yang bisa baca
+    ```
