@@ -517,3 +517,208 @@ Jika skrip menemukan ID yang tidak valid, workflow akan gagal (fail). Ini member
 1.  **Struktur CSV**: Kode di atas mengasumsikan ID berada di **kolom pertama** (index `0`) dari setiap baris CSV. Jika skrip `extract_ids_to_csv.py` Anda menghasilkan header CSV atau kolom lain sebagai kolom pertama, Anda mungkin perlu menyesuaikan indeks `row[0]` atau menambahkan parameter untuk menentukan nama kolom ID.
 2.  **Encoding**: Skrip menggunakan `utf-8` secara default. Jika file sumber Anda menggunakan encoding lain (seperti `latin-1`), sesuaikan parameter `encoding` pada fungsi `open()`.
 3.  **Ekspansi Regex**: Jika standar ID perusahaan Anda berkembang (misalnya menambahkan angka di awal atau huruf di akhir), Anda cukup memperbarui variabel `ID_PATTERN` di bagian atas skrip tanpa perlu mengubah logika inti.
+
+
+### Membuat Dokumentasi Otomatis untuk ID Terverifikasi
+
+Untuk memberikan transparansi lebih lanjut dan memudahkan audit trail, proyek ini menyertakan skrip `generate_doc.py`. Skrip ini membaca file CSV hasil ekstraksi/validasi, memfilter ID yang valid berdasarkan pola `^[A-Z]{3}-\d{6}$`, dan menghasilkan file Markdown (`ID_MANUAL.md`) yang merangkum setiap ID beserta metadata validasinya.
+
+#### Fitur Utama
+*   **Analisis Metadata**: Mencatat timestamp validasi terakhir dan menghitung frekuensi kemuncungan setiap ID dalam file sumber.
+*   **Status Validasi**: Menandai setiap ID sebagai `VERIFIED` jika memenuhi pola regex, atau `INVALID` jika tidak (meskipun input dari pipeline seharusnya sudah bersih).
+*   **Output Terstruktur**: Menghasilkan file Markdown yang siap dibaca atau di-host di Wiki GitHub.
+
+#### Cara Penggunaan
+
+Skrip ini menerima dua argumen penting:
+1.  `--csv`: Path ke file CSV input (hasil dari `validate_ids.py` atau `extract_ids_to_csv.py`).
+2.  `--output`: Path file keluaran untuk dokumen Markdown yang dihasilkan (default: `ID_MANUAL.md`).
+
+```bash
+# Membuat dokumentasi dari file default
+python generate_doc.py --csv changelog_ids.csv
+
+# Menentukan path output kustom
+python generate_doc.py --csv results/verified_ids.csv --output docs/api_id_guide.md
+```
+
+#### Contoh Output (`ID_MANUAL.md`)
+
+File yang dihasilkan akan memiliki struktur berikut untuk setiap ID valid:
+
+```markdown
+# Daftar ID Terverifikasi
+
+> **Catatan:** Dokumen ini dihasilkan secara otomatis oleh `generate_doc.py`.
+
+## Ringkasan
+*   **Total ID Diproces:** 150
+*   **ID Unik Valid:** 120
+*   **Waktu Validasi:** 2023-10-27 14:30:00
+
+## Detail ID
+
+| ID | Status | Frekuensi | Terakhir Ditemukan |
+|----|--------|-----------|--------------------|
+| AAB-123456 | VERIFIED | 5 | 2023-10-27 |
+| XYZ-998877 | VERIFIED | 1 | 2023-10-27 |
+| ... | ... | ... | ... |
+
+## Penjelasan Status
+*   **VERIFIED**: ID memenuhi format `^[A-Z]{3}-\d{6}$`.
+*   **INVALID**: ID tidak sesuai dengan pola yang diharapkan.
+```
+
+#### Kode Sumber `generate_doc.py`
+
+Pastikan Anda memiliki file `generate_doc.py` di direktori root proyek Anda. Berikut adalah implementasi skrip tersebut:
+
+```python
+import argparse
+import csv
+import re
+from datetime import datetime
+from collections import Counter
+
+# Pola regex untuk validasi ID
+ID_PATTERN = re.compile(r'^[A-Z]{3}-\d{6}$')
+
+def validate_id(id_str: str) -> bool:
+    """Memeriksa apakah string ID sesuai dengan pola yang ditentukan."""
+    return bool(ID_PATTERN.match(id_str))
+
+def generate_documentation(csv_path: str, output_path: str):
+    """
+    Membaca CSV, memvalidasi ID, dan menulis file Markdown ringkasan.
+    """
+    print(f"[INFO] Membaca file: {csv_path}")
+    
+    id_counts = Counter()
+    valid_ids = []
+    invalid_ids = []
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    try:
+        with open(csv_path, mode='r', encoding='utf-8') as csvfile:
+            reader = csv.reader(csvfile)
+            # Lewati header jika ada (opsional, sesuaikan dengan struktur CSV Anda)
+            # headers = next(reader, None) 
+            
+            for row in reader:
+                if not row:
+                    continue
+                
+                # Asumsi ID ada di kolom pertama (index 0)
+                raw_id = row[0].strip()
+                if not raw_id:
+                    continue
+
+                # Hitung frekuensi kemunculan
+                id_counts[raw_id] += 1
+                
+                # Validasi format
+                if validate_id(raw_id):
+                    valid_ids.append(raw_id)
+                else:
+                    invalid_ids.append(raw_id)
+                    
+    except FileNotFoundError:
+        print(f"[ERROR] File tidak ditemukan: {csv_path}")
+        return
+    except Exception as e:
+        print(f"[ERROR] Terjadi kesalahan saat membaca file: {e}")
+        return
+
+    # Hitung statistik
+    total_processed = sum(id_counts.values())
+    unique_valid = len(valid_ids)
+    unique_invalid = len(invalid_ids)
+
+    # Generate Markdown Content
+    md_content = f"""# Daftar ID Terverifikasi
+
+> **Catatan:** Dokumen ini dihasilkan secara otomatis oleh `generate_doc.py` pada {timestamp}.
+
+## Ringkasan Statistik
+- **Total Baris Diproses:** {total_processed}
+- **ID Unik Valid:** {unique_valid}
+- **ID Unik Tidak Valid:** {unique_invalid}
+
+---
+
+## Detail ID Valid
+
+Berikut adalah daftar ID yang berhasil diverifikasi sesuai pola `^[A-Z]{{3}}-\d{{6}}$`.
+
+| ID | Status | Frekuensi Kemunculan | Catatan |
+|----|--------|----------------------|---------|
+"""
+    
+    # Urutkan ID valid secara alfabetis untuk keterbacaan
+    sorted_valid_ids = sorted(valid_ids)
+    seen_valid = set()
+    
+    for id_val in sorted_valid_ids:
+        if id_val not in seen_valid:
+            seen_valid.add(id_val)
+            count = id_counts[id_val]
+            md_content += f"| {id_val} | **VERIFIED** | {count} | Valid sejak {timestamp} |
+"
+
+    if unique_invalid > 0:
+        md_content += f"
+## Catatan ID Tidak Valid
+
+"
+        md_content += f"Ditemukan {unique_invalid} ID unik yang tidak sesuai pola.
+"
+        md_content += "| ID | Status | Frekuensi |
+"
+        md_content += "|----|--------|-----------|
+"
+        
+        for id_val in sorted(invalid_ids):
+             if id_val not in seen_valid: # Pastikan tidak duplikat di tabel ini juga jika perlu
+                 md_content += f"| {id_val} | **INVALID** | {id_counts[id_val]} |
+"
+
+    # Tulis ke file
+    try:
+        with open(output_path, mode='w', encoding='utf-8') as f:
+            f.write(md_content)
+        print(f"[SUCCESS] Dokumentasi berhasil dibuat: {output_path}")
+        print(f"[INFO] ID Valid: {unique_valid}, ID Invalid: {unique_invalid}")
+    except Exception as e:
+        print(f"[ERROR] Gagal menulis file output: {e}")
+
+def main():
+    parser = argparse.ArgumentParser(description="Generate Markdown documentation for validated IDs.")
+    parser.add_argument('--csv', required=True, help='Path ke file CSV input yang berisi daftar ID.')
+    parser.add_argument('--output', default='ID_MANUAL.md', help='Path file output Markdown (default: ID_MANUAL.md).')
+    
+    args = parser.parse_args()
+    
+    generate_documentation(args.csv, args.output)
+
+if __name__ == "__main__":
+    main()
+```
+
+#### Integrasi ke Pipeline CI/CD
+
+Anda dapat menambahkan langkah ini setelah `validate_ids.py` berhasil dijalankan untuk memastikan dokumentasi selalu sinkron dengan data valid.
+
+```yaml
+  - name: Generate ID Documentation
+    if: success() # Hanya jalankan jika validasi berhasil
+    run: |
+      python generate_doc.py --csv changelog_ids_${{ github.sha }}.csv --output docs/ID_MANUAL_${{ github.sha }}.md
+      
+  - name: Upload Documentation Artifact
+    uses: actions/upload-artifact@v3
+    with:
+      name: id-manual-report
+      path: docs/ID_MANUAL_*.md
+```
+
+Langkah ini memastikan bahwa setiap kali pipeline berjalan, Anda mendapatkan arsip dokumentasi yang dapat diunduh untuk keperluan audit atau referensi cepat tanpa perlu membuka log GitHub Actions.
