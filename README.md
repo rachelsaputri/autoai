@@ -2046,3 +2046,108 @@ Error Data: Tidak ada ID valid yang diekstrak dari file Markdown.
 
 *   **Update Format Markdown:** Jika struktur `ID_MANUAL.md` berubah (misalnya, menambahkan field baru seperti `owner`), cukup tambahkan regex baru di dalam fungsi `parse_manual_markdown` dan class `IDMetadata`.
 *   **Testing:** Gunakan file Markdown contoh dengan data yang salah (misal: status "error", frekuensi string) untuk memastikan fungsi `validate_parsed_data` menangani anomali dengan baik sebelum diintegrasikan ke pipeline utama.
+
+
+# id_alert_engine.py
+
+Modul ini bertindak sebagai lapisan notifikasi dalam pipeline pengelolaan ID. Setelah `id_exporter.py` mengekspor data ke dalam format YAML, `id_alert_engine.py` akan membaca file tersebut, memindai anomali status (seperti `Deprecated`) atau metadata yang hilang/invalid, dan mengirimkan laporan terstruktur melalui email.
+
+Ini dirancang untuk memastikan bahwa tim teknis atau pemilik produk (owners) menerima notifikasi real-time saat ID yang seharusnya aktif mengalami degradasi status atau kehilangan konteks metadata yang kritis.
+
+## Fitur Utama
+
+*   **Pemindaian Status Cerdas:** Mengidentifikasi ID dengan status `"Deprecated"`, `"Invalid"`, atau frekuensi kemunculan (`frequency`) bernilai `0`.
+*   **Konfigurasi SMTP Fleksibel:** Menggunakan file konfigurasi JSON terpisah untuk kerentanan kredensial yang lebih baik daripada hardcoding di dalam skrip.
+*   **Laporan Ringkas:** Mengirim email HTML yang rapi berisi tabel daftar ID yang bermasalah, alasan deprecasi (jika tersedia), dan timestamp terakhir update.
+
+## Persyaratan Sistem
+
+Pastikan Anda memiliki pustaka berikut terinstall di environment Python Anda:
+
+```bash
+pip install pyyaml
+```
+
+## Format File Konfigurasi SMTP
+
+Sebelum menjalankan skrip, Anda perlu menyiapkan file konfigurasi SMTP dalam format JSON. Simpan file ini dengan nama `smtp_config.json` (atau nama apa pun sesuai parameter `--smtp-config`).
+
+Contoh isi `smtp_config.json`:
+
+```json
+{
+    "smtp_server": "smtp.gmail.com",
+    "smtp_port": 587,
+    "use_tls": true,
+    "username": "your_email@gmail.com",
+    "password": "your_app_password",
+    "sender_email": "your_email@gmail.com",
+    "sender_name": "ID System Alert",
+    "recipient_email": ["admin@example.com", "dev-team@example.com"],
+    "subject_prefix": "[ID ALERT] "
+}
+```
+
+> **Catatan Keamanan:** Jangan pernah menyimpan kredensial SMTP langsung di dalam kode skrip. Gunakan variabel environment atau file konfigurasi yang tidak dilacak oleh versi kontrol (misalnya, tambahkan `smtp_config.json` ke `.gitignore`).
+
+## Cara Penggunaan
+
+Jalankan skrip dengan menentukan path ke file YAML hasil ekspor dari `id_exporter.py` dan path ke file konfigurasi SMTP.
+
+```bash
+python id_alert_engine.py --yaml valid_ids.yaml --smtp-config smtp_config.json
+```
+
+### Argumen Baris Perintah
+
+| Argumen | Deskripsi | Wajib? |
+| :--- | :--- | :--- |
+| `--yaml` | Path absolut atau relatif ke file YAML hasil ekspor (misal: `valid_ids.yaml`). | Ya |
+| `--smtp-config` | Path ke file JSON konfigurasi SMTP. | Ya |
+
+### Output Console
+
+Jika eksekusi berhasil, skrip akan mencetak ringkasan ke terminal:
+
+```text
+[INFO] Membaca konfigurasi SMTP dari: smtp_config.json
+[INFO] Memuat data ID dari: valid_ids.yaml
+[INFO] Ditemukan 3 ID bermasalah (Deprecated/Frekvensi 0).
+[INFO] Mengirimkan email notifikasi ke: admin@example.com
+[SUCCESS] Email notifikasi berhasil dikirim.
+```
+
+Jika terjadi kegagalan SMTP atau data tidak valid:
+
+```text
+[ERROR] Gagal mengirim email: SMTPAuthenticationError: Login failed.
+[ERROR] Gagal memuat YAML: ValidationError: Field 'frequency' expected type int.
+```
+
+## Contoh Logika Pendeteksian
+
+Skrip ini akan menandai sebuah entri ID untuk notifikasi jika memenuhi salah satu kondisi berikut:
+
+1.  **Status Deprecated:** Field `status` dalam data YAML adalah `"Deprecated"`.
+2.  **Frekuensi Nol:** Field `frequency` bernilai `0` atau `null` (mengindikasikan ID tidak lagi digunakan atau data tidak lengkap).
+3.  **Metadata Hilang:** Field `reason` (alasan deprecasi) kosong pada entri yang berstatus `Deprecated`.
+
+## Tips Perawatan & Integrasi
+
+### 1. Automasi dengan Cron/Task Scheduler
+Untuk pemantauan berkelanjutan, tambahkan skrip ini ke crontab Linux atau Task Scheduler Windows untuk dijalankan setiap jam atau setiap hari:
+
+```cron
+# Jalankan setiap hari pada pukul 08:00 pagi
+0 8 * * * /usr/bin/python3 /path/to/id_alert_engine.py --yaml /path/to/valid_ids.yaml --smtp-config /path/to/smtp_config.json >> /var/log/id_alert.log 2>&1
+```
+
+### 2. Kustomisasi Template Email
+Jika Anda ingin mengubah tampilan email HTML, cari fungsi `generate_email_html` di dalam `id_alert_engine.py`. Anda dapat menyesuaikan template Jinja2 (jika digunakan) atau string f-string untuk menambahkan logo perusahaan atau footer legal.
+
+### 3. Penanganan Error SMTP
+Skrip ini menggunakan retry mechanism sederhana. Jika koneksi gagal, skrip akan mencoba ulang hingga 3 kali dengan jeda 5 detik. Jika konfigurasi salah (misal: port salah), skrip akan langsung abort dengan pesan error jelas untuk mempercepat debugging infrastruktur.
+
+### 4. Pengembangan Lanjutan
+*   **Webhook Support:** Anda dapat memperluas skrip ini untuk menambahkan endpoint Slack/Discord webhook sebagai alternatif email, terutama untuk tim DevOps yang lebih responsif terhadap notifikasi instan.
+*   **Filtering Lanjutan:** Tambahkan argumen `--exclude-status` untuk mengecualikan status tertentu dari notifikasi jika ada status "Deprecated" yang sudah ditangani secara manual dan tidak memerlukan alarm.
