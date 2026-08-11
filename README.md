@@ -5302,3 +5302,337 @@ Untuk kedua metode deployment, pastikan bahwa output log terintegrasi dengan sis
 1.  **Struktur Log JSON:** Pastikan `pipeline_orchestrator.py` mencetak log dalam format JSON agar mudah diparse oleh log aggregator.
 2.  **Health Check Endpoint:** Jika pipeline diubah menjadi service HTTP (opsional), tambahkan endpoint `/health` yang mengembalikan status kesehatan pipeline terakhir.
 3.  **Alerting:** Aturlah alerting berdasarkan level log `ERROR` atau `CRITICAL` di log aggregator (ELK, CloudWatch, dll) untuk notifikasi instan ke tim keamanan.
+
+
+### Implementasi Log Aggregator dan Correlator
+
+Untuk mendukung observabilitas end-to-end dalam pipeline Kubernetes yang kompleks, pemisahan log antar-stage (container/pod) sering kali memecah konteks eksekusi. Solusi untuk masalah ini adalah implementasi **Log Correlator** yang bertugas mengumpulkan, menyusun ulang, dan menyatukan log-log terfragmentasi menjadi satu *trace* yang kohesif.
+
+Berikut adalah implementasi skrip Python `log_aggregator_parser.py` yang dirancang untuk memenuhi kebutuhan tersebut. Skrip ini mampu membaca log secara *tail* (untuk streaming) atau memindai file statis, mem-parse log JSON, dan menggabungkannya berdasarkan `trace_id` atau urutan timestamp.
+
+#### Kode Sumber: `log_aggregator_parser.py`
+
+```python
+#!/usr/bin/env python3
+"""
+log_aggregator_parser.py
+
+Skrip ini memantau direktori log atau stream stdout untuk menangkap log JSON
+dari pipeline_orchestrator.py dan stage-stagenya. Log tersebut kemudian 
+dii agregasi berdasarkan trace_id atau timestamp, dan hasilnya disimpan 
+ke dalam file JSON tunggal untuk analisis post-mortem atau debugging.
+
+Fitur Utama:
+- Parsing log JSON dari file atau stdin.
+- Agregasi log berdasarkan 'trace_id' (opsional) atau urutan waktu.
+- Output terstruktur ke dalam format JSON yang siap diunggah ke sistem observabilitas.
+- Mendukung operasi non-blocking untuk streaming log secara real-time.
+
+Cara Penggunaan:
+    # Memantau direktori log lokal
+    python log_aggregator_parser.py --log-dir /var/log/pipeline/ --output aggregated_trace.json
+
+    # Memfilter log untuk trace_id spesifik
+    python log_aggregator_parser.py --log-dir /var/log/pipeline/ --output trace_123.json --trace-id 123abc
+
+    # Membaca dari stdin (misalnya: kubectl logs -f ...)
+    kubectl logs -f my-pipeline-pod | python log_aggregator_parser.py --output stdout -
+"""
+
+import json
+import os
+import sys
+import argparse
+import time
+import logging
+from datetime import datetime
+from pathlib import Path
+from typing import List, Dict, Optional
+
+# Setup logging dasar untuk skrip itu sendiri
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+
+class LogEntry:
+    """Representasi tunggal dari sebuah log entry."""
+    def __init__(self, raw_line: str, timestamp: float, source: str, trace_id: Optional[str] = None, level: str = "INFO"):
+        self.raw_line = raw_line
+        self.timestamp = timestamp
+        self.source = source
+        self.trace_id = trace_id
+        self.level = level
+        self.parsed_data = self._parse_json(raw_line)
+
+    def _parse_json(self, line: str) -> Optional[Dict]:
+        """Mencoba mem-parse string JSON. Kembalikan None jika gagal."""
+        try:
+            return json.loads(line)
+        except json.JSONDecodeError:
+            return None
+
+    def to_dict(self) -> Dict:
+        result = {
+            "timestamp": datetime.fromtimestamp(self.timestamp).isoformat(),
+            "source": self.source,
+            "trace_id": self.trace_id,
+            "level": self.level,
+            "raw": self.raw_line
+        }
+        if self.parsed_data:
+            result["details"] = self.parsed_data
+        return result
+
+
+class LogAggregator:
+    """Meng aggregasi log entries menjadi trace utuh."""
+    
+    def __init__(self, trace_id_filter: Optional[str] = None):
+        self.trace_id_filter = trace_id_filter
+        self.entries: List[LogEntry] = []
+
+    def add_entry(self, entry: LogEntry):
+        """Menambahkan entry dan melakukan filter jika diperlukan."""
+        # Filter berdasarkan trace_id jika disediakan
+        if self.trace_id_filter:
+            if not entry.trace_id or entry.trace_id != self.trace_id_filter:
+                return
+        
+        self.entries.append(entry)
+
+    def sort_entries(self) -> List[Dict]:
+        """Mengurutkan entri berdasarkan timestamp dan mengembalikan sebagai daftar dict."""
+        # Urutkan berdasarkan timestamp, kemudian sumber untuk stabilitas jika timestamp sama
+        sorted_entries = sorted(self.entries, key=lambda x: (x.timestamp, x.source))
+        return [entry.to_dict() for entry in sorted_entries]
+
+    def save_to_file(self, output_path: str):
+        """Menyimpan hasil agregasi ke file JSON."""
+        aggregated_data = {
+            "metadata": {
+                "generated_at": datetime.now().isoformat(),
+                "total_entries": len(self.entries),
+                "trace_filter": self.trace_id_filter
+            },
+            "trace": self.sort_entries()
+        }
+        
+        try:
+            with open(output_path, 'w', encoding='utf-8') as f:
+                json.dump(aggregated_data, f, indent=4, default=str)
+            logger.info(f"Agregasi selesai. {len(self.entries)} entri disimpan ke {output_path}")
+        except IOError as e:
+            logger.error(f"Gagal menulis ke file {output_path}: {e}")
+
+
+def parse_log_line(line: str, source: str = "unknown") -> Optional[LogEntry]:
+    """
+    Mem-parse satu baris log menjadi objek LogEntry.
+    Mencoba mengekstrak timestamp dan trace_id dari struktur JSON yang diharapkan.
+    """
+    line = line.strip()
+    if not line:
+        return None
+
+    # Coba parse sebagai JSON dulu untuk mendapatkan metadata terstruktur
+    try:
+        data = json.loads(line)
+        timestamp = data.get("timestamp", data.get("time", datetime.now().timestamp()))
+        trace_id = data.get("trace_id", data.get("correlation_id", data.get("request_id")))
+        level = data.get("level", data.get("severity", "INFO")).upper()
+        
+        # Konversi timestamp string ke float jika perlu
+        if isinstance(timestamp, str):
+            try:
+                timestamp = datetime.fromisoformat(timestamp.replace("Z", "+00:00")).timestamp()
+            except ValueError:
+                timestamp = time.time() # Fallback to current time
+        
+        return LogEntry(
+            raw_line=line,
+            timestamp=timestamp,
+            source=source,
+            trace_id=trace_id,
+            level=level
+        )
+    except json.JSONDecodeError:
+        # Jika bukan JSON, buat log entry kasar dengan timestamp saat ini
+        # Ini berguna jika ada log teks biasa yang bocor ke stream
+        return LogEntry(
+            raw_line=line,
+            timestamp=time.time(),
+            source=source,
+            trace_id="unknown",
+            level="UNKNOWN"
+        )
+
+
+def watch_directory(log_dir: str, aggregator: LogAggregator, output_file: str):
+    """
+    Memantau direktori log secara non-blocking (simplified tail -F logic).
+    Untuk produksi, pertimbangkan menggunakan library seperti `watchdog` atau 
+    `inotify` untuk efisiensi resource.
+    """
+    log_path = Path(log_dir)
+    if not log_path.is_dir():
+        logger.error(f"Direktori tidak ditemukan: {log_dir}")
+        sys.exit(1)
+
+    logger.info(f"Memantau direktori: {log_dir}")
+    
+    # Dapatkan daftar file log di direktori
+    log_files = list(log_path.glob("*.log"))
+    
+    # Simpan posisi file terakhir
+    file_positions = {str(f): f.tell() for f in log_files}
+    
+    while True:
+        changed = False
+        for file in log_files:
+            file_str = str(file)
+            try:
+                if file not in file_positions:
+                    file_positions[file_str] = file.stat().st_size
+                
+                current_size = file.stat().st_size
+                if current_size > file_positions[file_str]:
+                    with open(file, 'r', encoding='utf-8', errors='ignore') as f:
+                        f.seek(file_positions[file_str])
+                        for line in f:
+                            entry = parse_log_line(line, source=file.name)
+                            if entry:
+                                aggregator.add_entry(entry)
+                                print(json.dumps(entry.to_dict()), flush=True) # Stream ke stdout
+                        file_positions[file_str] = f.tell()
+                    changed = True
+            except (IOError, OSError) as e:
+                logger.warning(f"Gagal membaca file {file}: {e}")
+        
+        if changed:
+            # Opsi: Simpan ke file intermediate atau tunggu batch
+            pass 
+        
+        time.sleep(1) # Polling interval
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Agregasi dan Korelasi Log JSON dari Pipeline Kubernetes."
+    )
+    parser.add_argument(
+        "--log-dir", 
+        type=str, 
+        help="Path ke direktori sumber log (misal: /var/log/pipeline/). Jika tidak disertakan, skrip akan membaca dari stdin."
+    )
+    parser.add_argument(
+        "--output", 
+        type=str, 
+        required=True, 
+        help="Path file output JSON untuk hasil agregasi akhir. Gunakan '-' untuk menulis ke stdout."
+    )
+    parser.add_argument(
+        "--trace-id", 
+        type=str, 
+        default=None, 
+        help="Filter log hanya untuk trace_id spesifik."
+    )
+
+    args = parser.parse_args()
+
+    aggregator = LogAggregator(trace_id_filter=args.trace_id)
+
+    # Mode 1: Monitoring Direktori
+    if args.log_dir:
+        try:
+            watch_directory(args.log_dir, aggregator, args.output)
+        except KeyboardInterrupt:
+            logger.info("Pengawasan dihentikan oleh pengguna. Menyimpan log terkumpul...")
+            aggregator.save_to_file(args.output)
+            
+    # Mode 2: Membaca dari Stdin (Streaming)
+    else:
+        logger.info("Membaca log dari stdin. Tekan Ctrl+C untuk berhenti dan menyimpan.")
+        try:
+            while True:
+                line = sys.stdin.readline()
+                if not line:
+                    break
+                entry = parse_log_line(line, source="stdin")
+                if entry:
+                    aggregator.add_entry(entry)
+                    # Opsional: Cetak ke stderr atau stdout untuk debugging real-time
+                    # print(json.dumps(entry.to_dict()), file=sys.stderr) 
+        except KeyboardInterrupt:
+            logger.info("Input stdin dihentikan. Menyimpan log terkumpul...")
+        
+        if args.output == '-':
+            # Jika output ke stdout, cetak hasil akhir setelah stdin ditutup
+            print(json.dumps(aggregator.sort_entries(), indent=4, default=str))
+        else:
+            aggregator.save_to_file(args.output)
+
+    logger.info("Proses selesai.")
+
+if __name__ == "__main__":
+    main()
+```
+
+#### Integrasi dengan Pipeline
+
+Agar skrip ini efektif, pastikan `pipeline_orchestrator.py` dan setiap stage script menghasilkan log dalam format JSON yang konsisten. Struktur JSON minimum yang diharapkan oleh skrip di atas adalah:
+
+```json
+{
+  "timestamp": "2023-10-27T10:00:00Z", 
+  "level": "INFO",
+  "trace_id": "abc-123-xyz",
+  "message": "Stage id_exporter started",
+  "data": { ... metadata spesifik stage ... }
+}
+```
+
+**Saran Integrasi Kubernetes:**
+
+1.  **Sidecar Container:** Jalankan skrip ini sebagai container sidecar dalam pod yang sama dengan pipeline. Mount volume yang sama yang berisi log ke dalam container sidecar.
+2.  **Init Container:** Jika log ditulis ke disk, Anda dapat menjalankan skrip ini sebagai `initContainer` atau `mainContainer` yang berjalan bersamaan untuk mengumpulkan log setelah pipeline selesai.
+3.  **Log Rotation:** Pastikan `logrotate` dikonfigurasi untuk tidak menghapus log sementara skrip sedang memprosesnya, atau gunakan mekanisme log berbasis network (seperti Fluentd/Fluent Bit) untuk mengirim log JSON langsung ke ELK/Splunk, mengurangi ketergantungan pada file lokal.
+
+#### Output Hasil Agregasi (`aggregated_trace.json`)
+
+Setelah skrip dijalankan, file output akan memiliki struktur berikut yang memudahkan analisis post-mortem:
+
+```json
+{
+    "metadata": {
+        "generated_at": "2023-10-27T12:00:05.123456",
+        "total_entries": 15,
+        "trace_filter": null
+    },
+    "trace": [
+        {
+            "timestamp": "2023-10-27T10:00:00",
+            "source": "orchestrator.log",
+            "trace_id": "abc-123-xyz",
+            "level": "INFO",
+            "raw": "{\"timestamp\": \"...\", \"message\": \"Pipeline started\"}",
+            "details": {
+                "message": "Pipeline started",
+                "timestamp": "..."
+            }
+        },
+        {
+            "timestamp": "2023-10-27T10:00:02",
+            "source": "stage_1.log",
+            "trace_id": "abc-123-xyz",
+            "level": "INFO",
+            "raw": "...",
+            "details": { ... }
+        }
+    ]
+}
+```
+
+Pendekatan ini menjamin bahwa meskipun kegagalan terjadi di stage tertentu, riwayat eksekusi lengkap tetap tersedia untuk diagnosis, tanpa bergantung pada log yang mungkin telah diputar balik (rotated) atau dibersihkan oleh sistem Kubernetes standar.
