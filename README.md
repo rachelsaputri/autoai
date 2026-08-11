@@ -6936,3 +6936,96 @@ Sesuai dengan kebijakan retensi 5 tahun yang ditetapkan dalam Bab 5 (Log Audit),
 **D. Batasan Penggunaan**
 *   Dashboard ini bersifat **statis** dan tidak menampilkan data pribadi secara langsung, melainkan hanya ringkasan statistik dan metadata kepatuhan.
 *   Untuk melihat data mentah (*raw data*), auditor harus memiliki akses ke sistem penyimpanan data utama melalui saluran aman terpisah (tidak melalui dashboard ini).
+
+
+Berikut adalah konten lanjutan untuk file `README.md`. Bagian ini dirancang untuk melengkapi Lampiran Teknis sebelumnya, dengan fokus pada mekanisme visualisasi risiko (*Risk Visualization*) dan integrasi data antara deteksi anomali statistik dan penilaian dampak privasi (DPIA).
+
+Silakan salin konten di bawah ini tepat setelah bagian **"6.4 Lampiran Teknis untuk Audit Eksternal (Compliance & Legal)"**.
+
+---
+
+##### 6.5 Visualisasi Peta Jalan Remediasi (Remediation Roadmap Mapping)
+
+Bagian ini mendokumentasikan logika di balik pembuatan **Remediation Roadmap**, yaitu visualisasi strategis yang mengubah temuan teknis mentah menjadi prioritas aksi bisnis. Alat ini tidak hanya menampilkan *apa* yang salah, tetapi *kapan* dan *seberapa kritis* perbaikan tersebut harus dilakukan berdasarkan kerentanan statistik dan kepatuhan regulasi.
+
+###### A. Spesifikasi Implementasi Teknis
+
+Skrip inti yang menangani pemetaan ini adalah `compliance_risk_visualizer.py`. Alat ini berfungsi sebagai jembatan data (*data bridge*) yang menggabungkan output dari dua modul deteksi utama:
+1.  **`automated_gdpr_impact_assessment.py`**: Menyediakan konteks hukum dan kategori sensitivitas data (melalui `gdpr_dpia_report.json`).
+2.  **`parquet_anomaly_detector.py`**: Menyediakan bukti teknis adanya perilaku data yang menyimpang atau berisiko (melalui `statistical_anomalies.csv`).
+
+**Alur Pemrosesan Data:**
+1.  **Ingest**: Membaca file JSON laporan DPIA dan CSV anomali statistik.
+2.  **Korelasi**: Mencocokkan setiap anomali statistik dengan kategori data yang relevan dalam laporan DPIA untuk menentukan tingkat urgensi hukum.
+3.  **Klasifikasi**: Memberikan label prioritas berdasarkan matriks risiko:
+    *   **High Urgency**: Anomali pada Data Kategori *High Sensitivity* (SCD/PII) dengan skor deviasi statistik > Threshold.
+    *   **Medium Urgency**: Anomali pada *Medium Sensitivity* atau *High Sensitivity* dengan deviasi rendah (potensi noise).
+    *   **Low Urgency**: Anomali pada *Low Sensitivity* atau data non-personal.
+4.  **Ekspor**: Menghasilkan file JSON terstruktur (`risk_roa_map.json`) yang siap dikonsumsi oleh generator dashboard interaktif (`compliance_audit_dashboard_generator.py`).
+
+**Konfigurasi Baris Perintah (CLI):**
+
+```bash
+python compliance_risk_visualizer.py \
+    --dpia-json ./reports/gdpr_dpia_report.json \
+    --anomaly-csv ./detections/statistical_anomalies.csv \
+    --output ./visualizations/risk_roa_map.json \
+    --color-scheme wcag-aa-compliant
+```
+
+*   `--dpia-json`: Path ke file output dari modul penilaian dampak privasi.
+*   `--anomaly-csv`: Path ke file hasil deteksi anomali statistik.
+*   `--output`: Path tujuan untuk file JSON peta risiko yang dihasilkan.
+*   `--color-scheme`: (Opsional) Menentukan palet warna. Default menggunakan skema aksesibilitas WCAG AA untuk memastikan keterbacaan bagi pengguna dengan gangguan penglihatan warna.
+
+###### B. Struktur Output JSON (`risk_roa_map.json`)
+
+File output dirancang untuk konsumsi *front-end* D3.js. Struktur utamanya mencakup node hierarkis yang memungkinkan rendering grafik pohon risiko (*risk tree*) atau diagram Sankey untuk melihat aliran risiko dari sumber ke kategori kepatuhan.
+
+Contoh struktur simplifikasi:
+```json
+{
+  "metadata": {
+    "generated_at": "2023-10-27T10:00:00Z",
+    "visualizer_version": "1.2.0",
+    "methodology": "Statistical-Anomaly Correlation with DPIA Context"
+  },
+  "risk_nodes": [
+    {
+      "id": "risk_001",
+      "category": "GDPR",
+      "urgency": "High",
+      "data_subject_count": 1500,
+      "anomaly_score": 0.95,
+      "remediation_action": "Immediate Masking Update",
+      "children": ["finding_x1"]
+    }
+  ]
+}
+```
+
+###### C. Metodologi Visualisasi Risiko untuk Auditor
+
+Untuk keperluan audit eksternal, pendekatan visualisasi ini mengikuti prinsip **Risk-Based Auditing**. Berikut adalah penjelasan metodologis mengenai bagaimana peta jalan ini dibentuk:
+
+1.  **Correlation Matrix Method (Metrik Korelasi)**
+    Tidak semua anomali statistik bernilai hukum yang sama. Metodologi ini menerapkan matriks pembobotan (*weighting matrix*) di mana:
+    $$ RiskScore = (SensitivityWeight 	imes AnomalyDeviation) + (RegulatoryWeight 	imes ComplianceGap) $$
+    *   *SensitivityWeight*: Berdasarkan klasifikasi SCD/PII dari GDPR Art. 9.
+    *   *AnomalyDeviation*: Skor z-score atau IQR dari `statistical_anomalies.csv`.
+    Hasil perhitungan ini menentukan posisi node dalam visualisasi: semakin tinggi skor, semakin dekat ke pusat atau semakin besar ukuran node pada grafik D3.js.
+
+2.  **Temporal Sequencing (Penjadwalan Temporal)**
+    Visualisasi tidak statis; ia mempertimbangkan waktu. Temuan dengan urgensi "High" dipetakan untuk remediasi segera (SLA < 48 jam), sedangkan "Low" dimasukkan ke dalam backlog rutin. Hal ini memungkinkan auditor untuk mengevaluasi apakah *response time* tim keamanan sesuai dengan standar ISO 27001 A.16.1.1 (Respons terhadap Insiden Keamanan).
+
+3.  **Accessibility-Constrained Rendering**
+    Sesuai dengan prinsip desain inklusif dan kepatuhan aksesibilitas (Section 508 / WCAG 2.1), palet warna yang digunakan dalam `risk_roa_map.json` dioptimalkan untuk kontras tinggi. Auditor tidak bergantung hanya pada warna (merah/hijau) untuk membedakan urgensi, tetapi juga pada pola tekstur atau label teks yang disertakan dalam node JSON, memastikan interpretasi data yang akurat tanpa gangguan disleksia atau buta warna.
+
+###### D. Integrasi dengan Dashboard Akhir
+
+File `risk_roa_map.json` adalah sumber kebenaran (*single source of truth*) untuk visualisasi di `compliance_audit_dashboard_generator.py`. Dashboard akan:
+1.  Membaca peta ini untuk menggambar grafik interaktif.
+2.  Mengizinkan auditor mengklik node "High Urgency" untuk melihat detail teknis anomali terkait.
+3.  Menyediakan fitur ekspor PDF yang menyertakan screenshot peta risiko sebagai lampiran bukti tindakan korektif.
+
+---
