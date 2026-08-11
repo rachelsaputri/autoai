@@ -3231,3 +3231,257 @@ Tambahkan entri berikut ke `crontab -e` untuk menjalankan audit keamanan segera 
   --threshold 3 \
   >> /var/log/security_audit.log 2>&1
 ```
+
+
+#### Export Metadata ke Format Terstruktur (YAML)
+
+Untuk keperluan integrasi dengan sistem CI/CD, monitoring, atau database yang memerlukan struktur data terstruktur (bukan sekadar dokumen teks), alat ini menyediakan skrip `id_exporter.py`. Skrip ini membaca file `ID_MANUAL.md` yang telah difinalisasi, mengekstrak metadata kunci dari setiap entri ID, dan menyimpannya ke dalam format YAML yang konsisten.
+
+##### Skrip: `id_exporter.py`
+
+Skrip ini menggunakan library standar `argparse` untuk manajemen argumen dan `PyYAML` untuk serialisasi data. Pastikan library `PyYAML` telah terinstal:
+
+```bash
+pip install pyyaml
+```
+
+Salin kode berikut ke dalam file `id_exporter.py`:
+
+```python
+#!/usr/bin/env python3
+"""
+id_exporter.py
+
+Mengekstrak metadata dari ID_MANUAL.md dan menyimpannya ke dalam file YAML.
+Struktur Markdown yang diharapkan untuk setiap ID:
+  ### ID_<HEX_ID>
+  - **Status:** <status_string>
+  - **Frekuensi:** <int>
+  - **Timestamp:** <ISO_8601_string>
+  - **Catatan:** <optional_notes>
+
+Argumen:
+  --manual: Path ke file Markdown input (wajib)
+  --output: Path ke file YAML output (wajib)
+"""
+
+import argparse
+import re
+import sys
+import yaml
+from datetime import datetime
+from typing import Dict, List, Optional
+
+
+class MarkdownParserError(Exception):
+    """Kustom exception untuk kesalahan parsing struktur Markdown."""
+    pass
+
+
+def parse_id_entry(header: str, content_lines: List[str]) -> Optional[Dict]:
+    """
+    Mengekstrak metadata dari blok teks setelah header ID.
+    """
+    # Pattern untuk mencari header ID (misal: ### ID_GHOST_ID_001)
+    # Kita ambil bagian ID-nya
+    id_match = re.match(r"###\s+(ID_[A-Za-z0-9_]+)", header)
+    if not id_match:
+        return None
+
+    target_id = id_match.group(1)
+    
+    # Inisialisasi data default
+    metadata = {
+        "id": target_id,
+        "status": "unknown",
+        "frequency": 0,
+        "last_updated": None,
+        "notes": ""
+    }
+
+    # Parsing baris konten
+    for line in content_lines:
+        line = line.strip()
+        if not line:
+            continue
+
+        # Cek Status
+        if line.startswith("**Status:**") or line.startswith("- **Status:**"):
+            status_val = line.split(":", 1)[1].strip()
+            # Membersihkan tanda baca jika ada
+            metadata["status"] = status_val.rstrip(".,")
+            
+        # Cek Frekuensi
+        elif line.startswith("**Frekuensi:**") or line.startswith("- **Frekuensi:**"):
+            try:
+                freq_val = line.split(":", 1)[1].strip()
+                metadata["frequency"] = int(freq_val)
+            except ValueError:
+                raise MarkdownParserError(f"Frekuensi tidak valid pada {target_id}: {freq_val}")
+                
+        # Cek Timestamp
+        elif line.startswith("**Timestamp:**") or line.startswith("- **Timestamp:**"):
+            ts_val = line.split(":", 1)[1].strip()
+            try:
+                # Validasi format ISO 8601 sederhana
+                datetime.fromisoformat(ts_val.replace("Z", "+00:00"))
+                metadata["last_updated"] = ts_val
+            except ValueError:
+                raise MarkdownParserError(f"Timestamp tidak valid pada {target_id}: {ts_val}")
+        
+        # Cek Catatan (Opsional)
+        elif line.startswith("**Catatan:**") or line.startswith("- **Catatan:**"):
+            metadata["notes"] = line.split(":", 1)[1].strip()
+
+    return metadata
+
+
+def read_and_parse_markdown(file_path: str) -> List[Dict]:
+    """
+    Membaca file Markdown, mengidentifikasi blok ID, dan mengekstrak metadata.
+    """
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except FileNotFoundError:
+        print(f"Error: File tidak ditemukan: {file_path}", file=sys.stderr)
+        sys.exit(1)
+    except IOError as e:
+        print(f"Error: Gagal membaca file: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    # Regex untuk memisahkan blok berdasarkan header H3 (###)
+    # Ini membagi teks berdasarkan header ID
+    blocks = re.split(r"(###\s+ID_[A-Za-z0-9_]+)", content)
+    
+    # blocks[0] biasanya teks sebelum header pertama (abaikan)
+    # Struktur blocks: [prefix, header1, content1, header2, content2, ...]
+    
+    parsed_data = []
+    i = 1
+    while i < len(blocks) - 1:
+        header = blocks[i]
+        content_text = blocks[i+1]
+        
+        # Bersihkan konten dari pemisah baris ganda di awal jika ada
+        content_lines = content_text.strip().splitlines()
+        
+        try:
+            entry = parse_id_entry(header, content_lines)
+            if entry:
+                parsed_data.append(entry)
+        except MarkdownParserError as e:
+            print(f"Warning: Lewati entri {header} karena error parsing: {e}", file=sys.stderr)
+        
+        # Lanjut ke pasangan berikutnya (header, content)
+        i += 2
+
+    if not parsed_data:
+        raise MarkdownParserError("Tidak ada entri ID valid yang ditemukan dalam file Markdown.")
+
+    return parsed_data
+
+
+def write_yaml(data: List[Dict], output_path: str) -> None:
+    """
+    Menyimpan data yang sudah diparsing ke dalam file YAML.
+    """
+    try:
+        # Gunakan safe_dump untuk keamanan, sort_keys=False untuk menjaga urutan
+        yaml_content = yaml.safe_dump(
+            {"exported_ids": data}, 
+            default_flow_style=False, 
+            sort_keys=False,
+            allow_unicode=True
+        )
+        
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(yaml_content)
+            
+        print(f"Berhasil mengekspor {len(data)} entri ke {output_path}")
+        
+    except IOError as e:
+        print(f"Error: Gagal menulis file YAML: {e}", file=sys.stderr)
+        sys.exit(1)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Ekstrak metadata ID dari Markdown ke YAML."
+    )
+    parser.add_argument(
+        "--manual", 
+        required=True, 
+        help="Path ke file ID_MANUAL.md"
+    )
+    parser.add_argument(
+        "--output", 
+        required=True, 
+        help="Path ke file output YAML (misal: id_metadata.yaml)"
+    )
+    
+    args = parser.parse_args()
+    
+    try:
+        parsed_entries = read_and_parse_markdown(args.manual)
+        write_yaml(parsed_entries, args.output)
+    except MarkdownParserError as e:
+        print(f"Gagal: {e}", file=sys.stderr)
+        sys.exit(2)
+    except Exception as e:
+        print(f"Error tak terduga: {e}", file=sys.stderr)
+        sys.exit(3)
+
+
+if __name__ == "__main__":
+    main()
+```
+
+##### Cara Penggunaan
+
+Jalankan skrip dari baris perintah dengan menentukan path file Markdown input dan lokasi file YAML output:
+
+```bash
+python3 id_exporter.py \
+  --manual /data/ID_MANUAL.md \
+  --output /data/id_metadata.yaml
+```
+
+##### Contoh Output YAML (`id_metadata.yaml`)
+
+Berdasarkan input Markdown, output YAML akan terlihat seperti ini:
+
+```yaml
+exported_ids:
+- id: GHOST_ID_001
+  status: Missing
+  frequency: 2
+  last_updated: '2023-10-27T10:15:00'
+  notes: Potensi ID Hantu terdeteksi
+- id: VALID_ID_002
+  status: Verified
+  frequency: 5
+  last_updated: '2023-10-27T08:00:00'
+  notes: 
+```
+
+##### Penanganan Error
+
+Skrip ini mencakup mekanisme *error handling* berikut:
+
+1.  **File Tidak Ditemukan:** Jika `--manual` tidak mengarah ke file yang ada, skrip akan menghentikan eksekusi dengan pesan error yang jelas.
+2.  **Format Markdown Tidak Cocok:** Jika header tidak sesuai dengan pola `### ID_...`, blok tersebut akan diabaikan.
+3.  **Validasi Tipe Data:** Jika nilai `Frekuensi` bukan angka atau `Timestamp` bukan format ISO 8601 yang valid, skrip akan mencetak *warning* dan melewatkan entri tersebut, lalu melanjutkan ke entri berikutnya. Ini mencegah skrip crash jika ada satu entri yang korup, sambil memberi tahu operator untuk memeriksa file tersebut.
+4.  **Izin Penulisan:** Jika skrip tidak memiliki izin menulis ke direktori tujuan (`--output`), error `IOError` akan ditangkap dan ditampilkan.
+
+##### Integrasi ke Cronjob
+
+Untuk otomatisasi, tambahkan baris berikut ke `crontab -e` agar metadata diekspor setiap kali proses audit selesai:
+
+```cron
+# Ekspor metadata ID ke YAML setiap hari pukul 00:30
+30 0 * * * /usr/bin/python3 /opt/scripts/id_exporter.py \
+  --manual /data/ID_MANUAL.md \
+  --output /data/id_metadata.yaml \
+  >> /var/log/id_export.log 2>&1
+```
