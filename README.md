@@ -5636,3 +5636,95 @@ Setelah skrip dijalankan, file output akan memiliki struktur berikut yang memuda
 ```
 
 Pendekatan ini menjamin bahwa meskipun kegagalan terjadi di stage tertentu, riwayat eksekusi lengkap tetap tersedia untuk diagnosis, tanpa bergantung pada log yang mungkin telah diputar balik (rotated) atau dibersihkan oleh sistem Kubernetes standar.
+
+
+### 7. Pemantauan Kesehatan dan Notifikasi (Pipeline Health Monitoring)
+
+Untuk melengkapi siklus observabilitas, sistem menyediakan skrip `pipeline_health_monitor.py` yang bertugas menganalisis `aggregated_trace.json` yang dihasilkan oleh `log_aggregator_parser.py`. Modul ini tidak hanya memberikan snapshot statis, tetapi juga menghitung metrik keandalan jangka panjang seperti **Mean Time Between Failures (MTBF)** dan mengirimkan peringatan proaktif jika performa pipeline jatuh di bawah standar yang ditetapkan.
+
+#### 7.1. Arsitektur Monitor
+
+Monitor ini bekerja dengan memindai file trace agregat, mengekstrak peristiwa kegagalan (`level: "ERROR"` atau `"CRITICAL"`), dan menghitung interval waktu antar-kegagalan. Hasil analisis kemudian dibandingkan dengan ambang batas MTBF yang dikonfigurasi. Jika MTBF aktual lebih pendek dari ambang batas yang diizinkan, sistem akan memicu notifikasi ke channel Slack atau Microsoft Teams.
+
+#### 7.2. Instalasi dan Dependensi
+
+Pastikan library `requests` terinstall untuk mendukung fitur pengiriman webhook:
+
+```bash
+pip install requests
+```
+
+#### 7.3. Penggunaan (Usage)
+
+Skrip ini dirancang untuk fleksibilitas dalam lingkungan CI/CD atau sebagai layanan daemon yang berjalan secara berkala.
+
+**Sintaks Dasar:**
+
+```bash
+python pipeline_health_monitor.py \
+    --trace-json /path/to/aggregated_trace.json \
+    --webhook-url https://hooks.slack.com/services/YOUR/WEBHOOK/URL \
+    --mtbf-threshold 120
+```
+
+**Penjelasan Argumen:**
+
+| Argumen | Tipe | Default | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `--trace-json` | `str` | *(Wajib)* | Path absolut ke file `aggregated_trace.json`. |
+| `--webhook-url` | `str` | `None` | URL Webhook Slack (Incoming Webhook) atau Microsoft Teams (Connector). Wajib diisi jika ingin aktifkan notifikasi. |
+| `--mtbf-threshold` | `float` | `60.0` | Ambang batas MTBF dalam **menit**. Jika waktu rata-rata antar kegagalan lebih kecil dari nilai ini, peringatan akan dikirim. |
+| `--log-level` | `str` | `INFO` | Level logging internal skrip (`DEBUG`, `INFO`, `WARNING`, `ERROR`). |
+
+#### 7.4. Logika Perhitungan MTBF
+
+MTBF (Mean Time Between Failures) dihitung menggunakan rumus statistik sederhana berdasarkan riwayat trace:
+
+$$ 	ext{MTBF} = rac{	ext{Total Waktu Operasi}}{	ext{Jumlah Kegagalan}} $$
+
+Di mana:
+1.  **Total Waktu Operasi**: Selisih waktu antara timestamp pertama dan terakhir dari seluruh entri trace yang valid.
+2.  **Jumlah Kegagalan**: Total entri log dengan level `"ERROR"`, `"CRITICAL"`, atau pesan yang mengandung keyword kegagalan standar (`failed`, `timeout`, `exception`).
+
+*Catatan: Jika jumlah kegagalan adalah 0, MTBF dianggap $\infty$ (tak terhingga) dan tidak akan memicu peringatan.*
+
+#### 7.5. Format Notifikasi
+
+Notifikasi dikirim dalam format terstruktur agar mudah dibaca oleh anggota tim.
+
+**Contoh Notifikasi Slack:**
+
+> **🚨 Peringatan Kesehatan Pipeline**
+>
+> **Pipeline ID:** `abc-123-xyz`
+> **MTBF Saat Ini:** `45 menit`
+> **Ambang Batas:** `120 menit`
+>
+> **Status:** **KRITIS**
+>
+> **Detail:**
+> Rata-rata waktu antar kegagalan turun drastis dalam 24 jam terakhir. Kemungkinan adanya degradasi layanan atau bug regresi. Harap periksa dashboard observabilitas segera.
+
+**Contoh Notifikasi Microsoft Teams (Adaptive Card JSON Structure):**
+
+Sistem mendeteksi jenis webhook secara otomatis. Untuk Teams, payload dikirim sebagai Adaptive Card standar yang menampilkan badge merah untuk status kritis, daftar 3 kegagalan terakhir, dan tautan langsung ke log teragregat.
+
+#### 7.6. Integrasi ke dalam CI/CD Pipeline
+
+Anda dapat menambahkan langkah monitoring ke pipeline Anda setelah agregasi log selesai. Contoh untuk GitHub Actions:
+
+```yaml
+- name: Monitor Pipeline Health
+  run: |
+    python pipeline_health_monitor.py \
+      --trace-json output/aggregated_trace.json \
+      --webhook-url ${{ secrets.SLACK_WEBHOOK_URL }} \
+      --mtbf-threshold 60
+  continue-on-error: true # Jangan biarkan monitoring menghentikan pipeline jika terjadi warning
+```
+
+#### 7.7. Best Practices
+
+1.  **Rotasi File Trace**: Pastikan `aggregated_trace.json` tidak dihapus secara instan setelah dibaca. Monitor harus membaca file yang sedang ditulis atau file hasil build terakhir untuk konsistensi data.
+2.  **Ambang Batas Dinamis**: Sesuaikan `--mtbf-threshold` berdasarkan tingkat kestabilan sistem Anda. Sistem baru mungkin memerlukan ambang batas yang lebih longgar, sementara sistem produksi stabil memerlukan ambang batas yang ketat.
+3.  **Validasi Webhook**: Uji webhook URL Anda di lingkungan development sebelum menjalankannya di production untuk menghindari noise notifikasi yang tidak relevan.
