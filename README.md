@@ -4376,3 +4376,217 @@ fi
 ```
 
 > **Catatan Performa:** Versi dasar ini memuat seluruh file JSON ke dalam memori saat server dimulai. Untuk dataset dengan ukuran ratusan MB, pertimbangkan untuk mengimplementasikan *caching* (misalnya menggunakan Redis) atau mengganti pemrosesan data dengan database SQL/NoSQL untuk query yang lebih efisien pada endpoint `/anomalies`.
+
+
+##### Audit Trail Jangka Panjang dengan `compliance_history_logger.py`
+
+Untuk memenuhi persyaratan regulasi dan kemampuan investigasi forensik, perubahan status kepatuhan perlu direkam secara persisten. Skrip `compliance_history_logger.py` dirancang khusus untuk memantau perubahan status dari `compliance_certifier.py` dan menyimpan riwayatnya ke dalam database SQLite lokal.
+
+**Fitur Utama:**
+*   **Deteksi Perubahan Real-time:** Memantau file sertifikat dan mendeteksi transisi status `PASS` ↔ `FAIL`.
+*   **Integritas Data:** Menyimpan hash SHA-256 dari konten sertifikat terbaru untuk memastikan tidak ada manipulasi data pasca-penetapan.
+*   **Database SQLite:** Penyimpanan ringan dan terstruktur di dalam file `compliance_history.db`, cocok untuk lingkungan lokal tanpa dependensi server database berat.
+
+**Instalasi dan Penggunaan**
+
+Skrip ini adalah bagian dari suite audit. Pastikan skrip berada di direktori yang sama dengan `compliance_certifier.py`.
+
+```bash
+# Struktur Direktori
+├── compliance_certifier.py
+├── compliance_cert.json  (Output dari certifier)
+├── compliance_history_logger.py
+└── compliance_history.db (Database output)
+```
+
+**Argumentasi CLI:**
+
+| Argument | Tipe | Default | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `--watch-cert` | `str` | `./compliance_cert.json` | Path ke file sertifikat JSON yang dipantau. |
+| `--db-path` | `str` | `./compliance_history.db` | Path file database SQLite untuk menyimpan riwayat. |
+| `--interval` | `int` | `5` | Interval pengecekan dalam detik. |
+
+**Contoh Penggunaan:**
+
+```bash
+# Jalankan logger untuk memantau sertifikat default setiap 10 detik
+python compliance_history_logger.py --watch-cert ./compliance_cert.json --db-path ./audit_logs.db --interval 10
+
+# Jalankan dalam mode daemon (background)
+nohup python compliance_history_logger.py --interval 5 > logger.log 2>&1 &
+```
+
+**Implementasi Kode**
+
+Simpan kode berikut sebagai `compliance_history_logger.py`.
+
+```python
+import argparse
+import hashlib
+import json
+import sqlite3
+import sys
+import time
+import os
+from datetime import datetime
+
+class ComplianceLogger:
+    def __init__(self, cert_path, db_path, interval):
+        self.cert_path = cert_path
+        self.db_path = db_path
+        self.interval = interval
+        self.last_hash = None
+        self.last_status = None
+        
+        # Inisialisasi Database
+        self._init_db()
+
+    def _init_db(self):
+        """Membuat tabel audit trail jika belum ada."""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS compliance_audit (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp TEXT NOT NULL,
+                status TEXT NOT NULL,
+                previous_status TEXT,
+                cert_hash TEXT NOT NULL,
+                file_size INTEGER
+            )
+        ''')
+        conn.commit()
+        conn.close()
+        print(f"[INFO] Database initialized at {self.db_path}")
+
+    def get_file_hash(self, filepath):
+        """Menghitung hash SHA-256 dari file."""
+        hasher = hashlib.sha256()
+        with open(filepath, 'rb') as f:
+            # Membaca file dalam chunks untuk efisiensi memori pada file besar
+            for chunk in iter(lambda: f.read(4096), b""):
+                hasher.update(chunk)
+        return hasher.hexdigest()
+
+    def get_current_status(self, cert_path):
+        """Membaca status saat ini dari file JSON sertifikat."""
+        if not os.path.exists(cert_path):
+            return None, None
+        
+        try:
+            with open(cert_path, 'r') as f:
+                data = json.load(f)
+                status = data.get('overall_status', 'UNKNOWN')
+                return status, data
+        except (json.JSONDecodeError, KeyError) as e:
+            print(f"[WARN] Error reading certificate: {e}")
+            return None, None
+
+    def log_change(self, current_status, previous_status, cert_hash, file_size):
+        """Menyimpan perubahan status ke dalam database."""
+        now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO compliance_audit (timestamp, status, previous_status, cert_hash, file_size)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (now, current_status, previous_status, cert_hash, file_size))
+        conn.commit()
+        conn.close()
+        print(f"[AUDIT] Change recorded: {previous_status} -> {current_status}")
+
+    def run(self):
+        """Loop utama pemantauan."""
+        print(f"[INFO] Starting monitoring for {self.cert_path} (Interval: {self.interval}s)")
+        
+        while True:
+            try:
+                # 1. Hitung Hash & Baca Status
+                current_hash = self.get_file_hash(self.cert_path)
+                current_status, _ = self.get_current_status(self.cert_path)
+                
+                if current_status is None:
+                    time.sleep(self.interval)
+                    continue
+
+                file_size = os.path.getsize(self.cert_path)
+
+                # 2. Deteksi Perubahan
+                # Logika perubahan:
+                # a. Pertama kali dijalankan (last_hash is None)
+                # b. Hash berubah (file content modified)
+                # c. Status berubah secara eksplisit (meskipun hash sama, misalnya metadata update)
+                
+                status_changed = False
+                if self.last_hash is None:
+                    status_changed = True
+                elif self.last_hash != current_hash:
+                    # Hash berubah berarti konten berubah, kita perlu cek apakah statusnya berbeda dari sebelumnya
+                    # Jika status sama tapi file lain berubah, kita tetap bisa mencatat update hash
+                    # Untuk audit trail "status change", kita fokus pada transisi status
+                    curr_st, _ = self.get_current_status(self.cert_path)
+                    if curr_st != self.last_status:
+                        status_changed = True
+                
+                # Catatan: Logika di atas menyederhanakan kasus di mana file berubah 
+                # tapi status tidak berubah. Untuk keperluan audit trail murni status:
+                if current_status != self.last_status:
+                    self.log_change(current_status, self.last_status, current_hash, file_size)
+                    self.last_status = current_status
+                    
+                self.last_hash = current_hash
+
+            except Exception as e:
+                print(f"[ERROR] Exception during monitoring: {e}")
+            
+            time.sleep(self.interval)
+
+def main():
+    parser = argparse.ArgumentParser(description='Monitor compliance certificate changes and log to SQLite.')
+    parser.add_argument('--watch-cert', type=str, default='./compliance_cert.json',
+                        help='Path to the compliance certificate JSON file.')
+    parser.add_argument('--db-path', type=str, default='./compliance_history.db',
+                        help='Path to the SQLite database file.')
+    parser.add_argument('--interval', type=int, default=5,
+                        help='Check interval in seconds.')
+    
+    args = parser.parse_args()
+    
+    logger = ComplianceLogger(args.watch_cert, args.db_path, args.interval)
+    try:
+        logger.run()
+    except KeyboardInterrupt:
+        print("
+[INFO] Monitoring stopped by user.")
+        sys.exit(0)
+
+if __name__ == '__main__':
+    main()
+```
+
+**Struktur Database Audit**
+
+Database SQLite yang dihasilkan akan memiliki satu tabel utama `compliance_audit`. Berikut adalah contoh query SQL untuk mengekstrak laporan perubahan status:
+
+```sql
+-- Lihat 10 perubahan status terakhir
+SELECT timestamp, previous_status, status, cert_hash 
+FROM compliance_audit 
+ORDER BY id DESC LIMIT 10;
+
+-- Hitung total durasi downtime (status FAIL)
+SELECT 
+    COUNT(CASE WHEN status = 'FAIL' THEN 1 END) as fail_count,
+    SUM(CASE WHEN status = 'FAIL' THEN 1 ELSE 0 END) as total_fail_records
+FROM compliance_audit;
+```
+
+**Integrasi dengan Grafana/Prometheus (Opsional)**
+
+Jika Anda ingin memvisualisasikan riwayat audit ini di Grafana, Anda dapat menggunakan plugin *Grafana SQLite* atau mengekspor data ke sistem time-series lainnya. Namun, untuk penggunaan ringan, file JSON hasil query SQLite dapat diproses oleh skrip pihak ketiga untuk mengubahnya menjadi format metrics Prometheus.
+
+**Pertimbangan Keamanan**
+
+1.  **Izin File:** Pastikan pengguna yang menjalankan `compliance_history_logger.py` memiliki izin baca (`r`) pada file sertifikat dan izin tulis (`w`) pada direktori database.
+2.  **Integritas Database:** Untuk lingkungan produksi tinggi, pertimbangkan untuk mengaktifkan WAL (Write-Ahead Logging) pada SQLite (`PRAGMA journal_mode=WAL;`) untuk meningkatkan konkurensi dan ketahanan terhadap korupsi saat crash.
