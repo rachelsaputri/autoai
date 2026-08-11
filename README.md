@@ -6846,3 +6846,93 @@ Metode masking dinilai berdasarkan standar NIST dan GDPR "pseudonymisation" guid
 #### 5. Log Audit dan Jejak Tangan
 
 Setiap eksekusi skrip menghasilkan file JSON unik yang di-timestamp. File ini disimpan dalam artifact CI/CD dan dipertahankan selama 5 tahun sesuai dengan retensi data audit regulasi keuangan dan privasi. Auditor eksternal dapat memverifikasi integritas laporan menggunakan checksum SHA-256 dari file `gdpr_dpia_report.json` yang di-commit ke branch `compliance-history`.
+
+
+#### 6. Generator Dashboard Kepatuhan (Compliance Audit Dashboard)
+
+Untuk mendukung transparansi dan kemudahan verifikasi oleh auditor eksternal serta manajemen tingkat tinggi, proyek ini menyediakan utilitas CLI untuk mengubah laporan JSON menjadi dashboard HTML interaktif. Alat ini memvisualisasikan metrik kepatuhan secara real-time tanpa memerlukan backend server.
+
+**Fitur Utama:**
+*   **Integrasi Data Otomatis:** Membaca file `compliance_cert.json`, `correlation_analysis.json`, dan `gdpr_dpia_report.json`.
+*   **Visualisasi Interaktif:** Menggunakan library **Chart.js** untuk grafik tren dan **DataTables** untuk tabel detail yang dapat dicari dan diurutkan.
+*   **Format Statis (SPA):** Output berupa satu file HTML statis yang dapat dibagikan melalui email, disimpan di repository, atau di-hosting pada server web sederhana (Nginx/Apache).
+
+##### 6.1 Instalasi Dependensi
+
+Pastikan lingkungan Python Anda memiliki pustaka berikut terinstal. Anda dapat menginstalnya menggunakan `pip`:
+
+```bash
+pip install python-dateutil Jinja2
+```
+
+*Catatan: Library `Jinja2` digunakan untuk templating HTML, dan `python-dateutil` untuk parsing tanggal yang konsisten.*
+
+##### 6.2 Panduan Penggunaan (CLI)
+
+Skrip `compliance_audit_dashboard_generator.py` menerima path ke file sumber data sebagai argumen.
+
+**Sintaks:**
+```bash
+python compliance_audit_dashboard_generator.py \
+  --cert <path/to/compliance_cert.json> \
+  --analysis <path/to/correlation_analysis.json> \
+  --dpia <path/to/gdpr_dpia_report.json> \
+  --output <path/to/output_dashboard.html>
+```
+
+**Contoh Eksekusi:**
+```bash
+python compliance_audit_dashboard_generator.py \
+  --cert artifacts/cert.json \
+  --analysis artifacts/correlation.json \
+  --dpia artifacts/gdpr_dpia_report.json \
+  --output reports/audit_dashboard_v1.html
+```
+
+**Penjelasan Argumen:**
+*   `--cert` (Wajib): Path ke file sertifikat kepatuhan yang berisi metadata eksekusi pipeline.
+*   `--analysis` (Wajib): Path ke file analisis korelasi yang memuat temuan anomali dan deviasi.
+*   `--dpia` (Wajib): Path ke laporan *Data Protection Impact Assessment* (DPIA) berisi skor risiko dan klasifikasi data.
+*   `--output` (Wajib): Path lengkap untuk menyimpan file HTML hasil generate.
+
+##### 6.3 Struktur Dashboard yang Dihasilkan
+
+Dashboard HTML yang dihasilkan mencakup tiga bagian utama:
+
+1.  **Ringkasan Eksekutif (KPI Cards):**
+    *   Total Data Point yang Diaudit.
+    *   Skor Risiko Agregat ($R_{total}$).
+    *   Status Kepatuhan Saat Ini (Green/Yellow/Red).
+    *   Jumlah Temuan Anomali Aktif.
+
+2.  **Visualisasi Tren & Risiko:**
+    *   **Grafik Tren Deviation Score:** Plot garis interaktif yang menunjukkan fluktuasi deviasi skor keamanan selama periode audit, memungkinkan auditor mengidentifikasi pola musiman atau spike anomali.
+    *   **Peta Panas Risiko (Risk Heatmap):** Grafik散点 (scatter) atau heatmap yang memetakan *High Sensitivity (SCD)* dan *Medium Sensitivity (PII)* terhadap skor kerentanan masking. Titik data dengan kombinasi sensitivitas tinggi dan masking lemah akan berwarna merah.
+
+3.  **Tabel Detail Remediasi (DataTables):**
+    *   Tabel responsif yang menampilkan daftar temuan spesifik.
+    *   Kolom mencakup: `Timestamp`, `Data Category`, `Masking Method`, `Vulnerability Score`, `Recommendation`, dan `Status`.
+    *   Fitur pencarian instan dan pagination otomatis.
+
+##### 6.4 Lampiran Teknis untuk Audit Eksternal (Compliance & Legal)
+
+Bagian ini didedikasikan untuk memberikan konteks hukum dan teknis bagi auditor eksternal mengenai bagaimana dashboard ini memastikan integritas data dan kepatuhan regulasi.
+
+**A. Dasar Hukum & Standar**
+Dashboard ini dirancang sesuai dengan pedoman berikut:
+*   **GDPR Article 30 (Records of Processing Activities):** Memastikan pencatatan aktivitas pemrosesan data dapat diverifikasi melalui jejak tangan (audit trail) JSON.
+*   **NIST SP 800-53 Rev. 5 (SI-4 Information System Monitoring):** Menyediakan mekanisme pemantauan kontinuitas integritas sistem.
+*   **ISO/IEC 27001:2022 (Clause A.12.4 Logging):** Standar industri untuk pencatatan log keamanan yang akurat dan terlindungi.
+
+**B. Integritas Data & Non-Repudiation**
+Setiap file JSON yang dimuat oleh dashboard (`compliance_cert.json`, dll.) dilengkapi dengan checksum SHA-256. Auditor dapat memverifikasi bahwa data yang ditampilkan dalam dashboard tidak telah dimanipulasi sejak eksekusi pipeline terakhir.
+*   *Cara Verifikasi:* Ekstrak checksum dari header JSON dan bandingkan dengan hasil command `sha256sum <file>.json` di terminal.
+
+**C. Retensi Data & Archiving**
+Sesuai dengan kebijakan retensi 5 tahun yang ditetapkan dalam Bab 5 (Log Audit), file HTML yang dihasilkan dari dashboard disimpan dalam branch `compliance-history` pada repository Git. Ini memastikan:
+1.  **History Versioning:** Setiap perubahan kebijakan atau update pipeline akan menghasilkan snapshot dashboard baru yang dapat diakses kapan saja.
+2.  **Immutable Record:** Karena disimpan di branch khusus dengan kebijakan *force-push* yang dilarang, rekaman audit bersifat *immutable* (tidak dapat diubah), memenuhi prinsip *auditability* dalam hukum keuangan dan privasi data.
+
+**D. Batasan Penggunaan**
+*   Dashboard ini bersifat **statis** dan tidak menampilkan data pribadi secara langsung, melainkan hanya ringkasan statistik dan metadata kepatuhan.
+*   Untuk melihat data mentah (*raw data*), auditor harus memiliki akses ke sistem penyimpanan data utama melalui saluran aman terpisah (tidak melalui dashboard ini).
