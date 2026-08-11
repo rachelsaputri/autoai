@@ -7029,3 +7029,121 @@ File `risk_roa_map.json` adalah sumber kebenaran (*single source of truth*) untu
 3.  Menyediakan fitur ekspor PDF yang menyertakan screenshot peta risiko sebagai lampiran bukti tindakan korektif.
 
 ---
+
+
+Berikut adalah konten lanjutan untuk file `README.md`, yang mencakup dokumentasi teknis untuk `compliance_policy_enforcer.py` serta lampiran arsitektur keamanan untuk auditor.
+
+---
+
+###### E. Eksekutor Kebijakan Teknis: `compliance_policy_enforcer.py`
+
+Modul ini berfungsi sebagai jembatan eksekusi antara analisis kebijakan (*policy analysis*) dan implementasi teknis pada lapisan data (*data layer*). Bertugas menegakkan aturan privasi yang telah didefinisikan dalam laporan DPIA (*Data Protection Impact Assessment*) melalui transformasi data otomatis.
+
+**1. Alur Arsitektur Eksekusi**
+
+Skrip ini beroperasi dalam tiga tahap utama:
+1.  **Parsing Kebijakan:** Membaca struktur `gdpr_dpia_report.json` untuk mengidentifikasi kolom mana yang diklasifikasikan sebagai PII/SCD (Special Category Data) dan teknik pemrosesan mana yang diwajibkan (Masking, Tokenization, atau K-Anonymity).
+2.  **Transformasi Data:** Membaca dataset mentah (CSV/Parquet) dan menerapkan algoritma enkripsi/pseudonimisasi sesuai dengan konteks bisnis dan tingkat risiko.
+3.  **Validasi & Output:** Memverifikasi bahwa output memenuhi kriteria k-anonimitas ($k \ge 5$) atau keunikan token, lalu menulis hasilnya ke file output.
+
+**2. Antarmuka Command Line (CLI)**
+
+Gunakan argumen berikut untuk menjalankan skrip:
+
+```bash
+python compliance_policy_enforcer.py \
+    --dpia /path/to/gdpr_dpia_report.json \
+    --dataset /path/to/raw_data.csv \
+    --output /path/to/enrypted_output.parquet \
+    --dry-run
+```
+
+| Argumen | Tipe | Deskripsi | Wajib |
+| :--- | :--- | :--- | :--- |
+| `--dpia` | `str` | Path ke file JSON laporan DPIA. Harus berisi kunci `mandatory_masking_rules` dan `sensitive_ids`. | Ya |
+| `--dataset` | `str` | Path ke file data mentah (format `.csv` atau `.parquet`). | Ya |
+| `--output` | `str` | Path tujuan untuk menyimpan data yang sudah diproses. | Ya |
+| `--dry-run` | `bool` | Mode simulasi. Mengevaluasi transformasi dan mencetak ringkasan perubahan tanpa menulis ke disk. | Tidak |
+
+**3. Implementasi Algoritma Transformasi**
+
+Skrip ini mendukung dua strategi privasi utama, yang dipilih secara dinamis berdasarkan konfigurasi di file DPIA:
+
+*   **K-Anonimitas (L- Diversity Tolerant):**
+    Digunakan untuk data agregat di mana keunikan individu masih memungkinkan identifikasi ulang melalui kombinasi atribut.
+    *   *Logika:* Identifikasi *quasi-identifiers* (misal: `zip_code`, `age`). Lakukan *generalization* (pengaburan rentang) atau *suppression* (penghilangan nilai langka) hingga setiap grup memiliki minimal $k$ record.
+    *   *Parameter Default:* $k=5$.
+
+*   **Pseudonimisasi Berbasis Token (Deterministic Encryption):**
+    Digunakan untuk kunci primer (Primary Keys) dan data identifikasi langsung.
+    *   *Logika:* Menggunakan *Salted Hash* atau *Format-Preserving Encryption (FPE)*. Setiap nilai input yang sama akan menghasilkan output yang sama (konsisten untuk *join* operasi), namun tidak dapat dibalik tanpa kunci dekripsi yang aman.
+    *   *Keunggulan:* Mempertahankan integritas relasional database tanpa mengekspos data asli.
+
+**4. Contoh Penggunaan dalam Pipeline CI/CD**
+
+Dalam pipeline otomatis, skrip ini dapat dipanggil pasca-scan DLP (*Data Loss Prevention*):
+
+```bash
+# Langkah 1: Generate DPIA Report via automated_gdpr_impact_assessment.py
+python automated_gdpr_impact_assessment.py --source db_prod_dump.json --output dpia_report.json
+
+# Langkah 2: Enforce Policies on Development Dataset
+python compliance_policy_enforcer.py \
+    --dpia dpia_report.json \
+    --dataset dev_dataset.csv \
+    --output dev_dataset_secured.parquet \
+    --dry-run
+
+# Langkah 3: Validate Output (Custom Check Script)
+if [ $? -eq 0 ]; then
+    echo "Policy enforcement successful. Data ready for dev environment."
+    mv dev_dataset_secured.parquet ./secure_artifacts/
+fi
+```
+
+---
+
+###### F. Lampiran Arsitektur Keamanan: Compliance & Legal
+*Untuk Auditor Privasi dan Penegak Hukum (Regulatory Review)*
+
+Bagian ini menjelaskan fondasi teknis enkripsi sisi klien (*Client-Side Encryption*) dan manajemen kunci (*Key Management*) yang diadopsi oleh sistem, selaras dengan persyaratan **GDPR Article 32** (Keamanan Pemrosesan) dan **ISO/IEC 27001:2022 Annex A.8.24** (Pemeliharaan Informasi).
+
+**1. Prinsip Enkripsi Sisi Klien (Client-Side Encryption)**
+
+Dalam arsitektur ini, enkripsi terjadi *before* data meninggalkan lingkungan yang dipercaya (*trusted client environment*) atau sebelum ditulis ke penyimpanan jangka panjang. Hal ini memastikan bahwa meskipun terjadi kebocoran data pada tingkat penyimpanan (storage leak) atau kompromi pada database server, data tetap tidak dapat dibaca tanpa kunci dekripsi yang terpisah.
+
+*   **Algoritma:** Menggunakan **AES-256-GCM** (Advanced Encryption Standard dengan Galois/Counter Mode) untuk enkripsi simetris. GCM dipilih karena memberikan *confidentiality* dan *integrity* (autentikasi) secara bersamaan dalam satu proses, mengurangi overhead komputasi dibandingkan AES-CBC + HMAC.
+*   **Tokenization & Pseudonimisasi:** Untuk data identifikasi langsung (PII), sistem tidak selalu melakukan enkripsi penuh, melainkan menggunakan *deterministic tokenization* yang dipetakan ke tabel kunci (Key Vault). Ini memungkinkan *join* antar tabel tetap berfungsi sambil menjaga anonimitas dari perspektif pihak ketiga yang akses ke tabel data mentah.
+
+**2. Manajemen Kunci (Key Management Strategy)**
+
+Kepatuhan terhadap standar industri mensyaratkan pemisahan antara *data encryption* dan *key management*. Kunci tidak boleh disimpan di tempat yang sama dengan data yang dienkripsi.
+
+| Komponen | Deskripsi Teknis | Kepatuhan Regulasi |
+| :--- | :--- | :--- |
+| **Key Encryption Key (KEK)** | Kunci tingkat master yang melindungi Data Encryption Keys (DEK). Disimpan di Hardware Security Module (HSM) atau layanan managed key (AWS KMS / Azure Key Vault). | GDPR Art. 32; NIST SP 800-57 |
+| **Data Encryption Key (DEK)** | Kunci unik untuk setiap *partition* atau *batch* data. Diekspor secara terenkripsi menggunakan KEK, lalu digunakan untuk mengenkripsi payload data. | ISO 27001 A.10.1.1 |
+| **Key Rotation Policy** | DEK dirotasi setiap 90 hari atau setelah insiden keamanan. KEK dirotasi setiap 365 hari sesuai kebijakan organisasi. | PCI-DSS Req 3.6; GDPR Art. 25 |
+| **Access Control (RBAC)** | Akses ke operasi *encrypt/decrypt* dibatasi berdasarkan prinsip *Least Privilege*. Hanya layanan backend khusus (bukan aplikasi web publik) yang memiliki akses ke DEK. | GDPR Art. 25 (Privacy by Design) |
+
+**3. Matriks Pemetaan Fitur ke Kepatuhan Hukum**
+
+Berikut adalah tabel verifikasi teknis untuk membantu auditor dalam mengevaluasi kesesuaian implementasi:
+
+| Persyaratan Legal / Standar | Implementasi Teknis dalam `compliance_policy_enforcer.py` | Bukti Audit (Audit Trail) |
+| :--- | :--- | :--- |
+| **GDPR Art. 25 (Data Protection by Design)** | Integrasi otomatis dengan `gdpr_dpia_report.json` untuk menerapkan masking sebelum data diproses lebih lanjut. | Log timestamp `dpia_version` yang digunakan saat enkripsi. |
+| **GDPR Art. 32 (Security of Processing)** | Penggunaan AES-256-GCM dan pemisahan kunci (KMS). | Konfigurasi KMS ID dan versi algoritma dalam metadata file output. |
+| **GDPR Art. 17 (Right to Erasure)** | Mekanisme *Shredding* kunci (Key Destroy) menyebabkan data terenkripsi tidak dapat didekripsi lagi secara matematis (Crypto-Shredding). | Log `key_destruction_id` yang dikaitkan dengan record ID pengguna. |
+| **ISO 27001 A.8.24 (Information Back-up & Restore)** | File output disimpan dalam format Parquet yang kompresi dan enkripsinya diverifikasi checksum-nya. | Hash SHA-256 dari file output yang dicatat dalam ledger transparansi. |
+
+**4. Tanggung Jawab Pemroses Data (Data Processor)**
+
+Sebagai entitas yang menjalankan `compliance_policy_enforcer.py`, tim teknis menjamin bahwa:
+1.  Data mentah tidak pernah tersedia dalam plaintext di lingkungan *processing* (memory) lebih lama dari yang diperlukan untuk enkripsi.
+2.  Semua kunci dekripsi di-*flush* dari memori segera setelah proses batch selesai.
+3.  Log audit pencatatan akses kunci (Audit Logs) diintegrasikan dengan SIEM (*Security Information and Event Management*) untuk deteksi anomali akses tidak sah.
+
+---
+
+*Dokumentasi ini berlaku untuk versi `v2.1.0` dari framework compliance. Setiap perubahan pada algoritma kriptografi atau kebijakan rotasi kunci harus memicu update dokumentasi ini dan notifikasi ke Data Protection Officer (DPO).*
