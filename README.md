@@ -3485,3 +3485,184 @@ Untuk otomatisasi, tambahkan baris berikut ke `crontab -e` agar metadata diekspo
   --output /data/id_metadata.yaml \
   >> /var/log/id_export.log 2>&1
 ```
+
+
+##### Auditor Disparansi Metadata (yaml_audit_reporter.py)
+
+Modul ini dirancang untuk melakukan validasi integritas data dengan membandingkan sumber kebenaran meta (`id_metadata.yaml`) terhadap sumber data operasional aktual (`log_analyzer.json`). Tujuannya adalah mengidentifikasi inkonsistensi antara konfigurasi yang diharapkan dengan perilaku sistem yang terekam di log.
+
+**Fitur Utama:**
+*   **Validasi Silang Data:** Membaca struktur YAML yang diekspor oleh `id_exporter.py` dan mem-parse file JSON ringkasan log.
+*   **Kalkulasi Disparansi:** Menghitung selisih antara `frequency` dari metadata dan `frequency` aktual dari log untuk setiap ID unik.
+*   **Ekspor Laporan CSV:** Menghasilkan file `disparity_report.csv` yang dapat dibuka langsung di spreadsheet untuk analisis lebih lanjut.
+
+**Argumen Baris Perintah:**
+
+| Argumen | Deskripsi | Wajib |
+| :--- | :--- | :--- |
+| `--yaml` | Path ke file metadata YAML (`id_metadata.yaml`). | Ya |
+| `--log-json` | Path ke file ringkasan log JSON dari `log_analyzer.py`. | Ya |
+| `--output` | Path keluaran untuk file laporan CSV (`disparity_report.csv`). | Ya |
+
+**Contoh Penggunaan:**
+
+```bash
+python3 yaml_audit_reporter.py \
+  --yaml /data/id_metadata.yaml \
+  --log-json /var/log/analyzer/summary.json \
+  --output /reports/disparity_check.csv
+```
+
+**Struktur Output CSV:**
+
+File CSV yang dihasilkan memiliki header berikut:
+1.  `ID`: Identifier unik entitas (misal: `VALID_ID_002`).
+2.  `Metadata_Frequency`: Nilai frekuensi yang dicatat di metadata YAML.
+3.  `Log_Frequency`: Nilai frekuensi aktual yang ditemukan dalam ringkasan log JSON.
+4.  `Discrepancy`: Selisih antara Metadata dan Log (`Metadata - Log`). Nilai `0` menandakan konsistensi sempurna.
+
+**Implementasi Python (`yaml_audit_reporter.py`):**
+
+```python
+import argparse
+import csv
+import json
+import yaml
+import sys
+from pathlib import Path
+
+def load_yaml_metadata(yaml_path):
+    """Memuat dan memvalidasi struktur metadata YAML."""
+    try:
+        with open(yaml_path, 'r') as f:
+            data = yaml.safe_load(f)
+        if not isinstance(data, list):
+            raise ValueError("Format YAML tidak valid: Expected list of records.")
+        return data
+    except FileNotFoundError:
+        print(f"Error: File metadata tidak ditemukan di {yaml_path}", file=sys.stderr)
+        sys.exit(1)
+    except yaml.YAMLError as e:
+        print(f"Error: Gagal mem-parse YAML: {e}", file=sys.stderr)
+        sys.exit(1)
+
+def load_log_json(log_path):
+    """Memuat ringkasan log JSON."""
+    try:
+        with open(log_path, 'r') as f:
+            data = json.load(f)
+        
+        # Asumsi struktur JSON: Dictionary dengan key ID dan value dict yang memiliki 'frequency'
+        # Jika strukturnya berbeda, sesuaikan parsing di sini.
+        return data
+    except FileNotFoundError:
+        print(f"Error: File log JSON tidak ditemukan di {log_path}", file=sys.stderr)
+        sys.exit(1)
+    except json.JSONDecodeError as e:
+        print(f"Error: Gagal mem-parse JSON: {e}", file=sys.stderr)
+        sys.exit(1)
+
+def calculate_disparity(metadata_list, log_data):
+    """Membandingkan metadata dengan log dan menghitung disparansi."""
+    report = []
+    
+    for record in metadata_list:
+        # Ambil ID, asumsi kunci 'id' ada di setiap record
+        record_id = record.get('id')
+        if not record_id:
+            print(f"Warning: Record tanpa ID ditemukan, dilewati.")
+            continue
+            
+        # Ambil frekuensi dari metadata
+        meta_freq = record.get('frequency')
+        
+        # Ambil frekuensi dari log
+        log_freq = log_data.get(record_id, {}).get('frequency', None)
+        
+        if log_freq is None:
+            # Jika ID tidak ada di log, anggap frequency 0 atau catat sebagai anomali
+            # Di sini kita ambil 0 untuk perhitungan diskrepansi, atau bisa flag sebagai 'Missing'
+            log_freq = 0 
+            
+        try:
+            meta_freq = int(meta_freq)
+            log_freq = int(log_freq)
+            discrepancy = meta_freq - log_freq
+        except (ValueError, TypeError):
+            print(f"Warning: Tipe data tidak valid untuk ID {record_id}, dilewati.")
+            continue
+            
+        report.append({
+            'ID': record_id,
+            'Metadata_Frequency': meta_freq,
+            'Log_Frequency': log_freq,
+            'Discrepancy': discrepancy
+        })
+        
+    return report
+
+def save_to_csv(report, output_path):
+    """Menyimpan laporan ke dalam file CSV."""
+    try:
+        file_path = Path(output_path)
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
+            fieldnames = ['ID', 'Metadata_Frequency', 'Log_Frequency', 'Discrepancy']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            
+            writer.writeheader()
+            writer.writerows(report)
+            
+        print(f"Laporan disparansi berhasil disimpan ke: {output_path}")
+        print(f"Total entri diproses: {len(report)}")
+        
+    except IOError as e:
+        print(f"Error: Tidak dapat menulis file ke {output_path}: {e}", file=sys.stderr)
+        sys.exit(1)
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Auditor Disparansi: Membandingkan metadata YAML dengan ringkasan log JSON."
+    )
+    parser.add_argument('--yaml', required=True, help='Path ke file metadata YAML (id_metadata.yaml)')
+    parser.add_argument('--log-json', required=True, help='Path ke file ringkasan log JSON')
+    parser.add_argument('--output', required=True, help='Path keluaran file CSV (disparity_report.csv)')
+    
+    args = parser.parse_args()
+    
+    print("Memulai proses audit disparansi...")
+    
+    # 1. Load Data
+    metadata = load_yaml_metadata(args.yaml)
+    log_summary = load_log_json(args.log_json)
+    
+    # 2. Proses Perbandingan
+    report_data = calculate_disparity(metadata, log_summary)
+    
+    # 3. Simpan Hasil
+    if report_data:
+        save_to_csv(report_data, args.output)
+    else:
+        print("Tidak ada data yang diproses. Periksa input Anda.")
+        sys.exit(1)
+
+if __name__ == '__main__':
+    main()
+```
+
+**Integrasi ke Cronjob (Tambahan):**
+
+Untuk memastikan laporan disparansi diperbarui secara rutin setelah log dianalisis, tambahkan baris berikut setelah konfigurasi `id_exporter.py` di `crontab`:
+
+```cron
+# Jalankan log analyzer terlebih dahulu, lalu audit disparansi
+# Asumsi: log_analyzer.py menghasilkan summary.json yang dibaca oleh yaml_audit_reporter.py
+0 1 * * * /usr/bin/python3 /opt/scripts/log_analyzer.py >> /var/log/log_analyzer.log 2>&1
+1 1 * * * /usr/bin/python3 /opt/scripts/yaml_audit_reporter.py \
+  --yaml /data/id_metadata.yaml \
+  --log-json /var/log/analyzer/summary.json \
+  --output /reports/disparity_check.csv >> /var/log/yaml_audit.log 2>&1
+```
+
+*Catatan: Jeda waktu (`1 1 * * *`) digunakan untuk memastikan `log_analyzer.py` selesai berjalan dan menghasilkan file JSON sebelum `yaml_audit_reporter.py` mencoba membacanya.*
