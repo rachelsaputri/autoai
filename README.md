@@ -1625,3 +1625,122 @@ jobs:
 *   **Format CSV:** Pastikan kolom yang berisi ID di CSV sesuai dengan format string ID di `ID_MANUAL.md` (misalnya, presisi case-sensitive dan penanganan whitespace).
 *   **Rate Limit Webhook:** Jika menggunakan Slack/Discord, hindari frekuensi eksekusi yang terlalu tinggi untuk menghindari pembatasan rate limit API.
 *   **Log Debug:** Untuk melihat detail ID hantu secara langsung di terminal, Anda dapat menambahkan flag `--verbose` (jika dikembangkan di masa depan) atau menyesuaikan skrip untuk mencetak hasil diff ke stdout.
+
+
+### Langkah 3: Ekspor Validasi ID ke Format YAML
+
+Sebelum melakukan proses sinkronisasi, disarankan untuk mengekspor daftar ID valid dari `ID_MANUAL.md` ke dalam format YAML yang terstruktur. Hal ini memastikan konsistensi data dan memudahkan integrasi dengan sistem lain yang membutuhkan format konfigurasi standar.
+
+Berikut adalah panduan pembuatan skrip `id_exporter.py` dan integrasinya ke dalam workflow GitHub Actions.
+
+#### 1. Membuat Skrip `id_exporter.py`
+
+Buat file baru bernama `id_exporter.py` di root direktori proyek Anda. Skrip ini akan mem-parsing file Markdown manual dan mengekstrak ID menjadi struktur YAML.
+
+```python
+import argparse
+import re
+import yaml
+import sys
+
+def parse_manual_id_file(file_path):
+    """
+    Membaca file Markdown dan mengekstrak ID valid.
+    Asumsi: ID berada dalam baris yang mengandung pola spesifik atau daftar poin.
+    Sesuaikan regex ini dengan format aktual file ID_MANUAL.md Anda.
+    """
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # Contoh regex: Mengambil ID yang berada di dalam kode backtick `...` 
+        # atau setelah label "ID:". Sesuaikan dengan kebutuhan.
+        # Pola umum: Mengambil string setelah kata kunci "ID:" hingga akhir baris atau sebelum spasi
+        # Ini adalah contoh fleksibel, silakan sesuaikan dengan struktur MD Anda.
+        id_pattern = re.compile(r'ID:\s*([A-Za-z0-9_-]+)', re.IGNORECASE)
+        found_ids = [match.group(1) for match in id_pattern.finditer(content)]
+        
+        # Hapus duplikat dan urutkan
+        unique_ids = sorted(list(set(found_ids)))
+        return unique_ids
+    
+    except FileNotFoundError:
+        print(f"Error: File {file_path} tidak ditemukan.")
+        sys.exit(1)
+
+def export_to_yaml(ids, output_path):
+    """
+    Mengekspor daftar ID ke file YAML.
+    """
+    try:
+        # Struktur YAML: { "valid_ids": ["id1", "id2", ...] }
+        data = {
+            "valid_ids": ids
+        }
+        
+        with open(output_path, 'w', encoding='utf-8') as f:
+            yaml.dump(data, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
+        
+        print(f"Berhasil mengekspor {len(ids)} ID ke {output_path}")
+        
+    except Exception as e:
+        print(f"Error saat menulis file YAML: {e}")
+        sys.exit(1)
+
+def main():
+    parser = argparse.ArgumentParser(description="Ekspor ID dari Markdown ke YAML")
+    parser.add_argument('--manual', required=True, help='Path ke file input Markdown (misal: ID_MANUAL.md)')
+    parser.add_argument('--output', required=True, help='Path ke file output YAML (misal: valid_ids.yaml)')
+    
+    args = parser.parse_args()
+    
+    print(f"Membaca ID dari: {args.manual}")
+    ids = parse_manual_id_file(args.manual)
+    
+    if not ids:
+        print("Peringatan: Tidak ada ID yang ditemukan di file Markdown.")
+    
+    print(f"Mengekspor ke: {args.output}")
+    export_to_yaml(ids, args.output)
+
+if __name__ == "__main__":
+    main()
+```
+
+> **Catatan:** Bagian `parse_manual_id_file` menggunakan regex contoh. Pastikan untuk menyesuaikan pola regex (`id_pattern`) agar sesuai dengan format spesifik penulisan ID di dalam `ID_MANUAL.md` Anda.
+
+#### 2. Integrasi ke GitHub Actions Workflow
+
+Tambahkan langkah eksekusi skrip ini **sebelum** langkah `Run ID Sync Monitor`. Ini memastikan bahwa file YAML referensi selalu diperbarui berdasarkan sumber kebenaran tunggal (`ID_MANUAL.md`) sebelum proses verifikasi dilakukan.
+
+Tambahkan blok berikut di antara langkah `Install dependencies` dan `Run ID Sync Monitor`:
+
+```yaml
+        - name: Install PyYAML dependency
+          run: pip install pyyaml
+          
+        - name: Export Valid IDs to YAML
+          run: |
+            python id_exporter.py \
+              --manual ID_MANUAL.md \
+              --output valid_ids.yaml
+              
+        - name: Run ID Sync Monitor
+          env:
+            CSV_PATH: ./data/reconciliation_report.csv
+            MD_PATH: ./ID_MANUAL.md
+            YAML_PATH: ./valid_ids.yaml # Opsional: jika monitor juga mendukung input YAML
+            WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+            THRESHOLD: 0 
+          run: |
+            python id_sync_monitor.py \
+              --csv $CSV_PATH \
+              --md $MD_PATH \
+              --webhook-url $WEBHOOK_URL \
+              --threshold $THRESHOLD
+```
+
+#### Manfaat Penambahan Ini:
+1.  **Konsistensi Data:** Memisahkan proses parsing sumber (MD) dari proses validasi (Sync Monitor) mengurangi risiko kesalahan parsing di waktu eksekusi monitor.
+2.  **Debugging Mudah:** File `valid_ids.yaml` yang dihasilkan dapat ditinjau secara manual jika terjadi masalah dalam sinkronisasi, memberikan transparansi tentang daftar ID yang dianggap "valid" oleh sistem.
+3.  **Performa:** Ekspor YAML hanya dilakukan sekali per workflow run, bukan pada setiap baris CSV, sehingga lebih efisien jika dataset besar.
