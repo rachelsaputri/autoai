@@ -5956,3 +5956,96 @@ python compliance_data_governance.py \
 ```
 
 Pastikan bahwa skrip ini berjalan dengan izin akses yang cukup untuk membaca file input dan menulis file output, serta bahwa variabel lingkungan atau path sertifikat telah dikonfigurasi dengan aman.
+
+
+##### 7.10. Verifikasi Integritas dan Kepatuhan Akhir (`archive_integrity_verifier.py`)
+
+Setelah arsip kepatuhan berhasil dibuat, langkah krusial selanjutnya adalah memastikan bahwa arsip tersebut tidak mengalami korupsi selama proses penyimpanan atau transmisi, serta bahwa tanda tangan digital pada sertifikat kepatuhan masih valid dan dapat dipercaya. Modul ini bertindak sebagai *quality gate* akhir sebelum arsip dianggap siap untuk arsip jangka panjang atau penyerahan ke auditor eksternal.
+
+Skrip `archive_integrity_verifier.py` melakukan tiga aktivitas utama secara berurutan:
+
+1.  **Verifikasi Integritas ZIP:** Memastikan struktur file `.zip` valid dan semua entry di dalamnya dapat diekstrak tanpa error.
+2.  **Validasi Tanda Tangan Digital:** Membaca sertifikat kepatuhan (`compliance_summary.json` atau file sertifikat independen) di dalam arsip, memverifikasi tanda tangannya menggunakan kunci publik yang disediakan, dan memastikan sertifikat belum kedaluwarsa.
+3.  **Audit Privasi Pasif:** Melakukan *sampling* pada file CSV data anomali di dalam arsip untuk memastikan bahwa kolom ID tetap dalam format yang telah dimasking (sesuai dengan aturan yang didefinisikan di langkah 7.9).
+
+**Argumen Baris Perintah:**
+
+| Argumen | Tipe | Deskripsi |
+| :--- | :--- | :--- |
+| `--zip` | String | Path absolut atau relatif ke file `.zip` arsip kepatuhan yang akan diverifikasi. |
+| `--public-key` | String | Path ke file kunci publik (`PEM` format) yang digunakan untuk memvalidasi tanda tangan digital sertifikat. |
+| `--output` | String | Path ke file output `verification_log.json`. File ini berisi status verifikasi, timestamp, dan detail kesalahan jika ada. |
+
+**Logika Verifikasi:**
+
+*   **Integritas File:** Skrip menggunakan pustaka standar `zipfile` untuk membuka arsip. Jika arsip korup (misalnya, header rusak atau CRC32 tidak cocok), skrip akan melempar exception dan mencatatnya sebagai `FAILED_INTEGRITY` dalam log.
+*   **Validasi Kriptografi:** Menggunakan pustaka `cryptography`, skrip memuat sertifikat dari arsip dan memverifikasinya menggunakan kunci publik yang diberikan. Ini memastikan bahwa sertifikat benar-benar ditandatangani oleh otoritas yang dikenal dan tidak dipalsukan.
+*   **Pemeriksaan Masking:** Skrip mencari file CSV anomali di dalam arsip, membacanya, dan menerapkan fungsi `is_masked()` pada kolom ID. Jika ditemukan lebih dari 5% ID yang terlihat jelas (tidak termasking), status verifikasi akan ditandai sebagai `FAILED_PRIVACY_AUDIT`.
+
+**Manfaat Verifikasi:**
+
+1.  **Non-Repudiation:** Dengan menandatangani laporan verifikasi, organisasi dapat membuktikan bahwa arsip telah diperiksa dan lolos audit privasi pada waktu tertentu.
+2.  **Deteksi Dini Korupsi:** Mencegah penyimpanan data yang rusak ke dalam *cold storage* yang mahal dan sulit diakses, menghemat biaya pemulihan di masa depan.
+3.  **Kepatuhan Regulasi:** Memberikan bukti teknis yang kuat untuk regulasi seperti GDPR atau UU PDP bahwa data pribadi telah dilindungi hingga tahap arsip akhir.
+
+##### 7.11. Contoh Eksekusi dan Integrasi Pipeline
+
+Berikut adalah contoh cara mengintegrasikan skrip verifikasi ini ke dalam pipeline CI/CD setelah `compliance_data_governance.py` selesai berjalan:
+
+```bash
+# Langkah 1: Generate laporan kepatuhan (dari bagian 7.9)
+python compliance_data_governance.py \
+    --analysis output/aggregated_trace.json \
+    --anomaly-csv output/statistical_anomalies.csv \
+    --cert certs/compliance_cert.pem \
+    --output archives/compliance_report_$(date +%Y%m%d).zip
+
+# Langkah 2: Verifikasi integritas arsip yang baru dibuat
+python archive_integrity_verifier.py \
+    --zip archives/compliance_report_$(date +%Y%m%d).zip \
+    --public-key certs/public_key.pem \
+    --output verification_logs/verify_log_$(date +%Y%m%d).json
+
+# Langkah 3: Cek status exit code untuk pipeline CI/CD
+if [ $? -eq 0 ]; then
+    echo "Verifikasi berhasil. Arsip siap untuk diunggah ke S3/Glacier."
+else
+    echo "Verifikasi gagal. Periksa verification_log_$(date +%Y%m%d).json untuk detail."
+    exit 1
+fi
+```
+
+**Struktur Output `verification_log.json`:**
+
+Jika verifikasi berhasil, file log akan memiliki struktur sebagai berikut:
+
+```json
+{
+  "verification_id": "vfy-20231027-abc123",
+  "timestamp": "2023-10-27T10:15:30Z",
+  "zip_file": "archives/compliance_report_20231027.zip",
+  "status": "PASSED",
+  "details": {
+    "integrity_check": {
+      "passed": true,
+      "file_count": 3,
+      "total_size_bytes": 45000
+    },
+    "signature_validation": {
+      "passed": true,
+      "certificate_valid_until": "2024-10-27T00:00:00Z",
+      "issuer": "Internal Compliance CA"
+    },
+    "privacy_audit": {
+      "passed": true,
+      "rows_sampled": 100,
+      "masked_ids_found": 100,
+      "raw_ids_found": 0
+    }
+  }
+}
+```
+
+Jika terjadi kegagalan (misalnya, sertifikat kedaluwarsa atau arsip korup), status akan berubah menjadi `FAILED` dengan kode kesalahan spesifik di bawah field `error_code` (misalnya, `CERT_EXPIRED`, `ZIP_CORRUPTED`, `PRIVACY_VIOLATION`).
+
+> **Catatan Keamanan:** Kunci publik (`--public-key`) harus dipertahankan secara aman dan tidak boleh dimodifikasi tanpa otorisasi dari tim keamanan informasi. Kunci ini adalah titik kepercayaan tunggal untuk memvalidasi integritas sertifikat kepatuhan.
