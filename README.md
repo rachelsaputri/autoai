@@ -7379,3 +7379,149 @@ Setiap eksekusi `compliance_policy_enforcer.py` menghasilkan artefak audit yang 
 3.  **Bukti Kunci:** Metadata yang menunjuk ke ID versi kunci KMS yang digunakan selama enkripsi, memastikan ketertelusuran (traceability) kunci.
 
 Lampiran ini memastikan bahwa proses teknis tidak hanya mematuhi regulasi, tetapi juga dapat diverifikasi secara independen oleh auditor eksternal berdasarkan jejak digital yang tidak dapat diubah.
+
+
+Berikut adalah draf konten teknis lanjutan untuk `README.md`. Konten ini dirancang untuk ditempel langsung setelah bagian 6.4, melanjutkan struktur dokumentasi arsitektur keamanan dan memberikan spesifikasi implementasi kode yang diminta.
+
+---
+
+##### 6.5 Implementasi Teknis: Enkripsi Sisi Klien (Client-Side Encryption) dan Manajemen Kunci
+
+Bagian ini mendokumentasikan implementasi teknis dari modul enkripsi sisi klien dalam skrip `compliance_policy_enforcer.py`. Pendekatan ini memastikan bahwa data sensitif (PII) dienkripsi *sebelum* meninggalkan lingkungan aplikasi atau sumber daya lokal, sehingga entitas penyimpanan data (database/object storage) hanya melihat ciphertext. Ini memenuhi prinsip *Data Minimization* dan *Security by Design* dalam GDPR.
+
+###### 6.5.1 Arsitektur Alur Enkripsi
+
+Sistem menggunakan pola **Hybrid Encryption** (Enkripsi Hibrida) yang menggabungkan kekuatan enkripsi asimetris (untuk manajemen kunci) dan simetris (untuk efisiensi data).
+
+1.  **Input Processing:** Data mentah dibaca dari format CSV/Parquet.
+2.  **Key Derivation & Selection:**
+    *   Skrip membaca `gdpr_dpia_report.json` melalui flag `--dpia`.
+    *   Ekstraksi *Field Sensitive IDs* (misal: `ssn`, `email`, `credit_card`).
+    *   Pemetaan *Master Encryption Key (MEK)* dari AWS KMS (atau penyedia HSM lainnya) berdasarkan kebijakan rotasi yang ditentukan di laporan DPIA.
+3.  **Data Encryption Flow:**
+    *   **Data Key (DEK) Generation:** Untuk setiap batch pemrosesan atau per-baris (tergantung konfigurasi performa), sistem menghasilkan *Data Encryption Key* (DEK) acak berukuran 256-bit menggunakan algoritma AES-256-GCM.
+    *   **Enkripsi Data:** Kolom sensitif dienkripsi menggunakan DEK ini. GCM mode dipilih untuk menyediakan *confidentiality* dan *integrity* (Authenticated Encryption).
+    *   **Enkripsi Key (Key Wrapping):** DEK yang telah digunakan untuk mengenkripsi data, kemudian dienkripsi lagi menggunakan MEK (yang disimpan di KMS). Hasilnya disebut *Wrapped DEK* atau *Envelope Key*.
+    *   **Penyimpanan Metadata:** `Envelop Key` (yang terenkripsi) dan `Initialization Vector (IV)` serta `Authentication Tag` disimpan bersama data ciphertext dalam metadata baris (biasanya dalam format JSON terstruktur di kolom baru atau file terpisah).
+4.  **Audit Trail Generation:** Hash SHA-256 dari input dan output, serta ID Versi MEK yang digunakan, dicatat ke `audit_log.json`.
+
+###### 6.5.2 Detail Implementasi Algoritma K-Anonimitas & Pseudonimisasi
+
+Sebelum tahap enkripsi, skrip menerapkan lapisan anonimitas untuk mengurangi risiko re-identifikasi dalam dataset analitik yang mungkin diakses oleh pihak ketiga tanpa akses kunci privat penuh.
+
+**Algoritma Top-Down Specialization (TDS) untuk Numerik:**
+```python
+def apply_k_anonymity_numeric(df, quasi_identifiers, k=5):
+    """
+    Menggunakan pendekatan Top-Down untuk generalisasi kolom numerik.
+    """
+    # 1. Identifikasi domain value untuk setiap QI numerik
+    # 2. Partition data berdasarkan kombinasi QI
+    # 3. Evaluasi ukuran equivalence class
+    # 4. Jika size < k:
+    #    - Generalisasi lebih jauh (misal: rentang usia 20-30 menjadi 20-40)
+    #    - Atau Suppress (ganti dengan NULL) jika generalisasi tidak lagi berguna untuk analitik
+    pass 
+```
+
+**Algoritma Generalisasi Kategorikal:**
+Untuk identifier quasi-kategorikal seperti `Zip Code` atau `City`, sistem menerapkan generalisasi hierarkis:
+*   `Level 0 (Exact)`: `10001`
+*   `Level 1 (Prefix 3)`: `100`
+*   `Level 2 (State/Region)`: `NY`
+*   Skrip secara dinamis memilih level generalisasi minimum yang diperlukan untuk memenuhi threshold $k \geq 5$ untuk setiap kelompok unik.
+
+###### 6.5.3 Spesifikasi Skrip `compliance_policy_enforcer.py`
+
+Skrip ini adalah *entry-point* CLI untuk eksekusi kebijakan. Ia mematuhi prinsip *Immutable Audit Trail* dengan tidak mengizinkan modifikasi data tanpa penandaan versi.
+
+**Argumen CLI:**
+
+| Argumen | Tipe | Wajib | Deskripsi |
+| :--- | :--- | :---: | :--- |
+| `--dpia` | `str` | **Ya** | Path ke file `gdpr_dpia_report.json`. Harus mengandung objek `mandatory_masking_fields` dan `sensitive_field_ids`. |
+| `--dataset` | `str` | **Ya** | Path ke file input data mentah (`.csv` atau `.parquet`). |
+| `--output` | `str` | **Ya** | Path tujuan untuk file data hasil enkripsi/anonimisasi. |
+| `--dry-run` | `bool` | Opsional | Jika `True`, skrip akan memvalidasi konfigurasi, menghitung estimasi ukuran output, dan menghasilkan manifest audit, tetapi **tidak** menulis file data fisik. Berguna untuk simulasi kepatuhan. |
+| `--encryption-mode` | `enum` | Opsional | Pilihan: `pseudonymize` (hash + salt), `encrypt` (AES-256-GCM). Default: `encrypt`. |
+
+**Contoh Eksekusi:**
+
+```bash
+# Mode Simulasi (Validasi Kebijakan)
+python compliance_policy_enforcer.py \
+    --dpia ./reports/gdpr_dpia_report.json \
+    --dataset ./data/raw_users.csv \
+    --output ./data/processed/users_encrypted.parquet \
+    --dry-run
+
+# Mode Eksekusi Nyata (Enkripsi & Penyimpanan)
+python compliance_policy_enforcer.py \
+    --dpia ./reports/gdpr_dpia_report.json \
+    --dataset ./data/raw_users.csv \
+    --output ./data/processed/users_encrypted.parquet \
+    --encryption-mode encrypt
+```
+
+**Struktur Output Manifest (`audit_log.json`):**
+
+```json
+{
+  "execution_id": "exec-9f8e7d6c-5b4a-3210",
+  "timestamp": "2023-10-27T14:30:00Z",
+  "input_hash_sha256": "a1b2c3...",
+  "output_hash_sha256": "d4e5f6...",
+  "key_metadata": {
+    "me_k_id": "arn:aws:kms:us-east-1:123456789012:key/abcd-1234",
+    "me_k_version": 42,
+    "algorithm": "AES-256-GCM"
+  },
+  "transformation_stats": {
+    "total_rows_processed": 15000,
+    "rows_pseudonymized": 15000,
+    "rows_suppressed_k_anonymity": 42,
+    "fields_masked": ["email", "ssn", "phone"]
+  },
+  "compliance_status": "PASS"
+}
+```
+
+###### 6.5.4 Pertimbangan Keamanan & Rekomendasi Auditor
+
+Untuk memvalidasi kepatuhan teknis, auditor eksternal disarankan untuk melakukan verifikasi berikut:
+
+1.  **Integritas Kunci (Key Integrity):**
+    *   Verifikasi bahwa `envelop_key` yang tersimpan di metadata file output tidak dapat didekripsi tanpa akses ke MEK yang valid di KMS.
+    *   Pastikan bahwa DEK tidak pernah disimpan dalam plaintext di disk atau log.
+
+2.  **Verifikasi K-Anonimitas:**
+    *   Unduh subset data hasil pemrosesan (tanpa kolom enkripsi, hanya QI).
+    *   Hitung ulang ukuran *equivalence class*. Pastikan tidak ada kelompok yang memiliki ukuran $< k$ (default 5).
+    *   Periksa kolom yang di-*suppress*; pastikan mereka bernilai NULL atau nilai generik yang konsisten, bukan nilai acak yang bisa dikorelasikan.
+
+3.  **Pelacakan Jejak Data (Traceability):**
+    *   Cocokkan `key_version` dalam `audit_log.json` dengan log audit KMS (CloudTrail atau audit trail HSM) untuk memastikan bahwa kunci yang digunakan telah aktif dan tidak dicabut (*disabled/deleted*) pada saat enkripsi.
+
+4.  **Uji Pemulihan (Recovery Test):**
+    *   Lakukan proses dekripsi dengan skrip yang sama menggunakan kunci lama dan baru. Pastikan bahwa:
+        *   Data yang dienkripsi dengan MEK V1 dapat didekripsi jika MEK V1 masih aktif.
+        *   Data yang dienkripsi dengan MEK V2 hanya dapat didekripsi dengan MEK V2.
+    *   Ini membuktikan bahwa arsitektur *Key Wrapping* berfungsi sebagaimana mestinya untuk isolasi kunci.
+
+###### 6.5.5 Manajemen Siklus Hidup Kunci (Key Lifecycle Management)
+
+Implementasi ini mengikuti standar NIST SP 800-57 untuk manajemen kunci kriptografik:
+
+1.  **Generation:** Kunci MEK di-generate secara kriptografis aman di dalam KMS/HSM. DEK di-generate secara acak di memori aplikasi (RAM) dan tidak pernah disimpan di persisten storage dalam bentuk mentah.
+2.  **Distribution:** DEK hanya didistribusikan secara lokal di memori proses aplikasi yang sedang berjalan.
+3.  **Storage:** Hanya `Wrapped DEK` (ciphertext) yang disimpan bersama data. MEK disimpan di KMS dengan policy `No-Delete` selama data terkait masih diperlukan.
+4.  **Rotation:**
+    *   Rotasi dilakukan secara *cryptographic* (generasi MEK baru).
+    *   Data yang sudah terenkripsi **tidak** perlu dienkripsi ulang secara massal (re-encryption) untuk menjaga performa, selama sistem mendukung pembacaan dengan berbagai versi MEK (Key Versioning).
+    *   Untuk kepatuhan ketat terhadap "Single Source of Truth", implementasi lanjutan dapat memicu *background job* untuk *re-wrap* DEK lama ke MEK baru (lihat bagian 6.3 Rotasi Kunci).
+5.  **Destruction:**
+    *   Jika data dipusnahkan (*Right to be Forgotten*), DEK terkait ditandai untuk penghapusan atau dihancurkan jika dienkripsi secara *on-disk* (seperti pada skenario TDE - Transparent Data Encryption).
+    *   MEK dapat dinonaktifkan (*disabled*) untuk mencegah penggunaan baru, namun tidak selalu dihapus (*destroyed*) segera agar audit trail historis tetap dapat diverifikasi jika diperlukan oleh otoritas regulasi.
+
+---
+*Lampiran ini merupakan bagian dari Arsitektur Keamanan GDPR. Perubahan pada implementasi skrip atau kebijakan KMS harus dilaporkan melalui proses Change Management dan diverifikasi ulang oleh Tim Keamanan.*
