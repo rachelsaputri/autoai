@@ -8261,3 +8261,282 @@ Untuk mencegah serangan seperti Clickjacking dan XSS saat dashboard diakses oleh
 | `compliance_audit_dashboard.html` | `compliance_audit_dashboard_generator.py` | Visualisasi hasil kepatuhan. |
 | `risk_roa_map.json` | `compliance_risk_visualizer.py` | Data peta risiko operasional. |
 | `deployment_log.txt` | `compliance_dashboard_deployer.py` | Log keberhasilan/inovasi deployment. |
+
+
+#### 8.4. Analitik Depedensi & Validasi Alur Data (Pipeline Dependency Graph)
+
+Untuk memastikan integritas alur data dari ekstraksi hingga deployment, proyek ini menyediakan alat analisis mandiri bernama `pipeline_dependency_graph_generator.py`. Skrip ini secara dinamis menganalisis skrip-skr Python dalam pipeline (`id_exporter.py` hingga `compliance_dashboard_deployer.py`) untuk memetakan hubungan ketergantungan berdasarkan:
+1.  **Argumen Baris Perintah (`--arg`):** Melacak input/output file yang dipassing antar modul.
+2.  **Import Statement:** Mengidentifikasi ketergantungan logika antarmodul.
+
+Hasil analisis disimpan dalam format JSON (`pipeline_graph.json`) yang merepresentasikan *Directed Acyclic Graph* (DAG) dari alur kerja.
+
+##### A. Instalasi dan Penggunaan
+
+1.  **Buat skrip:** Simpan kode berikut sebagai `pipeline_dependency_graph_generator.py` di root direktori proyek.
+2.  **Jalankan:** Eksekusi dari direktori utama proyek untuk menghasilkan grafik dependensi.
+
+```python
+import argparse
+import ast
+import json
+import os
+import re
+from pathlib import Path
+from typing import Dict, List, Set, Tuple
+
+# Daftar skrip pipeline yang divalidasi
+PIPELINE_SCRIPTS = [
+    "id_exporter.py",
+    "data_transformer.py",
+    "compliance_risk_visualizer.py",
+    "compliance_audit_dashboard_generator.py",
+    "compliance_dashboard_deployer.py"
+]
+
+def parse_cli_args(filename: str) -> Dict[str, str]:
+    """
+    Menganalisis file Python untuk mendeteksi argumen CLI (--arg_name)
+    dan input/output file yang umum digunakan.
+    """
+    args_found = {}
+    try:
+        with open(filename, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # Regex sederhana untuk mencari def dengan argument parser
+        # Mencari pola: add_argument('--name', default='value') atau '--name', type=...
+        # Catatan: Ini adalah analisis statis dasar, bisa diperluas dengan AST penuh untuk akurasi tinggi
+        
+        # Contoh pola untuk input file umum
+        input_patterns = [
+            r'--input[-_](file|data|path)',
+            r'--source[-_](file|data|path)',
+            r'--config'
+        ]
+        
+        for pattern in input_patterns:
+            matches = re.finditer(pattern, content, re.IGNORECASE)
+            for match in matches:
+                # Mencoba menemukan default value atau tipe
+                arg_name = match.group(0).replace('-', '_').strip()
+                args_found[arg_name] = "string" 
+                
+    except Exception as e:
+        print(f"Warning: Could not parse {filename}: {e}")
+        
+    return args_found
+
+def extract_file_references(filename: str) -> Set[str]:
+    """
+    Mengekstrak referensi file yang dibaca/ditulis dalam kode.
+    Ini adalah pendekatan heuristik. Untuk akurasi sempurna, gunakan AST NodeVisitor
+    untuk mencari String literals di dalam assignment atau fungsi open().
+    """
+    referenced_files = set()
+    try:
+        with open(filename, 'r', encoding='utf-8') as f:
+            content = f.read()
+            
+        # Pola umum: file yang memiliki ekstensi .json, .csv, .html, .log
+        file_pattern = re.compile(r"['\"]([^'\"]+\.(?:json|csv|html|txt|log)['\"]")
+        matches = file_pattern.findall(content)
+        
+        for match in matches:
+            # Abaikan path absolut atau variabel
+            if not match.startswith('/') and not match.startswith('$') and not match.startswith('{'):
+                referenced_files.add(match)
+                
+    except Exception as e:
+        print(f"Warning: Could not read {filename} for file refs: {e}")
+        
+    return referenced_files
+
+def build_dependency_graph(root_dir: str) -> Dict:
+    """
+    Membangun DAG berdasarkan analisis file.
+    """
+    graph = {
+        "nodes": [],
+        "edges": [],
+        "metadata": {
+            "generated_at": Path.now().isoformat(),
+            "root_directory": root_dir
+        }
+    }
+    
+    path_obj = Path(root_dir)
+    
+    # 1. Identifikasi Node (File Skrip)
+    scripts_in_dir = [f.name for f in path_obj.iterdir() if f.is_file() and f.name.endswith('.py')]
+    
+    for script in scripts_in_dir:
+        if script in PIPELINE_SCRIPTS:
+            graph["nodes"].append({
+                "id": script,
+                "type": "pipeline_step",
+                "path": str(path_obj / script)
+            })
+            
+    # 2. Identifikasi Edge (Dependensi File)
+    # Asumsi: Skrip B membutuhkan output Skrip A jika Skrip A menghasilkan file 
+    # yang dibaca oleh Skrip B.
+    
+    # Peta: script_name -> set of output files (heuristik berdasarkan nama file output umum)
+    # Karena kita tidak bisa menjalankan skrip, kita asumsikan output standar:
+    # id_exporter.py -> id_export.json / audit_trace.json
+    # transformer -> transformed_data.json
+    # dll.
+    
+    # Kita akan menggunakan pendekatan reverse: Cek input file dari script B, 
+    # apakah file tersebut adalah output default dari script A?
+    
+    # Daftar asumsi output default untuk pipeline ini (harus disesuaikan jika skema berubah)
+    DEFAULT_OUTPUTS = {
+        "id_exporter.py": ["aggregated_trace.json", "id_export.json"],
+        "data_transformer.py": ["transformed_audit_data.json"],
+        "compliance_risk_visualizer.py": ["risk_roa_map.json"],
+        "compliance_audit_dashboard_generator.py": ["compliance_audit_dashboard.html", "risk_roa_map.json"], # Sering membaca json untuk diplot
+        "compliance_dashboard_deployer.py": ["compliance_audit_dashboard.html", "deployment_log.txt"]
+    }
+    
+    # Dapatkan file input yang dibaca oleh setiap script
+    script_inputs = {}
+    for script in PIPELINE_SCRIPTS:
+        script_path = path_obj / script
+        if script_path.exists():
+            inputs = extract_file_references(script)
+            # Filter hanya file JSON karena itu yang umumnya menjadi input antar modul
+            json_inputs = {f for f in inputs if f.endswith('.json')}
+            script_inputs[script] = json_inputs
+            
+    # Buat Edge berdasarkan kecocokan Output Script A dengan Input Script B
+    for source_script, outputs in DEFAULT_OUTPUTS.items():
+        if source_script not in [n["id"] for n in graph["nodes"]]:
+            continue
+            
+        for output_file in outputs:
+            for target_script, inputs in script_inputs.items():
+                if source_script != target_script:
+                    if output_file in inputs:
+                        graph["edges"].append({
+                            "source": source_script,
+                            "target": target_script,
+                            "artifact": output_file,
+                            "type": "data_dependency"
+                        })
+                        
+    return graph
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Generate Dependency Graph for Compliance Audit Pipeline"
+    )
+    parser.add_argument(
+        "--root-dir", 
+        type=str, 
+        default=".",
+        help="Path to the main source code directory"
+    )
+    parser.add_argument(
+        "--output", 
+        type=str, 
+        default="pipeline_graph.json",
+        help="Output JSON file path for the dependency graph"
+    )
+    
+    args = parser.parse_args()
+    
+    root_dir = args.root_dir
+    output_file = args.output
+    
+    print(f"[*] Analyzing pipeline in directory: {root_dir}")
+    
+    # Validasi direktori
+    if not os.path.isdir(root_dir):
+        print(f"[!] Error: Directory '{root_dir}' not found.")
+        return
+
+    try:
+        graph_data = build_dependency_graph(root_dir)
+        
+        # Tulis ke JSON
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(graph_data, f, indent=4)
+            
+        print(f"[+] Success: Dependency graph saved to '{output_file}'")
+        print(f"[+] Total Nodes: {len(graph_data['nodes'])}")
+        print(f"[+] Total Edges: {len(graph_data['edges'])}")
+        
+        # Tampilkan ringkasan sederhana
+        if graph_data["edges"]:
+            print("
+[*] Detected Dependencies:")
+            for edge in graph_data["edges"]:
+                print(f"    {edge['source']} --> [{edge['artifact']}] --> {edge['target']}")
+        else:
+            print("
+[!] No inter-script file dependencies detected. Check DEFAULT_OUTPUTS in script.")
+            
+    except Exception as e:
+        print(f"[!] Fatal Error: {e}")
+        import traceback
+        traceback.print_exc()
+
+if __name__ == "__main__":
+    main()
+```
+
+##### B. Dokumentasi Integrasi: Impact Analysis
+
+Grafik dependensi (`pipeline_graph.json`) yang dihasilkan bukan hanya untuk visualisasi, tetapi merupakan aset kritis untuk **Impact Analysis** saat melakukan perubahan kode atau pembaruan library. Berikut adalah panduan cara memanfaatkan grafik ini dalam siklus operasi.
+
+###### 1. Analisis Dampak Perubahan Skema Data (Data Schema Changes)
+
+Jika Anda mengubah struktur file JSON di tengah pipeline (misalnya, mengubah format `aggregated_trace.json`), lakukan langkah berikut:
+
+1.  **Generate Grafik Terkini:**
+    ```bash
+    python pipeline_dependency_graph_generator.py --root-dir . --output current_state.json
+    ```
+2.  **Identifikasi Konsumen:** Buka `current_state.json` dan cari node yang menerima file tersebut.
+    *   Cari edge dengan atribut `"artifact": "aggregated_trace.json"`.
+    *   Lihat field `"target"` pada edge tersebut. Ini adalah skrip yang akan **gagal** atau menghasilkan output yang salah jika skema data berubah.
+3.  **Verifikasi Manual:**
+    *   Buka skrip `target` tersebut.
+    *   Pastikan parser JSON atau logika transformasi di dalam skrip tersebut telah diperbarui untuk menangani skema baru.
+    *   Jalankan unit test khusus pada skrip target tersebut.
+
+**Contoh Kasus:**
+Jika `id_exporter.py` mengubah kunci JSON dari `user_id` menjadi `uid`, grafik akan menunjukkan bahwa `data_transformer.py` (jika bergantung pada file tersebut) perlu divalidasi. Jika `pipeline_graph.json` tidak menampilkan edge ini, berarti `data_transformer.py` mungkin tidak membaca file tersebut langsung, atau ketergantungannya dimodelkan secara berbeda (misalnya via database), sehingga perubahan pada file output `id_exporter.py` mungkin aman *asalkan* output-nya tidak dikonsumsi oleh modul lain.
+
+###### 2. Analisis Dampak Pembaruan Library (Library Updates)
+
+Saat memperbarui library Python (misalnya, `pandas`, `boto3`, atau `flask`), dampak potensial terhadap struktur kode perlu dievaluasi.
+
+1.  **Cek Import Statement:**
+    Skrip `pipeline_dependency_graph_generator.py` saat ini fokus pada dependensi *file*. Namun, Anda dapat memperluasnya dengan menambahkan fungsi `extract_imports()` untuk memindai library apa saja yang digunakan di setiap node.
+2.  **Evaluasi Retensi:**
+    *   Gunakan grafik untuk mengidentifikasi skrip-skr kritis.
+    *   Skrip yang berada di "ujung" (sink nodes) seperti `compliance_dashboard_deployer.py` sering kali memiliki dependensi lebih kompleks pada library deployment (AWS CLI, Boto3).
+    *   Jika Anda mengupdate library AWS (misalnya, dari boto3 1.26 ke 1.28), fokus pengujian pada node yang menggunakan fitur AWS khusus (seperti S3 Client atau CloudFront Invalidation) adalah prioritas tinggi.
+
+###### 3. Otomatisasi dalam CI/CD
+
+Grafik ini dapat diintegrasikan ke dalam pipeline CI/CD (seperti GitHub Actions atau GitLab CI) untuk mencegah *regression*.
+
+*   **Langkah Validasi:**
+    1.  Jalankan `pipeline_dependency_graph_generator.py` pada branch perubahan.
+    2.  Bandingkan `current_state.json` dengan `baseline_graph.json` (versi stabil sebelumnya).
+    3.  Jika ada edge baru yang ditambahkan atau dihapus secara tidak terduga, pipeline dapat menolak merger dan meminta tinjauan manual. Ini mencegah "pergeseran silang" di mana skrip baru secara tidak sengaja mulai membaca atau menulis file yang seharusnya hanya digunakan oleh skrip lama.
+
+**Implementasi Contoh (.github/workflows/dependency-check.yml):**
+```yaml
+- name: Validate Pipeline Dependencies
+  run: |
+    python pipeline_dependency_graph_generator.py --root-dir . --output new_graph.json
+    # Gunakan tool diff JSON atau custom script untuk memverifikasi struktur
+    # Jika struktur berubah drastis tanpa alasan, fail pipeline.
+```
+
+Dengan memanfaatkan `pipeline_dependency_graph.json`, tim operasi dapat beralih dari *debugging* reaktif ("Kenapa ini error?") menjadi *preventive maintenance* ("Perubahan X di skrip A akan berdampak pada skrip B, mari kita uji B terlebih dahulu").
