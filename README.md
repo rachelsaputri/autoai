@@ -121,3 +121,120 @@ ID: 32296-1786433867 | Frekuensi: 1
 ## Catatan Keamanan
 
 Perlu diingat bahwa Nomor Identifikasi (ID) yang tercantum dalam dokumen ini bersifat *fiksi* atau *dummy* untuk keperluan demonstrasi. Jangan gunakan nomor ID ini untuk sistem produksi atau aplikasi nyata. Selalu validasi dan sanitasi input dalam aplikasi dunia nyata untuk mencegah kerentanan keamanan.
+
+
+## Ekstensi: Ekspor Data ke CSV
+
+Untuk keperluan analisis lebih lanjut atau integrasi dengan alat lain (seperti spreadsheet atau database), skrip ini dapat dimodifikasi untuk menyimpan hasil ekstraksi dan perhitungan frekuensi ke dalam format **CSV**.
+
+### Fitur Tambahan
+1.  **Input File**: Membaca teks dari file `README.md` (atau file lain yang ditentukan).
+2.  **Output CSV**: Menyimpan hasil ke file `output.csv`.
+3.  **Timestamp**: Menambahkan baris komentar di bagian atas file CSV yang mencatat waktu eksekusi skrip.
+4.  **Header**: Memastikan kolom pertama adalah `ID` dan kolom kedua adalah `Frequency`.
+
+### Skrip Python yang Diperbarui (`extract_ids_to_csv.py`)
+
+```python
+import re
+import csv
+import os
+from datetime import datetime
+from collections import Counter
+
+def extract_ids_from_file(input_file, substring="1786433", output_file="output.csv"):
+    """
+    Membaca file teks, mengekstrak ID yang mengandung substring tertentu,
+    menghitung frekuensinya, dan menyimpan hasilnya ke file CSV.
+    
+    Args:
+        input_file (str): Path ke file input (misal: README.md).
+        substring (str): Substring yang dicari dalam ID.
+        output_file (str): Path ke file output CSV.
+    """
+    # 1. Baca isi file
+    if not os.path.exists(input_file):
+        print(f"Error: File '{input_file}' tidak ditemukan.")
+        return
+
+    with open(input_file, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    # 2. Ekstrak ID menggunakan Regex
+    # Pola: Batas kata, 1-5 digit, tanda hubung, 1+ digit, batas kata
+    id_pattern = r'\d{1,5}-\d+'
+    found_ids = re.findall(id_pattern, content)
+
+    # 3. Filter ID yang mengandung substring target
+    filtered_ids = [id_str for id_str in found_ids if substring in id_str]
+
+    # 4. Hitung frekuensi kemunculan
+    id_counts = Counter(filtered_ids)
+
+    # 5. Dapatkan timestamp eksekusi
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # 6. Simpan ke CSV
+    with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.writer(csvfile)
+        
+        # Tulis baris komentar timestamp
+        csvfile.write(f"# Eksekusi dilakukan pada: {timestamp}
+")
+        
+        # Tulis header
+        writer.writerow(["ID", "Frequency"])
+        
+        # Tulis data
+        # Urutkan berdasarkan frekuensi (opsional, bisa dihilangkan jika urutan tidak penting)
+        for id_str, count in id_counts.items():
+            writer.writerow([id_str, count])
+
+    print(f"Berhasil! {len(id_counts)} ID unik ditemukan dan disimpan ke '{output_file}'.")
+
+if __name__ == "__main__":
+    # Tentukan file input dan output
+    INPUT_FILENAME = "README.md"
+    OUTPUT_FILENAME = "output.csv"
+    
+    extract_ids_from_file(INPUT_FILENAME, substring="1786433", output_file=OUTPUT_FILENAME)
+```
+
+### Cara Menjalankan
+
+Pastikan Anda memiliki file `README.md` di direktori yang sama dengan skrip ini. Kemudian jalankan perintah berikut di terminal:
+
+```bash
+python extract_ids_to_csv.py
+```
+
+### Contoh Output File (`output.csv`)
+
+Setelah dijalankan, file `output.csv` akan berisi:
+
+```csv
+# Eksekusi dilakukan pada: 2023-10-27 14:30:00
+ID,Frequency
+3818-1786433737,1
+30178-1786433770,1
+22189-1786433802,1
+19989-1786433834,1
+32296-1786433867,1
+```
+
+### Penjelasan Teknis Tambahan
+
+*   **Pembacaan File (`os.path.exists`)**: Skrip memvalidasi keberadaan file input sebelum proses parsing untuk mencegah `FileNotFoundError`.
+*   **Timestamp sebagai Komentar**: Baris yang dimulai dengan `#` di awal file CSV adalah komentar standar dalam format CSV yang dapat diabaikan oleh pembaca CSV kebanyakan, namun tetap menyimpan metadata waktu eksekusi untuk audit.
+*   **Encoding UTF-8**: Penggunaan `encoding='utf-8'` memastikan kompatibilitas dengan karakter khusus jika dokumen mengandung teks non-ASCII di masa depan.
+*   **Efisiensi**: Penggunaan `Counter` dari `collections` tetap digunakan untuk menghitung frekuensi secara optimal, dengan kompleksitas waktu O(n).
+
+### Integrasi dengan Pipeline CI/CD (Opsional)
+
+Jika skrip ini akan diintegrasikan ke dalam pipeline otomatis, Anda dapat menambahkan flag untuk menentukan file input/output secara dinamis:
+
+```bash
+python extract_ids_to_csv.py --input CHANGELOG.md --output changelog_ids.csv
+```
+
+Hal ini dapat diimplementasikan dengan modul `argparse` di Python untuk fleksibilitas lebih lanjut.
