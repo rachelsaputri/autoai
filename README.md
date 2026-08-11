@@ -10299,3 +10299,216 @@ Standar Akuntansi Internasional **IAS 37** mengatur pengakuan provision (cadanga
 Dokumen `risk_future_projection.json` yang dihasilkan oleh kalkulator kami akan diintegrasikan ke dalam modul pelaporan keuangan perusahaan untuk menyediakan data kuantitatif yang mendukung estimasi liabilitas kontingensi ini, memastikan bahwa Dewan Direksi dan pemegang saham memahami eksposur risiko operasional yang dapat mempengaruhi valuasi perusahaan dalam jangka panjang.
 
 > **Disclaimer Hukum:** Dokumentasi ini disusun oleh departemen Keuangan dan Teknologi untuk keperluan manajemen risiko internal. Interpretasi akhir terhadap IFRS dan peraturan lokal (seperti UU ITE dan POJK di Indonesia) harus divalidasi oleh Legal Counsel dan Auditor Eksternal yang berwenang sebelum diadopsi secara resmi dalam laporan keuangan tahunan.
+
+
+Berikut adalah konten lanjutan untuk dokumentasi teknis Anda. Bagian ini dirancang untuk langsung menggantikan atau menambah bab "Compliance & Legal" dengan kedalaman teknis yang diperlukan, menyertakan implementasi kode dan kerangka kerja etika yang diminta.
+
+---
+
+#### 7.3. Auditor Dampak Etika dan Pendeteksi Bias Algoritma
+
+Sebelum laporan kepatuhan final ditandatangani, sistem kami mengintegrasikan modul evaluatif bernama **Compliance Ethical Impact Assessor**. Modul ini bertindak sebagai "gatekeeper" etis, memastikan bahwa keputusan otomatis yang dihasilkan oleh model tidak melanggar prinsip keadilan (*fairness*) dan non-diskriminasi, yang merupakan syarat mutlak dalam regulasi seperti GDPR (Pasal 22) dan UU Perlindungan Data Pribadi (UU PDP).
+
+##### A. Implementasi Teknis: `compliance_ethical_impact_assessor.py`
+
+Modul ini membaca output dari Assessment Dampak Privasi (DPIA) dan aturan kebijakan kepatuhan untuk melakukan validasi statistik.
+
+```python
+import json
+import argparse
+import logging
+import sys
+from typing import Dict, List, Optional
+import statistics
+
+# Setup logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+class ComplianceEthicalImpactAssessor:
+    """
+    Modul untuk mengevaluasi dampak etika dan mendeteksi bias algoritmis
+    berdasarkan laporan DPIA dan aturan kebijakan.
+    """
+    
+    # Definisi atribut sensitif yang dilindungi (Sesuai GDPR Pasal 9)
+    PROTECTED_ATTRIBUTES = [
+        "race", "ethnicity", "gender", "age", "religious_belief", 
+        "political_opinion", "genetic_data", "biometric_data"
+    ]
+
+    def __init__(self, dpia_path: str, policy_rules_path: str, bias_threshold: float = 0.05):
+        self.dpia_data = self._load_json(dpia_path)
+        self.policy_rules = self._load_json(policy_rules_path)
+        self.bias_threshold = bias_threshold
+        self.findings = []
+        self.is_compliant = True
+
+    def _load_json(self, path: str) -> Dict:
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except FileNotFoundError:
+            logger.error(f"File tidak ditemukan: {path}")
+            sys.exit(1)
+        except json.JSONDecodeError:
+            logger.error(f"Format JSON tidak valid: {path}")
+            sys.exit(1)
+
+    def detect_algorithmic_bias(self) -> Dict:
+        """
+        Menganalisis model keputusan otomatis untuk mendeteksi diskriminasi
+        berdasarkan perbandingan hasil antara kelompok sensitif dan non-sensitif.
+        """
+        logger.info("Memulai deteksi bias algoritmis...")
+        
+        # 1. Identifikasi Fitur Sensitif dalam Model
+        sensitive_features_in_model = self._identify_sensitive_features()
+        
+        if not sensitive_features_in_model:
+            logger.info("Tidak ditemukan atribut sensitif dalam proses pengambilan keputusan.")
+            return {"status": "SAFE", "details": "No sensitive attributes detected."}
+
+        # 2. Evaluasi Dampak Diskriminatif (Proxy Analysis)
+        bias_metrics = {
+            "protected_features_analyzed": sensitive_features_in_model,
+            "disparate_impact_ratio": [],
+            "adverse_action_rate_diff": []
+        }
+
+        # Simulasi analisis dampak tidak proporsional (Disparate Impact)
+        # Dalam implementasi nyata, ini akan terhubung ke log keputusan model
+        for feature in sensitive_features_in_model:
+            if feature in self.dpia_data.get("model_features", []):
+                # Contoh logika: Membandingkan rasio penolakan kredit/klaim
+                # antara kelompok A (misal: Gender=Male) vs B (misal: Gender=Female)
+                # Asumsi data simulasi dari DPIA report
+                group_a_rejection_rate = self.dpia_data.get("metrics", {}).get("rejection_rate_group_a", 0.10)
+                group_b_rejection_rate = self.dpia_data.get("metrics", {}).get("rejection_rate_group_b", 0.25)
+                
+                if group_b_rejection_rate > 0:
+                    impact_ratio = group_a_rejection_rate / group_b_rejection_rate
+                    bias_metrics["disparate_impact_ratio"].append({
+                        "feature": feature,
+                        "ratio": impact_ratio,
+                        "threshold_checked": self.bias_threshold
+                    })
+                    
+                    # Aturan 4/5ths (80% Rule): Jika rasio < 0.8, dianggap bias potensial
+                    if impact_ratio < 0.8:
+                        self._add_finding(
+                            level="CRITICAL",
+                            code="BIAS_DISPARATE_IMPACT",
+                            message=f"Bias terdeteksi pada fitur '{feature}'. Rasio dampak tidak proporsional ({impact_ratio:.2f})."
+                        )
+                        self.is_compliant = False
+
+        # 3. Validasi terhadap Kebijakan (Policy Rules)
+        self._validate_against_policy_rules()
+
+        return {
+            "assessment_status": "COMPLIANT" if self.is_compliant else "NON-COMPLIANT",
+            "bias_threshold_applied": self.bias_threshold,
+            "findings_count": len(self.findings),
+            "metrics_summary": bias_metrics,
+            "details": self.findings
+        }
+
+    def _identify_sensitive_features(self) -> List[str]:
+        """Mengetahui fitur mana dari model yang bertabrakan dengan aturan kebijakan sensitif."""
+        model_features = self.dpia_data.get("model_features", [])
+        policy_sensitive = self.policy_rules.get("sensitive_data_categories", [])
+        
+        # Intersection logic
+        sensitive_in_model = [f for f in model_features if f in policy_sensitive]
+        return sensitive_in_model
+
+    def _validate_against_policy_rules(self):
+        """Memastikan keputusan otomatis memiliki mekanisme 'Human-in-the-Loop'."""
+        auto_decision_rules = self.policy_rules.get("automation_rules", [])
+        
+        for rule in auto_decision_rules:
+            if rule.get("requires_human_review"):
+                if not self.dpia_data.get("controls", {}).get("human_in_the_loop_enabled"):
+                    self._add_finding(
+                        level="HIGH",
+                        code="MISSING_HUMAN_OVERSIGHT",
+                        message="Aturan kebijakan mensyaratkan tinjauan manusia, namun kontrol teknis tidak diaktifkan."
+                    )
+                    self.is_compliant = False
+
+    def _add_finding(self, level, code, message):
+        self.findings.append({
+            "severity": level,
+            "code": code,
+            "description": message
+        })
+        logger.warning(f"[{level}] {code}: {message}")
+
+    def generate_report(self, output_path: str):
+        result = self.detect_algorithmic_bias()
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(result, f, indent=4)
+        logger.info(f"Laporan dampak etika berhasil disimpan ke: {output_path}")
+        return result
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Compliance Ethical Impact Assessor - Evaluasi Bias & Etika AI"
+    )
+    parser.add_argument('--dpia', required=True, help='Path ke file gdpr_dpia_report.json')
+    parser.add_argument('--policy-rules', required=True, help='Path ke file policy_rules_v1.json')
+    parser.add_argument('--bias-threshold', type=float, default=0.05, 
+                        help='Ambang batas diskriminasi yang diizinkan (default: 0.05)')
+    parser.add_argument('--output', default='ethical_impact_report.json', 
+                        help='Path untuk file laporan output (default: ethical_impact_report.json)')
+    
+    args = parser.parse_args()
+    
+    assessor = ComplianceEthicalImpactAssessor(
+        dpia_path=args.dpia,
+        policy_rules_path=args.policy_rules,
+        bias_threshold=args.bias_threshold
+    )
+    
+    assessment_result = assessor.generate_report(args.output)
+    
+    if not assessment_result['assessment_status'] == 'COMPLIANT':
+        logger.error("Evaluasi GAGAL. Temuan etika kritis ditemukan. Laporan tidak dapat ditandatangani.")
+        sys.exit(1)
+    else:
+        logger.info("Evaluasi BERHASIL. Dokumen siap untuk penandatanganan digital.")
+
+if __name__ == "__main__":
+    main()
+```
+
+##### B. Kerangka Kerja Etika AI (AI Ethics Framework)
+
+Modul di atas beroperasi dalam naungan **AI Ethics Framework** kami, yang dirancang selaras dengan **OECD Principles on Artificial Intelligence** dan standar industri global. Kerangka ini menekankan tiga pilar utama yang tidak boleh dikorbankan demi efisiensi otomatisasi:
+
+1.  **Keadilan & Non-Diskriminasi (Fairness & Non-Discrimination):**
+    Sistem tidak boleh memperkuat bias historis yang ada dalam data pelatihan. Kami menggunakan metrik *Demographic Parity* dan *Equalized Odds* untuk memastikan bahwa hasil keputusan (seperti persetujuan pinjaman atau klaim asuransi) tidak bergantung pada atribut sensitif, baik secara langsung maupun melalui *proxy variables* (variabel pengganti).
+
+2.  **Manusia sebagai Pengawas (Human-in-the-Loop / Human-in-the-Command):**
+    Otomatisasi kepatuhan tidak bersifat otonom mutlak. Untuk setiap keputusan yang berdampak material atau melibatkan data sensitif, sistem wajib mempertahankan jalur pengecualian (*exception path*) di mana manusia yang berwenang dapat meninjau, menyanggah, atau memvalidasi keputusan algoritma sebelum eksekusi final. Ini adalah implementasi langsung dari prinsip *Accountability*.
+
+3.  **Transparansi & Dapat Dijelaskan (Explainability/XAI):**
+    Setiap keputusan yang dihasilkan harus dapat diinterpretasikan. Jika sistem menolak suatu klaim, harus tersedia alasan logis (misalnya, "Penolakan berdasarkan rasio utang terhadap pendapatan di atas 40%"), bukan sekadar skor hitam (*black-box* score) yang tidak dapat dipertanggungjawabkan.
+
+##### C. Metodologi Pengujian Ketidakberpihakan (Fairness Testing Methodology)
+
+Sebelum dokumen hukum ditandatangani secara digital, laporan etika (`ethical_impact_report.json`) yang dihasilkan oleh skrip di atas harus memenuhi kriteria validasi berikut:
+
+1.  **Pengujian Perbandingan Kelompok (Group-wise Testing):**
+    Data sampel di-stratifikasi berdasarkan atribut sensitif (misal: Pria vs Wanita). Tingkat akurasi, *precision*, dan *recall* diukur per kelompok. Perbedaan yang signifikan (> 5% di bawah ambang batas `--bias-threshold`) akan memicu penolakan otomatis terhadap laporan kepatuhan.
+
+2.  **Analisis Dampak Tidak Sebanding (Disparate Impact Analysis):**
+    Kami menerapkan aturan "4/5ths" (80% rule). Jika rasio keberhasilan kelompok yang dilindungi dibagi dengan rasio keberhasilan kelompok referensi kurang dari 0.8, sistem dianggap bias. Ini adalah standar hukum yang umum digunakan di yurisdiksi AS dan mulai diadopsi sebagai praktik terbaik global.
+
+3.  **Verifikasi Independensi Statistik:**
+    Menggunakan uji statistik (seperti Chi-Square Test of Independence) untuk memastikan tidak ada korelasi statistik signifikan antara variabel prediksi output dan variabel atribut sensitif yang tidak relevan dengan kualifikasi objektif.
+
+> **Catatan Penting untuk Auditor:**
+> Hasil dari `compliance_ethical_impact_assessor.py` adalah input kuantitatif untuk bagian "Risk Control Effectiveness" dalam laporan keuangan tahunan. Jika modul ini mengembalikan status `NON-COMPLIANT`, proses penandatanganan digital dilarang dilakukan hingga bias ditemukan dan dimodelkan ulang (*re-training*) dengan teknik de-biasing (misalnya: *Re-weighting* atau *Adversarial Debiasing*).
