@@ -1018,3 +1018,239 @@ Untuk mengotomatisasi pembuatan dashboard setiap kali validasi berhasil, tambahk
 ```
 
 Dengan perubahan ini, artifact yang diunduh tidak hanya berisi dokumentasi teks (`ID_MANUAL.md`), tetapi juga file `dashboard.html` yang dapat dibuka langsung di browser untuk inspeksi visual cepat.
+
+
+#### 6. Analisis Log GitHub Actions dengan `log_analyzer.py`
+
+Untuk memantau efektivitas pipeline dan mendeteksi potensi masalah terkait perubahan ID (seperti ID yang hilang, duplikat, atau format yang tidak valid), Anda dapat menggunakan skrip `log_analyzer.py`. Skrip ini dirancang untuk memindai file log mentah dari GitHub Actions, mengekstraksi ID dalam format standar (`PROJECT-123456`), dan menghasilkan ringkasan statistik dalam format JSON.
+
+##### Instalasi dan Penggunaan
+
+Skrip ini menggunakan modul standar Python (`re`, `json`, `argparse`) sehingga tidak memerlukan instalasi paket pihak ketiga tambahan.
+
+**Argumen Command Line:**
+
+| Argumen | Deskripsi | Contoh |
+| :--- | :--- | :--- |
+| `--log` | Jalur ke file log GitHub Actions (bisa `.txt`, `.log`, atau stdin) | `./action-run.log` |
+| `--output` | Jalur keluaran untuk file JSON hasil analisis | `summary.json` |
+
+**Contoh Perintah:**
+
+```bash
+python log_analyzer.py --log action-run.log --output analysis_summary.json
+```
+
+##### Contoh Kode: `log_analyzer.py`
+
+Simpan kode berikut sebagai `log_analyzer.py` di root direktori proyek.
+
+```python
+#!/usr/bin/env python3
+"""
+log_analyzer.py
+Analisis file log GitHub Actions untuk mengekstraksi dan meringkas ID proyek.
+
+Format ID yang didukung: ^[A-Z]{3}-\d{6}$ (Contoh: PRO-123456)
+"""
+
+import re
+import json
+import argparse
+from collections import Counter
+from pathlib import Path
+
+
+def extract_ids_from_log(log_content: str) -> list:
+    """
+    Mengekstrak semua ID yang cocok dengan format [A-Z]{3}-\d{6} dari teks log.
+    
+    Args:
+        log_content (str): Isi file log sebagai string.
+        
+    Returns:
+        list: Daftar semua ID yang ditemukan (termasuk duplikat).
+    """
+    # Regex untuk format PROJECT-123456 (3 huruf besar, dash, 6 angka)
+    pattern = r'([A-Z]{3}-\d{6})'
+    
+    # findall mengembalikan list dari semua pencocokan
+    found_ids = re.findall(pattern, log_content)
+    
+    return found_ids
+
+
+def analyze_log_file(log_path: str, output_path: str):
+    """
+    Membaca file log, menganalisis ID, dan menulis ringkasan ke file JSON.
+    
+    Args:
+        log_path (str): Path ke file input log.
+        output_path (str): Path ke file output JSON.
+    """
+    log_file = Path(log_path)
+    
+    if not log_file.exists():
+        raise FileNotFoundError(f"File log tidak ditemukan: {log_path}")
+
+    # Baca konten file
+    with open(log_file, 'r', encoding='utf-8', errors='ignore') as f:
+        content = f.read()
+
+    # Ekstrak ID
+    raw_ids = extract_ids_from_log(content)
+
+    if not raw_ids:
+        print("Tidak ada ID yang ditemukan dalam format yang diminta.")
+        summary = {
+            "total_ids_found": 0,
+            "unique_ids_count": 0,
+            "unique_ids": [],
+            "top_frequent_ids": [],
+            "raw_id_list": []
+        }
+    else:
+        # Hitung frekuensi
+        id_counts = Counter(raw_ids)
+        
+        # Dapatkan ID unik yang diurutkan secara alfabetis
+        unique_ids = sorted(id_counts.keys())
+        
+        # Dapatkan 10 ID paling sering muncul
+        top_frequent = id_counts.most_common(10)
+
+        summary = {
+            "total_ids_found": len(raw_ids),
+            "unique_ids_count": len(unique_ids),
+            "unique_ids": unique_ids,
+            "top_frequent_ids": [
+                {"id": id_str, "count": count} for id_str, count in top_frequent
+            ],
+            "raw_id_list": raw_ids # Disertakan untuk debugging jika diperlukan
+        }
+
+    # Tulis ke file JSON
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_file, 'w', encoding='utf-8') as f:
+        json.dump(summary, f, indent=4, ensure_ascii=False)
+
+    # Output ke console
+    print(f"Analisis selesai.")
+    print(f"Total ID ditemukan: {summary['total_ids_found']}")
+    print(f"ID Unik: {summary['unique_ids_count']}")
+    print(f"Output JSON disimpan ke: {output_path}")
+
+    # Tampilkan top 5 di console untuk umpan balik cepat
+    if summary['top_frequent_ids']:
+        print("
+Top 5 ID Paling Sering Muncul:")
+        for item in summary['top_frequent_ids'][:5]:
+            print(f"  - {item['id']}: {item['count']}x")
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Analisis file log GitHub Actions untuk mendeteksi ID proyek."
+    )
+    parser.add_argument(
+        '--log', 
+        type=str, 
+        required=True, 
+        help='Path ke file log GitHub Actions'
+    )
+    parser.add_argument(
+        '--output', 
+        type=str, 
+        default='analysis_summary.json', 
+        help='Path keluaran file JSON (default: analysis_summary.json)'
+    )
+
+    args = parser.parse_args()
+    
+    try:
+        analyze_log_file(args.log, args.output)
+    except Exception as e:
+        print(f"Error: {e}")
+        exit(1)
+
+if __name__ == "__main__":
+    main()
+```
+
+##### Integrasi ke Pipeline CI/CD
+
+Anda dapat menambahkan langkah analisis log ke dalam workflow GitHub Actions Anda. Langkah ini berguna untuk memvalidasi apakah ID yang diharapkan muncul dalam log build atau deployment, atau untuk mendeteksi error yang melibatkan ID spesifik.
+
+Tambahkan blok berikut setelah langkah `Generate Dashboard HTML` atau di akhir workflow:
+
+```yaml
+          - name: Analyze Action Logs for IDs
+            if: success()
+            run: |
+              # 1. Download log artifact jika diperlukan, atau gunakan log lokal
+              # Jika log sudah tersedia di workspace, langsung analisis.
+              # Contoh ini mengasumsikan kita menganalisis log dari artifact build sebelumnya
+              # atau log yang ditampung dalam workspace.
+              
+              # Untuk demo, kita asumsikan ada file log sederhana atau kita download dari artifact 'logs'
+              # Jika Anda ingin menganalisis log dari artifact 'build-logs' dari job sebelumnya:
+              # uses: actions/download-artifact@v3
+              # with:
+              #   name: build-logs
+              #   path: ./logs
+              
+              # Skrip ini akan mencari ID di file log apa pun di folder logs/
+              # Pastikan log directory ada. Jika tidak, buat dummy log untuk testing.
+              
+              if [ ! -d "logs" ]; then
+                mkdir -p logs
+                echo "No logs directory found. Creating dummy log for testing."
+                echo "Build started for PROJ-000001" > logs/build.log
+                echo "Deploying PROJ-000002" >> logs/build.log
+              fi
+
+              python log_analyzer.py --log ./logs/build.log --output id_analysis.json
+              
+              # Opsional: Upload hasil analisis sebagai artifact
+              # uses: actions/upload-artifact@v3
+              # with:
+              #   name: id-analysis-report
+              #   path: id_analysis.json
+```
+
+##### Interpretasi Output JSON
+
+File JSON yang dihasilkan (`id_analysis.json`) memiliki struktur berikut:
+
+```json
+{
+  "total_ids_found": 150,
+  "unique_ids_count": 12,
+  "unique_ids": [
+    "PRO-000001",
+    "PRO-000002",
+    "QAS-123456"
+  ],
+  "top_frequent_ids": [
+    {
+      "id": "PRO-000001",
+      "count": 50
+    },
+    {
+      "id": "PRO-000002",
+      "count": 30
+    }
+  ],
+  "raw_id_list": [
+    "PRO-000001",
+    "PRO-000001",
+    ...
+  ]
+}
+```
+
+*   **`unique_ids`**: Daftar ID yang ditemukan, diurutkan secara alfabetis. Berguna untuk memastikan ID tertentu muncul dalam log.
+*   **`top_frequent_ids`**: ID yang paling sering muncul dalam log. Jika ID tertentu muncul secara tidak wajar (terlalu sering atau terlalu sedikit), ini bisa menjadi indikator error atau duplikasi log.
+*   **`total_ids_found`**: Total kemunculan semua ID. Bandingkan dengan jumlah ID unik untuk mendeteksi repetisi.
