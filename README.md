@@ -21780,3 +21780,371 @@ python utils/verify_grc_state_integrity.py --state-file outputs/grc_state/unifie
 ---
 
 *Catatan: Bagian dokumentasi ini adalah bagian statis dari arsitektur GRC. Perubahan pada logika bisnis inti harus melalui proses Change Request yang disetujui oleh Komite Tata Kelola Data.*
+
+
+Berikut adalah draf konten dokumentasi teknis lanjutan yang dirancang untuk disalin dan ditempel langsung ke dalam file `README.md` Anda. Konten ini memperluas cakupan ke **Section 14** dan menambahkan skrip Python lengkap sesuai spesifikasi.
+
+---
+
+## 14. Executive Accountability & Legal Liability Attribution
+
+Bagian ini memperkenalkan *Executive Liability Attribution Agent*, sebuah modul forensik hukum tingkat lanjut yang mengubah data simulasi korporat menjadi peta akuntabilitas hukum yang dapat dipertanggungjawabkan di pengadilan. Modul ini dirancang untuk menghilangkan "plausible deniability" (dalih ketidakmampuan untuk dikesahkan) dengan secara algoritmik mengaitkan setiap tindakan keputusan (action) dalam simulasi dashboard dengan kewajiban fidusia (fiduciary duties) spesifik berdasarkan struktur tata kelola perusahaan dan yurisdiksi yang berlaku.
+
+### 14.1. Metodologi: Fiduciary Duty Algorithmic Mapping
+
+Sistem ini tidak hanya mencatat *apa* yang diputuskan, tetapi *mengapa* dan *oleh siapa* dengan menelusuri jalur kausalitas berdasarkan dua pilar utama:
+
+1.  **Delegation of Authority (DoA) Validation**:
+    Setiap keputusan dalam `compliance_boardroom_simulator_dashboard.py` harus divalidasi melawan matriks `delegation-authority-matrix`. Sistem memeriksa apakah jabatan eksekutif tersebut memiliki wewenang hukum untuk membuat keputusan tersebut pada waktu dan dalam konteks risiko tertentu. Jika keputusan melampaui wewenang (ultra vires), label liabilitas pribadi langsung diterapkan.
+
+2.  **Fiduciary Duty Standard Enforcement**:
+    Berdasarkan parameter `liability-framework`, sistem memetakan tindakan ke standar hukum spesifik:
+    *   **Duty of Care (Kewajiban Kehati-hatian):** Apakah eksekutif mengumpulkan informasi yang cukup, meneliti opsi alternatif, dan membuat keputusan yang rasional berbasis data? Sistem menganalisis frekuensi akses data dan kedalaman analisis sebelum klik "Approve".
+    *   **Duty of Loyalty (Kewajiban Kesetiaan):** Apakah keputusan tersebut menguntungkan perusahaan atau individu/pihak ketiga? Sistem memindai pola interaksi yang mencurigakan (misalnya, pengulangan skenario yang menguntungkan entitas terkait) untuk mendeteksi potensi konflik kepentingan.
+
+Dengan menggabungkan kedua pilar ini, sistem menghasilkan **Liability Attribution Score** untuk setiap eksekutif, yang dapat digunakan sebagai bukti forensik jika terjadi litigasi, menunjukkan bahwa keputusan dibuat dengan kelalaian, kecerobohan, atau niat jahat.
+
+### 14.2. Panduan Pengguna: `compliance_executive_responsibility_liability_tracker.py`
+
+Skrip ini bertindak sebagai agen penjejak akuntabilitas. Ia membaca log interaksi yang telah diaudit, mencocokkannya dengan struktur organisasi, dan menghasilkan peta liabilitas individual.
+
+#### Parameter Input
+
+| Argumen | Deskripsi | Contoh Nilai |
+| :--- | :--- | :--- |
+| `--boardroom-logs` | Path ke file log interaksi simulator yang telah diaudit (format `.json` atau `.csv`). Wajib. | `logs/boardroom_audit_v1.json` |
+| `--delegation-authority-matrix` | Path ke file konfigurasi struktur delegasi wewenang eksekutif (struktur hierarki dan batas otoritas). Wajib. | `config/doa_matrix_corp.json` |
+| `--liability-framework` | Path ke konfigurasi standar hukum liabilitas atau nama framework bawaan. Wajib. | `indonesia_ugc_2024` |
+| `--output-liability-map` | Path keluaran untuk file JSON peta liabilitas eksekutif. Wajib. | `outputs/executive_liability_map.json` |
+
+#### Contoh Eksekusi
+
+```bash
+python compliance_executive_responsibility_liability_tracker.py \
+  --boardroom-logs logs/boardroom_audit_v1.json \
+  --delegation-authority-matrix config/doa_matrix_corp.json \
+  --liability-framework indonesia_ugc_2024 \
+  --output-liability-map outputs/executive_liability_map.json
+```
+
+#### Implementasi Skrip Python
+
+Simpan kode berikut sebagai `compliance_executive_responsibility_liability_tracker.py`:
+
+```python
+import json
+import argparse
+import logging
+import hashlib
+from datetime import datetime
+from typing import Dict, List, Any, Optional
+
+# Konfigurasi Logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+class ExecutiveLiabilityTracker:
+    """
+    Agen Penjejak Akuntabilitas Hukum Eksekutif.
+    Memetakan keputusan simulasi ke liabilitas hukum berdasarkan DoA dan Standar Fidusia.
+    """
+
+    def __init__(self, doa_matrix_path: str, liability_framework_path: Optional[str] = None):
+        """
+        Inisialisasi tracker dengan matriks Delegasi Wewenang (DoA) dan Framework Hukum.
+        """
+        self.doa_matrix = self._load_json(doa_matrix_path)
+        self.framework_config = self._load_framework(liability_framework_path)
+        self.executive_profiles = self._init_executive_profiles()
+        
+        logger.info("Executive Liability Tracker Initialized.")
+        logger.info(f"Loaded DoA Matrix for {len(self.doa_matrix.get('directors', []))} directors.")
+
+    def _load_json(self, path: str) -> Dict:
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except FileNotFoundError:
+            raise Exception(f"File not found: {path}")
+        except json.JSONDecodeError:
+            raise Exception(f"Invalid JSON format in: {path}")
+
+    def _load_framework(self, path_or_name: Optional[str]) -> Dict:
+        """
+        Memuat konfigurasi liabilitas. Jika string sederhana (misal: 'indonesia_ugc_2024'), 
+        gunakan default config, atau load dari file jika path lengkap.
+        """
+        if not path_or_name:
+            logger.warning("No liability framework specified. Using default strict liability.")
+            return {"default_penalty_multiplier": 1.5, "jurisdiction": "default"}
+        
+        # Coba load sebagai path file
+        try:
+            with open(path_or_name, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except FileNotFoundError:
+            # Jika file tidak ada, asumsikan ini adalah identifier framework bawaan
+            logger.info(f"Loading built-in framework: {path_or_name}")
+            return self._get_builtin_framework(path_or_name)
+
+    def _get_builtin_framework(self, name: str) -> Dict:
+        """Matriks konfiguasi framework hukum bawaan."""
+        frameworks = {
+            "indonesia_ugc_2024": {
+                "jurisdiction": "Indonesia",
+                "law_reference": "UU No. 40 Tahun 2007 tentang Perseroan Terbatas (Pasal 97)",
+                "duty_of_care_weight": 0.6,
+                "duty_of_loyalty_weight": 0.4,
+                "penalty_multiplier": 1.8,
+                "strict_liability_actions": ["asset_divestiture", "related_party_transaction"]
+            },
+            "us_duty_of_care": {
+                "jurisdiction": "USA (Delaware)",
+                "law_reference": "Business Judgment Rule / DGCL Section 141",
+                "duty_of_care_weight": 0.7,
+                "duty_of_loyalty_weight": 0.3,
+                "penalty_multiplier": 1.2,
+                "strict_liability_actions": ["self_dealing"]
+            }
+        }
+        if name in frameworks:
+            return frameworks[name]
+        raise ValueError(f"Unknown liability framework: {name}")
+
+    def _init_executive_profiles(self) -> Dict[str, Dict]:
+        """Inisialisasi profil kosong untuk setiap direktur berdasarkan DoA Matrix."""
+        profiles = {}
+        directors = self.doa_matrix.get("directors", [])
+        for director in directors:
+            eid = director.get("id", director.get("name", "unknown"))
+            profiles[eid] = {
+                "name": director.get("name", "Unknown"),
+                "position": director.get("position", "Director"),
+                "liability_score": 0.0,
+                "risk_exposure_heatmap": [],
+                "violations": [],
+                "total_decisions": 0,
+                "authorized_decisions": 0,
+                "unauthorized_decisions": 0
+            }
+        return profiles
+
+    def track_interactions(self, log_file_path: str):
+        """
+        Membaca log audit boardroom dan memproses setiap entri untuk perhitungan liabilitas.
+        """
+        logger.info(f"Processing boardroom logs from: {log_file_path}")
+        try:
+            with open(log_file_path, 'r', encoding='utf-8') as f:
+                logs = json.load(f)
+        except Exception as e:
+            logger.error(f"Failed to read log file: {e}")
+            return
+
+        if not isinstance(logs, list):
+            logs = [logs]
+
+        processed_count = 0
+        for log_entry in logs:
+            try:
+                self._process_single_log_entry(log_entry)
+                processed_count += 1
+            except Exception as e:
+                logger.warning(f"Error processing log entry {log_entry.get('id', 'N/A')}: {e}")
+
+        logger.info(f"Successfully processed {processed_count} log entries.")
+
+    def _process_single_log_entry(self, entry: Dict):
+        """
+        Logika inti: Memvalidasi wewenang, menghitung bobot liabilitas, dan memperbarui heatmap.
+        """
+        actor_id = entry.get("user_id") or entry.get("executive_id")
+        action = entry.get("action", "unknown")
+        timestamp = entry.get("timestamp", "")
+        context = entry.get("context", {})
+        
+        if actor_id not in self.executive_profiles:
+            logger.warning(f"Unknown actor ID: {actor_id}. Skipping.")
+            return
+
+        profile = self.executive_profiles[actor_id]
+        profile["total_decisions"] += 1
+
+        # 1. Validasi Delegasi Wewenang (DoA Check)
+        is_authorized = self._check_authorization(actor_id, action, context)
+        
+        if is_authorized:
+            profile["authorized_decisions"] += 1
+        else:
+            profile["unauthorized_decisions"] += 1
+            # Pelanggaran DoA: Liabilitas Tinggi
+            violation_type = "DOA_VIOLATION_ULTRA_VIRES"
+            profile["violations"].append({
+                "type": violation_type,
+                "timestamp": timestamp,
+                "action": action,
+                "severity": "HIGH",
+                "description": f"Decision '{action}' made outside of authorized scope for {profile['position']}."
+            })
+            profile["liability_score"] += self.framework_config.get("penalty_multiplier", 1.0) * 10
+
+        # 2. Analisis Fidusia (Duty of Care & Loyalty)
+        fiduciary_risk = self._analyze_fiduciary_duty(action, context, profile)
+        
+        if fiduciary_risk:
+            profile["violations"].extend(fiduciary_risk)
+            for v in fiduciary_risk:
+                weight = self.framework_config.get("duty_of_loyalty_weight" if v['type'] == "LOYALTY_VIOLATION" else "duty_of_care_weight", 0.5)
+                profile["liability_score"] += 5.0 * weight
+
+        # 3. Update Heatmap (Risk Exposure)
+        profile["risk_exposure_heatmap"].append({
+            "timestamp": timestamp,
+            "action": action,
+            "risk_level": fiduciary_risk.get("level", "LOW") if fiduciary_risk else "NORMAL",
+            "authorized": is_authorized
+        })
+
+    def _check_authorization(self, actor_id: str, action: str, context: Dict) -> bool:
+        """
+        Mengecek apakah aksi tertentu diizinkan untuk posisi eksekutif tersebut.
+        """
+        # Cari direktur dalam DoA Matrix
+        director_info = None
+        for d in self.doa_matrix.get("directors", []):
+            if d.get("id") == actor_id:
+                director_info = d
+                break
+        
+        if not director_info:
+            return False
+
+        position = director_info.get("position")
+        authorized_actions = director_info.get("authorized_actions", [])
+        
+        # Cek aksi eksplisit
+        if action in authorized_actions:
+            return True
+
+        # Cek hierarki (misal: CEO memiliki otoritas semua, kecuali yang didelegasikan secara eksplisit)
+        # Logika simplifikasi: Jika 'CEO' ada di posisi, diasumsikan memiliki otoritas penuh kecuali ada list pengecualian.
+        if position == "CEO":
+            excluded_actions = director_info.get("excluded_actions", [])
+            return action not in excluded_actions
+
+        return False
+
+    def _analyze_fiduciary_duty(self, action: str, context: Dict, profile: Dict) -> Optional[List[Dict]]:
+        """
+        Menganalisis potensi pelanggaran Duty of Care atau Loyalty.
+        """
+        violations = []
+        
+        # Simulasi Deteksi Conflict of Interest (Loyalty)
+        # Asumsi: Jika konteks memiliki flag 'related_party' atau 'beneficiary_id' != 'shareholder'
+        if context.get("related_party_flag") or context.get("beneficiary_id") not in ["shareholder", "company_entity"]:
+            violations.append({
+                "type": "LOYALTY_VIOLATION",
+                "severity": "CRITICAL",
+                "description": "Potential breach of Duty of Loyalty: Action involved related party or non-shareholder beneficiary."
+            })
+            return violations
+
+        # Simulasi Deteksi Negligence (Care)
+        # Asumsi: Jika keputusan diambil sangat cepat (< 5 detik simulasi) tanpa 'review_history'
+        if context.get("decision_time_seconds", 999) < 5 and not context.get("has_independent_advice"):
+            violations.append({
+                "type": "CARE_VIOLATION_NEGLIGENT",
+                "severity": "MEDIUM",
+                "description": "Potential breach of Duty of Care: Decision made impulsively without adequate research or independent advice."
+            })
+
+        if violations:
+            return violations
+        return None
+
+    def generate_liability_map(self, output_path: str):
+        """
+        Menulis peta liabilitas final ke file JSON.
+        """
+        output_data = {
+            "generated_at": datetime.now().isoformat(),
+            "framework_used": self.framework_config.get("jurisdiction", "Unknown"),
+            "summary_statistics": {
+                "total_executives": len(self.executive_profiles),
+                "total_violations": sum(len(p["violations"]) for p in self.executive_profiles.values()),
+                "high_risk_executives": [
+                    p["name"] for p in self.executive_profiles.values() 
+                    if p["liability_score"] > 20 # Threshold arbitrer untuk "High Risk"
+                ]
+            },
+            "executive_liability_details": self.executive_profiles
+        }
+
+        try:
+            with open(output_path, 'w', encoding='utf-8') as f:
+                json.dump(output_data, f, indent=4, default=str)
+            logger.info(f"Liability Map generated successfully at: {output_path}")
+        except Exception as e:
+            logger.error(f"Failed to write output file: {e}")
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Executive Liability Attribution Agent - Maps corporate simulation decisions to legal liability.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Contoh Penggunaan:
+  python compliance_executive_responsibility_liability_tracker.py \
+    --boardroom-logs logs/boardroom_audit.json \
+    --delegation-authority-matrix config/doa.json \
+    --liability-framework indonesia_ugc_2024 \
+    --output-liability-map outputs/liability_map.json
+        """
+    )
+    
+    parser.add_argument('--boardroom-logs', required=True, help='Path to audited boardroom simulation logs.')
+    parser.add_argument('--delegation-authority-matrix', required=True, help='Path to DoA matrix configuration.')
+    parser.add_argument('--liability-framework', required=True, help='Path to liability config or framework name (e.g., indonesia_ugc_2024).')
+    parser.add_argument('--output-liability-map', required=True, help='Output path for the liability map JSON.')
+
+    args = parser.parse_args()
+
+    try:
+        tracker = ExecutiveLiabilityTracker(
+            doa_matrix_path=args.delegation_authority_matrix,
+            liability_framework_path=args.liability_framework
+        )
+        
+        tracker.track_interactions(args.boardroom_logs)
+        tracker.generate_liability_map(args.output_liability_map)
+        
+        logger.info("Execution completed successfully.")
+        
+    except Exception as e:
+        logger.error(f"Fatal error: {e}")
+        exit(1)
+
+if __name__ == "__main__":
+    main()
+```
+
+### 14.3. Personal Liability Heatmap Generation
+
+Salah satu fitur paling kritis dari sistem ini adalah kemampuan menghasilkan **Personal Liability Heatmap**. Peta ini bukan sekadar daftar pelanggaran, melainkan representasi visual (dalam format JSON terstruktur yang dapat diproses oleh dashboard visualisasi) yang menunjukkan:
+
+1.  **Frekuensi Pelanggaran**: Seberapa sering seorang eksekutif melanggar batas wewenang.
+2.  **Dampak Skenario**: Kaitan antara keputusan berisiko tinggi dan hasil negatif dalam simulasi.
+3.  **Trend Waktu**: Peningkatan atau penurunan kehati-hatian seiring waktu.
+
+**Interpretasi untuk Pengadilan:**
+Heatmap ini menyediakan bukti objektif yang menyangkal klaim "tidak tahu" atau "dipengaruhi oleh atasan". Jika seorang Direktur Keuangan (CFO) menunjukkan pola keputusan yang konsisten melanggar *Duty of Care* (misalnya, menyetujui anggaran tanpa review independen selama 3 bulan berturut-turut), maka pada saat litigasi nyata, bukti ini dapat digunakan untuk menetapkan **liabilitas pribadi** berdasarkan kelalaian berat (*gross negligence*), bukan sekadar kesalahan bisnis (*business error*).
+
+### 14.4. Corporate Governance Code for Digital Boards
+
+Sistem ini mengadopsi prinsip-prinsip dari *OECD Principles of Corporate Governance* yang telah dipadatkan menjadi logika digital:
+
+*   **Transparansi Proaktif**: Setiap keputusan tidak hanya dicatat, tetapi dikontekstualisasikan dengan standar fidusia.
+*   **Akuntabilitas Berbasis Data**: Pengambilan keputusan diuji terhadap data historis dan konsistensi dengan strategi perusahaan.
+*   **Pencegahan Dini**: Dengan memberikan *feedback loop* instan jika seorang eksekutif mendekati batas wewenang atau menunjukkan pola risiko loyalitas, sistem membantu mencegah pelanggaran sebelum terjadi di dunia nyata.
+
+> **Peringatan Hukum**: Output dari `compliance_executive_responsibility_liability_tracker.py` bersifat *forensik-assistive*. Meskipun dirancang untuk ketepatan tinggi, output ini harus ditinjau oleh penasihat hukum eksternal sebelum digunakan sebagai dasar aksi hukum formal, mengingat kompleksitas yurisdiksi dan interpretasi pengadilan yang dapat bervariasi.
