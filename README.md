@@ -11612,3 +11612,125 @@ Setelah draf hukum selesai ditinjau, file `.docx` hasil akhir dapat diunggah kem
 ---
 
 *Catatan Arsitektur: Penggunaan `compliance_lawyer_nlp_interface.py` tidak menggantikan tanggung jawab hukum personel hukum. Perusahaan tetap bertanggung jawab penuh atas akurasi dan kelengkapan laporan yang dikirimkan kepada regulator.*
+
+
+Berikut adalah materi lanjutan yang komprehensif untuk bagian **"Deployment and Operations"** dalam dokumentasi `README.md`. Konten ini dirancang untuk melengkapi panduan teknis sebelumnya dengan fokus pada keamanan transmisi, integritas bukti, dan protokol kepatuhan regulator.
+
+---
+
+## Deployment and Operations
+
+Bagian ini mendefinisikan prosedur operasional standar (SOP) untuk mengoperasikan `compliance_regulatory_submission_automator.py` sebagai komponen kritis dalam siklus hidup respons insiden. Modul ini tidak hanya melakukan transmisi data, tetapi juga bertindak sebagai *gatekeeper* kepatuhan yang memastikan bahwa setiap byte data yang dikirim ke otoritas eksternal memenuhi prinsip *Data Minimization*, *Integrity*, dan *Non-Repudiation*.
+
+### 1. Arsitektur Secure Bridge dan Alur Data
+
+`compliance_regulatory_submission_automator.py` berfungsi sebagai **Secure Bridge** yang menjembatani aset internal (Evidence & Playbook) dengan ekosistem eksternal (Regulator API). Alur pemrosesan data diinternalisasi melalui empat tahap kritis sebelum transmisi terjadi:
+
+1.  **Ingest & Parse**: Membaca struktur JSON dari `evidence_chain_of_custody.json` dan markdown dari `incident_playbook_v1.md`.
+2.  **Sanitization & Minimization**: Melakukan ekstraksi entitas bernama (NER) untuk mendeteksi PII sensitif (Nomor KTP, Kartu Kredit, NIK) yang tidak relevan dengan definisi "insiden" hukum. Data ini di-*hash* atau di-anonymize agar tidak masuk ke payload regulator.
+3.  **Cryptographic Signing**: Menghasilkan tanda tangan digital menggunakan kunci privat (`--private-key-path`) untuk menandatangani payload JSON ter-sanitasi. Ini memastikan bahwa data tidak diubah (*tamper-evident*) selama transmisi.
+4.  **Transmission**: Mengirim paket terenkripsi dan tertanda ke endpoint API regulator (`--regulator-api-url`) menggunakan protokol HTTPS dengan validasi sertifikat ketat.
+
+### 2. Standar Protokol Pengiriman Bukti Elektronik (Electronic Evidence Submission Standards)
+
+Untuk memastikan penerimaan bukti oleh otoritas (seperti Otoritas Perlindungan Data Pribadi di Indonesia atau EDPS di UE), skrip ini mengimplementasikan standar internasional berikut:
+
+*   **ISO/IEC 27037 Guidelines**: Pemenuhan ketentuan identifikasi, pengumpulan, dan preservasi bukti elektronik digital. Setiap file yang disertakan dalam arsip memiliki *hash* SHA-256 yang disertakan dalam metadata JSON.
+*   **Chain of Custody Integrity**: Setiap objek dalam payload JSON dilengkapi dengan field `chain_of_custody_hash` yang memverifikasi bahwa data tidak berubah sejak awal penangkapan bukti oleh `automated_evidence_preservation.py`.
+*   **Format Standar W3C Decentralized Identifiers (DID)**: Untuk non-repudiasi, skrip ini menyertakan metadata DID dalam header HTTP, memungkinkan regulator memverifikasi identitas pengirim insiden tanpa bergantung pada otoritas terpusat tunggal.
+
+#### Struktur Payload JSON (Contoh Setelah Sanitisasi)
+
+Payload yang dikirim ke regulator akan memiliki struktur minimal berikut untuk mematuhi prinsip *Data Minimization*:
+
+```json
+{
+  "incident_id": "INC-2023-XYZ-001",
+  "submission_timestamp": "2023-10-27T10:00:00Z",
+  "data_type_summary": {
+    "category": "Personal Data Breach",
+    "approximate_volume": 1500,
+    "sensitive_data_categories": ["Contact Info", "Financial Data (Hashed)"]
+  },
+  "evidence_fingerprint": {
+    "evidence_chain_file_hash": "a1b2c3d4...",
+    "playbook_version": "v1.2",
+    "digital_signature": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA..."
+  },
+  "mitigation_status": "Contained",
+  "pii_redaction_applied": true
+}
+```
+
+### 3. Mekanisme Secure Enclave untuk Penanganan Kunci Kriptografi
+
+Penggunaan kunci privat (`--private-key-path`) untuk penandatanganan digital membawa risiko keamanan tinggi jika tidak dikelola dengan benar. Skrip ini mematuhi prinsip *Zero Trust* dalam manajemen kunci:
+
+*   **File Permissions Enforced**: Saat skrip dijalankan, sistem secara otomatis memeriksa izin file pada path kunci privat. Jika izin melebihi `600` (hanya owner yang bisa baca/tulis), eksekusi akan ditolak untuk mencegah kebocoran kunci.
+*   **In-Memory Isolation**: Kunci privat tidak ditulis ke disk (swap file) selama proses penandatanganan. Kunci dimuat ke dalam memori RAM dan dihapus segera setelah proses penandatanganan selesai menggunakan metode pembersihan memori (*secure wipe*).
+*   **Integrasi dengan Hardware Security Module (HSM) / TPM**:
+    *   *Opsi Lokal*: Untuk lingkungan produksi tinggi, disarankan menggunakan kunci yang disimpan di TPM (Trusted Platform Module) motherboard server.
+    *   *Opsi Cloud*: Jika menggunakan HSM awan (misalnya AWS KMS atau Azure Key Vault), flag `--use-hsm` dapat ditambahkan untuk mengizinkan skrip berkomunikasi dengan layanan manajemen kunci eksternal tanpa pernah mengekspos kunci privat secara langsung ke instance komputasi.
+
+### 4. Prosedur Fallback Manual dan Penanganan Kegagalan Otomasi
+
+Otomasi adalah ideal, tetapi dalam skenario insiden kritis, koneksi regulator mungkin down, atau sanitasi otomatis mungkin gagal mendeteksi anomali. Skrip ini menyediakan mekanisme fallback yang jelas.
+
+#### A. Deteksi Kegagalan Otomasi
+Jika API regulator mengembalikan status kode `5xx` atau `429` (Rate Limit), atau jika proses sanitisasi gagal mendeteksi PII kritis (akurat < 95%), skrip akan:
+1.  Menghentikan transmisi otomatis.
+2.  Menghasilkan file arsip `.zip` yang berisi:
+    *   Payload JSON yang telah di-sanitasi.
+    *   Tanda tangan digital (`signature.sig`).
+    *   Log sanitasi (`sanitization_log.json`) untuk tinjauan manual.
+    *   Bukti rantai custodi (`evidence_chain_of_custody.json`).
+3.  Menyimpan arsip ini di direktori `./fallback_submission_ready/` dan memicu notifikasi ke channel Slack/Teams tim kepatuhan hukum.
+
+#### B. Prosedur Fallback Manual (Human-in-the-Loop)
+Jika kondisi darurat mengharuskan pengiriman segera tanpa menunggu perbaikan API:
+1.  **Verifikasi Manual**: Personel hukum harus meninjau `sanitization_log.json` untuk memastikan tidak ada PII sensitif yang bocor.
+2.  **Hand-Over Submission**: Gunakan arsip dari direktori fallback untuk diunggah secara manual ke portal regulator (misalnya: SIPP di Indonesia atau GDPR Notification Gateway di UE).
+3.  **Audit Trail**: Catat ID Tiket ITSM fallback dan lampirkan referensi ke file log otomasi untuk menjaga jejak audit yang koheren.
+
+### 5. Panduan Instalasi dan Eksekusi
+
+Pastikan lingkungan Python memiliki dependensi berikut yang diinstal:
+
+```bash
+pip install pycryptodome requests jsonschema cryptography
+```
+
+#### Sintaks Komando
+
+```bash
+python compliance_regulatory_submission_automator.py \
+    --playbook ./docs/incident_playbook_v1.md \
+    --evidence-chain ./data/evidence_chain_of_custody.json \
+    --regulator-api-url https://api.otoritas-pdp.go.id/notifications/v1 \
+    --private-key-path ./keys/regulator_signing_key.pem \
+    --strict-sanitization
+```
+
+#### Parameter Argumen
+
+| Parameter | Tipe | Deskripsi Wajib |
+| :--- | :--- | :--- |
+| `--playbook` | `str` | Path absolut atau relatif ke file markdown playbook insiden yang dihasilkan oleh `compliance_incident_response_playbook_generator.py`. |
+| `--evidence-chain` | `str` | Path absolut atau relatif ke file JSON rantai custodi dari `automated_evidence_preservation.py`. |
+| `--regulator-api-url` | `str` | Endpoint API regulator yang dituju. Pastikan URL menggunakan HTTPS. |
+| `--private-key-path` | `str` | Path ke file kunci privat RSA/ECDSA. Kunci harus dalam format PEM. |
+| `--strict-sanitization` | `flag` | *(Opsional)* Mengaktifkan mode sanitasi agresif yang menghapus semua variabel kontekstual selain yang diperlukan oleh regulator. |
+
+### 6. Checklist Kepatuhan Pra-Deploument
+
+Sebelum menyebarkan skrip ini ke lingkungan produksi, pastikan checklist berikut terpenuhi:
+
+- [ ] Kunci privat telah dipindahkan dari repository kode ke penyimpanan aman (KMS/HSM/Secret Manager).
+- [ ] Endpoint API regulator telah diverifikasi sertifikats SSL/TLS-nya.
+- [ ] Script telah diuji di lingkungan *staging* dengan data dummy untuk memastikan format JSON sesuai dengan spesifikasi regulator terbaru.
+- [ ] Proses fallback manual telah dilatih kepada tim hukum dan kepatuhan dalam tabel *incident response drill* bulan ini.
+- [ ] Izin akses file sistem untuk path `--private-key-path` telah dikonfigurasi ke `600` atau lebih ketat.
+
+---
+
+*Catatan Arsitektur Lanjutan: Integrasi dengan sistem legacy yang tidak mendukung HTTPS modern atau validasi sertifikat X.509 standar harus ditangani melalui mekanisme proxy keamanan tambahan di lapisan infrastruktur, bukan dengan menonaktifkan validasi sertifikat di dalam skrip, demi menjaga integritas keamanan end-to-end.*
