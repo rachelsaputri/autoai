@@ -13784,3 +13784,103 @@ def validate_distribution_assumptions(data_series, distribution_name):
 ```
 
 Hasil validasi ini wajib di-*commit* ke dalam Graph Database sebagai metadata node `comp:Risk` untuk mendukung transparansi audit eksternal oleh auditor independen.
+
+
+Berikut adalah materi lanjutan untuk dokumentasi teknis. Bagian ini dirancang untuk ditempel langsung setelah bagian `9.3. Prosedur Validasi Otomatis`, memperluas cakupan dokumentasi ke aspek visualisasi eksekutif, kepatuhan hukum (SOX), dan komunikasi risiko tingkat tinggi.
+
+---
+
+#### 9.4. Executive Risk Dashboard Generator: Visualisasi Strategis untuk Kepatuhan SOX
+
+Bagian ini mendeskripsikan alat visualisasi `compliance_executive_risk_dashboard_generator.py`, sebuah utilitas berbasis baris perintah yang mengubah output teknis simulasi Monte Carlo menjadi laporan strategis berbasis HTML5. Alat ini dirancang khusus untuk menjembatani kesenjangan antara kompleksitas statistik kuantitatif dan kebutuhan keputusan bisnis kualitatif oleh Dewan Direksi dan Komisaris.
+
+##### 9.4.1. Spesifikasi Teknis dan Penggunaan
+
+Alat ini memproses dua input utama: hasil simulasi stres keuangan dan matriks pemetaan kepatuhan, serta menghasilkan dasbor interaktif yang dapat dibuka langsung di browser web apa pun.
+
+**Arsitektur Input:**
+1.  **Stress Test Results (`--stress-results`):** File JSON berisi distribusi probabilitas kerugian (Loss Distribution) dari simulasi Monte Carlo.
+2.  **Compliance Mapping Matrix (`--mapping-matrix`):** File JSON yang memetakan setiap skenario risiko ke kontrol internal spesifik dan standar regulasi (misal: POJK, OJK, atau IFRS).
+3.  **Configuration (`--config`):** File JSON untuk menyesuaikan palet warna perusahaan, tipografi, dan parameter sensitivitas visual.
+
+**Contoh Penggunaan Command Line:**
+
+```bash
+python compliance_executive_risk_dashboard_generator.py \
+    --stress-results outputs/monte_carlo_2024.json \
+    --mapping-matrix configs/control_mapping_v2.json \
+    --config configs/corporate_branding.json \
+    --output reports/executive_risk_dashboard.html
+```
+
+**Fitur Utama Visualisasi:**
+*   **Interaktif:** Pengguna dapat mengubah *slider* tingkat kepercayaan ($Confidence Level$) untuk melihat pergeseran nilai Value at Risk (VaR) secara real-time.
+*   **Drill-Down:** Klik pada area ekor distribusi (*tail events*) akan menampilkan detail skenario "Black Swan" yang relevan dengan kontrol keuangan spesifik.
+*   **Responsif:** Layout otomatis menyesuaikan untuk presentasi di layar proyektor selama rapat dewan direksi atau perangkat tablet.
+
+##### 9.4.2. Standar "Executive Transparency Reporting" & Sarbanes-Oxley (SOX) Section 404
+
+Sejalan dengan **SOX Section 404**, yang mensyaratkan manajemen untuk menilai efektivitas pengendalian internal atas pelaporan keuangan, visualisasi ini bukan sekadar grafik, melainkan artefak kepatuhan hukum.
+
+**Penerjemahan Kompleksitas Statistik ke Metrik Bisnis:**
+
+Manajemen non-teknis seringkali kesulitan menafsirkan nilai p-value atau statistik Anderson-Darling. Dashboard ini menerapkan prinsip *Executive Transparency Reporting* dengan cara berikut:
+
+1.  **Abstraksi "Tail Risk" menjadi Dampak Operasional:**
+    Alih-alih menampilkan kurva distribusi normal yang abstrak, grafik menghubungkan probabilitas kejadian ekor hitam (*Black Swan Events*) dengan dampak langsung pada likuiditas kas.
+    *   *Contoh Teks Dashboard:* "Pada skenario 99.5% Confidence (Tail Risk), probabilitas kehabisan kas dalam 30 hari adalah 12%. Ini melampaui toleransi risiko Dewan sebesar 5%."
+
+2.  **Audit Trail Visual:**
+    Setiap titik data pada grafik memiliki metadata tersembunyi yang merekam sumber data, metode asumsi distribusi, dan versi model. Hal ini mendukung prinsip *documentation* dalam SOX, memungkinkan auditor independen melacak kembali keputusan manajemen ke data mentah.
+
+3.  **Assessment of Control Effectiveness:**
+    Matriks kepatuhan divisualisasikan sebagai lapisan di atas grafik risiko. Jika sebuah risiko ekor hitam berada di luar jangkauan kontrol internal yang terverifikasi, zona tersebut diberi warna merah terang dan label "Control Gap". Ini memberikan bukti objektif apakah pengendalian internal saat ini memadai untuk menutupi risiko eksotis.
+
+##### 9.4.3. Panduan Visual: The Cone of Uncertainty (Kerucut Ketidakpastian)
+
+Untuk komunikasi kepada pemangku kepentingan eksternal (investor, regulator), dashboard menyertakan modul **"Cone of Uncertainty"**. Grafik ini lebih efektif daripada diagram batang statis karena secara inheren menyampaikan bahwa *prediksi keuangan adalah rentang probabilitas, bukan titik pasti*.
+
+**Konsep dan Interpretasi:**
+
+Kerucut ketidakpastian memplot nilai proyeksi kerugian seiring bertambahnya horizon waktu atau seiring dengan meningkatnya tingkat kepercayaan statistik.
+
+*   **Bagian Bawah Kerucut (High Confidence, Low Impact):**
+    Representasi dari skenario "Most Likely" atau "Base Case". Area ini sempit karena variansnya rendah. Manajer dapat menggunakan area ini untuk perencanaan anggaran operasional standar.
+
+*   **Bagian Tengah Kerucut (Moderate Confidence, Moderate Impact):**
+    Mencakup fluktuasi pasar normal. Lebar kerucut di sini menunjukkan volatilitas yang dapat diterima.
+
+*   **Bagian Atas Kerucut (Low Probability, Catastrophic Impact - The "Headroom"):**
+    Ini adalah area kritis untuk *Tail Risk Management*. Semakin tinggi tingkat kepercayaan (mendekati 99.9%), kerucut melebar secara drastis, mewakili skenario ekstrem.
+
+**Cara Membaca Kerucut untuk Keputusan Investasi:**
+
+1.  **Identifikasi Titik Pivot:** Cari titik di mana kelanjutan kerucut memotong garis "Capital Adequacy Ratio" (CAR) minimum perusahaan.
+2.  **Stress Testing Visual:** Jika bagian atas kerucut (ekor distribusi) menembus batas CAR minimum, ini adalah sinyal visual bahwa cadangan dana saat ini tidak memadai untuk skenario ekor hitam tersebut, terlepas dari kinerja laba bersih dalam skenario rata-rata.
+3.  **Komunikasi kepada Investor:** Gunakan grafik ini untuk menjelaskan bahwa keputusan dividen atau ekspansi bisnis mempertimbangkan skenario terburuk (bagian atas kerucut), bukan hanya kinerja historis rata-rata, yang meningkatkan kredibilitas transparansi korporasi.
+
+**Implementasi Teknis dalam Dashboard:**
+
+```html
+<!-- Struktur Logika Visual Cone of Uncertainty -->
+<div class="uncertainty-cone-container">
+    <canvas id="riskConeChart"></canvas>
+    <div class="legend">
+        <span class="color-block low-risk" style="background-color: #4CAF50;"></span> 
+        High Confidence (Base Case)
+    </div>
+    <div class="legend">
+        <span class="color-block high-risk" style="background-color: #F44336;"></span> 
+        Low Confidence / Black Swan (Tail Risk)
+    </div>
+</div>
+<script>
+    // Inisialisasi grafik menggunakan library Chart.js atau D3.js
+    // Data diambil dari stress_test_results.json
+    // Batas bawah dan atas kerucut dihitung menggunakan percentiles (e.g., 5th dan 95th)
+    // dari distribusi log-normal atau Generalized Extreme Value (GEV) yang sesuai.
+</script>
+```
+
+**Rekomendasi Praktis:**
+Dalam presentasi dewan direksi, hindari menampilkan nilai tunggal (misal: "Kerugian diperkirakan $1M"). Sebaliknya, tunjukkan keruc ketidakpastian dan jelaskan: *"Berdasarkan model kami, kami memiliki keyakinan 95% bahwa kerugian tidak akan melebihi $1.5M, namun dalam skenario ekstrem (0.1% probabilitas), kerugiannya bisa mencapai $10M. Cadangan dana kita saat ini cukup untuk menutupi skenario 95%, tetapi memerlukan mitigasi tambahan untuk skenario ekor hitam."* Pendekatan ini secara etis dan hukum lebih defensif daripada menjamin akurasi prediksi tunggal.
