@@ -20447,3 +20447,157 @@ A: Jika kunci hilang, Anda tidak dapat mendekripsi database historis. Namun, And
 
 **Q: Apakah skrip ini kompatibel dengan Windows?**
 A: Ya, namun pastikan path file menggunakan format escape yang benar (contoh: `C:\path\to\file.json`) atau gunakan *raw string* Python. Untuk lingkungan produksi, disarankan menjalankan skrip di lingkungan Linux/macOS untuk stabilitas timestamp dan izin file.
+
+
+Berikut adalah kelanjutan dokumentasi teknis yang komprehensif, dirancang untuk ditempatkan langsung setelah bagian **6.10. Pemecahan Masalah Umum (Troubleshooting)** pada `README.md`.
+
+---
+
+### 6.11. Verifikasi Integritas Bukti Forensik Otomatis (Autonomous Forensic Evidence Verification)
+
+Untuk memastikan kelengkapan *Chain of Custody* (Rantai Pengendalian Bukti) dan memenuhi standar admissibility bukti di pengadilan, sistem menyediakan skrip verifier independen bernama `compliance_forensic_chain_of_custody_verifier.py`. Skrip ini berfungsi sebagai "agen netral" yang memvalidasi integritas kriptografi seluruh artefak digital tanpa bergantung pada kepercayaan internal sistem.
+
+#### 1. Fungsi Utama
+Skrip ini melakukan tiga lapisan verifikasi kritis:
+1.  **Validasi Hash Node Kronologi**: Memverifikasi bahwa setiap entri dalam `forensic_chronicle.json` memiliki hash yang konsisten dengan data aslinya.
+2.  **Verifikasi Timestamping Otoritatif**: Mengonfirmasi keabsahan waktu pencatatan bukti menggunakan layanan otoritas waktu terpercaya (RFC 3161), mencegah serangan manipulasi waktu (*timestamping attack*).
+3.  **Deteksi Perubahan Metadata (Anti-Tampering)**: Memindai jejak perubahan pada struktur file dan mendeteksi potensi pergeseran bit (*bit rot*) atau intervensi manual yang tidak sah.
+
+#### 2. Implementasi Skrip Verifier
+
+Skrip `compliance_forensic_chain_of_custody_verifier.py` harus dijalankan secara terisolasi (misalnya, di lingkungan sandbox atau mesin yang berbeda dari server produksi) untuk menghindari konflik akses file.
+
+**Sintaks Penggunaan:**
+
+```bash
+python compliance_forensic_chain_of_custody_verifier.py \
+    --chronicle-input /secure/path/audit_results/forensic_chronicle.json \
+    --hash-algorithm SHA-256 \
+    --timestamp-authority https://tsa.trustedauthority.com/tsa \
+    --output-verification-report /secure/path/audit_results/custody_verification.json \
+    --legal-standard KUHAP_INDONESIA
+```
+
+**Deskripsi Argumen:**
+
+| Argumen | Tipe | Deskripsi |
+| :--- | :--- | :--- |
+| `--chronicle-input` | `str` | Path absolut ke file `forensic_chronicle.json` yang dihasilkan oleh builder. Wajib ada. |
+| `--hash-algorithm` | `str` | Algoritma hashing yang digunakan selama pengumpulan bukti. Default: `SHA-256`. Pilihan lain: `SHA-3_256`. |
+| `--timestamp-authority` | `str` | URL endpoint server otoritas waktu (TSA) yang kompatibel dengan RFC 3161. Digunakan untuk memvalidasi stempel waktu. |
+| `--output-verification-report` | `str` | Path output untuk file JSON hasil laporan verifikasi (`chain_of_custody_verification.json`). |
+| `--legal-standard` | `str` | Standar bukti hukum yang diterapkan untuk validasi konteks. Contoh: `FRE_2011` (Federal Rules of Evidence AS) atau `KUHAP_INDONESIA`. Default: `KUHAP_INDONESIA`. |
+
+**Contoh Output `chain_of_custody_verification.json`:**
+
+```json
+{
+  "verification_timestamp": "2023-10-28T10:00:00Z",
+  "legal_standard_applied": "KUHAP_INDONESIA",
+  "overall_integrity_status": "VALID",
+  "chain_of_custody": {
+    "evidence_items_verified": 142,
+    "tamper_detected": false,
+    "timestamp_validation": {
+      "tsa_confirmed": true,
+      "drift_tolerance_ms": 50,
+      "warnings": []
+    },
+    "hash_verification": {
+      "algorithm_used": "SHA-256",
+      "all_nodes_matched": true,
+      "failed_nodes": []
+    }
+  },
+  "legal_admissibility_assessment": {
+    "integrity_proven": true,
+    "authenticity_confirmed": true,
+    "repudiation_prevention": true
+  }
+}
+```
+
+#### 3. Mekanisme "Anti-Tampering Sentinel"
+
+Sistem ini mengintegrasikan modul *Sentinel* yang bekerja secara real-time selama proses verifikasi. Jika skrip mendeteksi anomali berikut, mekanisme penguncian otomatis akan diaktifkan:
+
+1.  **Hash Mismatch**: Jika hash SHA-256 pada file bukti fisik berbeda dengan hash yang tercatat di narasi kronologi.
+2.  **Metadata Drift**: Jika atribut file (seperti `mtime` atau `inode`) berubah secara tidak wajar setelah proses *imaging* awal.
+3.  **Unauthorized Write Attempts**: Jika ada upaya penulisan pada direktori bukti saat status "Read-Only" diaktifkan oleh skrip.
+
+**Tindakan Otomatis saat Deteksi Ancaman:**
+*   **Pencatatan Alarm**: Log insiden keamanan tingkat kritis (*Critical Security Incident*) ditulis ke `/secure/logs/security_alarm.log`.
+*   **Penguncian Akses**: Perintah sistem file `chmod 444 -R <path_evidence_dir>` dieksekusi untuk memaksa mode *Read-Only* universal pada direktori bukti.
+*   **Notifikasi**: Mengirimkan notifikasi darurat (jika konfigurasi email/slack aktif) ke tim compliance officer.
+
+---
+
+### 6.12. Compliance & Legal: Standar Forensik Digital
+
+Bagian ini menjelaskan landasan metodologis dari sistem verifikasi, merujuk pada standar internasional dan nasional yang menjamin admissibility bukti di pengadilan.
+
+#### 6.12.1. Cryptographic Proof of Evidence Integrity
+
+Metodologi **Cryptographic Proof of Evidence Integrity** adalah fondasi kepercayaan (*trust anchor*) dalam ekosistem audit ini. Berbeda dengan checksum biasa yang hanya memastikan data tidak rusak secara fisik, bukti kriptografis dalam konteks forensik menjamin dua hal utama:
+
+1.  **Non-Repudiation (Anti-Penkulian)**: Pembuat bukti tidak dapat membantah bahwa bukti tersebut berasal dari sistem mereka pada waktu tertentu.
+2.  **Verifikasi Pihak Ketiga (Third-Party Verifiability)**: Hakim, jaksa, atau pakar forensik pihak ketiga dapat memverifikasi keaslian bukti **tanpa perlu mengakses data mentah** atau kunci pribadi generator. Mereka hanya membutuhkan:
+    *   Bukti terenkripsi (atau hash-nya).
+    *   Salinan publik dari algoritma hashing.
+    *   Sertifikat waktu dari TSA.
+
+**Cara Kerja Verifikasi Pihak Ketiga:**
+Pihak ketiga melakukan langkah berikut:
+1.  Menghitung hash SHA-256 dari file bukti fisik yang disajikan.
+2.  Membandingkan hasil hash dengan hash yang dicantumkan dalam `forensic_chronicle.json`.
+3.  Jika cocok, pihak ketiga meminta *proof-of-existence* dari TSA.
+4.  TSA memverifikasi bahwa hash tersebut telah direkam pada timestamp tertentu, membuktikan bahwa bukti eksis sebelum tanggal tersebut dan tidak dimodifikasi setelahnya.
+
+#### 6.12.2. Digital Forensic Standards (NIST SP 800-86)
+
+Sistem ini dirancang sesuai dengan pedoman **NIST Special Publication 800-86: "Guide to Integrating Forensic Techniques into Incident Response"**. Berikut adalah poin kunci kesesuaiannya:
+
+*   **Koleksi Bukti yang Aman (Secure Evidence Collection)**:
+    Sistem menggunakan *immutable storage* dan hashing saat pengumpulan data, memenuhi prinsip NIST bahwa koleksi bukti harus dimulai dengan langkah-langkah yang mencegah kontaminasi.
+*   **Pelacakan Kriptografi (Cryptographic Chain of Custody)**:
+    Setiap perpindahan kepemilikan atau akses log dicatat dengan hash kriptografi, memastikan bahwa jejak audit tidak dapat dihapus tanpa meninggalkan jejak (tamper-evident).
+*   **Validasi Integritas (Integrity Validation)**:
+    Penggunaan skrip `compliance_forensic_chain_of_custody_verifier.py` memenuhi rekomendasi NIST untuk melakukan verifikasi hash berkala terhadap bukti digital guna mendeteksi degradasi data atau manipulasi.
+*   **Ketersediaan untuk Pengadilan (Courtroom Readiness)**:
+    Struktur output JSON (`chain_of_custody_verification.json`) dirancang agar dapat dibaca secara parsial oleh auditor manusia dan parsial oleh mesin, memudahkan penjelasan proses forensik di depan hakim.
+
+#### 6.12.3. Kepatuhan Regulasi Lokal & Internasional
+
+Sistem ini mendukung konfigurasi standar bukti untuk berbagai yurisdiksi melalui argumen `--legal-standard`:
+
+*   **KUHAP (Kitab Undang-Undang Hukum Acara Pidana) Indonesia**:
+    Memastikan bukti digital diakui sebagai "alat bukti yang sah" apabila proses pengambilannya dilakukan secara legal dan utuh. Verifikasi hash menjadi bukti keutuhan (*integrity*) dokumen elektronik.
+*   **FRE (Federal Rules of Evidence) AS - Rule 901(b)(9)**:
+    Memenuhi persyaratan autentikasi bukti teknologi yang dihasilkan oleh proses atau sistem yang menghasilkan hasil yang akurat. Skrip verifier berfungsi sebagai ahli independen yang menguji keandalan sistem tersebut.
+
+---
+
+### 6.13. Integrasi dengan Sistem SIEM/SOAR
+
+Untuk otomatisasi penuh, hasil dari `compliance_forensic_chain_of_custody_verifier.py` dapat diintegrasikan ke dalam platform SIEM (Security Information and Event Management) atau SOAR (Security Orchestration, Automation, and Response).
+
+**Contoh Integrasi Log:**
+```json
+{
+  "event_id": "FORENSIC_VERIFY_001",
+  "source": "Compliance Forensic Agent",
+  "action": "CHAIN_OF_CUSTODY_VERIFICATION",
+  "result": "PASS",
+  "severity": "INFO",
+  "details": {
+    "hash_algorithm": "SHA-256",
+    "tsa_server": "tsa.trustedauthority.com",
+    "evidence_count": 142
+  }
+}
+```
+
+**Rekomendasi Automasi:**
+1.  Jadwalkan eksekusi verifier harian melalui cron job atau scheduler CI/CD.
+2.  Konfigurasikan SIEM untuk memancarkan alarm jika `overall_integrity_status` berubah menjadi `INVALID`.
+3.  Gunakan hasil verifikasi sebagai input untuk *playbook* investigasi insiden, memastikan bahwa bukti yang digunakan dalam investigasi awal sudah terverifikasi integritasnya.
