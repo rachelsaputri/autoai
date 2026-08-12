@@ -21185,3 +21185,96 @@ Prosedur PRS memberikan lapisan pertahanan terakhir terhadap kesalahan interpret
 *   **Kepatuhan Regulasi Proaktif:** Secara otomatis memperingatkan jika strategi pembuktian yang diusulkan bertentangan dengan interpretasi hukum terbaru yang diterbitkan oleh pengadilan tertinggi di yurisdiksi tersebut.
 
 Dengan integrasi `compliance_evidentiary_cross_examination_librarian.py` dan penerapan metodologi Semantic Grounding serta PRS, sistem tidak lagi hanya berfungsi sebagai alat verifikasi teknis, melainkan menjadi mitra strategis hukum yang meningkatkan kredibilitas pembuktian digital di mata hakim dan regulator.
+
+
+Berikut adalah konten lanjutan yang komprehensif untuk dokumen README.md, disusun dengan struktur teknis yang ketat, mencakup dokumentasi API, metodologi hukum-teknik, dan prosedur penanganan konflik.
+
+***
+
+### 6.15.6. Dispute Resolution & Semantic Alignment: The Orchestrator
+
+Bagian ini mendokumentasikan komponen inti yang bertanggung jawab atas harmonisasi semantik antara temuan teknis (IT/Security) dan interpretasi yuridis (Legal), serta prosedur penanganan konflik (Dispute Resolution).
+
+#### 6.15.6.1. Modul `compliance_legal_technical_dispute_resolution_orchestrator.py`
+
+Modul ini berfungsi sebagai **Mediator Otonom** dalam pipeline simulasi interogasi pengadilan. Tujuannya adalah mendeteksi inkonsistensi logis atau semantik antara bukti teknis yang dikumpulkan oleh Knowledge Graph Visualizer dan narasi hukum yang dihasilkan oleh Document Generator, lalu menghasilkan dokumen resolusi (Resolution Brief) yang menjembatani kesenjangan tersebut.
+
+**Fungsi Utama:**
+1.  **Deteksi Inkonsistensi Semantik:** Menganalisis kesenjangan antara deskripsi teknis (fakta mentah, log server, timestamp) dan narasi hukum (klaim, argumen, kesimpulan).
+2.  **Harmonisasi Konteks:** Mengubah jargon teknis menjadi konteks hukum yang valid dan sebaliknya, memastikan tidak ada "loss of fidelity" dalam pembuktian.
+3.  **Generasi Resolution Brief:** Menciptakan dokumen terstruktur yang menjelaskan divergensi, memberikan konteks korektif, dan merekomendasikan argumen hukum yang paling kuat berdasarkan fakta teknis yang telah diverifikasi.
+4.  **Mekanisme Eskalasi (Human-in-the-Loop):** Mengalihkan kasus dengan tingkat ketidakpastian tinggi (high entropy) ke review manusia (Senior Legal Counsel).
+
+**Parameter Baris Perintah (CLI):**
+
+| Argumen | Tipe | Deskripsi |
+| :--- | :--- | :--- |
+| `--technical-logs` | `str` | Path ke direktori atau file log implementasi teknis (JSON/CSV) yang dihasilkan oleh `compliance_governance_knowledge_graph_visualizer.py`. |
+| `--legal-narratives` | `str` | Path ke direktori atau file naskah hukum awal (Markdown/TXT) yang dihasilkan oleh `compliance_autonomous_legal_document_gen.py`. |
+| `--mediation-model` | `str` | Path ke model LLM khusus (fine-tuned) yang diinstruksikan untuk penenangan konflik hukum-teknik. Model ini harus memiliki pemahaman mendalam tentang both *cybersecurity forensics* dan *contract/criminal law*. |
+| `--output-resolution-brief` | `str` | Path output untuk menyimpan `Resolution Brief` final dalam format PDF atau JSON terstruktur. |
+
+**Contoh Penggunaan:**
+
+```bash
+python compliance_legal_technical_dispute_resolution_orchestrator.py \
+    --technical-logs ./output/tech_logs/incident_2024_001.json \
+    --legal-narratives ./output/legal_drafts/defense_strategy_v2.md \
+    --mediation-model ./models/legal_tech_mediator_llm.gguf \
+    --output-resolution-brief ./reports/resolution_brief_final.pdf
+```
+
+#### 6.15.6.2. Metodologi: Technical-Legal Semantic Harmonization
+
+Sistem menerapkan prinsip **Technical-Legal Semantic Harmonization** untuk memastikan integritas bukti digital sebelum masuk ke tahap simulasi pengadilan. Metodologi ini mencegah miskomunikasi kritis yang sering menjadi alasan utama penolakan bukti digital oleh hakim atau regulator.
+
+**Prinsip Dasar Harmonisasi:**
+
+1.  **Validasi双向 (Bidirectional Validation):**
+    *   *Teknikal ke Hukum:* Setiap klaim hukum ("Data dicuri melalui celah keamanan") harus didukung oleh entitas teknis spesifik (misal: `vulnerability_id=CVE-2023-XXXX`, `access_log_entry=192.168.1.50`, `encryption_status=AES-256`).
+    *   *Hukum ke Teknikal:* Setiap fakta teknis yang diunggah ke dalam sistem harus diklasifikasikan ke dalam kategori hukum yang relevan (misal: `evidence_type=Digital Forensics`, `admissibility_rule=Federal Rules of Evidence 902(13)`).
+
+2.  **Penerapan ISO/IEC 27001:2022 Control A.18.2.1 (Legal Compliance Verification):**
+    Modul ini secara otomatis memverifikasi kepatuhan terhadap standar internasional berikut sebagai batasan mutlak untuk validitas argumen:
+    *   **A.18.2.1 Legal Compliance Verification:** Memastikan bahwa seluruh proses pengumpulan, preservasi, dan analisis bukti digital mematuhi hukum pidana, perdata, dan regulasi privasi data yang berlaku di yurisdiksi yang relevan.
+    *   **Integritas Rantai Pengawasan (Chain of Custody):** Sistem memeriksa metadata teknis (hash SHA-256, timestamp otoritatif, tanda tangan digital) untuk membuktikan bahwa bukti tidak telah diubah sejak pengumpulan. Jika ada ketidakkonsistenan antara log teknis dan narasi hukum mengenai *chain of custody*, sistem akan menandai argumen tersebut sebagai `INVALID_EVIDENCE`.
+
+3.  **Mencegah Miskomunikasi Kritis:**
+    Banyak kasus gagal karena tim IT melaporkan "Server Down" sementara tim hukum berargumen "Denial of Service Attack". Harmonisasi semantik memastikan bahwa:
+    *   Definisi teknis "Server Down" dipetakan ke definisi hukum "Service Interruption" atau "Breach of SLA" dengan tepat.
+    *   Batasan antara "Malware" (tindakan kriminal) dan "User Error" (kelalaian) diperjelas melalui analisis log mendalam, sehingga tim hukum dapat menyusun strategi litigasi yang tepat (pidana vs perdata).
+
+#### 6.15.6.3. Prosedur: Dispute Escalation Matrix
+
+Sistem dirancang dengan mekanisme umpan balik tertutup. Ketika mediator AI mendeteksi ambiguitas tinggi atau konflik logis yang tidak dapat diselesaikan secara otomatis, ia akan memicu **Dispute Escalation Matrix**.
+
+**Kriteria Eskalasi Otomatis:**
+
+1.  **Tingkat Ketidakpastian Model (> 0.85 Entropy):**
+    Jika model LLM mediator memiliki confidence score di bawah 15% dalam menentukan relevansi hukum dari fakta teknis tertentu, konflik ditandai untuk review manusia.
+2.  **Kontradiksi Faktual Teringgi:**
+    Jika terdapat perbedaan signifikan (>10 detik) antara timestamp log sistem dan narasi saksi ahli, atau jika hash file bukti tidak cocok dengan manifest yang dilaporkan dalam narasi hukum.
+3.  **Risiko Yurisdiksi Tinggi:**
+    Kasus yang melibatkan yurisdiksi lintas batas dengan regulasi yang tumpang tindih (misal: GDPR vs CCPA) di mana implikasi hukumnya ambigu.
+
+**Alur Eskalasi:**
+
+1.  **Deteksi & Penandaan:**
+    Modul Orkestrator menghasilkan file `escalation_queue.json` yang berisi:
+    *   `conflict_id`: Unik ID konflik.
+    *   `technical_claim`: Kutipan dari log teknis.
+    *   `legal_claim`: Kutipan dari narasi hukum.
+    *   `discrepancy_analysis`: Analisis singkat mengapa kedua klaim tersebut bertentangan.
+    *   `risk_level`: (HIGH/MEDIUM/LOW).
+
+2.  **Notifikasi Senior Legal Counsel:**
+    Sistem mengirimkan notifikasi kepada Senior Legal Counsel melalui antarmuka dashboard manajemen risiko, melampirkan `Resolution Brief` sementara dan data mentah untuk tinjauan.
+
+3.  **Review Manusia & Fine-Tuning:**
+    Counsel meninjau konflik, memberikan koreksi, atau menyetujui argumen tertentu. Korespondensi ini dicatat dalam sistem sebagai *Ground Truth* baru untuk meningkatkan akurasi model mediator di masa depan (Reinforcement Learning from Human Feedback - RLHF).
+
+4.  **Resolusi & Penutupan:**
+    Setelah tinjauan manusia, sistem memperbarui status konflik menjadi `RESOLVED_MANUALLY` atau `RESOLVED_AUTOMATICALLY` (jika koreksi counsel dapat diprogram ulang ke dalam logika sistem). `Resolution Brief` final kemudian digenerate dan disegel secara digital.
+
+**Keuntungan Bisnis:**
+Prosedur ini menjamin bahwa tidak ada argumen hukum yang ambigu atau lemah yang lolos ke tahap simulasi pengadilan tingkat lanjut. Ini mengurangi risiko kehilangan gugatan akibat kesalahan teknis dasar dan memastikan bahwa tim hukum fokus hanya pada argumen yang telah diverifikasi secara ketat, sehingga mengoptimalkan alokasi sumber daya advokat senior.
