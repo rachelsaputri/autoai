@@ -16168,3 +16168,110 @@ Laporan yang dihasilkan berisi tiga bagian utama:
 
 > **Catatan Penting untuk Tim Legal & Teknik:**
 > Laporan konflik ini bersifat *suggestive*. Keputusan akhir mengenai penanganan konflik yurisdiksi harus melibatkan tinjauan ahli hukum, dengan dukungan teknis dari metrik yang dihasilkan oleh modul ini. Jangan pernah mengabaikan konflik "Critical" tanpa dokumentasi risiko yang disetujui oleh CISO dan DPO.
+
+
+Berikut adalah konten lanjutan untuk `README.md` yang dirancang untuk melengkapi dokumentasi teknis Anda. Konten ini mencakup dokumentasi implementasi skrip simulasi serangan, metodologi pengujian ketahanan adversarial, serta prosedur remediasi otomatis.
+
+---
+
+##### Simulasi Serangan Adversarial AI (Red Teaming Agent)
+
+Untuk memastikan bahwa mekanisme kepatuhan tidak hanya secara logika benar tetapi juga tahan terhadap manipulasi teknis, kami menyertakan alat pengujian penetrasi berbasis AI bernama `compliance_malicious_ai_attack_simulator.py`. Alat ini mensimulasikan skenario "AI vs. AI" di mana agen penyerang (Red Team Agent) secara agresif mencoba mengeksploitasi celah dalam model interpretasi kebijakan (`compliance_mlp_compliance_llm_policy_interpreter.py`) dan penegak kebijakan (`compliance_policy_enforcer.py`).
+
+Tujuan utama dari alat ini adalah memvalidasi prinsip **"Privacy by Design"** dan **"Security by Default"** dengan membuktikan apakah sistem dapat dipaksa untuk meloloskan data sensitif, menafsirkan ulang regulasi secara bias, atau gagal dalam penegakan aturan akibat *prompt injection* atau *semantic evasion*.
+
+###### Metodologi: Adversarial Robustness Testing for Regulatory AI
+
+Alat ini mengimplementasikan framework **NIST AI Risk Management Framework (AI RMF)**, khususnya fase *Measure* dan *Map*, untuk mengkuantifikasi kerentanan model terhadap serangan adversarial. Prosedur pengujian mencakup tiga dimensi utama:
+
+1.  **Prompt Injection & Context Manipulation:**
+    Mengirimkan input yang dirancang khusus untuk "mengaburkan" instruksi asli kebijakan kepatuhan dengan instruksi berbahaya (misalnya, menggunakan teknik *jailbreaking* atau *role-playing*). Ini menguji apakah pemisah konteks (`context_separator`) dalam modul interpreter berfungsi dengan baik atau dapat di-bypass.
+
+2.  **Semantic Drift & Evasion:**
+    Menggunakan teknik *semantic equivalence* untuk menguji apakah perubahan frasa yang secara semantik sama tetapi secara sintaksis berbeda dapat menghasilkan interpretasi kebijakan yang berbeda. Ini penting untuk memastikan bahwa kontrol teknis tidak rentan terhadap *loophole* linguistik.
+
+3.  **Data Poisoning Simulation:**
+    Mensimulasikan skenario di mana data input pelatihan atau inference mengandung polusi halus yang dirancang untuk menggeser batas keputusan model, menguji ketahanan fitur ekstraksi terhadap noise adversarial.
+
+###### Argumen Skenario Serangan
+
+Skrrip ini mendukung konfigurasi fleksibel untuk menyesuaikan skenario pengujian sesuai dengan profil risiko organisasi.
+
+| Argumen | Tipe | Default | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `--target-model` | `str` | *(Required)* | Path ke direktori atau file model `compliance_mlp_compliance_llm_policy_interpreter.py` yang akan diuji ketahanannya. |
+| `--attack-strategies` | `list` | `['prompt_injection', 'semantic_drift', 'context_overflow']` | Daftar strategi serangan yang diaktifkan. Opsi valid: `['prompt_injection', 'semantic_drift', 'context_overflow', 'data_poisoning', 'recursive_depth']`. |
+| `--intensity-level` | `str` | `medium` | Tingkat intensitas serangan. Opsi: `low` (pengujian dasar), `medium` (pengujian standar), `high` (pengujian stres penuh/brute-force). |
+| `--output-attack-report` | `str` | `ai_attack_surface_report.json` | Path keluaran untuk laporan kerentanan JSON yang berisi detail serangan, keberhasilan bypass, dan rekomendasi remediasi. |
+
+###### Contoh Penggunaan
+
+Simulasi serangan intensitas tinggi terhadap model interpreter kebijakan lokal dengan fokus pada *semantic evasion* dan *prompt injection*:
+
+```bash
+python compliance_malicious_ai_attack_simulator.py \
+    --target-model ./models/compliance_interpreter_v2.pkl \
+    --attack-strategies prompt_injection,semantic_drift \
+    --intensity-level high \
+    --output-attack-report ./security_audit/red_team_report_q3.json
+```
+
+###### Interpretasi Laporan Kerentanan (`ai_attack_surface_report.json`)
+
+Laporan yang dihasilkan memberikan metrik kuantitatif dan kualitatif mengenai ketahanan sistem:
+
+1.  **Bypass Rate (Tingkat Pembajakan):** Persentase serangan yang berhasil melewati filter keamanan dasar dan mencapai modul pen enforcement. Nilai >5% dianggap kritis.
+2.  **Hallucination Trigger Count:** Jumlah kali model menghasilkan interpretasi fakta yang salah (hallucination) sebagai respons terhadap input adversarial.
+3.  **Guardrail Efficacy:** Efektivitas lapisan *guardrail* dalam mendeteksi dan memblokir input berbahaya.
+4.  **Remediation Pathway:** Langkah-langkah teknis spesifik yang diperlukan untuk menutup celah yang ditemukan (misalnya: peningkatan suhu sampling, penambahan validasi regex, atau fine-tuning ulang).
+
+> **Peringatan Keamanan:**
+> Skenario `intensity-level: high` dapat menyebabkan beban komputasi signifikan dan potensi *output* yang tidak diinginkan atau ofensif. Pastikan alat ini dijalankan hanya di lingkungan terisolasi (sandbox) dan jangan pernah digunakan terhadap model yang terhubung langsung ke sistem produksi tanpa pemisahan jaringan yang ketat.
+
+###### Prosedur Remediasi Otomatis
+
+Jika skrip mendeteksi kerentanan kritis (Critical Vulnerability), modul ini tidak hanya melaporkan masalah, tetapi juga mengusulkan tindakan korektif. Dalam mode `auto-remediate` (jika diaktifkan), sistem akan:
+
+1.  **Isolasi Modul:** Memutuskan sementara koneksi modul yang rentan dari pipeline inference utama.
+2.  **Penerapan Guardrails Berlapis:** Menginjeksikan lapisan validator tambahan (*pre-filter* dan *post-processor*) berdasarkan pola serangan yang terdeteksi.
+3.  **Rollback & Verifikasi:** Mengembalikan sistem ke konfigurasi stabil terakhir dan menjalankan kembali subset pengujian untuk memastikan masalah telah tertutup sebelum sistem diizinkan kembali ke mode produksi.
+
+---
+
+##### Security & Resilience: Standard Operating Procedure
+
+Bagian ini menjelaskan bagaimana integrasi antara alat *cross-jurisdictional* dan *adversarial simulator* membentuk kerangka keamanan end-to-end bagi aplikasi AI kepatuhan.
+
+###### 1. Integrasi NIST AI RMF dalam Siklus Hidup Pengembangan
+
+Kami mengadopsi framework **NIST AI RMF** sebagai standar operasional untuk mengelola risiko AI. Khususnya, fungsi **Measure** (Mengukur) diimplementasikan melalui skrip `compliance_malicious_ai_attack_simulator.py`, sementara fungsi **Map** (Memetakan) dilakukan melalui `compliance_cross_jurisdictional_matrix_compiler.py` untuk memetakan risiko yurisdiksi ke kontrol teknis spesifik.
+
+| Fase NIST AI RMF | Implementasi Teknis | Alat/Dokumentasi Terkait |
+| :--- | :--- | :--- |
+| **Govern** | Kebijakan etika AI dan persetujuan DPO/CISO. | `POLICY_GOVERNANCE.md` |
+| **Map** | Pemetaan regulasi global ke kontrol teknis. | `compliance_cross_jurisdictional_matrix_compiler.py` |
+| **Measure** | Pengujian ketahanan adversarial dan metrik bias. | `compliance_malicious_ai_attack_simulator.py` |
+| **Manage** | Prioritisasi risiko dan remediasi. | `risk_register.csv`, `conflict_analysis_report.json` |
+
+###### 2. Prinsip "Security by Default" pada Arsitektur Kepatuhan
+
+Sistem dirancang dengan asumsi bahwa entitas eksternal (baik manusia maupun AI lain) mungkin mencoba memanipulasi output kebijakan. Oleh karena itu, kontrol teknis memiliki hierarki prioritas sebagai berikut:
+
+1.  **Input Validation Layer:** Semua input yang masuk ke `compliance_mlp_compliance_llm_policy_interpreter.py` divalidasi terhadap pola `prompt_injection` dan `xss` menggunakan regex dan model deteksi anomali.
+2.  **Context Isolation:** Data sensitif dari yurisdiksi A secara fisik dipisahkan dari konteks inferensi yurisdiksi B untuk mencegah *cross-contamination* atau kebocoran data (data leakage).
+3.  **Output Sanitization:** Sebelum output kebijakan dikirim ke pengguna atau sistem backend, ia dilewatkan melalui `compliance_policy_enforcer.py` untuk memastikan tidak ada instruksi berbahaya yang terselubung dalam teks kebijakan.
+
+###### 3. Tanggapan Insiden Keamanan AI
+
+Dalam kasus di mana simulasi serangan atau audit live mendeteksi kegagalan krusial pada mekanisme kepatuhan:
+
+1.  **Stop-the-Line Protocol:** Sistem secara otomatis masuk ke mode *Maintenance* dan menghentikan semua proses inference baru.
+2.  **Forensic Logging:** Semua input adversarial yang menyebabkan kegagalan dicatat secara lengkap (hashing input/output) untuk analisis forensik oleh tim keamanan.
+3.  **Hotfix Deployment:** Tim teknik menerapkan patch pada model interpretasi atau kebijakan, diikuti dengan re-run skrip simulasi serangan untuk verifikasi keberhasilan mitigasi.
+4.  **Audit Trail:** Laporan insiden dan tindakan korektif didokumentasikan dalam `audit_log.json` sebagai bukti kepatuhan terhadap standar industri (seperti ISO 27001 dan NIST AI RMF).
+
+###### 4. Batasan dan Asumsi
+
+*   **Covered Threats:** Alat ini dirancang untuk mendeteksi ancaman yang berasal dari manipulasi prompt, *semantic drift*, dan eksploitasi kerentanan model LLM standar.
+*   **Excluded Threats:** Keamanan terhadap serangan infrastruktur fisik, *side-channel attacks* tingkat rendah (hardware), atau ancaman ransomware eksternal tidak menjadi cakupan alat ini.
+*   **Dynamic Nature of LLMs:** Karena model LLM bersifat dinamis dan terus berkembang, hasil pengujian bersifat *point-in-time*. Pengujian ulang disarankan dilakukan setiap kali terjadi pembaruan signifikan pada model dasar (*base model*) atau perubahan regulasi yurisdiksi utama.
