@@ -11807,3 +11807,145 @@ Misalkan terjadi ketidaksesuaian antara waktu deteksi insiden (09:00) dan waktu 
 ---
 
 *Catatan Keamanan Lanjutan: Pastikan bahwa file `legal_narrative_archive.docx` disimpan di penyimpanan terenkripsi (AES-256) segera setelah generasi. Hash integritas harus dikirimkan ke channel komunikasi terpisah (misal: Slack secure channel atau email terenkripsi) untuk pembandingan verifikasi, bukan disertakan dalam dokumen itu sendiri agar tetap efektif untuk deteksi perubahan pasca-tanda tangan.*
+
+
+Berikut adalah konten lanjutan yang dirancang untuk ditempel tepat setelah bagian **"Catatan Keamanan Lanjutan"** pada `README.md`. Bagian ini mencakup dokumentasi teknis standar interoperabilitas, protokol enkripsi, serta dokumentasi fungsional dari skrip `compliance_legal_discovery_searcher.py` yang telah Anda minta.
+
+---
+
+### 9. Compliance & Legal: Legal Tech Interoperability & Encryption Protocol
+
+Bagian ini menetapkan standar teknis dan operasional untuk memastikan bahwa mesin *Legal Discovery* memenuhi persyaratan kepatuhan data (GDPR, PDPA, atau regulasi lokal terkait privasi data kesehatan/keuangan) sambil menjaga interoperabilitas antar sistem forensik dan hukum.
+
+#### 9.1 Standar Legal Tech Interoperability (LTI)
+
+Untuk memastikan bahwa temuan investigasi dapat dipertanggungjawabkan di hadapan pengadilan tanpa memerlukan konversi format yang berisiko kehilangan metadata, seluruh output dari *Discovery Engine* harus mematuhi standar **LTI v1.0**.
+
+1.  **Struktur Metadata Baku:**
+    Setiap kutipan (`quote`) yang diekstrak harus menyertasi meta-tag JSON internal berikut untuk tujuan penelusuran balik (*provenance tracking*):
+    ```json
+    {
+      "source_id": "string (UUID dari file asal)",
+      "page_or_line_ref": "string",
+      "extraction_timestamp": "ISO 8601 UTC",
+      "hash_integrity": "SHA-256 hash dari teks asli sebelum redaksi",
+      "pii_status": "masked|visible",
+      "legal_basis": "string (dasar hukum pengungkapan)"
+    }
+    ```
+2.  **Kompatibilitas Sistem Hukum:**
+    Output akhir dari mesin pencarian harus dapat diekspor ke format `.json` atau `.pdf` yang kompatibel dengan *Case Management Systems* (CMS) standar industri. Transformasi data harus dilakukan secara *stateless* untuk mencegah *data leakage* melalui cache lokal.
+3.  **Audit Trail Non-Repudiable:**
+    Setiap query yang dilakukan terhadap arsip bukti harus dicatat dalam log sistem yang terintegrasi dengan *Chain of Custody*. Query yang gagal atau yang mengembalikan hasil dengan tingkat *relevance* rendah namun mengandung PII sensitif harus tetap dilog sebagai upaya akses untuk tujuan audit forensik internal.
+
+#### 9.2 Protokol Enkripsi End-to-End untuk Data Pencarian
+
+Karena indeks vektor lokal (`index-output`) berisi representasi semantik dari dokumen hukum sensitif, keamanan data selama proses indeksasi dan pencarian adalah prioritas utama.
+
+1.  **Enkripsi At Rest (Pada Indeks Vektor):**
+    File indeks vektor lokal (biasanya dalam format `.bin` atau `.pkl`) **wajib** dienkripsi menggunakan **AES-256-GCM** sebelum disimpan di disk. Kunci enkripsi tidak boleh disimpan bersama indeks. Kunci harus diretrieval dari *Hardware Security Module (HSM)* atau *Key Management Service (KMS)* yang terintegrasi dengan lingkungan produksi.
+2.  **Enkripsi In-Transit (Antara CLI dan Service Backend):**
+    Jika mesin discovery dijalankan dalam arsitektur klien-server, semua payload query dan hasil pencarian harus dialirkan melalui saluran TLS 1.3 yang terenkripsi. Sertifikat server harus diverifikasi secara ketat (*strict certificate pinning*) untuk mencegah *Man-in-the-Middle* attacks.
+3.  **In-Memory Security:**
+    Selama proses pencarian, matriks vektor dan hasil pemrosesan NLP harus diproses di memori yang dialokasikan khusus (`mlock` pada Unix-like systems) untuk mencegah *page swapping* ke disk yang dapat terekspos. Data harus di-clear dari memori segera setelah query selesai.
+
+---
+
+### 10. Fitur: Mesin Indeksasi & Pencarian Hukum (`compliance_legal_discovery_searcher.py`)
+
+Modul ini berfungsi sebagai antarmuka utama untuk melakukan *Legal Discovery* pada arsip bukti digital. Modul ini tidak hanya melakukan pencarian teks, tetapi juga membangun *semantic index* (indeks vektor) untuk memungkinkan pencarian berdasarkan konteks natural language, sambil secara otomatis menerapkan prinsip *Data Minimization* melalui penyaringan PII (*Personally Identifiable Information*).
+
+#### 10.1 Arsitektur Fungsional
+
+1.  **Ingestor Multi-Format:** Membaca dan memparsir tiga jenis sumber data utama:
+    *   `legal_narrative_archive.docx`: Narasi hukum formal.
+    *   `evidence_chain_of_custody.json`: Metadata rantai custodi dan log forensik.
+    *   `incident_playbook_v1.md`: Log teknis dan kronologi insiden.
+2.  **Vectorization & Indexing:** Mengubah teks menjadi vektor embed menggunakan model NLP yang telah di-*fine-tune* untuk terminologi hukum dan teknis, kemudian menyimpan indeks lokal yang terenkripsi.
+3.  **PII Sanitization Engine:** Menggunakan model deteksi entitas bernama (NER) untuk mengidentifikasi nama, NIK, nomor rekening, atau data medis spesifik, lalu melakukan *masking* otomatis pada hasil pencarian eksternal/audit, sambil mempertahankan hash integritas dokumen asli.
+4.  **Secure CLI Interface:** Antarmuka baris perintah yang kaku untuk mencegah eksploitasi perintah (*command injection*) dan memastikan setiap akses dicatat.
+
+#### 10.2 Instalasi dan Prasyarat
+
+Pastikan lingkungan Python Anda memiliki versi minimal 3.9. Install dependensi melalui `requirements.txt`:
+
+```bash
+pip install -r requirements_compliance_discovery.txt
+```
+
+*Catatan: Modul ini memerlukan akses ke library NLP hukum (seperti `legal-bert` atau `spaCy` dengan model hukum) dan library kriptografi standar.*
+
+#### 10.3 Penggunaan CLI
+
+#### 10.3.1 Mode Initialization (Pembuatan Indeks)
+
+Gunakan mode ini sekali setelah insiden ditutup atau saat arsip baru tersedia untuk membangun indeks vektor.
+
+```bash
+python compliance_legal_discovery_searcher.py \
+    --mode init \
+    --archive-path /data/legal/archives/2023_Q4/legal_narrative_archive.docx \
+    --evidence-json /data/forensics/evidence_chain_of_custody.json \
+    --playbook-path /data/forensics/incident_playbook_v1.md \
+    --index-output /secure/volume/indexes/2023_Q4_vector_index.enc \
+    --encryption-key-id "hwsm_key_prod_01"
+```
+
+**Penjelasan Argumen:**
+*   `--mode init`: Memaksa skrip untuk melakukan parsing seluruh file dan membangun indeks vektor.
+*   `--archive-path`: Path absolut ke file narasi hukum utama.
+*   `--evidence-json`: Path ke file JSON yang berisi metadata rantai custodi.
+*   `--playbook-path`: Path ke file markdown kronologi teknis (opsional jika hanya ingin menelusuri narasi hukum, tetapi sangat disarankan untuk validasi temporal).
+*   `--index-output`: Lokasi file output indeks vektor. Pastikan path ini ada di penyimpanan yang terenkripsi.
+*   `--encryption-key-id`: Identifier kunci enkripsi dari HSM/KMS untuk mengenkripsi indeks output.
+
+#### 10.3.2 Mode Search (Ekstraksi Bukti)
+
+Gunakan mode ini untuk mencari kutipan bukti berdasarkan temuan investigasi. Hasil akan otomatis menyaring PII jika flag audit diaktifkan.
+
+```bash
+python compliance_legal_discovery_searcher.py \
+    --mode search \
+    --index-input /secure/volume/indexes/2023_Q4_vector_index.enc \
+    --query "Deteksi akses tidak sah ke database pasien pada jam 14:30" \
+    --output-format json \
+    --min-relevance-score 0.85 \
+    --apply-pii-masking
+```
+
+**Penjelasan Argumen:**
+*   `--mode search`: Memuat indeks yang ada dan melakukan pencarian semantik.
+*   `--index-input`: Path ke file indeks vektor terenkripsi yang dibuat pada tahap *init*.
+*   `--query`: Kalimat dalam bahasa natural (Inggris atau Indonesia) yang menggambarkan temuan atau pertanyaan hukum.
+*   `--output-format`: Format keluaran (`json` atau `text`). JSON disarankan untuk integrasi sistem.
+*   `--min-relevance-score`: Ambang batas kemiripan vektor (0.0 - 1.0). Hasil di bawah ini akan dibuang untuk mengurangi *noise*.
+*   `--apply-pii-masking`: **Wajib** untuk audit eksternal. Flag ini mengaktifkan pipeline sanitisasi PII, mengubah nama/token sensitif menjadi `[REDACTED_NAME]` atau `***`, namun tetap menyertakan metadata hash asli di balik layar untuk verifikasi integritas.
+
+#### 10.4 Contoh Output (JSON)
+
+Ketika `--apply-pii-masking` diaktifkan, output akan terlihat seperti berikut:
+
+```json
+{
+  "query": "Deteksi akses tidak sah...",
+  "results_count": 1,
+  "results": [
+    {
+      "source_file": "legal_narrative_archive.docx",
+      "reference": "Page 4, Paragraph 2",
+      "matched_text": "Pada T+00:15, sistem mencatat akses tidak sah oleh user [REDACTED_NAME] ke database pasien. Hash log: a1b2c3...",
+      "hash_original_text": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "confidence_score": 0.92,
+      "pii_detected": true,
+      "pii_count": 1
+    }
+  ],
+  "audit_log_id": "audit_req_998877"
+}
+```
+
+#### 10.5 Pertimbangan Keamanan dalam Penggunaan
+
+1.  **Pembersihan Memori:** Setelah eksekusi selesai, skrip secara otomatis mencoba menghapus variabel memori besar. Namun, operator sistem bertanggung jawab untuk memastikan tidak ada *core dump* yang tersisa di disk.
+2.  **Isolasi Jaringan:** Mesin ini sebaiknya dijalankan pada jaringan yang terisolasi (*air-gapped* atau VLAN terpisah) dari internet publik untuk mencegah kebocoran indeks vektor yang mungkin merekonstruksi informasi sensitif jika diretas.
+3.  **Verifikasi Integritas Pra-Pencarian:** Sebelum menjalankan pencarian, sistem akan memverifikasi checksum dari file indeks. Jika checksum tidak cocok (misalnya karena penyimpanan korup atau manipulasi), pencarian akan ditolak dan error `INTEGRITY_CHECK_FAILED` akan dilempar.
