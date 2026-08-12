@@ -10882,3 +10882,146 @@ Laporan kepatuhan final tidak dapat diserahkan kepada Dewan Direksi atau regulat
 5.  **Arsip Audit**: File yang ditandatangani disimpan bersama dengan `compliance_lifecycle_orchestrator.log` sebagai bukti utama dalam tinjauan audit eksternal.
 
 > **Peringatan Kepatuhan:** Perubahan apapun pada `pipeline_graph.json` yang dilakukan di luar proses PR yang ditinjau Komite Etika AI akan menyebabkan inkonsistensi dalam matriks ini. Skrip generator akan mendeteksi ketidaksesuaian antara grafik dependensi aktif dan konfigurasi yang didokumentasikan, dan akan memblokir penandatanganan laporan hingga inkonsistensi tersebut diselesaikan.
+
+
+Berikut adalah konten lanjutan untuk `README.md` yang mencakup dokumentasi teknis skrip `compliance_auto_remediation_agent.py` serta panduan operasional tentang prinsip Continuous Compliance. Silakan salin dan tempel bagian ini setelah bagian `5.5.4 Prosedur Penandatanganan Dewan Direksi`.
+
+---
+
+#### 5.5.5 Eksekutor Perbaikan Mandiri: `compliance_auto_remediation_agent.py`
+
+Untuk mengurangi *Mean Time to Repair* (MTTR) dan memastikan kepatuhan berkelanjutan, sistem ini menyediakan agen otonom yang dirancang untuk menutup celah kepatuhan secara otomatis. Skrip ini bekerja sebagai lapisan eksekusi yang menghubungkan temuan dalam `compliance_mapping_matrix.json` dengan tindakan korektif teknis.
+
+##### 1. Prinsip Desain: Control Self-Healing
+Mekanisme "Control Self-Healing" mengubah paradigma dari kepatuhan statis (point-in-time) menjadi kepatuhan dinamis (continuous compliance). Alih-alih menunggu siklus audit bulanan untuk melaporkan penyimpangan, agen ini:
+1.  **Mendeteksi** deviasi dari basis kebenaran (`compliance_mapping_matrix.json`).
+2.  **Mendiagnosis** akar penyebab teknis berdasarkan meta-data kontrol.
+3.  **Merekonsiliasi** konfigurasi sistem agar selaras kembali dengan standar yang ditetapkan.
+4.  **Melaporkan** status perbaikan atau kebutuhan intervensi manusia melalui channel notifikasi.
+
+##### 2. Instalasi dan Konfigurasi Environment
+Pastikan dependensi berikut terinstall untuk mendukung fungsi eksekusi non-interaktif dan notifikasi:
+
+```bash
+pip install requests pydantic logging
+```
+
+##### 3. Sintaksis dan Argumen CLI
+
+Skrip ini mendukung tiga mode operasi utama melalui flag argument. Path ke file matriks kepatuhan wajib dinyatakan secara eksplisit untuk mencegah eksekusi pada data yang usang.
+
+```bash
+python compliance_auto_remediation_agent.py \
+    --matrix /path/to/compliance_mapping_matrix.json \
+    [--auto-execute] \
+    [--dry-run] \
+    --slack-webhook https://hooks.slack.com/services/...
+```
+
+**Penjelasan Argumen:**
+
+| Argumen | Tipe | Wajib | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `--matrix` | `string` | Ya | Path absolut atau relatif ke file `compliance_mapping_matrix.json`. Agen akan memindai entri dengan status `Non-Compliant` atau `Partial`. |
+| `--auto-execute` | `flag` | Tidak | **(Mode Produksi)** Menjalankan skrip korektif yang dipicu oleh agen. Tindakan ini *irreversible* pada konfigurasi sistem (kecuali ada backup). Hanya gunakan setelah tinjauan manual. |
+| `--dry-run` | `flag` | Tidak | **(Mode Simulasi)** Menganalisis celah dan mensimulasikan tindakan yang *akan* diambil tanpa mengubah konfigurasi sistem. Output mencakup rencana remediasi detail. |
+| `--slack-webhook` | `string` | Tidak | URL Webhook Slack untuk mengirimkan notifikasi real-time mengenai status remediasi (Sukses, Gagal, atau Butuh Intervensi). Jika tidak diberikan, log disimpan ke `stderr`. |
+
+##### 4. Logika Eksekusi Remediasi
+
+Agen menggunakan peta pemetaan tindakan (*Action Map*) internal yang mengasosiasikan kode kesalahan teknis dengan skrip korektor yang sesuai. Berikut adalah matriks logika eksekusi:
+
+| Kode Kontrol / Masalah | Deteksi Agent | Skrip Korektor Dipicu | Tindakan Teknis |
+| :--- | :--- | :--- | :--- |
+| `DATA_MASKING_FAILURE` | Modul PII tidak memiliki middleware masking aktif. | `compliance_policy_enforcer.py` | Memuat ulang konfigurasi masking dan restart modul penyaringan data. |
+| `ACCESS_POLICY_VIOLATION` | Aturan IAM/Gateway terlalu permisif (Broad Access). | `compliance_api_gateway.py` | Menerapkan prinsip *Least Privilege* berdasarkan rekomendasi dari matriks risiko residual. |
+| `ENCRYPTION_KEY_ROTATION` | Kunci enkripsi telah melewati batas umur (TTL). | `key_rotation_manager.py` | Mencapai pasangan kunci baru, mengenkripsi ulang data statis, dan menghapus kunci lama secara aman. |
+| `LOG_RETENTION_GAP` | Log audit disimpan kurang dari 1 tahun (req. GDPR). | `log_configuration_updater.py` | Memperpanjang lifetime storage di cloud provider dan mengonfigurasi arsip ke cold storage. |
+
+##### 5. Alur Kerja Eksekusi (Step-by-Step)
+
+1.  **Parsing Matriks**: Agent membaca `--matrix` dan mengidentifikasi semua kontrol dengan status `!= Compliant`.
+2.  **Validasi Konteks**: Memastikan lingkungan target (staging/prod) sesuai dengan konfigurasi yang diharapkan oleh skrip korektor.
+3.  **Simulasi (Jika `--dry-run`)**:
+    *   Menampilkan diff antara konfigurasi saat ini dan konfigurasi yang diperlukan.
+    *   Menghitung estimasi downtime atau dampak performa.
+    *   Mengirim laporan simulasi via Slack.
+4.  **Eksekusi (Jika `--auto-execute`)**:
+    *   Membuat snapshot backup konfigurasi sistem (untuk rollback).
+    *   Menjalankan subprocess pada skrip korektor yang relevan (misal: `python compliance_policy_enforcer.py --force`).
+    *   Memverifikasi keberhasilan eksekusi dengan membaca output atau memeriksa endpoint kesehatan (*health check*).
+5.  **Penutupan Siklus**:
+    *   Jika sukses, status kontrol diperbarui menjadi `Compliant` (atau `Partial` jika mitigasi parsial).
+    *   Mengirim notifikasi sukses/gagal ke Slack.
+    *   Mencatat kejadian ke `remediation_log.json` untuk tujuan audit trail.
+
+##### 6. Contoh Penggunaan
+
+**Skenario 1: Simulasi Remediasi (Rekomendasi Utama)**
+```bash
+python compliance_auto_remediation_agent.py \
+    --matrix ./outputs/compliance_mapping_matrix.json \
+    --dry-run \
+    --slack-webhook "$SLACK_WEBHOOK_URL"
+```
+*Output:* Menampilkan daftar 5 kontrol yang gagal dan rencana perbaikan yang diusulkan tanpa mengubah sistem apa pun.
+
+**Skenario 2: Remediasi Otomatis di Lingkungan Staging**
+```bash
+python compliance_auto_remediation_agent.py \
+    --matrix ./outputs/compliance_mapping_matrix.json \
+    --auto-execute \
+    --slack-webhook "$SLACK_WEBHOOK_URL"
+```
+*Output:* Skrip langsung memperbaiki masalah masking data dan melaporkan "Remediation Complete" ke channel #security-ops di Slack.
+
+---
+
+#### 6. Deployment and Operations
+
+Bagian ini memberikan panduan teknis bagi tim DevOps dan Auditor Keamanan untuk mengintegrasikan alat kepatuhan ke dalam alur kerja operasional sehari-hari, dengan fokus pada prinsip **Continuous Compliance** dan pengurangan beban operasional.
+
+##### 6.1 Prinsip Continuous Compliance
+Tradisi kepatuhan sering kali bersifat *reaktif* dan *episodik* (hanya dilakukan saat audit tahunan). Pendekatan **Continuous Compliance** mengubah model ini menjadi *proaktif* dan *iteratif*. Dalam arsitektur sistem ini:
+
+1.  **Ke patuhan adalah Sifat Sistem (Compliance as a Property):**
+    Kepatuhan tidak lagi merupakan "produk akhir" yang dihasilkan setelah pengembangan selesai, melainkan properti yang divalidasi pada setiap commit dan deployment. Skrip generator dan agen remediasi berjalan sebagai bagian dari *CI/CD Pipeline* (Contiuous Integration/Continuous Delivery).
+
+2.  **Siklus Feedback Cepat:**
+    Dengan mengintegrasikan `compliance_auto_remediation_agent.py` ke dalam pipeline, celah kepatuhan ditemukan dalam hitungan menit, bukan bulan. Ini memungkinkan *developer* memperbaiki kode atau konfigurasi segera setelah pengujian berjalan, sebelum kode tersebut mencapai lingkungan produksi.
+
+3.  **Reduksi "Compliance Debt":**
+    Seperti *technical debt*, *compliance debt* adalah akumulasi kepatuhan yang ditunda. Dengan remediasi otomatis, utang kepatuhan dibayar secara real-time, menjaga risiko organisasi tetap rendah dan dapat diprediksi.
+
+##### 6.2 Mekanisme Control Self-Healing dalam Operasi
+Mekanisme *Self-Healing* dirancang untuk menangani penyimpangan yang terjadi karena konfigurasi yang berubah secara tidak sengaja (*configuration drift*) atau kegagalan parsial layanan.
+
+*   **Deteksi Drift Konfigurasi:**
+    Setiap kali terjadi perubahan pada `pipeline_graph.json` atau file konfigurasi infrastruktur (IaC), agen akan membandingkannya dengan baseline yang disetujui. Jika ada deviasi yang melanggar kontrol kritis (misalnya, pembongkaran modul enkripsi), agen akan secara otomatis membatalkan perubahan tersebut (*auto-rollback*) atau memicu perbaikan instan.
+
+*   **Hanlde Partial Compliance Secara Dinamis:**
+    Sistem mengakui bahwa beberapa kontrol mungkin tidak bisa sepenuhnya *auto-remediate* (misalnya, kebutuhan persetujuan bisnis). Dalam kasus ini, sistem akan mengubah status ke `Partial` dan memicu notifikasi ke Compliance Officer melalui Slack, menyertakan konteks spesifik mengapa kontrol tersebut tidak memenuhi syarat sepenuhnya. Hal ini mengurangi "alert fatigue" dengan hanya menyuarakan masalah yang benar-benar membutuhkan perhatian manusia.
+
+##### 6.3 Panduan untuk Auditor: Membuktikan Efektivitas
+Bagi auditor eksternal atau internal, keberadaan sistem *Self-Healing* bukan berarti "bebas audit", melainkan memberikan tingkat kepercayaan (*assurance*) yang lebih tinggi. Auditor harus fokus pada:
+
+1.  **Verifikasi Audit Trail (Log Remediación):**
+    Periksa `remediation_log.json` dan `compliance_lifecycle_orchestrator.log`. Auditor harus dapat melacak *siapa*, *kapan*, dan *mengapa* sebuah kontrol diperbaiki. Catat bahwa semua tindakan otomatis dilacak dengan identitas servis (*service account*) yang unik.
+
+2.  **Uji Coba Keberhasilan Remediasi:**
+    Selama proses audit, minta tim DevOps untuk mensimulasikan pelanggaran kontrol di lingkungan *staging* dan tonton `compliance_auto_remediation_agent.py` memperbaikinya. Ini membuktikan bahwa mekanisme *Self-Healing* berfungsi sebagaimana mestinya dan tidak hanya ada di atas kertas.
+
+3.  **Peninjauan Threshold dan Kebijakan:**
+    Auditor harus meninjau ulang parameter threshold (misalnya, `risk_score_residual` > 0.5) secara berkala. Jika lingkungan bisnis berubah, parameter ini mungkin perlu disesuaikan untuk memastikan tidak ada *false positive* yang memicu remediasi berlebihan atau *false negative* yang melewatkan risiko serius.
+
+4.  **Integritas Tanda Tangan Digital:**
+    Pastikan bahwa proses penandatanganan digital pada `compliance_mapping_matrix.json` (sesuai bagian 5.5.4) tetap valid meskipun telah terjadi remediasi otomatis. Sistem harus menghasilkan matriks baru yang ditandatangani setelah setiap siklus remediasi signifikan, sehingga dokumen yang diserahkan kepada Dewan Direksi adalah cerminan keadaan *real-time* yang terjamin integritasnya.
+
+##### 6.4 Troubleshooting Umum
+
+| Masalah | Kemungkinan Penyebab | Solusi |
+| :--- | :--- | :--- |
+| Agen gagal membaca `matrix` | File tidak ada atau format JSON rusak. | Jalankan `python -m json.tool compliance_mapping_matrix.json` untuk validasi. Pastikan path benar. |
+| Remediasi `ACCESS_POLICY_VIOLATION` gagal | Izin izin (permissions) agen tidak cukup untuk menulis ke API Gateway. | Tambahkan role `iam:UpdatePolicy` ke Service Account yang menjalankan agen. |
+| Notifikasi Slack tidak terkirim | Webhook URL kedaluwarsa atau diblokir firewall. | Periksa log stderr dan test webhook menggunakan tool curl: `curl -X POST ...` |
+| Status tetap `Non-Compliant` setelah `--auto-execute` | Tindakan korektif gagal diterapkan atau timeout. | Periksa log spesifik dari skrip korektor (`compliance_policy_enforcer.py`) dan lakukan rollback manual jika perlu. |
