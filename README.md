@@ -24418,3 +24418,120 @@ Hasil dari `compliance_boardroom_simulation_audit_trail_analyzer.py` tidak hanya
 3.  Setiap perubahan parameter dilacak dengan akuntabilitas penuh.
 
 Ini mengubah kepatuhan dari sekadar "memenuhi persyaratan dokumen" menjadi "menyediakan bukti teknis yang dapat diaudit" (*auditable technical evidence*), yang secara signifikan mengurangi biaya litigasi dan denda regulasi.
+
+
+Berikut adalah konten lanjutan untuk file `README.md` Anda. Bagian ini dirancang untuk ditempatkan langsung setelah bagian 6 yang sudah ada, melanjutkan narasi teknis dan legal menuju implementasi blockchain dan proteksi fidusia tingkat lanjut.
+
+---
+
+#### 7. Pengabadian Blockchain untuk Akuntabilitas Fidusia & Kekal Hukum (*Blockchain-Backed Fiduciary Accountability & Legal Permanence*)
+
+Untuk menutup celah legalitas dalam keputusan korporat, sistem ini mengimplementasikan **Fiduciary Rationale Immutability Agent** (`compliance_fiduciary_decision_rationale_immortalizer.py`). Modul ini bertindak sebagai jembatan antara logika bisnis internal dan ledger terdistribusi eksternal, memastikan bahwa *reasoning* (alasan) di balik sebuah keputusan direksi tidak dapat diubah, dimanipulasi, atau diinterpretasikan ulang secara bias di kemudian hari.
+
+##### Metodologi: *Decentralized Decision Provenance*
+
+Sistem ini menggunakan prinsip **Provenance Chain** untuk mengunci konteks keputusan. Alih-alih hanya menyimpan hasil akhir (misalnya, "Investasi A disetujui"), sistem mengunci paket data lengkap yang mencakup:
+1.  **Konteks Pasar Real-time:** Data harga saham, volatilitas, dan sentimen berita pada detik keputusan dibuat.
+2.  **Asumsi Risiko Terkalkulasi:** Output dari `simulation_audit_trail_analyzer.py` yang menunjukkan probabilitas kerugian.
+3.  **Narasi Strategis:** Ringkasan debat dewan dari `boardroom_debate_synthesis_engine.py` yang menjelaskan mengapa opsi X dipilih daripada Y.
+4.  **Sinyal Waktu (Timestamp):** Hash kriptografik dari timestamp server yang disinkronkan dengan NTP (Network Time Protocol) untuk bukti absolut kapan keputusan dibuat.
+
+Proses ini menghasilkan `final-resolution-hash` yang unik. Hash ini tidak hanya menduplikasi konten, tetapi juga membuktikan bahwa *kondisi lingkungan* saat keputusan dibuat berbeda dengan kondisi saat ini, sehingga melindungi direksi dari tuduhan "kebijakan yang buruk" dengan membuktikan bahwa kebijakan tersebut "wajar pada masanya".
+
+##### Solusi Bias Litigasi: *Recency & Hindsight Bias*
+
+Dalam litigasi korporat, direksi sering dikalahkan oleh **Hindsight Bias** (pengetahuan masa depan) atau **Recency Bias** (fokus pada hasil terbaru). Protokol ini menyelesaikan masalah tersebut secara teknis:
+
+*   **Pembuktian *State of Mind* (Niat Baik & Wawasan):** Dengan menyetempel hash pada ledger, sistem membuktikan bahwa informasi yang tersedia bagi direksi *hanya* adalah informasi yang ada pada `timestamp` hash. Jika hasil investasi gagal, hukum dapat melacak bahwa kegagalan tersebut disebabkan oleh *Black Swan event* yang tidak terprediksi oleh data historis, bukan oleh kelalaian atau pengetahuan yang disembunyikan.
+*   **Standar *Business Judgment Rule* (BJR):** Dokumen ini menjadi bukti otentik bahwa direksi telah melakukan due diligence yang masuk akal, didasarkan pada informasi yang relevan dan cukup, tanpa konflik kepentingan yang diketahui.
+
+##### Implementasi Teknis: Argumen Baris Perintah
+
+Skrip `compliance_fiduciary_decision_rationale_immortalizer.py` dirancang untuk berjalan sebagai *post-processing step* setelah analisis simulasi selesai.
+
+```bash
+python compliance_fiduciary_decision_rationale_immortalizer.py \
+    --final-resolution-hash "a1b2c3d4e5f6..." \
+    --blockchain-rpc-endpoint "https://eth-private-node.corporate.com:8545" \
+    --fiduciary-wallet-key "/secure/path/to/director_priv_key.pem" \
+    --output-chain-of-custody "./certs/fiduciary_rationale_certificate.json"
+```
+
+**Penjelasan Parameter:**
+*   `--final-resolution-hash`: Hash SHA-256 dari output resolusi dewan final. Ini adalah "sidik jari" logis dari keputusan.
+*   `--blockchain-rpc-endpoint`: URL RPC ke node Hyperledger Fabric atau Ethereum Private yang di-hosting oleh perusahaan (atau konsorsium industri).
+*   `--fiduciary-wallet-key`: Path ke kunci privat digital direktur. Kunci ini digunakan untuk menandatangani transaksi *on-chain*, memastikan bahwa hanya individu yang berwenang (dengan akses fisik/digital ke kunci) yang dapat memverifikasi atau mengaitkan identitas dengan keputusan tersebut.
+*   `--output-chain-of-custody`: Path file keluaran yang berisi metadata lengkap transaksi blockchain, termasuk `block_number`, `transaction_hash`, dan `gas_used`, yang berfungsi sebagai sertifikat kepatuhan.
+
+##### Integrasi Smart Contract: *Liability Shield Activation*
+
+Fitur lanjutan dari modul ini adalah integrasi dengan **Smart Contract Liability Shield**. Jika smart contract perusahaan telah dikonfigurasi untuk memantau kepatuhan, proses ini dapat memicu klaim otomatis:
+
+1.  **Verifikasi Otomatis:** Smart contract membaca `fiduciary_rationale_certificate.json`.
+2.  **Cek Kepatuhan:** Kontrak memverifikasi bahwa hash tersebut terdaftar pada ledger dan ditandatangani oleh alamat wallet yang terdaftar sebagai direksi.
+3.  **Aktivasi Perlindungan:** Jika valid, kontrak mencatat status `COMPLIANT_V294`. Status ini dapat terintegrasi dengan polis Asuransi *Directors and Officers* (D&O) digital, secara otomatis membuka klaim perlindungan jika terjadi tuntutan hukum di masa depan. Ini mengubah klaim asuransi dari proses manual yang lambat menjadi peristiwa yang terotomatisasi dan teraudit.
+
+---
+
+#### 8. Sertifikasi Digital SOX Section 302 & 906
+
+Untuk mematuhi **Sarbanes-Oxley Act (SOX)** di tingkat tertinggi, sistem ini mengdigitalisasi tanda tangan eksekutif yang sebelumnya hanya berupa tanda tangan basah di atas kertas.
+
+##### Section 302: Tanggungan Laporan Perusahaan (Corporate Responsibility for Financial Reports)
+
+Skrip ini secara teknis merepresentasikan pernyataan tanggung jawab CEO dan CFO. Dengan menandatangani hash keputusan investasi strategis yang berdampak material pada laporan keuangan, sistem menciptakan **Digital Attestation**.
+
+*   **Mekanisme:** Setiap hash yang ditulis ke blockchain disertai dengan metadata yang menyatakan: *"Saya menyatakan bahwa informasi dalam laporan ini sepenuhnya akurat dan mencerminkan kondisi pasar saat keputusan dibuat."*
+*   **Keamanan Kriptografi:** Menggunakan standar **ECDSA (Elliptic Curve Digital Signature Algorithm)** dengan kurva P-256. Kunci privat tidak pernah meninggalkan *Hardware Security Module (HSM)* lokal jika tersedia, atau dienkripsi menggunakan *key management service* perusahaan yang auditable.
+
+##### Section 906: Tanggungan Eksekutif Tertinggi (Corporate Responsibility for Financial Reports - Criminal Penalties)
+
+Ini adalah lapisan perlindungan tingkat tinggi. Sistem mencatat bahwa setiap keputusan yang masuk ke dalam ledger dianggap sebagai "laporan resmi" di bawah hukum federal (untuk entitas AS) atau hukum serupa di yurisdiksi lain (misalnya, UU Pasar Modal di Indonesia).
+
+*   **Audit Trail Permanen:** Regulator (seperti OJK atau SEC) dapat memverifikasi integritas laporan keuangan tidak dengan meminta dokumen Excel yang rentan edit, tetapi dengan memvalidasi hash pada blockchain publik atau private yang tidak dapat diubah.
+*   **Bukti "Good Faith" (Niat Baik):** Dalam proses hukum, keberanian sistem untuk menandatangani hash secara digital menggunakan kunci privat yang dikontrol ketat adalah bukti kuat bahwa eksekutif menyadari konsekuensi hukum dari keputusan tersebut, memenuhi syarat "scienter" atau pengetahuan tentang ketidakbenaran informasi.
+
+##### Arsitektur Data Sertifikat (*fiduciary_rationale_certificate.json*)
+
+Output dari skrip adalah struktur JSON yang menjadi standar baru untuk bukti kepatuhan:
+
+```json
+{
+  "certificate_id": "uuid-v4-unique-id",
+  "timestamp_utc": "2023-10-27T14:30:00Z",
+  "decision_context": {
+    "strategy_hash_sha256": "0x8f3a...",
+    "market_state_snapshot_id": "snap_v4_892",
+    "simulation_result_hash": "0x1b2c..."
+  },
+  "signatory": {
+    "director_name": "John Doe",
+    "role": "CEO",
+    "wallet_address": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
+    "signature_ecdsa": "0x3c4d...7f8a",
+    "verification_status": "VERIFIED_ON_CHAIN"
+  },
+  "blockchain_proof": {
+    "network": "Hyperledger Fabric Channel 'CorpAudit'",
+    "block_id": 104523,
+    "transaction_id": "evt-29384756",
+    "immutability_guarantee": "CONFIRMED"
+  },
+  "compliance_flags": {
+    "sox_302_compliant": true,
+    "sox_906_compliant": true,
+    "business_judgment_rule_protected": true,
+    "do_insurance_eligible": true
+  }
+}
+```
+
+##### Prosedur Pemulihan & Auditing
+
+Jika terjadi pertanyaan mengenai validitas tanda tangan di masa depan:
+1.  Auditor meminta `wallet_address` dan `signature_ecdsa` dari sertifikat.
+2.  Menggunakan API Blockchain untuk mengambil transaksi asli berdasarkan `transaction_id`.
+3.  Memverifikasi bahwa signature valid terhadap public key yang terdaftar untuk `director_name`.
+4.  Memastikan bahwa `decision_context` tidak berubah sejak timestamp pencatatan.
+
+Pendekatan ini menghilangkan ketidakpastian administratif dan memberikan kepastian hukum tingkat tertinggi: **Keputusan Direksi telah dikunci secara kriptografis, ditandatangani secara personal, dan divalidasi oleh jaringan terdesentralisasi yang tidak dapat dimanipulasi oleh satu pihak pun, termasuk manajemen IT atau auditor internal yang kurang berintegritas.**
