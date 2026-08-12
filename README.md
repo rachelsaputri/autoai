@@ -19185,3 +19185,9 @@ Sistem ini tidak sekadar menjumlahkan skor risiko secara linear. Sebaliknya, ia 
     
     Rumus amplifikasi sederhana:
     $$ R_{composite} = (W_{tech} 
+
+Berikut adalah konten lanjutan yang komprehensif, terstruktur, dan siap ditempel ke dalam file `README.md`. Konten ini melanjutkan pembahasan tentang metodologi inti dan memperkenalkan arsitektur dokumentasi terpadu beserta standar kepatuhannya.
+
+---
+
+$$ R_{composite} = (W_{tech} 	imes S_{tech}) + (W_{legal} 	imes S_{legal}) + lpha 
