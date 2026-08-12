@@ -23638,3 +23638,124 @@ Kegagalan klaim asuransi sering disebabkan oleh ketidakmampuan direksi membuktik
 3.  **Dokumentasi Korespondensi Risiko:** Menyimpan catatan mengapa risiko tertentu dipilih atau ditolak, yang dapat disajikan kepada penanggung sebagai bukti *due diligence*.
 
 Dengan mengintegrasikan `compliance_executive_liability_insurance_validator.py` ke dalam alur kerja tata keluh, perusahaan tidak hanya melindungi reputasi, tetapi juga memastikan bahwa instrumen keuangan terakhir (*last line of defense*)—yaitu asuransi D&O—dapat diakses ketika dibutuhkan.
+
+
+Berikut adalah konten lanjutan yang komprehensif dan terstruktur untuk ditambahkan ke dalam `README.md`. Materi ini fokus pada implementasi teknis `compliance_disputed_artifact_chain_of_custody_integrity_verifier.py` serta kerangka kerja forensik yang mendukung admissibility (dapat diterima sebagai bukti) di pengadilan.
+
+***
+
+# Legal Contested Evidence & Forensic Admissibility
+
+Dalam litigasi korporasi tingkat tinggi, integritas bukti digital bukan lagi sekadar persyaratan teknis, melainkan inti dari keberlakuan hukum (*legal admissibility*). Ketika status artefak bergeser menjadi **"Disputed"**—artinya pihak lawan (defendan/oposisi) mempertanyakan validitas atau autentisitas bukti—sistem ini beralih dari mode verifikasi pasif ke mode **Advanced Forensic Integrity Agent**.
+
+Bagian ini mendokumentasikan metodologi **"Defensible Hash-Based Evidence Continuity"** yang diimplementasikan dalam skrip verifier, serta standarisasi sesuai **ISO/IEC 17025:2017** untuk memastikan bahwa rantai kustodi (*chain of custody*) tetap kokoh bahkan ketika menghadapi tantangan agresif dari ahli forensik defensif.
+
+## 1. Implementasi Teknis: `compliance_disputed_artifact_chain_of_custody_integrity_verifier.py`
+
+Skrip ini dirancang khusus untuk menangani sengketa bukti dengan melakukan audit forensik tingkat rendah (low-level) dan kriptografis. Tujuannya adalah membuktikan bahwa tidak ada modifikasi, substitusi, atau kontaminasi data sejak pengambilan awal hingga presentasi di pengadilan.
+
+### Fungsi Utama dan Arsitektur Verifikasi
+
+1.  **Cryptographic Merkle Tree Hashing:**
+    Alih-alih hanya menghitung hash SHA-256 pada file individu, sistem membangun *Merkle Tree* dari seluruh subtree kronologi bukti.
+    *   **Leaf Nodes:** Hash kriptografis dari setiap artefak mentah (`raw evidence`).
+    *   **Internal Nodes:** Hash kombinatorial dari dua child node di bawahnya.
+    *   **Root Hash:** Representasi satu-satunya dari seluruh set bukti.
+    *   **Manfaat:** Memungkinkan deteksi perubahan pada byte tunggal di mana saja dalam struktur hierarki bukti tanpa harus memindai ulang seluruh dataset secara bruteforce. Jika *Root Hash* dari set yang dipertanyakan tidak cocok dengan *Root Hash* yang tercatat pada saat insiden, terputusnya integritas terbukti secara matematis.
+
+2.  **Non-Repudiable Digital Signatures Validation:**
+    Sistem memvalidasi setiap interaksi dengan bukti menggunakan *Public Key Infrastructure* (PKI).
+    *   Setiap akses, pembacaan, atau ekstraksi metadata ditandatangani secara digital oleh identitas forensik yang melakukannya.
+    *   Skrip memverifikasi sertifikat X.509 dan timestamp yang dicantumkan untuk memastikan bahwa tidak ada entitas yang tidak berwenang atau tidak tervalidasi yang mengakses bukti selama siklus litigasi.
+
+3.  **Taint Propagation Analysis:**
+    Menggunakan analisis jejak log forensik mendalam, sistem mendeteksi apakah sumber data eksternal yang tidak diverifikasi (misalnya, file dari email lampiran atau URL eksternal) telah "mengontaminasi" artefak inti.
+    *   Jika ditemukan indikasi eksekusi script otomatis atau modifikasi metadata sistem file (NTFS/MFT) yang tidak sesuai dengan log audit resmi, sistem menandai artefak tersebut sebagai `Tainted` dan melaporkannya sebagai risiko tinggi terhadap kredibilitas bukti.
+
+### Argumentasi Komando (CLI Arguments)
+
+```bash
+python compliance_disputed_artifact_chain_of_custody_integrity_verifier.py \
+    --disputed-case-id "CASE-2024-X99" \
+    --raw-evidence-path "/mnt/evidence/case_x99/raw_artifacts" \
+    --previous-verification-report "/opt/logs/ver_report_v1.json" \
+    --forensic-toolkit "/usr/local/bin/encape_cli /opt/logs/ftk_output.xml" \
+    --output-integrity-attestation "disputed_artifact_integrity_attestation.json"
+```
+
+| Argumen | Deskripsi | Tipe | Wajib |
+| :--- | :--- | :--- | :--- |
+| `--disputed-case-id` | ID unik untuk kasus sengketa yang sedang ditinjau. Digunakan untuk korelasi dengan basis data log litigasi. | String | Ya |
+| `--raw-evidence-path` | Path absolut ke direktori yang berisi artefak digital yang statusnya "Disputed". | Path | Ya |
+| `--previous-verification-report` | Path ke laporan verifikasi awal yang ingin ditantang atau dikonfirmasi ulang. Sistem akan membandingkan hasil baru dengan hash di sini. | Path | Ya |
+| `--forensic-toolkit` | Path atau argumen eksekutor alat forensik pihak ketiga (misalnya, output format EnCase atau FTK Imager) untuk cross-validation log. | String/Path | Tidak* |
+| `--output-integrity-attestation` | Lokasi penyimpanan laporan final dalam format JSON (`disputed_artifact_integrity_attestation.json`) yang berisi Merkle Root, status tanda tangan digital, dan temuan taint. | Path | Ya |
+
+*\*Opsional jika hanya menggunakan Python standard library untuk hashing dan validasi tanda tangan internal.*
+
+## 2. Metodologi: Defensible Hash-Based Evidence Continuity
+
+Metodologi ini menjawab pertanyaan kritis dalam pengadilan: *"Bagaimana Anda memastikan bahwa file yang Anda tunjukkan di depan hakim adalah file yang sama dengan yang ditemukan di hard disk tersangka pada hari pertama insiden?"*
+
+### Prinsip Continuity (Kontinuitas)
+
+Sistem tidak mengandalkan kepercayaan pada satu titik data, melainkan membangun **Jalur Kontinuitas Hash**. Setiap kali bukti berpindah tangan (dari *Incident Responder* ke *Forensic Analyst*, lalu ke *Legal Counsel*), hash terbaru dihitung dan ditandatangani.
+
+1.  **Immutable Hashing:** Penggunaan algoritma SHA-256 atau SHA-3 yang resisten terhadap collision attacks.
+2.  **Sequential Logging:** Setiap perubahan dalam set bukti didokumentasikan dalam log terenkripsi yang terhubung ke Merkle Tree.
+3.  **Reconciliation Engine:** Saat sengketa muncul, *Reconciliation Engine* akan menghitung ulang Merkle Root dari bukti yang disita dan membandingkannya dengan root yang tersimpan dalam *Secure Ledger* (blockchain internal atau database kriptografi).
+
+### Menjawab Defense Challenge (Tantangan Pembelaan)
+
+Pihak pembela sering mengajukan tantangan forensik seperti:
+*   *"File ini telah dimodifikasi setelah penangkapan."*
+*   *"Hash ini tidak valid karena perbedaan sistem operasi."*
+
+Dengan **Defensible Hash-Based Evidence Continuity**, sistem menyediakan:
+*   **Proof of No-Change:** Bukti matematis bahwa struktur data tidak berubah sejak *write-blocker* dilepas.
+*   **Contextual Hashing:** Hash tidak hanya pada isi file, tetapi juga pada metadata filesystem (MAC times, permissions) yang divalidasi terhadap log sistem operasi yang dipulihkan secara forensik, mengurangi argumen "platform dependency".
+
+## 3. Standar ISO/IEC 17025:2017 Compliance
+
+Sistem ini dirancang agar output forensiknya memenuhi persyaratan kompetensi laboratorium pengujian dan kalibrasi menurut **ISO/IEC 17025:2017**, khususnya pada klausul berikut:
+
+*   **Klausul 7.7 (Tindakan untuk Mengatasi Masalah):** Sistem secara otomatis mendeteksi anomali dalam integritas data (seperti *taint propagation* atau *hash mismatch*) dan memicu prosedur korektif sebelum hasil final diterbitkan.
+*   **Klausul 7.8 (Pelaporan Hasil):** Laporan `disputed_artifact_integrity_attestation.json` yang dihasilkan mengandung metrik validasi yang dapat diverifikasi oleh auditor independen, memenuhi syarat sebagai "bukti objektif".
+*   **Klausul 8.9 (Ujian Kapabilitas Internal):** Algoritma verifikasi ini dapat diuji menggunakan dataset *challenge-response* yang diketahui untuk memastikan konsistensi dan akurasi metode hashing yang digunakan.
+
+Kepatuhan terhadap standar ini memberikan bobot hukum yang signifikan, karena menunjukkan bahwa proses verifikasi bukti dilakukan oleh entitas yang kompeten, terstandarisasi, dan dapat diaudit.
+
+## 4. Prosedur: Adversarial Forensic Simulation
+
+Untuk memastikan bukti tahan terhadap serangan forensik tingkat lanjut dari pihak oposisi, sistem menjalankan simulasi **Adversarial Forensic Simulation** secara berkala atau saat kasus masuk ke fase "Disputed".
+
+### Alur Simulasi
+
+1.  **Inisiasi Skenario Serangan:**
+    Sistem mensimulasikan beberapa vektor serangan forensik defensif:
+    *   *Hash Collision Attempts:* Mencoba menemukan input lain yang menghasilkan hash SHA-256 yang sama dengan artefak kunci (menggunakan generator collision teoretis untuk verifikasi resistensi).
+    *   *Metadata Tampering:* Mencoba memalsukan timestamp atau atribut file tanpa mengubah hash isi data, untuk mendeteksi kelemahan dalam validasi metadata.
+    *   *Replay Attacks:* Mencoba menyuntikkan log audit palsu ke dalam riwayat akses.
+
+2.  **Deteksi Dini (Early Warning System):**
+    Jika simulasi berhasil menemukan celah (misalnya, log audit tidak tertanda dengan benar), sistem akan:
+    *   Menandai artefak terkait sebagai `Simulation_Failed`.
+    *   Menghasilkan laporan remediasi yang mendesak perbaikan protokol kustodi.
+    *   **Tidak** menerbitkan attestasi integritas hingga celah ditutup.
+
+3.  **Validasi Ketahanan (Resilience Validation):**
+    Setelah remediasi, simulasi dijalankan ulang. Jika semua vektor serangan gagal ("Defended"), sistem mencetak log `Adversarial_Verification_Passed`.
+
+### Nilai Hukum Simulasi Ini
+
+Hasil dari prosedur ini, yang dicantumkan dalam lampiran laporan attestation, berfungsi sebagai **Deterrent Evidence** di pengadilan. Ini menunjukkan kepada hakim dan juri bahwa perusahaan tidak hanya "mengharapkan" bukti tersebut valid, tetapi secara proaktif mengujinya terhadap skenario serangan terburuk (*worst-case scenario*) yang biasanya digunakan oleh ahli forensik pembela. Hal ini secara drastis mengurangi kredibilitas tuduhan bahwa bukti dapat dengan mudah dipalsukan atau dimodifikasi.
+
+## Kesimpulan Integrasi
+
+Dengan menggabungkan `compliance_disputed_artifact_chain_of_custody_integrity_verifier.py` ke dalam ekosistem tata kelola, perusahaan beralih dari defensif pasif menjadi strategis forensik. Integrasi ini memastikan bahwa:
+
+1.  **Integritas Data Terbukti Secara Kriptografis:** Melalui Merkle Tree hashing yang tahan perubahan.
+2.  **Autentisitas Terjamin Secara Legal:** Melalui tanda tangan digital non-repudiasi dan kepatuhan ISO 17025.
+3.  **Kredibilitas Tahan Uji:** Melalui simulasi adversarial yang mendemonstrasikan ketangguhan bukti terhadap tantangan forensik profesional.
+
+Langkah ini bukan hanya perlindungan asuransi, melainkan fondasi hukum yang kokoh untuk mempertahankan reputasi dan kebebasan direksi dalam lingkungan litigasi yang adiktif dan agresif.
