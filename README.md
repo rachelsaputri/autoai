@@ -17558,3 +17558,151 @@ Untuk memastikan integritas data yang disajikan kepada dewan direksi, sistem men
 1.  **Spesifik dalam Konteks:** Saat mengajukan pertanyaan, cantumkan periode waktu (misal: "tahun ini", "Q3 2023") dan unit organisasi yang spesifik untuk meningkatkan akurasi hasil.
 2.  **Gunakan Istilah Ontologi:** Cobalah menggunakan istilah yang sesuai dengan taxonomi regulasi (misal: gunakan "Data Breach" daripada "Hacking") untuk meminimalkan ambiguitas.
 3.  **Validasi Angka Keuangan:** Selalu perhatikan kolom `confidence_score` dan `metadata` dalam output JSON-LD. Angka yang memiliki skor kepercayaan rendah harus diverifikasi lebih lanjut dengan tim compliance manual.
+
+
+Berikut adalah konten lanjutan yang komprehensif dan terstruktur untuk bagian **Compliance & Legal** pada `README.md`, mencakup dokumentasi teknis untuk skrip forensik dan metodologi keamanan hukum.
+
+***
+
+###### 6.9.9. Autonomous Forensic Chronicle Architect
+
+Untuk menjembatani kesenjangan antara analisis teknis operasional dan kebutuhan pembuktian hukum, sistem menyediakan arsitek riwayat forensik otonom. Modul ini tidak hanya menyajikan data statis, tetapi membangun narasi kausalitas dinamis yang menghubungkan peristiwa teknis rendah-level (seperti anomali konfigurasi cluster) dengan pelanggaran regulasi spesifik (seperti GDPR Art. 33), yang siap digunakan dalam gugatan hukum atau investigasi regulator.
+
+Berikut adalah spesifikasi teknis untuk eksekusi arsitek kronik forensik:
+
+```bash
+python compliance_autonomous_forensic_chronicle_builder.py \
+    --log-sources /var/log/syslog /opt/k8s/audit.log \
+    --audit-trails /data/compliance/verified_audit_trails.csv \
+    --timeline-context incident_window \
+    --output-chronicle forensic_chronicle_20231027.json
+```
+
+### Argumen Eksekusi
+
+| Argumen | Tipe | Deskripsi |
+| :--- | :--- | :--- |
+| `--log-sources` | `list[str]` | Path direktori atau file log sistem dan kontainer yang menjadi sumber fakta primer. Sistem akan memindai log ini untuk mencari timestamp kejadian teknis. |
+| `--audit-trails` | `list[str]` | Path ke file jejak audit yang telah diverifikasi oleh `compliance_audit_readiness_assessor.py`. File ini berfungsi sebagai ground truth untuk memvalidasi klaim dalam log mentah. |
+| `--timeline-context` | `str` | Konteks temporal analisis. Opsi: `last_24h` (analisis reaktif cepat), `incident_window` (fokus pada jendela waktu insiden spesifik), atau `full_audit_year` (analisis trend jangka panjang). |
+| `--output-chronicle` | `str` | Path keluaran untuk file narasi forensik terstruktur (`forensic_chronicle.json`). Format JSON-LD ini mencakup metadata kepatuhan dan chain of custody. |
+
+### Arsitektur Pemrosesan Narasi
+
+1.  **Ingesti Multi-Modul:** Skrip membaca output dari `compliance_policy_enforcer.py` untuk memahami aturan apa yang dilanggar, `compliance_audit_readiness_assessor.py` untuk konteks kepatuhan, dan `compliance_mapping_matrix_generator.py` untuk memetakan temuan ke taxonomi regulasi.
+2.  **Ekstraksi Kausalitas:** Menggunakan engine grafi pengetahuan (`compliance_governance_knowledge_graph_engine.py`), sistem mengaitkan node teknis (misal: `ChangeConfigEvent`) dengan node hukum (misal: `RegulationViolation`).
+3.  **Penyusunan Kronologi:** Peristiwa diurutkan berdasarkan timestamp absolut, mengisi celah waktu (time-gap) dengan estimasi probabilistik jika diperlukan, namun tetap menandai estimasi tersebut sebagai `confidence_low`.
+
+###### 6.9.10. Compliance & Legal: Metodologi Pembuktian Hukum
+
+Bagian ini menjelaskan kerangka kerja teknis dan hukum yang memastikan bahwa setiap output dari sistem ini memenuhi standar *admissibility* (dapat diterima) di pengadilan.
+
+### 6.9.10.1. Causal Chain Reconstruction for Legal Admissibility
+
+Dalam konteks hukum digital, korelasi waktu tidak sama dengan sebab-akibat. Untuk mempertahankan narasi di pengadilan, sistem menerapkan metodologi **Causal Chain Reconstruction** yang mematuhi kriteria berikut:
+
+1.  **Determinisme Teknis vs. Probabilistik:**
+    *   Sistem membedakan antara *hard events* (perubahan konfigurasi yang tercatat di log Kubernetes) dan *soft events* (anomali traffic yang mungkin disebabkan oleh faktor eksternal).
+    *   Setiap link dalam rantai kausalitas wajib memiliki *provenance ID* yang merujuk ke entitas sumber asli (log line, file config, atau snapshot database).
+
+2.  **Peta Regulasi Dinamis:**
+    *   Sistem memetakan peristiwa teknis ke pasal regulasi spesifik secara otomatis menggunakan `regulatory_taxonomy.json`.
+    *   Contoh: Perubahan `allow_privilege_escalation` di manifest Kubernetes dipetakan ke *violation of ISO 27001 A.12.4.1 (Event Logging)* dan *GDPR Art. 5(1)(f) (Integrity and Confidentiality)* karena meningkatkan risiko akses tidak sah terhadap data pribadi.
+
+3.  **Verifikasi Silang Kontekstual:**
+    *   Narasi tidak hanya menyatakan "Insiden terjadi pada T1", tetapi "Insiden terjadi pada T1, *dimana* perubahan konfigurasi X adalah prasyarat teknis yang memungkinkan akses tidak sah Y pada T2, sebagaimana dibuktikan oleh log Z".
+
+### 6.9.10.2. Digital Evidence Integrity (RFC 3227 Compliance)
+
+Sistem mengadopsi prinsip-prinsip **RFC 3227 (Requirements for an Internet Protocol-based System for Secure Evidence Handling)** untuk menjamin integritas bukti digital. Integritas ini dijaga melalui mekanisme **Cryptographic Hashing Chain of Custody**.
+
+#### Mekanisme Chain of Custody Elektronik
+
+Setiap node waktu dalam kronologi forensik (*Chronology Node*) dibungkus dalam struktur hash kriptografi untuk mencegah manipulasi pasca-fakta (*post-hoc tampering*).
+
+1.  **Hashing SHA-256 pada Node Waktu:**
+    Setiap entri dalam `forensic_chronicle.json` mengandung properti `hash_digest`. Hash ini dihitung dari:
+    ```text
+    Hash(Node_t) = SHA-256(
+        Timestamp_ISO8601 + 
+        Payload_Data + 
+        Hash_Node_Seprevious(t-1) + 
+        Salt_Audit_Key
+    )
+    ```
+    Di mana `Salt_Audit_Key` adalah kunci rahasia yang hanya diketahui oleh sistem audit, mencegah penyerang membuat chain of custody palsu.
+
+2.  **Linked-List Integrity:**
+    Karena setiap node mencakup hash dari node sebelumnya, mengubah satu fakta historis (misalnya, mengubah waktu kejadian) akan memecahkan seluruh rantai hash setelah titik tersebut. Hal ini membuat manipulasi data menjadi sangat mudah dideteksi secara krusial.
+
+3.  **Notarisasi Waktu (Timestamp Notarization):**
+    Untuk meningkatkan kepercayaan, timestamp kritis dari sistem (server time) divalidasi melawan waktu atomik atau NTP server terpercaya sebelum di-hash, mencegah *clock skew* yang disengaja oleh penyerang.
+
+### 6.9.10.3. Prosedur Validasi: Adversarial Timeline Attack Mitigation
+
+Penyerang canggih mungkin mencoba memanipulasi analisis forensik melalui dua metode utama: **Past-Liming** (mengubah waktu peristiwa di masa lalu agar terlihat sebagai bagian dari insiden saat ini) atau **Evidence Suppression** (menyembunyikan bukti yang merugikan). Sistem mengimplementasikan proteksi berikut:
+
+1.  **Deteksi Anomali Waktu (Temporal Drift Detection):**
+    *   Sistem membandingkan timestamp dari berbagai sumber independen (log aplikasi, log sistem operasi, timestamp HTTP header, dan waktu NTP).
+    *   Jika deviasi waktu melebihi toleransi (misal: >500ms antar sumber), sistem menandai node tersebut sebagai `flag_temporal_anomaly` dan meminta intervensi manual. Ini mendeteksi upaya *past-liming* di mana penyerang mencoba menyinkronkan waktu palsu.
+
+2.  **Audit Trail Imutabilitas:**
+    *   File yang dibaca oleh `--audit-trails` adalah baca-saja (*read-only*) dan disimpan di storage berbasis WORM (*Write-Once-Read-Many*).
+    *   Sebelum memproses, sistem memverifikasi checksum file audit. Jika file audit dimodifikasi atau dihapus, sistem akan menolak menghasilkan *chronicle* dan meningkatkan level alert ke `Critical: Evidence Tampering Suspected`.
+
+3.  **Cross-Modal Reconciliation:**
+    *   Sistem melakukan rekonsiliasi lintas modalitas. Jika log aplikasi mencatat "User A login", tetapi log jaringan mencatat tidak ada traffic dari IP User A pada waktu tersebut, sistem akan menandai klaim login tersebut sebagai `Unverified`.
+    *   Prinsip ini mencegah agen penyerang yang telah mendapatkan akses root untuk memanipulasi satu jenis log tanpa meninggalkan jejak ketidaksesuaian di jenis log lainnya.
+
+### 6.9.10.4. Output Format: `forensic_chronicle.json`
+
+Struktur data keluaran dirancang agar dapat dibaca oleh sistem hukum (Lawyers/Compliance Officers) tanpa memerlukan keahlian teknis mendalam, namun tetap mempertahankan detail teknis untuk ahli forensik digital.
+
+```json
+{
+  "chronicle_id": "CRON-2023-10-27-001",
+  "generated_at": "2023-10-27T14:00:00Z",
+  "legal_advisory": {
+    "chain_of_custody_valid": true,
+    "integrity_hash_root": "sha256:a1b2c3...",
+    "tamper_detection_status": "CLEAN"
+  },
+  "timeline": [
+    {
+      "sequence_id": 1,
+      "timestamp_utc": "2023-10-27T10:00:00Z",
+      "event_type": "CONFIG_CHANGE",
+      "description": "Penonaktifan enkripsi transit pada database pelanggan",
+      "technical_evidence": {
+        "source_log": "/var/log/k8s/app-server.log",
+        "hash_digest": "sha256:node1_hash...",
+        "conflicting_sources": []
+      },
+      "legal_impact": {
+        "regulation_violated": ["GDPR Art. 32 (Security of Processing)"],
+        "data_class_involved": ["PII_Customer_Data"],
+        "risk_level": "HIGH"
+      },
+      "causal_link_to_next": 2
+    },
+    {
+      "sequence_id": 2,
+      "timestamp_utc": "2023-10-27T10:05:00Z",
+      "event_type": "DATA_ACCESS_ANOMALY",
+      "description": "Akses massal ke tabel pelanggan dari IP eksternal tidak dikenal",
+      "technical_evidence": {
+        "source_log": "/var/log/nginx/access.log",
+        "hash_digest": "sha256:node2_hash...",
+        "conflicting_sources": []
+      },
+      "legal_impact": {
+        "regulation_violated": ["GDPR Art. 33 (Notification of Breach)"],
+        "note": "Kausalitas langsung dengan Sequence ID 1 terverifikasi melalui dependency graph."
+      }
+    }
+  ],
+  "summary_legal_narrative": "Pada 27 Oktober 2023, perubahan konfigurasi keamanan yang tidak sah (Seq 1) secara langsung mengurangi integritas data pelanggan, yang segera dieksploitasi melalui akses anomali (Seq 2). Rantai kausalitas ini didukung oleh hash kriptografi yang tidak berubah sejak pencatatan log awal."
+}
+```
+
+Dengan integrasi *Hash Chain of Custody* dan *Causal Chain Reconstruction*, output dari sistem ini bukan sekadar laporan teknis, melainkan **bukti digital yang dapat dipertahankan**, mengurangi beban pembuktian bagi tim legal dan compliance saat berhadapan dengan regulator atau pihak lawan dalam gugatan hukum.
