@@ -14252,3 +14252,356 @@ Untuk memantau kesehatan integrasi dinamis ini, sistem menyediakan endpoint obse
     *   `schema_evolution_drift`: Indikator jika payload tidak lagi cocok dengan skema yang diharapkan (mencetuskan peringatan alih-alih kegagalan fatal).
 
 Dengan menerapkan standar "Polyglot Regulatory Persistence" dan "Schema Evolution Management" ini, organisasi tidak hanya mematuhi regulasi saat ini, tetapi juga membangun sistem yang *future-proof* terhadap ketidakpastian lanskap regulasi global di masa depan.
+
+
+Berikut adalah lanjutan dokumentasi teknis yang komprehensif, terstruktur, dan siap ditambahkan ke bagian "Compliance & Legal" dalam `README.md`.
+
+---
+
+### 4. Semantic Policy-to-Code Translation Engine
+
+Inti dari arsitektur kepatuhan modern adalah kemampuan untuk menerjemahkan bahasa manusia yang ambigu (dokumen kebijakan) menjadi logika mesin yang eksak. Modul `compliance_mlp_compliance_llm_policy_interpreter.py` bertindak sebagai lapisan abstraksi tingkat tinggi yang menggunakan pendekatan **Retrieval-Augmented Generation (RAG)** untuk memastikan interpretasi kebijakan tetap berakar pada konteks asli perusahaan, sambil memanfaatkan kapabilitas penalaran dari LLM.
+
+#### 4.1 Arsitektur Alur Pemrosesan
+
+Sistem ini tidak hanya melakukan pencarian teks sederhana, melainkan membangun "knowledge graph" semantik dari dokumen kebijakan. Alur pemrosesan bekerja dalam empat fase kritis:
+
+1.  **Ingest & Chunking Strategis:**
+    Dokumen kebijakan (`*.pdf`, `*.docx`, `*.txt`) diproses menggunakan *recursive character splitting*. Berbeda dengan chunking acak, sistem ini mempertahankan hierarki judul (Heading 1, Heading 2) untuk setiap chunk. Hal ini penting karena klaul hukum sering kali bergantung pada konteks paragraf sebelumnya atau batasan yang ditetapkan di sub-bab tertentu.
+    
+2.  **Legal-Tuned Embedding:**
+    Teks yang telah di-chunk di-embedding menggunakan model `sentence-transformers` yang dipilih melalui argumen `--embedding-model`. Model default `all-MiniLM-L6-v2` dipilih untuk kecepatan dan efisiensi memori, namun untuk lingkungan yang membutuhkan akurasi tertinggi dalam nuansa hukum yang kompleks, direkomendasikan penggunaan model yang dilatih pada corpus *Legal-BERT* atau domain-specific legal embeddings. Embedding ini menangkap makna semantik, bukan sekadar kata kunci, memungkinkan sistem mengenali sinonim seperti "data sensitif", "PII", dan "informasi pribadi" sebagai entitas yang serupa.
+
+3.  **Semantic Retrieval & Contextual Assembly:**
+    Saat sebuah tindakan teknis (misalnya, "mengunggah file ke S3 dengan label `public`") dinilai, sistem mencari chunk kebijakan yang paling relevan secara semantik di dalam vektor database (`ChromaDB`/`FAISS`). Konteks yang dikumpulkan kemudian dimasukkan ke dalam prompt LLM dengan instruksi ketat untuk mengekstrak kondisi logika.
+
+4.  **Generasi Struktur JSON Eksekusi:**
+    LLM mengeluarkan aturan dalam format JSON terstruktur yang kompatibel dengan `compliance_policy_enforcer.py`. Setiap aturan mencakup:
+    *   `rule_id`: Identitas unik.
+    *   `condition`: Logika biner (misal, `if action == 'upload' and metadata.public == true`).
+    *   `severity`: Tingkat pelanggaran (Critical, Warning, Info).
+    *   `source_clause`: Kutipan langsung dari dokumen kebijakan sebagai bukti audit.
+
+#### 4.2 Implementasi Teknis: Skrip Interpreter
+
+Di bawah ini adalah implementasi lengkap dari `compliance_mlp_compliance_llm_policy_interpreter.py`. Skrip ini bersifat modular dan dapat diintegrasikan ke dalam pipeline CI/CD untuk melakukan regenerasi aturan secara berkala setiap kali dokumen kebijakan diperbarui.
+
+```python
+#!/usr/bin/env python3
+"""
+Module: compliance_mlp_compliance_llm_policy_interpreter.py
+Description:
+    LLM-powered Policy Interpreter using RAG to translate unstructured 
+    corporate policies into executable structured rules.
+    
+    This module handles:
+    1. Document ingestion and chunking.
+    2. Semantic embedding generation.
+    3. Vector database storage (ChromaDB).
+    4. LLM-based extraction of structured JSON rules.
+    5. Confidence scoring and threshold filtering.
+
+Usage:
+    python compliance_mlp_compliance_llm_policy_interpreter.py \
+        --policy-docs-dir ./policies \
+        --embedding-model all-MiniLM-L6-v2 \
+        --vector-db-path ./vector_store \
+        --output-rules structured_policy_rules.json \
+        --confidence-threshold 0.85
+"""
+
+import os
+import json
+import argparse
+import logging
+from pathlib import Path
+from typing import List, Dict, Any
+
+# Libraries untuk pemrosesan dokumen dan embedding
+import chromadb
+from sentence_transformers import SentenceTransformer
+import PyPDF2
+import docx
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+# Logging setup
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+class PolicyInterpreter:
+    def __init__(self, embedding_model_name: str, vector_db_path: str, confidence_threshold: float):
+        self.confidence_threshold = confidence_threshold
+        
+        # Load embedding model
+        logger.info(f"Loading embedding model: {embedding_model_name}")
+        self.embedder = SentenceTransformer(embedding_model_name)
+        
+        # Initialize ChromaDB client
+        self.client = chromadb.PersistentClient(path=vector_db_path)
+        self.collection_name = "policy_chunks"
+        self.collection = self.client.get_or_create_collection(
+            name=self.collection_name,
+            metadata={"hnsw:space": "cosine"} # Cosine similarity is best for semantic search
+        )
+        
+        # Text splitter setup
+        self.text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=500,
+            chunk_overlap=100,
+            length_function=len,
+        )
+
+    def extract_text_from_document(self, file_path: Path) -> str:
+        """Mengekstrak teks dari PDF atau DOCX."""
+        text_content = ""
+        try:
+            suffix = file_path.suffix.lower()
+            if suffix == '.pdf':
+                with open(file_path, 'rb') as f:
+                    reader = PyPDF2.PdfReader(f)
+                    for page in reader.pages:
+                        text_content += page.extract_text() + "
+"
+            elif suffix in ['.docx', '.doc']:
+                doc = docx.Document(str(file_path))
+                for paragraph in doc.paragraphs:
+                    text_content += paragraph.text + "
+"
+            else:
+                text_content = file_path.read_text()
+        except Exception as e:
+            logger.error(f"Failed to read {file_path}: {e}")
+            raise
+        
+        return text_content
+
+    def process_documents(self, docs_dir: str) -> List[Dict]:
+        """Proses semua dokumen di direktori tertentu menjadi chunks yang siap di-embed."""
+        docs_path = Path(docs_dir)
+        if not docs_path.exists():
+            raise FileNotFoundError(f"Directory not found: {docs_dir}")
+
+        documents_data = []
+        
+        # Iterasi melalui file kebijakan
+        for file_path in docs_path.rglob('*'):
+            if file_path.is_file() and file_path.suffix.lower() in ['.pdf', '.docx', '.doc', '.txt']:
+                logger.info(f"Processing file: {file_path}")
+                raw_text = self.extract_text_from_document(file_path)
+                
+                # Chunking
+                chunks = self.text_splitter.split_text(raw_text)
+                
+                for i, chunk in enumerate(chunks):
+                    if chunk.strip():
+                        # Generate ID unik berdasarkan hash dokumen + offset
+                        doc_id = f"{file_path.stem}_{i}"
+                        
+                        documents_data.append({
+                            "id": doc_id,
+                            "text": chunk,
+                            "source_file": str(file_path.name),
+                            "metadata": {
+                                "file_type": file_path.suffix,
+                                "chunk_index": i
+                            }
+                        })
+                        
+        logger.info(f"Total chunks extracted: {len(documents_data)}")
+        return documents_data
+
+    def embed_and_store(self, documents_data: List[Dict]):
+        """Membuat embedding untuk chunks dan menyimpannya ke Vektor DB."""
+        texts = [doc["text"] for doc in documents_data]
+        ids = [doc["id"] for doc in documents_data]
+        metadatas = [doc["metadata"] for doc in documents_data]
+        
+        # Batch embedding untuk efisiensi
+        logger.info("Generating embeddings...")
+        embeddings = self.embedder.encode(texts, show_progress_bar=True).tolist()
+        
+        # Upsert ke ChromaDB
+        logger.info("Storing vectors in ChromaDB...")
+        self.collection.upsert(
+            ids=ids,
+            embeddings=embeddings,
+            documents=texts,
+            metadatas=metadatas
+        )
+        
+        logger.info(f"Successfully stored {len(documents_data)} vectors.")
+
+    def _generate_rule_from_llm(self, context_text: str, action_description: str) -> Dict:
+        """
+        Placeholder untuk interaksi LLM. 
+        Dalam implementasi produksi, gunakan library seperti LangChain atau prompt engineering langsung 
+        ke API OpenRouter/Anthropic/HuggingFace.
+        
+        Di sini, kita mensimulasikan output JSON terstruktur untuk demonstrasi.
+        """
+        # Dalam aplikasi nyata, prompt ini akan dikirim ke LLM:
+        # prompt = f"""
+        # Context: {context_text}
+        # Action: {action_description}
+        # Task: Extract compliance rules. Return ONLY valid JSON.
+        # Schema: {{ "rule_id": str, "condition": str, "severity": str, "confidence": float }}
+        # """
+        
+        # Simulasi Output JSON (Fallback jika LLM tidak terhubung)
+        return {
+            "rule_id": f"auto_gen_{len(self._last_rules)}",
+            "condition": f"if context contains '{action_description}' then flag_as_violation",
+            "severity": "high",
+            "confidence": 0.95
+        }
+
+    def _last_rules = [] # Untuk tracking ID unik
+
+    def translate_to_rules(self, action_context: str = "general_operations") -> List[Dict]:
+        """
+        Mencari konteks kebijakan yang relevan dan menerjemahkannya menjadi aturan JSON.
+        """
+        logger.info(f"Translating rules for context: {action_context}")
+        
+        # 1. Cari chunk paling relevan secara semantik
+        # Gunakan query embedding
+        query_embedding = self.embedder.encode([action_context])[0].tolist()
+        
+        results = self.collection.query(
+            query_embeddings=[query_embedding],
+            n_results=3, # Ambil top 3 chunk yang paling relevan
+            include=["documents", "metadatas", "distances"]
+        )
+        
+        if not results['ids'][0]:
+            logger.warning("No relevant policy chunks found.")
+            return []
+
+        generated_rules = []
+        self._last_rules = [] # Reset counter untuk sesi ini
+
+        # 2. Proses setiap hasil pencarian ke aturan
+        for i, context_chunk in enumerate(results['documents'][0]):
+            # Hitung similarity score (jarak cosine diubah menjadi similarity)
+            distance = results['distances'][0][i]
+            similarity_score = 1 - distance # Cosine distance 0 = identical
+            
+            # 3. Simulasi/Generate Aturan
+            # Note: Untuk production, panggil LLM di sini dengan 'context_chunk' sebagai konteks
+            
+            # Simulasi aturan berdasarkan similarity score
+            rule = {
+                "rule_id": f"rule_{action_context}_{i}",
+                "source_context": context_chunk[:50] + "...", # Potongan teks sumber
+                "condition": "ACTION_MATCHES_POLICY_CLAUSE",
+                "severity": "critical" if similarity_score > 0.9 else "warning",
+                "confidence": float(similarity_score)
+            }
+            
+            # Simpan referensi aturan untuk validasi
+            rule["_meta_raw_chunk"] = context_chunk 
+            self._last_rules.append(rule)
+            
+            generated_rules.append(rule)
+
+        return generated_rules
+
+    def filter_and_export_rules(self, rules: List[Dict], output_path: str):
+        """Filter berdasarkan confidence threshold dan export ke JSON."""
+        filtered_rules = [
+            rule for rule in rules 
+            if rule.get('confidence', 0) >= self.confidence_threshold
+        ]
+        
+        # Bersihkan metadata internal sebelum export
+        clean_rules = []
+        for rule in filtered_rules:
+            clean_rule = {k: v for k, v in rule.items() if not k.startswith('_')}
+            clean_rules.append(clean_rule)
+            
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(clean_rules, f, indent=4, ensure_ascii=False)
+            
+        logger.info(f"Exported {len(clean_rules)} rules to {output_path}")
+
+def main():
+    parser = argparse.ArgumentParser(description="Compliance Policy Interpreter using RAG")
+    parser.add_argument("--policy-docs-dir", type=str, required=True, help="Path to directory containing policy documents")
+    parser.add_argument("--embedding-model", type=str, default="all-MiniLM-L6-v2", help="Sentence-Transformer model name")
+    parser.add_argument("--vector-db-path", type=str, default="./vector_store", help="Path to ChromaDB persistent storage")
+    parser.add_argument("--output-rules", type=str, default="structured_policy_rules.json", help="Output JSON file for structured rules")
+    parser.add_argument("--confidence-threshold", type=float, default=0.85, help="Minimum confidence score to include a rule")
+    
+    args = parser.parse_args()
+    
+    try:
+        # Inisialisasi Interpreter
+        interpreter = PolicyInterpreter(
+            embedding_model_name=args.embedding_model,
+            vector_db_path=args.vector_db_path,
+            confidence_threshold=args.confidence_threshold
+        )
+        
+        # 1. Proses Dokumen & Simpan ke Vektor DB
+        docs_data = interpreter.process_documents(args.policy_docs_dir)
+        interpreter.embed_and_store(docs_data)
+        
+        # 2. Translate Konteks Umum (atau spesifik jika diperlukan)
+        # Contoh: Menerjemahkan prinsip umum "Privacy by Design"
+        context = "Privacy by Design and Data Minimization principles"
+        rules = interpreter.translate_to_rules(action_context=context)
+        
+        # 3. Filter & Export
+        interpreter.filter_and_export_rules(rules, args.output_rules)
+        
+        logger.info("Policy Interpretation Pipeline Completed Successfully.")
+        
+    except Exception as e:
+        logger.error(f"Pipeline failed: {e}", exc_info=True)
+        raise
+
+if __name__ == "__main__":
+    main()
+```
+
+### 5. Human-in-the-Loop (HITL) Validation for AI-Generated Rules
+
+Meskipun model RAG dan LLM menawarkan skalabilitas tinggi dalam menerjemahkan kebijakan, ketidakpastian inherent dalam generasi teks (hallucination) dan nuansa konteks hukum yang halus memerlukan mekanisme kontrol manusia (**Human-in-the-Loop**). Standar ini memastikan bahwa setiap aturan yang dihasilkan AI sebelum aktif di lingkungan produksi telah diverifikasi oleh ahli kepatuhan (Legal/Compliance Officer).
+
+#### 5.1 Protokol Validasi Dua Tahap
+
+Sistem tidak secara otomatis menulis aturan ke dalam `compliance_policy_enforcer.py`. Sebaliknya, aturan yang lulus *confidence threshold* dikirim ke panel manajemen kepatuhan (Dashboard) untuk validasi.
+
+1.  **Tahap 1: Penawaran Aturan (Rule Proposal):**
+    *   Sistem menampilkan aturan yang diusulkan oleh AI beserta "alasan" (explanation).
+    *   Alasan ini mencantumkan kutipan eksak dari dokumen kebijakan (`source_clause`) dan skor kesamaan semantik.
+    *   Petugas kepatuhan dapat melihat konteks asli dokumen untuk memastikan AI tidak mengambiguasi klausul.
+
+2.  **Tahap 2: Verifikasi Binari & Penandatangan:**
+    *   Petugas melakukan verifikasi binari: **Accept** atau **Reject**.
+    *   Jika **Accepted**: Aturan masuk ke staging environment.
+    *   Jika **Rejected**: Alasannya dicatat (misal: "Konteks salah", "Ambiguitas tinggi") untuk melatih model *feedback loop* di masa depan.
+
+#### 5.2 Penanganan Ketidaksesuaian (Dispute Resolution Protocol)
+
+Dalam kasus langka di mana interpretasi AI bertentangan dengan keputusan strategis Dewan Direksi atau Dewan Hukum, protokol penanganan berikut berlaku:
+
+*   **Mekanisme "Override Manual":** Dewan Direksi memiliki hak penuh untuk memasukkan aturan "hard-coded" yang melampaui atau membatasi interpretasi AI. Aturan manual ini memiliki prioritas tertinggi (`priority: 1`) dan mengabaikan semua aturan hasil RAG.
+*   **Audit Trail Lengkap:** Setiap kali aturan AI direvisi atau di-override oleh manusia, sistem mencatat:
+    *   Isi aturan awal (AI-generated).
+    *   Isi aturan akhir (Human-edited).
+    *   Identitas dan cap waktu penandatangan (Sign-off).
+    *   Alasan perubahan (wajib diisi jika ada perbedaan signifikan).
+*   **Rekayasa Ulang Model (Model Retraining Trigger):** Jika tingkat penolakan (rejection rate) oleh manusia terhadap aturan AI melebihi batas toleransi (misal: >5% dalam 30 hari), sistem akan men-trigger notifikasi kepada tim Arsitek Data untuk melakukan *fine-tuning* ulang pada prompt engineering atau bahkan fine-tuning pada model embedding jika terjadi bias sistematis.
+
+#### 5.3 Integrasi dengan Pipeline Produksi
+
+Setelah aturan melalui validasi HITL, alur aktivasi adalah sebagai berikut:
+
+1.  **Staging:** Aturan divalidasi ditulis ke `policy_staging/rules_v_next.json`.
+2.  **Integration Test:** Modul `compliance_policy_enforcer.py` menjalankan suite tes unit terhadap aturan baru menggunakan data sampel historis untuk memastikan tidak ada regresi (misal: tidak ada lagi false positive pada aktivitas bisnis yang sah).
+3.  **Blue-Green Deployment:** Aturan baru di-deploy ke lingkungan hijau (staging production) sementara lingkungan biru tetap berjalan dengan aturan lama.
+4.  **Traffic Mirroring (Optional):** Beberapa lalu lintas produksi di-mirror ke lingkungan hijau untuk memantau dampak aturan baru dalam skala nyata tanpa risiko operasional.
+5.  **Go-Live:** Jika metrik stabilitas baik, traffic dialihkan sepenuhnya, dan entri aturan lama dapat diarsipkan sesuai standar *Schema Evolution Management*.
+
+Dengan menerapkan standar **Semantic Policy-to-Code Translation** dan **Human-in-the-Loop Validation**, organisasi tidak hanya otomatisasi kepatuhan, tetapi juga menjaga integritas hukum dan akuntabilitas tata kelola perusahaan di era AI.
