@@ -10512,3 +10512,112 @@ Sebelum dokumen hukum ditandatangani secara digital, laporan etika (`ethical_imp
 
 > **Catatan Penting untuk Auditor:**
 > Hasil dari `compliance_ethical_impact_assessor.py` adalah input kuantitatif untuk bagian "Risk Control Effectiveness" dalam laporan keuangan tahunan. Jika modul ini mengembalikan status `NON-COMPLIANT`, proses penandatanganan digital dilarang dilakukan hingga bias ditemukan dan dimodelkan ulang (*re-training*) dengan teknik de-biasing (misalnya: *Re-weighting* atau *Adversarial Debiasing*).
+
+
+Berikut adalah konten lanjutan yang komprehensif dan terstruktur untuk ditambahkan ke `README.md`. Dokumen ini dirancang sebagai **Lampiran Teknis: Arsitektur MLOps Governance & Prosedur Resiliensi**, yang menerjemahkan kerangka kebijakan etika menjadi implementasi teknis yang dapat diaudit.
+
+***
+
+##### D. Lampiran Teknis: Arsitektur MLOps Governance & Resiliensi Operasional
+
+Bagian ini mendokumentasikan arsitektur teknis dari sistem pengendalian etika AI yang beroperasi secara dinamis di lingkungan produksi. Sistem ini menjamin bahwa model ML tidak hanya mematuhi regulasi pada saat pelatihan (*static compliance*), tetapi juga mempertahankan integritas etika seiring waktu (*dynamic compliance*) dalam menghadapi perubahan distribusi data (*data drift*) dan degradasi performa keadilan (*fairness degradation*).
+
+###### 1. Komponen Utama: `compliance_ai_governance_orchestrator.py`
+
+Skrip `compliance_ai_governance_orchestrator.py` bertindak sebagai "Otak Kepatuhan" (Governance Brain) yang memantau siklus hidup model secara *real-time*. Orchestrator ini terhubung dengan *Model Registry* dan pipeline deployment (`id_exporter.py` serta `compliance_policy_enforcer.py`) untuk melakukan validasi kontinuitas kepatuhan.
+
+**Fitur Kunci:**
+*   **Real-Time Fairness Monitoring:** Memantau metrik fairness (seperti *Demographic Parity Difference* atau *Equalized Odds*) pada *inference traffic* produksi.
+*   **Automated Drift Detection:** Mendeteksi perubahan signifikan dalam distribusi data masukan (*covariate shift*) yang dapat memicu bias baru.
+*   **Hot-Patch & Re-training Orchestration:** Secara otomatis memicu proses *re-training* atau menerapkan *hot-patch* pada pipeline ekspor jika ambang batas kepatuhan dilampaui.
+
+**Antarmuka Command Line (CLI):**
+
+```bash
+python compliance_ai_governance_orchestrator.py \
+    --model-registry "/path/to/mlflow/artifacts" \
+    --fairness-monitor-interval 5 \
+    --alert-webhook "https://hooks.slack.com/services/..." \
+    --auto-remediate
+```
+
+**Penjelasan Argumen:**
+| Argumen | Tipe | Wajib | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `--model-registry` | `str` | Ya | Path ke direktori penyimpanan model (MLflow, DVC, atau S3 bucket) untuk melacak versi model yang aktif. |
+| `--fairness-monitor-interval` | `int` | Ya | Frekuensi pemantauan dalam menit. Disarankan antara 5-15 menit untuk produksi tinggi, atau 60+ menit untuk batch processing. |
+| `--alert-webhook` | `str` | Ya | URL Webhook (Slack, Microsoft Teams, atau PagerDuty) untuk mengirimkan notifikasi kritis jika terjadi pelanggaran kepatuhan atau aktivasi mode darurat. |
+| `--auto-remediate` | `flag` | Tidak | Mengaktifkan mode perbaikan otomatis. Jika diaktifkan, orchestrator akan memicu *re-training* atau *hot-patch* tanpa menunggu konfirmasi manual. **Saran Keamanan:** Gunakan mode ini hanya setelah uji coba ekstensif. |
+
+**Konfigurasi Kebijakan (`policy_rules_v1.json`):**
+
+Orchestrator membaca aturan kepatuhan dari file JSON berikut. Auditor disarankan untuk meninjau file ini secara berkala:
+
+```json
+{
+  "compliance_level": "OECD_AI_Principles",
+  "fairness_thresholds": {
+    "demographic_parity_diff_max": 0.05,
+    "equalized_odds_diff_max": 0.10,
+    "disparate_impact_ratio_min": 0.8
+  },
+  "drift_detection": {
+    "ks_test_p_value_threshold": 0.05,
+    "population_stability_index_psi_threshold": 0.25
+  },
+  "remediation_actions": {
+    "auto_retrain_if_breached": true,
+    "fallback_model_id": "model_v1.2_compliant_baseline",
+    "max_retries": 3
+  }
+}
+```
+
+###### 2. Alur Kerja Governance Dinamis (Dynamic Governance Loop)
+
+Sistem ini menerapkan loop tertutup (*closed-loop*) untuk menangani risiko etika yang muncul secara dinamis. Alur kerja ini memastikan transparansi dan akuntabilitas penuh:
+
+1.  **Ingest & Monitor:**
+    *   Orchestrator mengambil sampel *inference logs* dari `id_exporter.py`.
+    *   Metrik keadilan dihitung secara *sliding window* (misalnya, setiap 1 jam terakhir).
+    *   Uji statistik (Chi-Square, KS-Test) dijalankan untuk mendeteksi *drift*.
+
+2.  **Evaluasi Kepatuhan:**
+    *   Hasil metrik dibandingkan dengan `policy_rules_v1.json`.
+    *   Jika semua metrik berada dalam ambang batas, sistem mencatat status `COMPLIANT` ke ledger audit internal.
+
+3.  **Deteksi Pelanggaran & Escalation:**
+    *   Jika metrik melebihi ambang batas (misalnya, *Demographic Parity Difference* > 0.05):
+        *   Sistem mencatat status `VIOLATION_DETECTED`.
+        *   Webhook dikirim ke tim Rekayasa dan Kepatuhan melalui `--alert-webhook`.
+        *   Jika `--auto-remediate` aktif, langkah berikutnya otomatis dimulai. Jika tidak, sistem beralih ke mode *Human-in-the-Loop* (menunggu validasi manual).
+
+4.  **Remediasi Otomatis (Hot-Patch/Re-training):**
+    *   **Fase 1: Rollback:** Sistem secara sementara memprioritaskan versi model "baseline" yang telah diaudit sebelumnya (`fallback_model_id`) untuk mencegah dampak lebih lanjut.
+    *   **Fase 2: Retraining Pipeline:** Orchestrator memicu pipeline `compliance_ethical_impact_assessor.py` dengan data terbaru dan teknik *de-biasing* (seperti *Re-weighting* atau *Adversarial Debiasing*).
+    *   **Fase 3: Validasi Ulang:** Model baru diuji melalui `ethical_impact_report.json`. Hanya jika status `COMPLIANT`, model baru di-promote ke `id_exporter.py`.
+
+###### 3. Prosedur Penanganan Kegagalan (Fail-Safe Mechanism)
+
+Dalam skenario di mana otomatisasi gagal atau terjadi anomali teknis kritis, sistem memiliki mekanisme *Fail-Safe* yang dirancang untuk memprioritaskan keamanan hukum dan etika di atas ketersediaan layanan.
+
+| Skenario Kegagalan | Tindakan Sistem (Fail-Safe) | Tujuan Kepatuhan |
+| :--- | :--- | :--- |
+| **Model Registry Down** | Orchestrator menghentikan pengalihan trafik ke model baru. Model terakhir yang dikenal *compliant* tetap aktif. | Menjaga stabilitas keputusan yang telah diaudit. |
+| **Assessor Script Gagal (Timeout/Error)** | Sistem menandai keputusan *pending* sebagai "Under Review". Tidak ada keputusan otomatis yang dieksekusi hingga assessor kembali normal. | Mencegah *False Negatives* dalam deteksi bias. |
+| **Webhook Gagal/Tidak Responsif** | Logs lokal disimpan di `/var/log/compliance/audit_trail.log`. Sistem mencoba pengiriman ulang dengan *exponential backoff* selama 24 jam. | Menjamin jejak audit (*audit trail*) yang tidak dapat dihapus. |
+| **Drift Ekstrem (Systemic Bias)** | Jika *Population Stability Index (PSI)* > 0.5, sistem secara otomatis menonaktifkan fitur yang terdampak dan beralih ke aturan bisnis (*rule-based*) yang statis dan dapat diinterpretasikan. | Melindungi pengguna dari keputusan algoritma yang tidak dapat dipercaya. |
+
+###### 4. Implikasi bagi Auditor dan Dewan Direksi
+
+Bagi auditor teknologi dan dewan direksi, implementasi `compliance_ai_governance_orchestrator.py` menawarkan jaminan tiga lapis:
+
+1.  **Transparansi Waktu-Nyata:** Auditor tidak lagi mengandalkan laporan bulanan yang statis. Mereka dapat mengakses *live dashboard* yang menampilkan metrik keadilan terkini, memverifikasi bahwa sistem sedang mematuhi `policy_rules_v1.json` pada saat audit dilakukan.
+2.  **Akuntabilitas Proaktif:** Sistem tidak menunggu pelanggaran hukum terjadi. Dengan deteksi dini dan remediasi otomatis, perusahaan dapat membuktikan upaya "due diligence" dalam mencegah diskriminasi algoritmik, yang merupakan pertahanan hukum yang kuat di bawah regulasi AI (seperti EU AI Act).
+3.  **Rantai Penyanggaan (Chain of Custody):** Setiap kali terjadi *hot-patch* atau *re-training*, semua artefak (data training, kode preprocessing, hasil assessor) dicatat dalam *Model Registry*. Ini menciptakan jejak audit lengkap yang memungkinkan replikasi dan investigasi setiap keputusan yang dipengaruhi oleh AI.
+
+> **Peringatan Kepatuhan:**
+> Aktivasi `--auto-remediate` harus disetujui oleh Komite Etika AI perusahaan. Setiap tindakan remediasi otomatis harus dicatat dalam log kepatuhan sebagai "Event: Auto-Remediation Triggered" dengan timestamp dan alasan teknis, untuk keperluan tinjauan regulasi pasca-insiden.
+
+---
+*Dokumen ini merupakan bagian integral dari Kebijakan Kecerdasan Buatan Perusahaan dan harus disimpan bersama arsip kepatuhan hukum selama masa operasi sistem.*
