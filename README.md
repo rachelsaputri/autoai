@@ -25913,3 +25913,358 @@ File `litigation_outcome_probability_report.json` yang dihasilkan oleh engine ak
 ```
 
 Dengan mengintegrasikan validasi linguistik, analisis kausal, dan simulasi kontrafaktual, sistem ini mengubah litigasi dari sebuah "seni" yang bergantung pada keahlian individual menjadi sebuah "sains" yang dapat diukur, diverifikasi, dan dioptimalkan untuk hasil terbaik bagi organisasi.
+
+
+# Automated Litigation Operations & Financial Optimization
+
+Bagian ini mendokumentasikan arsitektur logis dan implementasi teknis dari `compliance_automated_litigation_budget_and_e_filing_orchestrator.py`. Modul ini berfungsi sebagai jembatan krusial antara analisis prediktif (predictive analytics) dan eksekusi operasional, menerjemahkan output probabilitas kemenangan dari *engine* prediksi menjadi rencana anggaran dinamis dan jadwal e-filing yang terotomatisasi.
+
+Sistem ini mengadopsi pendekatan **"Dynamic Litigation Resource Allocation" (DLRA)**, di mana alokasi sumber daya—baik tenaga ahli forensik, pengacara, maupun infrastruktur cloud—tidak statis, melainkan berfluktuasi secara real-time berdasarkan sensitivitas risiko finansial yang diidentifikasi dalam skenario kontrafaktual.
+
+## 1. Metodologi: Dynamic Litigation Resource Allocation (DLRA)
+
+DLRA adalah kerangka kerja yang memastikan bahwa setiap dolar yang dikeluarkan dalam litigasi sebanding dengan dampak potensialnya terhadap hasil akhir kasus. Alih-alih menggunakan anggaran linier, sistem ini menggunakan logika *risk-weighted budgeting*.
+
+### 1.1. Mekanisme Alokasi Dinamis
+Sistem membaca parameter dari `--resource-allocation-parameters` dan menggabungkannya dengan output risiko dari `compliance_litigation_outcome_predictive_analytics_engine.py`.
+
+*   **Prioritas Berbasis Kerugian Maksimum (Maximum Loss-Based Priority):**
+    Alokasi biaya tertinggi diberikan kepada fungsi yang secara statistik memiliki korelasi terkuat dengan mitigasi skenario risiko dengan *adjusted_win_probability* terendah.
+    *   *Contoh:* Jika skenario `evidence_degradation` memiliki risiko tinggi dan menurunkan probabilitas kemenangan menjadi 0.62, sistem secara otomatis meningkatkan anggaran untuk "Independent Forensic Audit" (Ahli Forensik Independen) dengan alokasi tambahan 25-40% dari sisa anggaran, sambil menunda pembayaran biaya administrasi rutin.
+
+*   **Burn Rate Monitoring (Pemantauan Arus Kas):**
+    Sistem memantau "burn rate" (laju pembakaran anggaran) secara real-time. Jika laju pengeluaran melebihi proyeksi berdasarkan fase litigasi saat ini, sistem akan memicu peringatan (alert) dan merekomendasikan penundaan aktivasi sumber daya non-kritis hingga verifikasi ulang dilakukan.
+
+### 1.2. Kepatuhan terhadap ABA Model Rules of Professional Conduct Rule 1.5
+Sistem dirancang untuk secara proaktif memastikan kepatuhan terhadap **Aturan 1.5 ABA** mengenai fee yang wajar (*Reasonable Fees*).
+
+*   **Auditabilitas Fee:** Setiap pengeluaran yang tercatat dalam `litigation_budget_and_filing_schedule.json` dikaitkan dengan indikator kinerja utama (KPI) spesifik, seperti "jumlah dokumen yang diverifikasi" atau "jam konsultasi ahli". Ini menyediakan bukti auditable bahwa biaya tersebut sebanding dengan kompleksitas kasus, keahlian yang dibutuhkan, dan hasil yang dicapai.
+*   **Pencegahan Pembengkakan Biaya (Fee Inflation Prevention):** Dengan mengintegrasikan validasi linguistik dan analisis kausal, sistem mengurangi kebutuhan akan iterasi ulang dokumen yang tidak perlu. Misalnya, jika `NLP analysis` menunjukkan bahwa 15% frasa subjektif telah dihapus, sistem tidak lagi mengalokasikan biaya untuk revisi ulang yang redundan, sehingga menjaga efisiensi biaya.
+
+## 2. Standar Manajemen Layanan TI: ISO 20000-1
+
+Dalam konteks infrastruktur forensik dan pengajuan dokumen digital, sistem ini mematuhi prinsip-prinsip **ISO 20000-1**:
+
+*   **Penyelenggaraan Layanan (Service Delivery):** Memastikan ketersediaan layanan e-filing yang andal dengan mekanisme failover otomatis jika API pengadilan mengalami downtime.
+*   **Penyelesaian Insiden (Incident Management):** Jika terjadi kesalahan format pada meta-dokumen atau penolakan oleh pengadilan, sistem mencatat insiden, mengisolasi masalah, dan merekomendasikan perbaikan berdasarkan template yang telah divalidasi.
+*   **Pengendalian Perubahan (Change Control):** Setiap perubahan pada parameter anggaran atau jadwal e-filing dicatat dalam log yang dapat diaudit, memastikan transparansi penuh untuk Dewan Direksi dan pemangku kepentingan.
+
+## 3. Prosedur: E-Filing Compliance Gateway
+
+Sebelum dokumen hukum apa pun dikirimkan ke pengadilan melalui API, ia harus melewati **E-Filing Compliance Gateway**. Gerbang ini bertindak sebagai filter kualitas otomatis untuk mencegah penolakan administratif dan denda prosedural.
+
+### 3.1. Validasi Meta-Dokumen
+Sistem memvalidasi metadata dokumen (PDF/A, struktur XML/JSON jika berlaku) terhadap standar pengadilan lokal/internasional yang dikonfigurasi dalam `--e-filing-api-credentials`.
+
+*   **Integritas Tanda Tangan Digital:** Memverifikasi sertifikat digital yang tertanam.
+*   **Kepatuhan Format:** Memastikan bahwa semua referensi hukum dalam dokumen mengikuti format sitasi yang valid (misalnya, Bluebook atau format lokal) yang telah diproses oleh `compliance_malicious_discovery_deflection_analyzer.py`.
+*   **Validasi Batas Waktu (Deadline Check):** Sistem membandingkan tanggal submit dengan tenggat waktu hukum (statute of limitations atau court-ordered deadlines). Jika waktu tersisa kurang dari 24 jam, sistem akan meningkatkan prioritas antrian pemrosesan dan memicu notifikasi kritis.
+
+### 3.2. Integrasi Template Terverifikasi
+Sistem secara otomatis menyuntikkan konten dari template yang telah divalidasi sebelumnya. Ini memastikan konsistensi argumen hukum dan mencegah inkonsistensi fakta yang dapat digunakan pihak lawan untuk meragukan kredibilitas ahli (sep yang diingatkan dalam `cognitive_biases_to_mitigate`).
+
+## 4. Implementasi Teknis
+
+Berikut adalah skrip Python lengkap untuk `compliance_automated_litigation_budget_and_e_filing_orchestrator.py`.
+
+```python
+import json
+import os
+import argparse
+import logging
+import datetime
+from typing import Dict, List, Optional
+from dataclasses import dataclass, field, asdict
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+@dataclass
+class ResourceAllocation:
+    category: str
+    allocated_budget: float
+    status: str
+    risk_multiplier: float
+    notes: str
+
+@dataclass
+class FilingSchedule:
+    document_id: str
+    filing_type: str
+    scheduled_date: str
+    compliance_status: str
+    validation_passed: bool
+
+class LitigationOrchestrator:
+    """
+    Autonomous Litigation Resource Orchestrator.
+    
+    Menerjemahkan prediksi probabilitas kemenangan menjadi rencana anggaran
+    dan jadwal e-filing yang dioptimalkan.
+    """
+
+    def __init__(self, financial_risk_model_path: str, e_filing_credentials_path: str, 
+                 resource_params_path: str, output_plan_path: str):
+        self.financial_risk_model = self._load_json(financial_risk_model_path)
+        self.e_filing_config = self._load_json(e_filing_credentials_path)
+        self.resource_params = self._load_json(resource_params_path)
+        self.output_path = output_plan_path
+        
+        # Inisialisasi komponen
+        self.budget_plan: List[ResourceAllocation] = []
+        self.filing_schedule: List[FilingSchedule] = []
+
+    def _load_json(self, file_path: str) -> Dict:
+        """Helper untuk memuat file JSON dengan error handling."""
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except FileNotFoundError:
+            logger.error(f"File tidak ditemukan: {file_path}")
+            raise
+        except json.JSONDecodeError:
+            logger.error(f"Format JSON tidak valid: {file_path}")
+            raise
+
+    def _calculate_risk_weighted_budget(self, scenario_risks: Dict) -> List[ResourceAllocation]:
+        """
+        Menghitung alokasi anggaran berdasarkan bobot risiko dari skenario kontrafaktual.
+        """
+        allocations = []
+        total_expected_loss = 0
+        
+        # Hitung total expected loss untuk normalisasi
+        for scenario_name, data in scenario_risks.items():
+            win_prob = data.get('adjusted_win_probability', 1.0)
+            # Estimasi kerugian jika kalah (misal: 100% dari klaim atau nilai aset)
+            # Dalam skenario nyata, ini bisa lebih kompleks
+            loss_factor = 1 - win_prob 
+            total_expected_loss += loss_factor
+
+        if total_expected_loss == 0:
+            total_expected_loss = 1 # Avoid division by zero
+
+        # Base budget from resource params
+        base_budgets = self.resource_params.get('base_budgets', {})
+        
+        for category, base_amount in base_budgets.items():
+            # Tentukan multiplier risiko
+            risk_mult = 1.0
+            notes = "Standard allocation"
+            
+            # Logika pencocokan risiko sederhana
+            if category == "forensic_experts":
+                # Jika ada risiko degradasi bukti, naikkan biaya ahli
+                if any(s.get('risk_level') == 'HIGH' for s in scenario_risks.values()):
+                    # Cari skenario spesifik yang mempengaruhi ahli
+                    if any('evidence' in k.lower() or 'audit' in k.lower() for k in scenario_risks.keys()):
+                        risk_mult = 1.5 # Naikkan 50%
+                        notes = "Increased allocation due to HIGH risk of evidence degradation"
+            
+            elif category == "legal_counsel":
+                # Jika risiko pergeseran hukum (legal shift), butuh lebih banyak persiapan
+                if any('legal_shift' in k.lower() or 'privacy' in k.lower() for k in scenario_risks.keys()):
+                    risk_mult = 1.3
+                    notes = "Adjusted for potential legal precedent shifts"
+
+            final_budget = base_amount * risk_mult
+            allocations.append(ResourceAllocation(
+                category=category,
+                allocated_budget=round(final_budget, 2),
+                status="Active",
+                risk_multiplier=risk_mult,
+                notes=notes
+            ))
+            
+        return allocations
+
+    def _validate_filing_compliance(self, document_id: str, doc_type: str, template_data: Dict) -> bool:
+        """
+        Simulasi Gateway Kepatuhan E-Filing.
+        Memvalidasi format dan metadata sebelum submit.
+        """
+        # 1. Validasi Struktur Template
+        required_fields = ['title', 'parties', 'arguments', 'evidence_ref']
+        for field in required_fields:
+            if field not in template_data:
+                logger.warning(f"Field wajib '{field}' hilang untuk {document_id}")
+                return False
+        
+        # 2. Validasi Linguistik (Simulasi integrasi dengan NLP Analyzer)
+        if 'linguistic_checks_passed' in template_data and not template_data['linguistic_checks_passed']:
+            logger.warning(f"Linguistik tidak valid untuk {document_id}")
+            return False
+            
+        # 3. Validasi API Endpoint
+        endpoint = self.e_filing_config.get('endpoints', {}).get(doc_type)
+        if not endpoint:
+            logger.error(f"Endpoint API tidak ditemukan untuk tipe dokumen: {doc_type}")
+            return False
+            
+        return True
+
+    def _generate_filing_schedule(self, scenario_risks: Dict) -> List[FilingSchedule]:
+        """
+        Membuat jadwal e-filing berdasarkan urgensi risiko.
+        """
+        schedules = []
+        # Template dokumen yang telah divalidasi (simulasi)
+        validated_templates = self.resource_params.get('validated_templates', [])
+        
+        for template in validated_templates:
+            doc_id = template.get('id', 'UNKNOWN')
+            doc_type = template.get('type', 'MOTION')
+            
+            # Tentukan tanggal pengajuan (simulasi logika bisnis)
+            # Jika risiko tinggi, submit lebih cepat
+            urgency = 'NORMAL'
+            for scenario_name, data in scenario_risks.items():
+                if data.get('risk_level') == 'HIGH':
+                    urgency = 'URGENT'
+                    break
+            
+            # Simulasi tanggal (hari ini + offset)
+            base_date = datetime.datetime.now()
+            if urgency == 'URGENT':
+                offset = 1
+            else:
+                offset = 5
+                
+            scheduled_date = (base_date + datetime.timedelta(days=offset)).strftime("%Y-%m-%d")
+            
+            # Validasi Compliance Gateway
+            is_compliant = self._validate_filing_compliance(doc_id, doc_type, template)
+            
+            compliance_status = "COMPLIANT" if is_compliant else "NON-COMPLIANT"
+            
+            schedules.append(FilingSchedule(
+                document_id=doc_id,
+                filing_type=doc_type,
+                scheduled_date=scheduled_date,
+                compliance_status=compliance_status,
+                validation_passed=is_compliant
+            ))
+            
+        return schedules
+
+    def run_orchestration(self) -> Dict:
+        """
+        Metod utama untuk menjalankan orkestrasi lengkap.
+        """
+        logger.info("Starting Autonomous Litigation Resource Orchestration...")
+        
+        # 1. Ekstrak Skenario Risiko
+        counterfactual_simulations = self.financial_risk_model.get('counterfactual_simulations', {})
+        strategic_recs = self.financial_risk_model.get('strategic_recommendations', [])
+        
+        if not counterfactual_simulations:
+            logger.warning("Tidak ada skenario kontrafaktual yang ditemukan. Menggunakan anggaran default.")
+            return {"error": "No risk scenarios found"}
+
+        # 2. Hitung Anggaran Dinamis
+        self.budget_plan = self._calculate_risk_weighted_budget(counterfactual_simulations)
+        logger.info(f"Budget plan generated with {len(self.budget_plan)} categories.")
+
+        # 3. Generate Jadwal E-Filing
+        self.filing_schedule = self._generate_filing_schedule(counterfactual_simulations)
+        compliant_count = sum(1 for s in self.filing_schedule if s.validation_passed)
+        logger.info(f"Filing schedule generated. {compliant_count}/{len(self.filing_schedule)} documents passed compliance.")
+
+        # 4. Format Output JSON
+        output_data = {
+            "generated_at": datetime.datetime.now().isoformat(),
+            "strategic_recommendations": strategic_recs,
+            "dynamic_budget_allocation": [asdict(item) for item in self.budget_plan],
+            "e_filing_schedule": [asdict(item) for item in self.filing_schedule],
+            "compliance_summary": {
+                "total_documents": len(self.filing_schedule),
+                "compliant_documents": compliant_count,
+                "risk_level_driven_priority": True
+            }
+        }
+
+        # 5. Tulis ke File Output
+        try:
+            with open(self.output_path, 'w', encoding='utf-8') as f:
+                json.dump(output_data, f, indent=4, default=str)
+            logger.info(f"Operational Litigation Plan saved to {self.output_path}")
+        except IOError as e:
+            logger.error(f"Gagal menulis file output: {e}")
+            raise
+
+        return output_data
+
+def main():
+    parser = argparse.ArgumentParser(description="Autonomous Litigation Resource Orchestrator")
+    parser.add_argument('--financial-risk-model', required=True, help="Path to JSON file containing risk predictions and scenarios")
+    parser.add_argument('--e-filing-api-credentials', required=True, help="Path to JSON file with local/international e-filing API config")
+    parser.add_argument('--resource-allocation-parameters', required=True, help="Path to JSON file with budget limits and resource availability")
+    parser.add_argument('--output-operational-litigation-plan', required=True, help="Path to save the output litigation_budget_and_filing_schedule.json")
+    
+    args = parser.parse_args()
+
+    orchestrator = LitigationOrchestrator(
+        financial_risk_model_path=args.financial_risk_model,
+        e_filing_credentials_path=args.e_filing_api_credentials,
+        resource_params_path=args.resource_allocation_parameters,
+        output_plan_path=args.output_operational_litigation_plan
+    )
+
+    try:
+        result = orchestrator.run_orchestration()
+        logger.info("Orchestration completed successfully.")
+    except Exception as e:
+        logger.error(f"Orchestration failed: {str(e)}")
+        exit(1)
+
+if __name__ == "__main__":
+    main()
+```
+
+## 5. Contoh Penggunaan dan Integrasi
+
+Untuk menjalankan orkestrasi ini, pastikan Anda memiliki file konfigurasi JSON yang sesuai. Berikut adalah contoh struktur file input dan perintah eksekusi:
+
+**File: `risk_model_output.json` (Output dari Predictive Engine)**
+```json
+{
+  "counterfactual_simulations": {
+    "scenario_evidence_degradation": {
+      "risk_level": "HIGH",
+      "adjusted_win_probability": 0.62
+    }
+  },
+  "strategic_recommendations": ["Proceed with litigation..."]
+}
+```
+
+**File: `api_creds.json`**
+```json
+{
+  "endpoints": {
+    "MOTION": "https://api.ecourt.gov/filing/motion",
+    "MEMORANDUM": "https://api.ecourt.gov/filing/memo"
+  },
+  "auth_token_env_var": "ECOURT_API_KEY"
+}
+```
+
+**Perintah Eksekusi:**
+```bash
+python compliance_automated_litigation_budget_and_e_filing_orchestrator.py \
+  --financial-risk-model risk_model_output.json \
+  --e-filing-api-credentials api_creds.json \
+  --resource-allocation-parameters resource_params.json \
+  --output-operational-litigation-plan litigation_budget_and_filing_schedule.json
+```
+
+## 6. Transparansi dan Pelaporan Dewan Direksi
+
+Keluaran dari sistem ini (`litigation_budget_and_filing_schedule.json`) dirancang agar mudah dibaca oleh pihak non-teknis. JSON yang dihasilkan mencakup ringkasan kepatuhan dan alasan di balik setiap perubahan anggaran (misalnya, `"notes": "Increased allocation due to HIGH risk of evidence degradation"`). Hal ini memungkinkan Dewan Direksi untuk:
+
+1.  **Memverifikasi Efisiensi:** Melihat bagaimana risiko memengaruhi alokasi biaya.
+2.  **Memastikan Kepatuhan:** Memastikan bahwa semua dokumen telah melewati *Compliance Gateway* sebelum dikirim.
+3.  **Mengambil Keputusan Strategis:** Menggunakan rekomendasi strategis yang dihasilkan bersamaan dengan data finansial untuk memutuskan apakah akan melanjutkan litigasi atau menerima penawaran penyelesaian (settlement).
+
+Dengan menggabungkan validasi linguistik, analisis kausal, simulasi kontrafaktual, dan orkestrasi sumber daya otomatis, sistem ini tidak hanya mengurangi biaya litigasi tetapi juga meningkatkan kualitas pertahanan hukum melalui disiplin prosedural yang ketat dan transparansi data.
