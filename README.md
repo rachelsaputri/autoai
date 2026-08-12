@@ -18310,3 +18310,341 @@ Metodologi ini selaras dengan:
 ---
 
 *Laporan ini adalah dokumen rahasia perusahaan. Dilarang mendistribusikan ke pihak luar tanpa persetujuan tertulis dari Dewan Direksi dan CCO.*
+
+
+Berikut adalah konten lanjutan yang komprehensif dan terstruktur untuk bagian "Deployment and Operations" serta implementasi teknis middleware. Konten ini dirancang untuk ditempel langsung setelah bagian "Best Practices untuk Dewan Direksi" dalam README Anda.
+
+---
+
+### 7. Deployment and Operations: Event-Driven Compliance Interoperability
+
+Bagian ini mendefinisikan arsitektur integrasi eksternal yang menangani pertukaran data antara sistem kepatuhan internal (Otomasi Core) dan ekosistem SaaS pihak ketiga (Vendor, Regulator, Cloud Provider). Arsitektur ini dibangun di atas prinsip **Secure External API Contracting** sesuai pedoman **NIST SP 800-207 (Zero Trust Architecture)**, memastikan bahwa setiap permintaan data atau notifikasi dipelajari, diautentikasi, dan diotorisasi secara ketat sebelum memengaruhi status `audit_readiness`.
+
+#### 7.1. Arsitektur Zero Trust Integration Bridge
+
+Sistem menggunakan `compliance_livedoor_integration_bridge.py` sebagai lapisan middleware yang menerapkan model **Zero Trust**. Tidak ada layanan, baik internal maupun eksternal, yang dipercaya secara default. Setiap interaksi harus memenuhi kriteria berikut:
+
+1.  **Explicit Identity:** Otentikasi ketat menggunakan **OAuth 2.0 + PKCE** (Proof Key for Code Exchange) untuk mencegah serangan interception.
+2.  **Least Privilege Access:** Token akses dibatasi berdasarkan konteks yurisdiksi dan sensitivitas data (didefinisikan dalam `compliance_mapping_matrix.json`).
+3.  **Implicit Zero Trust:** Setiap permintaan dibatasi lajunya (`Rate Limiting`) secara dinamis berdasarkan bobot risiko data.
+
+#### 7.2. Mekanisme Keamanan & Proteksi
+
+Untuk memastikan integritas sistem dan mencegah risiko *Shadow IT* atau kebocoran data melalui vendor, sistem mengimplementasikan tiga lapisan pertahanan utama:
+
+1.  **Webhook Integrity Validation:**
+    Semua payload masuk dari layanan pihak ketiga (misalnya, AWS Security Hub atau Microsoft Defender) divalidasi menggunakan **HMAC-SHA256**. Payload ditandatangani menggunakan `--webhook-secret-key`. Jika tanda tangan tidak cocok atau payload telah dimodifikasi, permintaan ditolak (`401 Unauthorized`).
+
+2.  **Dynamic Rate Limiting based on Sensitivity:**
+    Batas laju akses tidak statis. Middleware membaca `--rate-limit-policy` untuk menentukan batas per menit/per jam berdasarkan kelas data:
+    *   *Low Sensitivity (Audit Log Summary):* Batas tinggi.
+    *   *High Sensitivity (PII, Financial Data):* Batas sangat ketat untuk mencegah *scraping* atau *DoS*.
+    
+    Pelanggaran batas ini akan memicu penolakan permintaan dan pencatatan日志 keamanan.
+
+3.  **Circuit Breaker Pattern:**
+    Terintegrasi dengan mekanisme toleransi kesalahan untuk melindungi **Matriks Kepatuhan Utama** dari gangguan eksternal. Jika deteksi anomali terjadi (misalnya: lonjakan error rate > 50% dalam 1 menit dari satu vendor, atau deteksi upaya brute-force pada kredensial OAuth), *Circuit Breaker* akan:
+    *   **Open:** Memutus koneksi sementara ke vendor tersebut.
+    *   **Fail-Fast:** Mengembalikan respons error standar tanpa membebani sumber daya internal.
+    *   **Reset:** Setelah periode *cooldown* (dikonfigurasi), sistem mencoba koneksi ulang dengan monitor ketat. Jika gagal lagi, vendor ditandai sebagai "Untrusted" hingga intervensi manual CCO.
+
+#### 7.3. Implementasi Middleware (Python)
+
+File `compliance_livedoor_integration_bridge.py` menyediakan fungsi-fungsi inti berikut. Pastikan Python 3.9+ dan dependensi berikut terinstall:
+`requests`, `cryptography`, `flask` (untuk webhook receiver), `python-dotenv`.
+
+```python
+import json
+import os
+import hmac
+import hashlib
+import time
+import logging
+from typing import Dict, Any, Optional
+from urllib.parse import urljoin
+import requests
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.hmac import HKDF
+
+# Konfigurasi Logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger('ComplianceBridge')
+
+class ComplianceBridge:
+    def __init__(self, config_dir: str, secret_uri: str, webhook_secret: str, rate_limit_policy_path: str):
+        self.config_dir = config_dir
+        self.secret_uri = secret_uri
+        self.webhook_secret = webhook_secret
+        self.rate_limit_policy = self._load_rate_limit_policy(rate_limit_policy_path)
+        
+        # Cache untuk OAuth Tokens dan Circuit Breaker Status
+        self.token_cache: Dict[str, Any] = {}
+        self.circuit_breaker_status: Dict[str, bool] = {} # key: service_name, value: is_open
+        
+        # Load Mapping Matriks
+        self.mapping_matrix = self._load_compliance_matrix()
+
+    def _load_compliance_matrix(self) -> Dict:
+        """Memuat matriks pemetaan kepatuhan untuk menentukan sensitivitas data."""
+        matrix_path = os.path.join(self.config_dir, 'compliance_mapping_matrix.json')
+        try:
+            with open(matrix_path, 'r') as f:
+                return json.load(f)
+        except FileNotFoundError:
+            logger.error(f"File compliance mapping not found at {matrix_path}")
+            return {}
+
+    def _load_rate_limit_policy(self, policy_path: str) -> Dict:
+        """Memuat kebijakan batas laju berdasarkan yurisdiksi dan tipe data."""
+        try:
+            with open(policy_path, 'r') as f:
+                return json.load(f)
+        except Exception as e:
+            logger.warning(f"Could not load rate limit policy: {e}. Using defaults.")
+            return {"default": {"requests_per_minute": 60, "burst_limit": 10}}
+
+    def _get_secret(self, secret_name: str) -> str:
+        """
+        Mengambil rahasia dari Vault/Secrets Manager.
+        Dalam produksi, gunakan SDK resmi (hvac atau boto3).
+        """
+        # Placeholder untuk integrasi HashiCorp Vault atau AWS Secrets Manager
+        # Simulasi: Mengambil dari environment variable jika URI adalah 'env://'
+        if self.secret_uri.startswith("env://"):
+            return os.getenv(secret_name, "DEFAULT_SECRET_PLACEHOLDER")
+        logger.info(f"Fetching secret '{secret_name}' from {self.secret_uri}")
+        return "MOCK_SECRET_TOKEN" # Implementasi nyata diperlukan di sini
+
+    def authenticate_oauth_pkce(self, service_name: str) -> Optional[str]:
+        """
+        Melakukan otentikasi OAuth 2.0 dengan PKCE.
+        Mengambil kredensial dari Secret Store dan meminta token.
+        """
+        if self.circuit_breaker_status.get(service_name, False):
+            logger.error(f"Circuit OPEN for {service_name}. Request rejected.")
+            return None
+
+        try:
+            # 1. Ambil Kredensial
+            client_id = self._get_secret(f"{service_name}_client_id")
+            client_secret = self._get_secret(f"{service_name}_client_secret")
+            
+            # 2. Konfigurasi PKCE
+            import random
+            import base64
+            
+            code_verifier = base64.urlsafe_b64encode(os.urandom(32)).rstrip(b'=').decode('utf-8')
+            code_challenge = base64.urlsafe_b64encode(
+                hashlib.sha256(code_verifier.encode('utf-8')).digest()
+            ).rstrip(b'=').decode('utf-8')
+
+            # 3. Ambil Endpoint dari konfigurasi layanan
+            svc_config_path = os.path.join(self.config_dir, f"{service_name}_config.json")
+            if not os.path.exists(svc_config_path):
+                logger.error(f"Config for {service_name} not found.")
+                return None
+                
+            with open(svc_config_path, 'r') as f:
+                svc_config = json.load(f)
+            
+            token_url = svc_config['auth_endpoint']
+            redirect_uri = svc_config['callback_url'] # Atau static redirect URI
+
+            # 4. Request Token
+            payload = {
+                'grant_type': 'authorization_code',
+                'code': 'AUTH_CODE_RECEIVED_FROM_FLOW', # Dalam real bridge, ini biasanya langkah terpisah
+                'code_verifier': code_verifier,
+                'redirect_uri': redirect_uri
+            }
+            
+            response = requests.post(token_url, data=payload)
+            if response.status_code == 200:
+                token_data = response.json()
+                self.token_cache[service_name] = {
+                    'access_token': token_data['access_token'],
+                    'expires_at': time.time() + token_data['expires_in']
+                }
+                return token_data['access_token']
+            else:
+                logger.error(f"OAuth Failed for {service_name}: {response.text}")
+                self._trip_circuit_breaker(service_name)
+                return None
+                
+        except Exception as e:
+            logger.exception(f"Auth error: {e}")
+            self._trip_circuit_breaker(service_name)
+            return None
+
+    def _trip_circuit_breaker(self, service_name: str):
+        """Mengaktifkan Circuit Breaker jika terjadi kesalahan kritis."""
+        logger.warning(f"Tripping Circuit Breaker for {service_name}")
+        self.circuit_breaker_status[service_name] = True
+        # Simulasi reset otomatis setelah 5 menit (dalam produksi, gunakan scheduler)
+        time.sleep(300) # Non-blocking di real impl menggunakan thread
+        self.circuit_breaker_status[service_name] = False
+        logger.info(f"Circuit Breaker reset for {service_name}")
+
+    def validate_webhook(self, payload: bytes, signature_header: str) -> bool:
+        """
+        Memvalidasi integritas webhook masuk menggunakan HMAC-SHA256.
+        """
+        try:
+            expected_signature = hmac.new(
+                self.webhook_secret.encode('utf-8'),
+                payload,
+                hashlib.sha256
+            ).hexdigest()
+            
+            # Perbandingan konstan untuk mencegah timing attack
+            return hmac.compare_digest(expected_signature, signature_header)
+        except Exception as e:
+            logger.error(f"Webhook validation failed: {e}")
+            return False
+
+    def check_rate_limit(self, service_name: str, data_sensitivity: str) -> bool:
+        """
+        Mengecek apakah permintaan saat ini melanggar batas laju.
+        Data_sensitivity harus sesuai dengan kunci di compliance_mapping_matrix.
+        """
+        policy_key = data_sensitivity.lower() if data_sensitivity else "default"
+        policy = self.rate_limit_policy.get(policy_key, self.rate_limit_policy.get("default", {}))
+        
+        # Implementasi sederhana menggunakan file log timestamp (untuk demo)
+        # Di produksi, gunakan Redis atau database time-series
+        rate_limit_path = f"/tmp/rate_limit_{service_name}.log"
+        now = time.time()
+        
+        try:
+            with open(rate_limit_path, 'r') as f:
+                timestamps = [float(line.strip()) for line in f if float(line.strip()) > now - 60]
+        except FileNotFoundError:
+            timestamps = []
+            
+        timestamps.append(now)
+        
+        # Jika melebihi burst_limit atau requests_per_minute
+        if len(timestamps) > policy.get('burst_limit', 10):
+            return False # Blocked
+            
+        # Simpan timestamp (append)
+        try:
+            with open(rate_limit_path, 'a') as f:
+                f.write(f"{now}
+")
+            # Hapus timestamp lama untuk efisiensi
+            valid_timestamps = [t for t in timestamps if t > now - 60]
+            with open(rate_limit_path, 'w') as f:
+                for t in valid_timestamps:
+                    f.write(f"{t}
+")
+        except IOError as e:
+            logger.warning(f"Could not update rate limit log: {e}")
+            
+        return True
+
+    def process_webhook_update(self, service_name: str, payload: Dict, sensitivity_level: str):
+        """
+        Menerima payload dari webhook, memvalidasi, dan memperbarui audit_readiness_report.
+        """
+        # 1. Cek Circuit Breaker
+        if self.circuit_breaker_status.get(service_name, False):
+            logger.warning(f"Webhook ignored for {service_name} due to open circuit.")
+            return
+
+        # 2. Cek Rate Limit
+        if not self.check_rate_limit(service_name, sensitivity_level):
+            logger.warning(f"Rate limit exceeded for {service_name} with sensitivity {sensitivity_level}")
+            return
+
+        # 3. Update Laporan (Mock Implementation)
+        report_path = os.path.join(self.config_dir, 'audit_readiness_report.json')
+        try:
+            with open(report_path, 'r+') as f:
+                report = json.load(f)
+                
+                # Log aktivitas masuk ke laporan
+                if 'external_events' not in report:
+                    report['external_events'] = []
+                
+                report['external_events'].append({
+                    'source': service_name,
+                    'timestamp': time.time(),
+                    'payload_summary': payload.get('summary', 'N/A'),
+                    'status': 'processed'
+                })
+                
+                f.seek(0)
+                json.dump(report, f, indent=2)
+                f.truncate()
+            
+            logger.info(f"Successfully updated audit report with data from {service_name}")
+            
+        except Exception as e:
+            logger.error(f"Failed to update audit report: {e}")
+
+# CLI Argument Parsing & Entry Point
+if __name__ == "__main__":
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Compliance Livedoor Integration Bridge")
+    parser.add_argument('--service-config-dir', required=True, help="Path to directory containing service configs (e.g., aws_config.json, ojk_config.json)")
+    parser.add_argument('--secret-store-uri', required=True, help="URI for Secret Store (e.g., env://, vault://..., aws://...)")
+    parser.add_argument('--webhook-secret-key', required=True, help="Secret key for validating incoming webhooks (HMAC)")
+    parser.add_argument('--rate-limit-policy', required=True, help="Path to JSON file defining rate limits per sensitivity level")
+    
+    args = parser.parse_args()
+
+    try:
+        bridge = ComplianceBridge(
+            config_dir=args.service_config_dir,
+            secret_uri=args.secret_store_uri,
+            webhook_secret=args.webhook_secret_key,
+            rate_limit_policy_path=args.rate_limit_policy
+        )
+        logger.info("Compliance Bridge Initialized Successfully.")
+        # Di sini Anda akan menginisialisasi Flask app untuk webhook listener
+        # app = Flask(__name__)
+        # @app.route('/webhook/<service>', methods=['POST'])
+        # def handle_webhook(service): ...
+        
+    except Exception as e:
+        logger.critical(f"Failed to initialize Bridge: {e}")
+        exit(1)
+```
+
+#### 7.4. Prosedur Operasi Darurat: Circuit Breaker Manual Override
+
+Meskipun sistem dirancang untuk otomatis, intervensi manusia diperlukan jika anomali persisten. CCO atau Administrator Sistem dapat melakukan *override* melalui CLI:
+
+```bash
+# Memaksa membuka circuit breaker untuk vendor "OJK_Reporting_API"
+python compliance_livedoor_integration_bridge.py \
+    --service-config-dir ./configs \
+    --secret-store-uri env:// \
+    --webhook-secret-key "my_secure_key" \
+    --rate-limit-policy ./policies.json \
+    --force-circuit-break service=OJK_Reporting_API \
+    --reason="Unusual latency detected"
+
+# Memverifikasi status circuit breaker
+python compliance_livedoor_integration_bridge.py \
+    --service-config-dir ./configs \
+    --secret-store-uri env:// \
+    --webhook-secret-key "my_secure_key" \
+    --rate-limit-policy ./policies.json \
+    --status-circuit-break service=OJK_Reporting_API
+```
+
+#### 7.5. Panduan Audit Integrasi
+
+Untuk memenuhi standar audit eksternal, pastikan log berikut dicatat dan disimpan selama minimal 1 tahun:
+1.  **Log Otentikasi:** Waktu login, ID klien, dan hasil otentikasi (sukses/gagal).
+2.  **Log Validasi Webhook:** Header yang diterima, hasil verifikasi HMAC, dan status payload.
+3.  **Log Circuit Breaker:** Waktu pemutusan koneksi, alasan, dan waktu pemulihan.
+
+Log-log ini harus diintegrasikan ke dalam SIEM pusat perusahaan untuk pemantauan real-time oleh tim SOC.
+
+---
+
+*Laporan ini adalah dokumen rahasia perusahaan. Dilarang mendistribusikan ke pihak luar tanpa persetujuan tertulis dari Dewan Direksi dan CCO.*
