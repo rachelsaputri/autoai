@@ -11734,3 +11734,76 @@ Sebelum menyebarkan skrip ini ke lingkungan produksi, pastikan checklist berikut
 ---
 
 *Catatan Arsitektur Lanjutan: Integrasi dengan sistem legacy yang tidak mendukung HTTPS modern atau validasi sertifikat X.509 standar harus ditangani melalui mekanisme proxy keamanan tambahan di lapisan infrastruktur, bukan dengan menonaktifkan validasi sertifikat di dalam skrip, demi menjaga integritas keamanan end-to-end.*
+
+
+### 7. Modul Builder Narasi Forensik (`compliance_forensic_chronicle_builder.py`)
+
+Setelah insiden teridentifikasi, jejak digital dipertahankan, dan notifikasi regulator dilakukan, langkah selanjutnya dalam alur kepatuhan adalah transformasi data mentah menjadi **Narasi Hukum yang Kohesif**. Modul ini berfungsi sebagai "mesin narratif" yang mengintegrasikan perspektif teknis (playbook), etis (dampak), dan finansial (risiko) untuk menciptakan dokumen `legal_narrative_archive.docx` yang siap digunakan dalam litigasi atau audit forensik.
+
+#### 7.1 Arsitektur Integrasi Data
+Modul ini tidak hanya menggabungkan teks, tetapi juga memvalidasi konsistensi temporal dan logis antar sumber data:
+1.  **Input Teknis:** Membaca `incident_playbook_v1.md` untuk mendapatkan urutan kejadian teknis (timeline of events).
+2.  **Input Etis:** Membaca `ethical_impact_report.json` untuk menyisipkan evaluasi dampak terhadap hak privasi individu.
+3.  **Input Finansial:** Membaca `risk_future_projection.json` untuk memasukkan proyeksi kerugian dan beban kewajiban kompensasi.
+4.  **Validasi Kronologis:** Sebelum penulisan, modul menjalankan *temporal consistency check* untuk memastikan tidak ada anomali waktu antara kejadian teknis dan estimasi kerusakan etis/finansial.
+
+#### 7.2 Argumen Baris Perintah (CLI)
+
+Eksekusi dilakukan menggunakan Python 3.8+.
+
+```bash
+python compliance_forensic_chronicle_builder.py \
+    --playbook ./docs/incident_playbook_v1.md \
+    --ethics-report ./data/ethical_impact_report.json \
+    --financial-projection ./data/risk_future_projection.json \
+    --output ./reports/legal_narrative_archive.docx \
+    --watermark
+```
+
+#### 7.3 Parameter Argumen
+
+| Parameter | Tipe | Deskripsi Wajib |
+| :--- | :--- | :--- |
+| `--playbook` | `str` | Path ke file Markdown dari generator playbook insiden. Berisi kronologi teknis terverifikasi. |
+| `--ethics-report` | `str` | Path ke file JSON laporan dampak etika. Berisi evaluasi hak subjektif pemangku kepentingan. |
+| `--financial-projection` | `str` | Path ke file JSON proyeksi risiko finansial. Berisi estimasi kerugian material dan non-material. |
+| `--output` | `str` | Path tujuan untuk file output `.docx`. Jika path tidak ada, sistem akan mencoba membuat direktori parent secara otomatis. |
+| `--watermark` | `flag` | *(Opsional)* Menambahkan tanda air digital "CONFIDENTIAL" pada setiap halaman dokumen, beserta metadata penanda waktu kriptografi untuk mencegah penyuntingan tanpa jejak. |
+
+#### 7.4 Fitur Keamanan Dokumen
+-   **Metadata Kriptografi:** Setiap dokumen yang dihasilkan dilakukai dengan metadata XMP yang berisi hash SHA-256 dari konten teks utama dan timestamp otoritatif (NTP-synced) saat dokumen dibuat.
+-   **Integritas Dokumen:** Hash dokumen dicetak ke stdout dan log sistem setelah pembuatan, memungkinkan verifikasi integritas dokumen di kemudian hari.
+
+---
+
+### 8. Standar "Digital Chain of Narrative" (CoN)
+
+Bagian ini mendefinisikan standar baku untuk menyusun argumen defensif berdasarkan data terintegrasi. Penasehat hukum dan tim kepatuhan wajib mengikuti prinsip **Digital Chain of Narrative** untuk memastikan bahwa kronologi hukum yang disajikan tidak dapat digugat karena manipulasi data atau ketidaksesuaian fakta.
+
+#### 8.1 Prinsip Dasar CoN
+Digital Chain of Narrative adalah kerangka kerja yang menjamin bahwa setiap pernyataan dalam narasi hukum didukung oleh setidaknya dua sumber data independen yang saling cross-verify:
+1.  **Sumber Teknikal (Immutable):** Log sistem dan jejak forensik yang di-hash.
+2.  **Sumber Kontekstual (Validated):** Laporan etika dan keuangan yang disetujui oleh auditor independen.
+
+#### 8.2 Prosedur Validasi Konsistensi Temporal
+Untuk mencegah tuduhan manipulasi data dalam sengketa hukum, lakukan prosedur berikut sebelum menyertakan narasi dalam dokumen resmi:
+
+1.  **Sinkronisasi Timestamp:** Pastikan semua timestamp dari `playbook` (teknis) dan laporan etika/finansial menggunakan zona waktu UTC yang sama. Konversi lokal hanya boleh dilakukan untuk keperluan tampilan akhir, bukan pemrosesan logika.
+2.  **Cek Anomali Kronologis:**
+    *   *Rule 1:* Tidak boleh ada klaim kerusakan finansial yang terjadi *sebelum* insiden teknis terdeteksi (kecuali ada log pre-exploitasi yang valid).
+    *   *Rule 2:* Dampak etika harus berbanding lurus dengan durasi paparan data yang tercatat dalam playbook.
+    *   *Tool:* Gunakan fungsi `validate_temporal_consistency()` yang tersedia di dalam modul ini untuk memindai outlier waktu.
+3.  **Tracing Jejak Keputusan:** Setiap kesimpulan dalam narasi hukum harus dapat ditelusuri balik (traceable back) ke baris spesifik dalam `playbook.md` atau entri JSON dalam laporan etika/finansial. Hindari pernyataan umum tanpa referensi langsung.
+
+#### 8.3 Panduan untuk Penasehat Hukum
+Saat menyusun argumen defensif berdasarkan output modul ini:
+*   **Gunakan Data Paralel:** Tampilkan kronologi teknis berdampingan dengan dampak etis. Contoh: *"Pada T+00:15 (Jam 14:30 UTC), akses tidak sah terdeteksi [Ref: Playbook p.4]. Dalam interval waktu ini, diperkirakan 500 rekam medis terpapar, yang memicu tingkat kekhawatiran tinggi dari subyek data [Ref: Ethics Impact, Table 2]."*
+*   **Aktifkan Watermark:** Selalu gunakan flag `--watermark` pada lingkungan hukum. Tanda air bukan sekadar estetika, melainkan penanda keamanan yang mengidentifikasi dokumen ini sebagai bukti awal yang rentan terhadap perubahan jika diakses oleh pihak non-otorisasi.
+*   **Verifikasi Hash:** Sertakan hash dokumen dalam lampiran surat resmi. Jika hash dokumen yang diajukan di pengadilan tidak cocok dengan hash yang dicatat saat pembuatan (melalui log sistem), dokumen tersebut dapat digugat aslinya.
+
+#### 8.4 Contoh Kasus Validasi
+Misalkan terjadi ketidaksesuaian antara waktu deteksi insiden (09:00) dan waktu penutupan tautan berbahaya (08:55) yang tercantum dalam log. Ini adalah **Red Flag** pelanggaran CoN. Modul akan menolak menghasilkan dokumen jika anomali waktu kritis terdeteksi, memaksa tim teknis untuk melakukan investigasi ulang sebelum narasi hukum dikunci. Langkah ini melindungi organisasi dari tuduhan "rewriting history" atau manipulasi bukti pasca-insiden.
+
+---
+
+*Catatan Keamanan Lanjutan: Pastikan bahwa file `legal_narrative_archive.docx` disimpan di penyimpanan terenkripsi (AES-256) segera setelah generasi. Hash integritas harus dikirimkan ke channel komunikasi terpisah (misal: Slack secure channel atau email terenkripsi) untuk pembandingan verifikasi, bukan disertakan dalam dokumen itu sendiri agar tetap efektif untuk deteksi perubahan pasca-tanda tangan.*
