@@ -12099,3 +12099,91 @@ Sebelum menjalankan `compliance_final_legal_signer.py` dalam mode produksi, past
 *   [ ] Salinan cadangan dari `compliance_mapping_matrix.json` telah disimpan di media terpisah.
 
 Dengan mengikuti standar ini, organisasi tidak hanya mematuhi regulasi teknis, tetapi juga membangun pertahanan hukum yang kuat terhadap sengketa kepemilikan atau manipulasi dokumen di kemudian hari.
+
+
+Berikut adalah draf konten lanjutan untuk file `README.md`. Konten ini dirancang untuk langsung disalin dan ditempelkan setelah bagian "4. Checklist Legal", mengikuti struktur teknis yang konsisten dengan dokumen sebelumnya.
+
+---
+
+ #### 5. Otomasi Pemenuhan Hak Subjek Data (DSAR Automation)
+
+Untuk mematuhi Pasal 15–20 GDPR dan Undang-Undang Perlindungan Data Pribadi (UU PDP) di Indonesia, organisasi harus mampu menangani permintaan akses, perbaikan, dan penghapusan data secara efisien dan auditabel. Modul `compliance_gdpr_dsar_automator.py` disediakan sebagai eksekutor otomatis yang menangani siklus hidup permintaan subjek data secara terstruktur.
+
+##### 5.1. Arsitektur dan Prinsip "Privacy by Design"
+
+Skrip ini diarsiteki dengan prinsip *Privacy by Design* (PbD), memastikan bahwa privasi data diintegrasikan ke dalam setiap tahap pemrosesan, bukan sebagai tambalan di akhir.
+
+1.  **Isolasi Lingkungan Pemrosesan:**
+    Selama eksekusi, skrip memuat basis data sumber ke dalam memori terisolasi (scoped namespace) untuk mencegah kebocoran data ke konteks global aplikasi utama. Data sensitif hanya diekspos selama proses transformasi yang ketat.
+2.  **Minimisasi Data (Data Minimization):**
+    Pada mode `export`, skrip secara otomatis menyaring kolom atau bidang yang tidak relevan dengan permintaan hukum, mengirimkan hanya data yang diperlukan untuk memverifikasi identitas atau memenuhi hak akses.
+3.  **Anonimisasi Forensik:**
+    Pada mode `erasure` (Hak untuk Dilupakan), skrip tidak melakukan penghapusan fisik (`DELETE`) secara instan pada basis data inti yang mungkin sedang digunakan untuk investigasi insiden keamanan. Sebaliknya, ia menandai data sebagai `REDACTED` dan memindahkan referensi ke arsip kaku (immutable log) dalam bentuk terenkripsi, memastikan integritas audit tetap terjaga tanpa melanggar hak subjek.
+
+##### 5.2. Mekanisme Isolasi Data Sensitif (Data Scrubbing)
+
+Proses pembersihan data (`scrubbing`) menggunakan teknik *obfuscation* bertingkat untuk melindungi PII (Personally Identifiable Information) sebelum arsip disimpan:
+
+*   **Hashing Salted:** Identifikasi unik (NIP, NPWP, NIK) diubah menjadi hash SHA-256 dengan *salt* dinamis yang hanya diketahui oleh kunci enkripsi HSM. Ini mencegah rekayasa ulang identitas dari hash yang terekspose.
+*   **Tokenisasi Terbalik:** Untuk data teks bebas (nama, alamat), skrip mengganti nilai asli dengan token acak yang dapat dilacak kembali hanya jika ada izin akses tingkat *super-admin* dengan MFA ganda.
+*   **Validasi Konteks Forensik:** Sebelum eksekusi penghapusan, skrip memeriksa `incident_lock_status` di database. Jika data terkait sedang menjadi bagian dari bukti insiden aktif (`ACTIVE_INCIDENT`), skrip akan menolak penghapusan permanen dan menggantinya dengan *redaction* permanen, mencatat alasan penolakan dalam log audit.
+
+##### 5.3. Spesifikasi Eksekusi Skrip
+
+Skrip `compliance_gdpr_dsar_automator.py` mengambil parameter berikut untuk menjalankan proses sesuai kebutuhan hukum:
+
+| Argumen | Tipe | Deskripsi |
+| :--- | :--- | :--- |
+| `--subject-id` | `string` | **Wajib.** Identifier unik subjek data (misal: `USER_12345` atau `NPK_9988`). Harus ada dalam indeks pencarian utama. |
+| `--request-type` | `enum` | **Wajib.** Jenis permintaan:<br>- `export`: Membuat paket data berisi semua PII yang dimiliki organisasi.<br>- `rectification`: Memerlukan argumen tambahan `--correction-data` untuk memperbarui data salah.<br>- `erasure`: Memproses permintaan "Hak untuk Dilupakan" (penghapusan/anonimisasi). |
+| `--data-store` | `path` | **Wajib.** Path absolut ke direktori sumber data (SQL Dump, CSV, atau path database SQLite/Postgres lokal yang terhubung). |
+| `--output-dir` | `path` | **Wajib.** Direktori tujuan untuk menyimpan hasil ekspor atau log audit. Akan dibuat otomatis jika belum ada. |
+| `--template` | `path` | Opsional. Path ke `legal_narrative_archive.docx`. Default: `./templates/legal_narrative_archive.docx`. |
+| `--mapping` | `path` | Opsional. Path ke `compliance_mapping_matrix.json`. Default: `./config/compliance_mapping_matrix.json`. |
+| `--encrypt` | `flag` | Opsional. Jika disertakan, output ekspor akan dienkripsi menggunakan GPG/AES-256 sebelum disimpan. |
+
+**Contoh Penggunaan:**
+
+1.  **Membuat Ekspor Data (GDPR Art. 15):**
+    ```bash
+    python compliance_gdpr_dsar_automator.py \
+      --subject-id EMPLOYEE_X7Z \
+      --request-type export \
+      --data-store ./data/hr_employee_db.sqlite \
+      --output-dir ./output/dsar_exports/EMPLOYEE_X7Z \
+      --encrypt
+    ```
+    *Output:* Paket ZIP terenkripsi berisi dokumen PDF tertanda yang merangkum data pribadi, beserta `data_inventory.json` yang melacak sumber setiap bidang data.
+
+2.  **Memproses Hak untuk Dilupakan (GDPR Art. 17 / UU PDP Pasal 9):**
+    ```bash
+    python compliance_gdpr_dsar_automator.py \
+      --subject-id EMPLOYEE_X7Z \
+      --request-type erasure \
+      --data-store ./data/hr_employee_db.sqlite \
+      --output-dir ./output/dsar_audits/ \
+      --mapping ./config/compliance_mapping_matrix.json
+    ```
+    *Output:* Log audit yang mencatat setiap bidang data yang dinonaktifkan atau dianonimasi, serta status komputasi penghapusan dari cache dan arsip jangka pendek.
+
+##### 5.4. Struktur Output dan Dokumentasi
+
+Hasil eksekusi akan menghasilkan struktur direktori berikut untuk keperluan audit eksternal:
+
+```text
+output_dir/
+├── compliance_report.pdf       # Laporan legal naratif yang digenerasi dari template DOCX
+├── data_payload.enc            # Data pribadi yang diekspor (jika request-type=export)
+├── processing_log.json         # Log detail setiap langkah pemrosesan (timestamp, status, hash)
+├── evidence_chain_of_custody.json # Revisi chain of custody yang menyertakan aksi DSAR ini
+└── privacy_impact_assessment.log # Catatan risiko yang dievaluasi selama pemrosesan
+```
+
+##### 5.5. Prosedur Operasional Standar (SOP) untuk Tim Privasi
+
+Untuk memastikan kepatuhan penuh, tim privasi dan legal wajib mengikuti langkah-langkah berikut sebelum mengeksekusi skrip:
+
+1.  **Verifikasi Identitas Subjek:** Pastikan `--subject-id` telah diverifikasi identitasnya melalui metode out-of-band (misal: verifikasi email/telepon terdaftar) untuk mencegah *identity spoofing*.
+2.  **Review Mapping Matrix:** Cek `compliance_mapping_matrix.json` untuk memastikan tidak ada bidang data yang secara hukum harus disimpan lebih lama (misal: data transaksi pajak) yang tidak boleh dihapus oleh perintah `erasure`.
+3.  **Monitoring Forensik:** Beritahu tim IT Security/Respon Insiden bahwa permintaan `erasure` sedang diproses. Skrip akan memberikan notifikasi jika data yang dihapus bertabrakan dengan kasus investigasi yang sedang berjalan (`CONFLICT_DETECTED`), sehingga tim forensik dapat mengambil keputusan akhir.
+4.  **Verifikasi Hasil:** Setelah eksekusi selesai, tim legal harus membuka `compliance_report.pdf` dan menandatanganinya secara digital (menggunakan prosedur di Bab 3) untuk mengarsipkan bukti bahwa permintaan telah diproses sesuai tenggat waktu hukum (biasanya 30 hari kerja).
