@@ -21278,3 +21278,147 @@ Sistem dirancang dengan mekanisme umpan balik tertutup. Ketika mediator AI mende
 
 **Keuntungan Bisnis:**
 Prosedur ini menjamin bahwa tidak ada argumen hukum yang ambigu atau lemah yang lolos ke tahap simulasi pengadilan tingkat lanjut. Ini mengurangi risiko kehilangan gugatan akibat kesalahan teknis dasar dan memastikan bahwa tim hukum fokus hanya pada argumen yang telah diverifikasi secara ketat, sehingga mengoptimalkan alokasi sumber daya advokat senior.
+
+
+# Compliance & Legal Governance Framework
+
+Bagian ini mendefinisikan kerangka kerja kepatuhan hukum, integritas data, dan auditabilitas yang diterapkan oleh sistem simulasi Dewan Direksi. Tujuannya adalah untuk memastikan bahwa setiap keputusan strategis yang diambil berdasarkan output simulasi risiko bersifat **transparan, dapat dipertanggungjawabkan (accountable), dan tahan terhadap sengketa hukum**.
+
+## 1. Non-Repudiation of Executive Actions
+Prinsip *Non-Repudiation* (Penolakan Tindakan yang Tidak Sah) menjamin bahwa seorang eksekutif (Direktur/Komisaris) tidak dapat menyangkal telah melakukan atau menyetujui suatu tindakan dalam simulasi. Mekanisme ini diterapkan melalui tiga lapisan bukti krusial:
+
+1.  **Digital Signature on Intent**: Setiap kali parameter "What-If" diubah di dashboard, sistem menghasilkan tanda tangan digital unik yang mengikat `User_ID`, `Timestamp`, `Parameter_Change`, dan `Session_ID`. Tanda tangan ini disimpan secara terenkripsi.
+2.  **Causal Chain Linkage**: Setiap output keputusan (misal: "Setujui Strategi X") dikaitkan secara kausal dengan input spesifik yang memicu simulasi tersebut. Jika keputusan tersebut menyebabkan kerugian, sistem dapat merekonstruksi tepat kombinasi parameter apa yang dipilih oleh siapa dan pada jam berapa.
+3.  **Irrefutable Log Entry**: Entri log tidak dapat dihapus atau dimodifikasi secara diam-diam. Setiap perubahan pada log memerlukan validasi kriptografi dari node audit independen.
+
+> **Implikasi Hukum**: Dalam pengadilan, *Non-Repudiation* mengubah beban pembuktian. Eksekutif harus membuktikan bahwa log tersebut salah atau di-hack (bukan bahwa mereka tidak melakukannya), karena bukti digital telah disegel secara waktu (*timestamped*) dan diverifikasi integritasnya.
+
+## 2. Immutable Audit Logs for Corporate Governance
+Sistem menggunakan database `audit_log_encrypted.db` sebagai sumber kebenaran tunggal (*Single Source of Truth*). Log ini dirancang dengan karakteristik *Append-Only* dan *Hash-Chained*:
+
+*   **Append-Only**: Data hanya boleh ditambahkan, tidak boleh diperbarui atau dihapus.
+*   **Hash-Chaining**: Setiap entri log berisi hash kriptografi dari entri sebelumnya. Jika satu byte data diubah, rantai hash akan rusak, dan inkonsistensi akan terdeteksi oleh alat audit.
+*   **Encrypted Storage**: Data sensitif (nama eksekutif, detail strategi rahasia) dienkripsi di tingkat kolom, sehingga hanya pihak yang memegang kunci dekripsi (`--encrypted-logs-key`) yang dapat membaca konten asli.
+
+### Peran Skrip Auditor: `compliance_boardroom_simulation_audit_trail_analyzer.py`
+Skrpt ini berfungsi sebagai "Juru Sita Digital" independen. Ia tidak berinteraksi dengan database utama secara langsung untuk mencegah modifikasi, melainkan membaca dan memverifikasi integritas berdasarkan protokol berikut:
+
+#### A. Input Arsitektur
+Skrpt ini menerima empat argumen utama untuk melakukan triangulasi data:
+
+| Argumen CLI | Deskripsi | Fungsi Kritis |
+| :--- | :--- | :--- |
+| `--dashboard-log` | Path ke log interaksi dashboard (`compliance_boardroom_simulator_dashboard.py`) | Memverifikasi urutan kejadian visual (UX logs). |
+| `--visual-integrity-reports` | Path ke laporan verifikasi integritas visual sebelumnya | Membandingkan snapshot visual dengan metadata teknis. |
+| `--encrypted-logs-key` | Path ke kunci dekripsi log sistem | Membuka konten terenkripsi dari `audit_log_encrypted.db`. |
+| `--output-audit-trail` | Path ke laporan kepatuhan (`boardroom_interaction_compliance_report.json`) | Output akhir yang dapat diaudit oleh regulator. |
+
+#### B. Mekanisme Deteksi Manipulasi (Data Tampering)
+Skrpt melakukan analisis korelasi tiga dimensi:
+
+1.  **Korelasi Waktu (Temporal Integrity)**:
+    *   Membandingkan `timestamp` pada slider input di `dashboard-log` dengan `timestamp` di `encrypted-logs-key`.
+    *   Deteksi: Jika ada selisih waktu > 1 detik tanpa alasan latensi jaringan yang valid, sistem menandai anomali potensi *fake input injection*.
+
+2.  **Korelasi Hash (Content Integrity)**:
+    *   Menghitung hash SHA-256 dari parameter "What-If" terakhir yang digunakan dalam simulasi.
+    *   Membandingkan dengan hash yang tercatat dalam `visual-integrity-reports` dan entri log terenkripsi.
+    *   Deteksi: Jika hash tidak cocok, berarti ada manipulasi data antara momen pengambilan keputusan dan pencatatan log.
+
+3.  **Analisis Pola Anomali (Behavioral Integrity)**:
+    *   Mendeteksi pengulangan skenario ekstrem (misal: "Worst Case Scenario") secara berkala dalam rentang waktu singkat.
+    *   **Tujuan**: Mengidentifikasi potensi *gaming the system* atau upaya manipulasi hasil simulasi untuk menutupi kesalahan manajemen atau mengarahkan keputusan ke kepentingan pribadi.
+
+## 3. Protokol: Anomaly Detection in Decision Patterns
+
+Protokol ini dirancang untuk mendeteksi perilaku eksekutif yang menyimpang dari pola keputusan normal atau rasional, yang dapat mengindikasikan niat jahat (*malice*) atau ketidakpatuhan (*negligence*).
+
+### Definisi Anomali Strategis
+
+| Tipe Anomali | Deskripsi Teknis | Implikasi Bisnis & Hukum |
+| :--- | :--- | :--- |
+| **Extreme Scenario Reiteration** | Pengujian skenario risiko ekstrem (misal: keruntuhan likuiditas) berulang >3 kali dalam 1 jam tanpa perubahan parameter lain. | Indikasi upaya mencari "celah" dalam simulasi untuk membenarkan keputusan buruk atau menyembunyikan ketidakmampuan manajemen. |
+| **Parameter Drift** | Perubahan bertahap parameter kunci (misal: rasio utang) menuju nilai ambang batas regulasi tanpa dokumentasi alasan. | Potensi pelanggaran batas kelayakan (going concern) yang disengaja untuk menipu investor atau regulator. |
+| **Off-Hours Simulation Spike** | Peningkatan aktivitas simulasi yang signifikan di luar jam kerja korporat tanpa otorisasi. | Potensi penggunaan sumber daya perusahaan untuk kepentingan pribadi atau insider trading preparation. |
+| **Conflict Override Frequency** | Frekuensi tinggi dalam menekan peringatan konflik otomatis (lihat bagian *Criteria Eskalasi Otomatis*) tanpa review mendalam. | Erosi kontrol internal; potensi kelalaian dalam menjalankan due diligence. |
+
+### Mekanisme Deteksi Anomali
+
+Skrpt `compliance_boardroom_simulation_audit_trail_analyzer.py` menerapkan algoritma deteksi sebagai berikut:
+
+1.  **Baseline Establishment**:
+    Sistem menghitung rata-rata dan deviasi standar frekuensi perubahan parameter dan skenario yang dijalankan selama periode `N` hari sebelumnya.
+
+2.  **Statistical Outlier Detection**:
+    Menggunakan metode Z-Score untuk mengidentifikasi episode simulasi yang berada di luar 2 standar deviasi dari baseline.
+    *   Rumus: $Z = rac{(X - \mu)}{\sigma}$
+    *   Jika $|Z| > 2$, episode tersebut ditandai sebagai "Suspicious Activity".
+
+3.  **Pattern Matching dengan Known Manipulation Signatures**:
+    Skrpt memindai urutan log parameter terhadap *signature* manipulasi yang diketahui (misal: menguji skenario stres, lalu langsung menutup simulasi tanpa menyalin laporan akhir).
+
+4.  **Penyampaian Temuan**:
+    Temuan anomali dicatat dalam file output `boardroom_interaction_compliance_report.json` dengan level prioritas:
+    *   `LOW`: Penyimpangan minor (misal: latensi jaringan).
+    *   `MEDIUM`: Pola tidak biasa yang memerlukan klarifikasi.
+    *   `HIGH`: Kemungkinan besar manipulasi atau pelanggaran protokol; memicu alarm otomatis ke Komisaris Pengawas.
+
+## 4. Implementasi Teknis: Contoh Penggunaan Skrip Auditor
+
+Berikut adalah contoh eksekusi skrip untuk melakukan audit pasca-sesi dewan direksi:
+
+```bash
+python compliance_boardroom_simulation_audit_trail_analyzer.py \
+    --dashboard-log ./logs/dashboard_session_20231027.json \
+    --visual-integrity-reports ./reports/visual_hash_v2.json \
+    --encrypted-logs-key ./keys/compliance_decryption_key.pem \
+    --output-audit-trail ./audit_results/boardroom_compliance_20231027.json
+```
+
+### Struktur Output Laporan (`boardroom_interaction_compliance_report.json`)
+
+Laporan ini dirancang agar dapat dibaca oleh auditor eksternal dan regulator:
+
+```json
+{
+  "audit_id": "AUD-20231027-001",
+  "timestamp": "2023-10-27T15:30:00Z",
+  "status": "COMPLIANT",
+  "summary": {
+    "total_events_analyzed": 450,
+    "anomalies_detected": 0,
+    "data_integrity_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "findings": [],
+  "recommendations": "No action required. All executive actions are well-documented and cryptographically sealed."
+}
+```
+
+*Contoh jika ditemukan anomali:*
+
+```json
+{
+  "audit_id": "AUD-20231027-001",
+  "status": "FLAGGED",
+  "findings": [
+    {
+      "type": "ANOMALY_DETECTED",
+      "sub_type": "EXTREME_SCENARIO_REITERATION",
+      "user_id": "DIR_001",
+      "details": "User executed 'Market Crash' scenario 5 times in 10 minutes.",
+      "risk_level": "HIGH",
+      "evidence_hash": "sha256:8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4"
+    }
+  ]
+}
+```
+
+## 5. Kewajiban Hukum & Pertanggungjawaban
+
+Dengan adanya framework ini, perusahaan memenuhi beberapa standar tata kelola perusahaan (GCG) dan regulasi data:
+
+1.  **UU Perlindungan Data Pribadi (UU PDP)**: Ensures that personal data of executives is processed lawfully and securely, with full traceability.
+2.  **Standar Audit Eksternal**: Memberikan auditor eksternal jejak audit yang tidak dapat dipalsukan (*unforgeable audit trail*), mengurangi biaya audit dan risiko penolakan laporan keuangan.
+3.  **Tanggung Jawab Direksi (Duty of Care & Loyalty)**: Membuktikan bahwa Direksi telah menjalankan tugasnya dengan penuh kehati-hatian dan tidak melakukan konflik kepentingan melalui manipulasi data simulasi.
+
+> **Catatan Penting**: Skrip auditor ini bersifat *read-only* terhadap sumber data kriptografi. Hasil audit bersifat final dan tidak dapat diubah oleh pengguna dashboard, termasuk admin tingkat tertinggi, kecuali melalui proses pembekuan sistem (*system freeze*) dan pemulihan dari backup offline yang disegel secara multi-sig.
