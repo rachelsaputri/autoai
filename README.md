@@ -14108,3 +14108,147 @@ Ketika status `CONDITIONAL_PASS` terdeteksi, sistem akan:
 
 #### 3. Deadline Enforcement
 Sistem menetapkan tenggat waktu 24 jam untuk menyelesaikan remediasi. Jika dalam periode tersebut celah tidak ditutup, status `CONDITIONAL_PASS` otomatis berubah menjadi `FAIL`, dan pengiriman dokumen ke regulator dihentikan hingga validasi ulang berjalan lancar. Ini memastikan bahwa hanya dokumen yang benar-benar siap dan akurat yang dilepaskan.
+
+
+Berikut adalah konten lanjutan untuk file `README.md`. Bagian ini mencakup dokumentasi teknis untuk skrip `compliance_regulatory_api_connector.py` serta penjelasan arsitektural mendalam mengenai "Polyglot Regulatory Persistence" dan "Schema Evolution Management" dalam bab Deployment and Operations.
+
+***
+
+#### E. Integrasi Dinamis dengan Otoritas Regulator (Dynamic Regulatory Adapters)
+
+Untuk memastikan kepatuhan yang real-time dan akurasi pengiriman bukti kepada otoritas global, sistem引入了 sebuah lapisan abstraksi bernama **`compliance_regulatory_api_connector.py`**. Modul ini bertindak sebagai "jembatan dua arah" (two-way bridge) yang aman antara sistem otomatisasi submission inti (`compliance_regulatory_submission_automator.py`) dan berbagai otoritas perlindungan data (seperti Otoritas Perlindungan Data Pribadi/OPD Indonesia, European Data Protection Board/EDPB, dan Information Commissioner's Office/ICO UK).
+
+Desain ini mengadopsi pola *Adapter Pattern* yang memungkinkan integrasi dengan regulator baru hanya melalui pembaruan konfigurasi JSON, tanpa memerlukan modifikasi pada kode inti (core code).
+
+##### 1. Arsitektur dan Komponen Utama
+
+Modul ini dirancang dengan prinsip *Configuration-Driven Architecture*. Setiap otoritas regulator direpresentasikan sebagai *adapter* yang memuat definisi endpoint, skema validasi payload, dan aturan sanitasi data spesifik yurisdiksi.
+
+**Struktur File Konfigurasi (`regulator_adapters.json`)**
+
+Konfigurasi ini mendefinisikan perilaku unik setiap regulator. Contoh skema konfigurasi:
+
+```json
+{
+  "adapters": {
+    "OPD_ID": {
+      "label": "Otoritas Perlindungan Data Pribadi (Indonesia)",
+      "api_base_url": "https://api.opd.go.id/v2/submissions",
+      "auth_method": "oauth2_client_credentials",
+      "payload_schema": "opd_v1_compliant_schema",
+      "sanitization_rules": {
+        "pii_masking": true,
+        "date_format": "YYYY-MM-DD",
+        "encoding": "UTF-8"
+      },
+      "retry_policy": {
+        "max_retries": 3,
+        "backoff_factor": 2,
+        "exceptions": ["429", "503"]
+      }
+    },
+    "EDPS_EU": {
+      "label": "European Data Protection Board",
+      "api_base_url": "https://portal.edpb.europa.eu/api/notifications",
+      "auth_method": "x509_mutual_tls",
+      "payload_schema": "gdpr_article_33_34_schema",
+      "sanitization_rules": {
+        "pii_masking": true,
+        "language": "en",
+        "encoding": "UTF-8"
+      },
+      "retry_policy": {
+        "max_retries": 5,
+        "backoff_factor": 1.5,
+        "exceptions": ["408", "429", "500", "502", "503", "504"]
+      }
+    }
+  }
+}
+```
+
+##### 2. Implementasi Fungsi Wrapper Standar
+
+Modul menyediakan kelas `RegulatoryConnector` yang mengimplementasikan standar industri untuk keamanan dan keandalan komunikasi.
+
+**Fitur Kunci:**
+
+*   **Dinamik Authentication Handling:** Mendukung `oauth2`, `api_key`, dan `x509_mutual_tls` berdasarkan definisi di konfigurasi.
+*   **Exponential Backoff Retry Logic:** Menangani ketidakstabilan jaringan atau load balancing pada pihak regulator dengan algoritma retry yang canggih (jittered exponential backoff) untuk mencegah *throttling* lebih lanjut.
+*   **Strict Schema Validation:** Memastikan payload yang dikirim sesuai dengan skema yang ditentukan regulator sebelum dikirim, mengurangi peluang penolakan (`rejection`) di sisi penerima.
+*   **Bidirectional Event Parsing:** Mampu mem-parsing respons balik dari regulator (misalnya: `ACK_RECEIVED`, `CLARIFICATION_REQUESTED`, atau `FINAL_ACCEPTANCE`) dan memicu callback ke alur kerja remediasi (`compliance_audit_readiness_assessor.py`) secara otomatis.
+
+**Contoh Penggunaan CLI:**
+
+```bash
+# Jalankan konektor dengan konfigurasi khusus untuk OPD
+python compliance_regulatory_api_connector.py \
+    --adapter-config ./config/regulator_adapters.json \
+    --env production \
+    --target-adapter OPD_ID \
+    --payload-file /tmp/submission_bundle_v1.json
+
+# Uji koneksi dummy ke semua adapter yang terdaftar
+python compliance_regulatory_api_connector.py \
+    --adapter-config ./config/regulator_adapters.json \
+    --env staging \
+    --test-connection
+```
+
+##### 3. Alur Remediasi Otomatis Berbasis Respons Regulator
+
+Ketika `RegulatoryConnector` menerima respons `CLARIFICATION_REQUESTED` dari regulator, sistem tidak hanya mencatat log, tetapi secara aktif memicu alur kerja remediasi:
+
+1.  **Event Ingestion:** Respons diparsing, mengekstrak ID kasus dan jenis informasi yang kurang.
+2.  **Gap Analysis:** Sistem mencocokkan permintaan klarifikasi dengan data yang ada di *Forensic Chronicle Builder*.
+3.  **Agent Activation:** Jika data pendukung tersedia, agen remediasi otomatis akan menyusun dokumen klarifikasi tambahan dan menjadwalkan pengiriman ulang (resubmission) setelah jeda aman.
+4.  **Notifikasi Human-in-the-Loop:** Jika klarifikasi membutuhkan konteks bisnis, tiket dibuat otomatis di sistem manajemen tugas (mis. Jira/Asana) dengan prioritas tinggi untuk tinjauan hukum.
+
+---
+
+### D. Deployment and Operations
+
+Bagian ini menjelaskan strategi operasional jangka panjang untuk menjaga sistem tetap kompatibel dengan lanskap regulasi yang terus berubah. Kami mengadopsi pendekatan **"Polyglot Regulatory Persistence"** dan **"Schema Evolution Management"** untuk memastikan kelangsungan bisnis (business continuity) dan kepatuhan (compliance) tanpa downtime signifikan.
+
+#### 1. Arsitektur "Polyglot Regulatory Persistence"
+
+Dalam ekosistem regulasi global, "bahasa" atau struktur data yang diminta oleh setiap otoritas (OPD, EDPS, ICO, CCPA, dll.) berbeda-beda. Alih-alih mencoba memaksa semua regulator ke dalam satu format tunggal yang kaku, sistem mengimplementasikan **Polyglot Persistence untuk Metadata Kepatuhan**.
+
+*   **Definisi:** Sistem menyimpan bukti kepatuhan dalam format asli yang diminta oleh masing-masing regulator (JSON, XML, atau protokol khusus), sambil mempertahankan *canonical metadata* (metadata standar) yang seragam untuk pelacakan internal.
+*   **Keunggulan Arsitektur:**
+    *   **Keakuratan Hukum:** Mengurangi risiko kesalahan interpretasi akibat transformasi format data yang berlebihan.
+    *   **Isolasi Kegagalan:** Jika struktur API regulator tertentu berubah, hanya *adapter* yang bersangkutan yang terpengaruh, tidak mengganggu keseluruhan sistem.
+    *   **Skalabilitas Yurisdiksi:** Menambahkan yurisdiksi baru hanya memerlukan penambahan entri baru di `regulator_adapters.json` dan skema payload terkait, tanpa mengubah inti database atau logika bisnis.
+
+*Implementasi Teknis:*
+Setiap entri kepatuhan di database disimpan dengan flag `adapter_version` dan `schema_type`. Query pencarian historis kepatuhan menggunakan *unified view* yang melakukan *join* dinamis pada metadata standar, terlepas dari bentuk fisik data mentahnya.
+
+#### 2. Standar "Schema Evolution Management"
+
+Regulasi seperti GDPR, UU PDP, atau CCPA mengalami revisi secara berkala. Perubahan ini sering kali memerlukan perubahan pada format bukti yang harus dikumpulkan dan dilaporkan. Standar **Schema Evolution Management** menjamin bahwa sistem dapat beradaptasi dengan perubahan ini secara mulus.
+
+*   **Versioning Skema Payload:**
+    Setiap skema payload (yang didefinisikan di `regulator_adapters.json`) memiliki versi semantic (`v1.0`, `v1.1`, `v2.0`). Sistem tidak akan pernah menghancurkan skema lama. Sebaliknya, ia mendukung *multi-version concurrent execution*.
+
+*   **Strategi Migrasi Tanpa Downtime:**
+    1.  **Fase Pararel:** Saat regulator memperkenalkan perubahan skema baru (misal: `v2.0`), sistem dikonfigurasi untuk mendukung `v1.0` (lama) dan `v2.0` (baru) secara bersamaan.
+    2.  **Pemetaan Transformasi:** Middleware internal melakukan pemetaan data dari format internal sistem ke format adapter yang sesuai (baik `v1` maupun `v2`).
+    3.  **Pemutusan Bertahap (Graceful Sunset):** Hanya setelah dipastikan bahwa semua proses bisnis telah beralih ke adapter `v2.0` dan tidak ada lagi riwayat pending menggunakan `v1.0`, entri adapter lama dihapus dari konfigurasi.
+
+*   **Manajemen Kontingen Kode (Core Code vs. Config):**
+    Prinsip utama dalam desain ini adalah **"Config-Driven, Not Code-Driven"**. Perubahan pada struktur regulasi eksternal *hanya* harus ditangani melalui pembaruan file konfigurasi (`regulator_adapters.json`) dan skema JSON tambahan. Tidak ada perubahan kode Python di dalam `compliance_regulatory_api_connector.py` yang seharusnya diperlukan untuk adaptasi regulasi standar.
+
+    *   **Kapan Kode Perlu Diubah?** Kode inti hanya perlu diperbarui jika ada perubahan fundamental pada mekanisme otentikasi yang belum didukung (misal: migrasi dari API Key ke Quantum-Resistant Cryptography) atau adanya bug kritis pada logika retry/backoff.
+    *   **Benefit Operasional:** Hal ini memungkinkan tim kepatuhan (Legal/Compliance Team) atau arsitek data untuk menyesuaikan sistem dengan regulasi baru hanya dalam hitungan jam/menit melalui deploy konfigurasi, alih-alih menunggu siklus pengembangan perangkat lunak (SDLC) yang panjang.
+
+#### 3. Monitoring dan Observabilitas
+
+Untuk memantau kesehatan integrasi dinamis ini, sistem menyediakan endpoint observabilitas khusus:
+
+*   **Health Check Adaptor:** Endpoint `/health/adapters` yang melaporkan status koneksi dan validasi skema untuk setiap regulator aktif.
+*   **Metric Kustom:** Metrik Prometheus tersedia untuk melacak:
+    *   `regulatory_submission_latency_seconds`: Waktu rata-rata pengiriman ke setiap regulator.
+    *   `regulatory_adaptor_error_count`: Jumlah kesalahan berdasarkan adapter dan kode status HTTP.
+    *   `schema_evolution_drift`: Indikator jika payload tidak lagi cocok dengan skema yang diharapkan (mencetuskan peringatan alih-alih kegagalan fatal).
+
+Dengan menerapkan standar "Polyglot Regulatory Persistence" dan "Schema Evolution Management" ini, organisasi tidak hanya mematuhi regulasi saat ini, tetapi juga membangun sistem yang *future-proof* terhadap ketidakpastian lanskap regulasi global di masa depan.
