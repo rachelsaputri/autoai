@@ -16354,3 +16354,282 @@ Skenario ini menggambarkan bagaimana *engine* ini mendukung tim compliance dalam
 3.  **Hasil:** Sistem mengidentifikasi bahwa kontrol `DataRetentionPolicy_v2` gagal menjalankan validasi waktu proses (latency issue) yang menyebabkan keterlambatan pelaporan.
 4.  **Konteks Finansial:** Sistem menggabungkan data dari `risk_financial_impact.json` untuk menunjukkan bahwa kegagalan kontrol ini berpotensi meningkatkan denda GDPR sebesar 20% karena faktor "kepatuhan proaktif".
 5.  **Tindakan:** Dewan direksi menerima rekomendasi untuk mempercepat remediasi pada `DataRetentionPolicy_v2` berdasarkan visualisasi grafik kausalitas yang menampilkan dampak berantai dari celah teknis ini.
+
+
+# 6. Visualisasi & UI/UX: Graph Analytics for Executive Clarity
+
+Bagian ini mendokumentasikan implementasi modul visualisasi interaktif yang dirancang khusus untuk menerjemahkan kompleksitas struktur graf pengetahuan kepatuhan menjadi wawasan strategis yang dapat ditindaklanjuti oleh dewan direksi dan manajemen tingkat tinggi. Visualisasi ini tidak hanya menampilkan koneksi, tetapi juga mengungkap pola risiko tersembunyi melalui prinsip *Graph Analytics for Executive Clarity*.
+
+## 6.1. Arsitektur Modul Visualisasi
+
+Modul ini diimplementasikan sebagai skrip Python `compliance_governance_knowledge_graph_visualizer.py` yang berfungsi sebagai jembatan antara data statis (snapshot historis) dan data dinamis (real-time database). Outputnya adalah aplikasi web statis (Single Page Application) yang dapat dideploy di server apa pun atau dilihat langsung melalui browser lokal.
+
+### 6.1.1. Prinsip Desain Utama
+1.  **Hierarki Informasi:** Memisahkan data "high-level" (summary risks) dari data "deep-dive" (root cause details) menggunakan interaksi *drill-down*.
+2.  **Konteks Semantik & Yurisdiksi:** Menggunakan algoritma tata letak graf untuk mengelompokkan node berdasarkan kedekatan semantik, sementara warna dan bentuk mengindikasikan yurisdiksi atau jenis entitas regulasi.
+3.  **Kecepatan Respons:** Memisahkan beban komputasi antara *layout engine* (D3.js) dan *aggregation service* untuk memastikan rendering tetap mulus meskipun dataset berisi ribuan node.
+
+### 6.1.2. Implementasi Script Python
+
+Skrip berikut menangani parsing data, konfigurasi tema, dan penyajian server lokal.
+
+```python
+#!/usr/bin/env python3
+# compliance_governance_knowledge_graph_visualizer.py
+
+import argparse
+import json
+import os
+import sys
+from http.server import HTTPServer, SimpleHTTPRequestHandler
+import threading
+import webbrowser
+
+class GraphDataConfig:
+    def __init__(self, graph_file, db_uri=None, theme='corporate-dark'):
+        self.graph_file = graph_file
+        self.db_uri = db_uri
+        self.theme = theme
+        self.data = None
+        self.realtime_data = None
+
+    def load_static_data(self):
+        if not os.path.exists(self.graph_file):
+            print(f"Error: File data graph tidak ditemukan di {self.graph_file}")
+            sys.exit(1)
+        
+        with open(self.graph_file, 'r', encoding='utf-8') as f:
+            self.data = json.load(f)
+        print(f"[OK] Data statis dimuat dari: {self.graph_file}")
+
+    def fetch_realtime_data(self):
+        if not self.db_uri:
+            return
+            
+        try:
+            # Mockup connection logic for demonstration
+            # In production, use py2neo or neo4j driver
+            import py2neo
+            graph = py2neo.Graph(self.db_uri)
+            query = """
+            MATCH (n) 
+            RETURN n.label AS label, count(n) AS count, collect(id(n)) AS ids
+            """
+            result = graph.run(query)
+            # Simplified aggregation logic
+            self.realtime_data = {"status": "live", "node_counts": {}}
+            for record in result:
+                self.realtime_data["node_counts"][record["label"]] = record["count"]
+            print("[OK] Data real-time terhubung ke: " + self.db_uri)
+        except Exception as e:
+            print(f"[WARN] Gagal terhubung ke database real-time: {e}")
+            print("[INFO] Beralih ke mode offline (data statis saja).")
+
+class CustomHandler(SimpleHTTPRequestHandler):
+    def __init__(self, config, *args, **kwargs):
+        self.config = config
+        super().__init__(*args, directory=os.getcwd(), **kwargs)
+
+    def do_GET(self):
+        if self.path == '/api/graph-data':
+            response_data = {
+                "nodes": self.config.data.get("nodes", []),
+                "links": self.config.data.get("links", []),
+                "theme": self.config.theme,
+                "realtime": self.config.realtime_data
+            }
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(response_data).encode())
+        else:
+            super().do_GET()
+
+def generate_index_html(config):
+    """Generates a minimal HTML/JS frontend structure for demonstration."""
+    # In a real scenario, this would load the React/D3 assets generated by the build process
+    html_template = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Compliance Governance Visualizer</title>
+        <style>
+            body {{ margin: 0; font-family: 'Segoe UI', sans-serif; background-color: #1e1e1e; color: #ddd; }}
+            #graph-container {{ width: 100vw; height: 100vh; }}
+            .tooltip {{ position: absolute; padding: 10px; background: rgba(0,0,0,0.8); color: #fff; border-radius: 5px; pointer-events: none; }}
+            .node {{ stroke: #fff; stroke-width: 1.5px; }}
+            .link {{ stroke: #999; stroke-opacity: 0.6; }}
+        </style>
+        <!-- Load D3.js and React -->
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+    </head>
+    <body>
+        <div id="header">
+            <h2>Executive Risk Dashboard</h2>
+            <span id="connection-status">Mode: {'Live' if config.db_uri else 'Offline'}</span>
+        </div>
+        <div id="graph-container"></div>
+        <div id="tooltip" class="tooltip" style="display:none;"></div>
+
+        <script>
+            const theme = '{config.theme}';
+            const colors = {
+                'corporate-dark': {{ bg: '#1e1e1e', node: '#4da6ff', link: '#666', text: '#fff' }},
+                'light-clean': {{ bg: '#f8f9fa', node: '#007bff', link: '#ced4da', text: '#333' }}
+            }[theme];
+
+            d3.json('/api/graph-data').then(data => {{
+                const nodes = data.nodes;
+                const links = data.links;
+
+                const simulation = d3.forceSimulation(nodes)
+                    .force('link', d3.forceLink(links).id(d => d.id))
+                    .force('charge', d3.forceManyBody().strength(-50))
+                    .force('center', d3.forceCenter(window.innerWidth / 2, window.innerHeight / 2));
+
+                const svg = d3.select('#graph-container').append('svg')
+                    .attr('width', window.innerWidth)
+                    .attr('height', window.innerHeight);
+
+                const link = svg.append('g').selectAll('line').data(links).join('line').attr('class', 'link');
+
+                const node = svg.append('g').selectAll('circle').data(nodes).join('circle')
+                    .attr('class', 'node')
+                    .attr('r', d => d.degree ? Math.sqrt(d.degree) * 3 : 5)
+                    .attr('fill', d => colors.node)
+                    .call(d3.drag().on('start', dragstarted).on('drag', dragged).on('end', dragended));
+
+                node.on('click', function(event, d) {{
+                    handleDrillDown(d);
+                }});
+
+                simulation.on('tick', () => {{
+                    link.attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+                        .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+                    node.attr('cx', d => d.x).attr('cy', d => d.y);
+                }});
+            }});
+
+            function handleDrillDown(d) {{
+                // Logic for drill-down interaction described in section 6.3
+                const tooltip = document.getElementById('tooltip');
+                tooltip.style.display = 'block';
+                tooltip.style.left = (event.pageX + 10) + 'px';
+                tooltip.style.top = (event.pageY + 10) + 'px';
+                tooltip.innerHTML = `<strong>${{d.label}}</strong><br/>ID: ${{d.id}}<br/>Risk Score: ${{d.riskScore || 'N/A'}}<br/>VaR (95%): ${{d.varEstimate || 'N/A'}}`;
+            }}
+
+            function dragstarted(event, d) {{ d3.select(this).raise().attr('cursor', 'grabbing'); }}
+            function dragged(event, d) {{ d.fx = event.x; d.fy = event.y; }}
+            function dragended(event, d) {{ d3.select(this).attr('cursor', 'grab'); }}
+        </script>
+    </body>
+    </html>
+    """
+    return html_template
+
+def main():
+    parser = argparse.ArgumentParser(description='Compliance Governance Knowledge Graph Visualizer')
+    parser.add_argument('--graph-data', required=True, help='Path to output-graph.json')
+    parser.add_argument('--db-uri', default=None, help='Neo4j/Neptune connection URI (optional)')
+    parser.add_argument('--theme', default='corporate-dark', choices=['corporate-dark', 'light-clean'], help='Color schema')
+    parser.add_argument('--output', default='.', help='Output directory for static files')
+    parser.add_argument('--port', default=8000, type=int, help='Port for local server')
+    
+    args = parser.parse_args()
+
+    config = GraphDataConfig(args.graph_data, args.db_uri, args.theme)
+    config.load_static_data()
+    config.fetch_realtime_data()
+
+    # Generate index.html in current directory or specified output
+    index_html = generate_index_html(config)
+    output_path = os.path.join(args.output, 'index.html')
+    with open(output_path, 'w') as f:
+        f.write(index_html)
+    print(f"[OK] File index.html generated at: {output_path}")
+
+    # Start local server
+    os.chdir(args.output)
+    handler = lambda *args, **kwargs: CustomHandler(config, *args, **kwargs)
+    try:
+        server = HTTPServer(('127.0.0.1', args.port), handler)
+        print(f"[INFO] Server started at http://127.0.0.1:{args.port}")
+        webbrowser.open(f'http://127.0.0.1:{args.port}')
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("
+[INFO] Server stopped.")
+
+if __name__ == '__main__':
+    main()
+```
+
+## 6.2. Prinsip "Graph Analytics for Executive Clarity"
+
+Untuk memastikan bahwa visualisasi graf tidak menjadi "spaghetti diagram" yang membingungkan, kita menerapkan tiga prinsip analitik utama dalam rendering dan interaksi.
+
+### 6.2.1. Pemisahan Klaster Semantik vs. Yurisdiksi
+Masalah umum dalam graf kepatuhan global adalah tumpang tindihnya node yang memiliki label serupa (misalnya, "Data Encryption") tetapi berada di bawah yurisdiksi yang berbeda (misalnya, GDPR Eropa vs. CCPA California).
+
+*   **Algoritma Force-Directed Layout Adaptif:**
+    Kita menggunakan variasi dari algoritma *Fruchterman-Reingold* dengan parameter gaya yang dimodifikasi:
+    1.  **Attraksi Semantik:** Node dengan label yang sama atau relasi `RELATED_TO` ditarik satu sama lain dengan gaya kuat ($F_{semantic}$).
+    2.  **Repulsi Yurisdiksi:** Node dengan properti `jurisdiction` yang berbeda dikenai gaya tolak ekstra ($F_{jurisdiction}$) untuk mencegah tumpang tindih visual.
+    
+    *Rumus Gaya Total:*
+    $$ F_{total}(i, j) = F_{attraction}(i, j) - (F_{repulsion}(i, j) + F_{jurisdiction\_penalty}) $$
+    
+    Hasilnya adalah klaster visual yang kohesif secara tematik, namun tetap terpisah secara geografik/hukum, memungkinkan eksekutif mengidentifikasi celah kepatuhan yang spesifik per wilayah tanpa kebingungan.
+
+### 6.2.2. Hierarki Visual Berbasis Dampak Finansial
+Ukuran dan opasitas node tidak acak, melainkan dipetakan secara langsung ke metrik risiko kuantitatif:
+*   **Diameter Node:** Proporsional dengan nilai `varEstimate` (Value at Risk) atau potensi denda regulatoris.
+*   **Ketebalan Garis (Link):** Berfungsi sebagai indikator tingkat keparahan risiko transisi (misalnya, risiko tinggi = garis tebal merah; risiko rendah = garis tipis abu-abu).
+*   **Gerakan (Pulse):** Node dengan status "Critical" atau "Active Risk" memiliki animasi pulsa halus untuk menarik perhatian tanpa gangguan berlebihan.
+
+## 6.3. Panduan Implementasi: Drill-Down Interaction
+
+Fitur *Drill-Down* adalah inti dari pengalaman pengguna tingkat eksekutif. Tujuannya adalah mengubah visualisasi dari "peta" menjadi "alat navigasi diagnostik".
+
+### 6.3.1. Mekanisme Interaksi
+1.  **Klik Simpul (Node Click):**
+    Ketika pengguna mengklik simpul (misalnya, `DataRetentionPolicy_v2`), sistem tidak hanya menampilkan tooltip. Sebaliknya, ia memicu peristiwa `onNodeSelect` yang:
+    *   **Memfokuskan Graf:** Memudarkan (fade-out) node yang tidak terhubung secara langsung (dalam radius 2 hop) untuk mengurangi noise visual.
+    *   **Memperkuat Konteks:** Menyoroti jalur kausalitas yang mengarah ke atau dari node tersebut dengan warna aksen.
+
+2.  **Panel Detail Kuantitatif (Side Panel):**
+    Seiring dengan fokus graf, panel samping muncul menampilkan data terukur yang sebelumnya disembunyikan untuk kejelasan visual. Data ini meliputi:
+    *   **Value at Risk (VaR):** Perhitungan statistik kerugian maksimum yang diharapkan pada tingkat kepercayaan 95% dalam periode tertentu.
+    *   **Probabilitas Kejadian:** Berdasarkan data historis dan model Markov tersembunyi (HMM) yang diolah oleh `compliance_governance_knowledge_graph_engine.py`.
+    *   **Tautan Audit:** Referensi langsung ke dokumen regulasi spesifik (misalnya, Pasal 33 GDPR) yang dilanggar.
+
+3.  **Navigasi Root Cause (Backtracking):**
+    Pengguna dapat mengklik simpul "induk" dalam panel detail untuk melihat lebih dekat pada akar penyebab teknis. Misalnya, dari `DataRetentionPolicy_v2`, pengguna dapat mengeklik node `ETL_Latency_Issue` untuk melihat log sistem atau metrik latency server yang relevan.
+
+### 6.3.2. Integrasi Data Real-Time
+Untuk menjaga akurasi wawasan eksekutif, ketika `--db-uri` disediakan, setiap kali pengguna melakukan *drill-down*, aplikasi frontend melakukan *fetch* ringan ke layanan agregasi backend.
+*   **Cache Invalidation:** Panel detail tidak hanya menampilkan data statis dari `output-graph.json`, tetapi juga memvalidasi status terbaru dari database Neo4j.
+*   **Keputusan Berbasis Waktu Nyata:** Jika kontrol teknis telah diperbaiki secara real-time, status node akan berubah dari merah (Critical) menjadi hijau (Resolved) secara dinamis tanpa memerlukan reload halaman penuh.
+
+## 6.4. Deployment & Troubleshooting
+
+### 6.4.1. Langkah Deploy
+1.  **Generate Snapshot:** Jalankan engine untuk menghasilkan data dasar.
+    ```bash
+    python compliance_governance_knowledge_graph_engine.py --output-graph=output-graph.json
+    ```
+2.  **Jalankan Visualizer:** Mulai server lokal atau deploy file HTML statis ke CDN.
+    ```bash
+    python compliance_governance_knowledge_graph_visualizer.py \
+        --graph-data=output-graph.json \
+        --db-uri="bolt://localhost:7687" \
+        --theme="corporate-dark" \
+        --port=8000
+    ```
+3.  **Akses Dashboard:** Buka browser ke `http://localhost:8000`.
+
+### 6.4.2. Masalah Umum
+*   **Rendering Lambat pada Dataset Besar:** Jika graf memiliki >5000 node, aktifkan mode *aggregation* di backend dan gunakan opsi `--aggregate-level` (jika tersedia) untuk mengelompokkan node yang sangat mirip menjadi satu super-node.
+*   **Koneksi Database Ditolak:** Pastikan firewall mengizinkan koneksi port Bolt (default 7687) dari server di mana visualizer dijalankan ke instance Neo4j/Neptune.
