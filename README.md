@@ -17425,3 +17425,136 @@ Proses ini memastikan bahwa **Compliance Boardroom Dashboard** selalu menampilka
 | `MissingDependencyError` | Salah satu modul predecessor tidak menghasilkan output. | Pastikan pipeline data dari modul audit, impact analysis, dan risk quantifier telah berjalan sukses sebelum menjalankan orkestrasi. |
 | `HighComputeLoadWarning` | Jumlah entri audit > 10,000 tanpa optimasi. | Gunakan flag `--batch-mode` untuk memproses data secara chunked, atau tingkatkan resource CPU/RAM pada node eksekusi. |
 | `HashMismatch` | Bukti teknis berubah setelah verifikasi awal. | Jalankan ulang skrip untuk merekalibrasi matriks; sistem akan mendeteksi perubahan hash dan memperbarui status secara otomatis. |
+
+
+Berikut adalah konten lanjutan untuk dokumentasi teknis, dirancang untuk disisipkan langsung setelah bagian `6.9.7. Troubleshooting Generasi Matriks`.
+
+---
+
+##### 6.9.8. Antarmuka Query Graph Berbasis Bahasa Natural Language (NL2Cypher)
+
+Untuk menjembatani kesenjangan antara keahlian teknis database graf dan kebutuhan pengambilan keputusan bisnis, sistem menyediakan komponen **Semantic Query Translation Engine**. Modul ini, diimplementasikan dalam `compliance_governance_knowledge_graph_query_engine.py`, memungkinkan pengguna non-teknis berinteraksi dengan basis pengetahuan kepatuhan menggunakan bahasa natural.
+
+Modul ini berfungsi sebagai lapisan terjemahan aman yang:
+1.  Menerjemahkan pertanyaan bisnis menjadi query Cypher.
+2.  Memvalidasi query tersebut terhadap skema ontology dan kebijakan akses RBAC.
+3.  Mengeksekusi query hanya jika memenuhi standar keamanan dan relevansi kontekstual.
+4.  Mengembalikan hasil dalam format terstruktur yang dapat dibaca oleh manusia atau sistem lain.
+
+###### 6.9.8.1. Instalasi dan Argumen Baris Perintah
+
+Skrip ini dirancang untuk dijalankan dari baris perintah atau diintegrasikan ke dalam pipeline CI/CD. Pastikan lingkungan Python telah menginstal dependensi `neo4j`, `llm-wrapper` (atau framework LLM pilihan), dan `json-ld`.
+
+**Sintaks Penggunaan:**
+
+```bash
+python compliance_governance_knowledge_graph_query_engine.py \
+    --graph-uri "bolt://localhost:7687" \
+    --schema-def "./data/ontology/regulatory_taxonomy.json" \
+    --user-role "director" \
+    --max-result-depth 3 \
+    --output-format "json-ld" \
+    --query "Tampilkan dampak keuangan dari pelanggaran UU PDP di sektor kesehatan tahun ini"
+```
+
+**Tabel Definisi Argumen:**
+
+| Argumen | Tipe | Wajib | Default | Deskripsi |
+| :--- | :--- | :--- | :--- | :--- |
+| `--graph-uri` | String | Ya | - | URI koneksi ke database Neo4j atau AWS Neptune (misal: `bolt://host:port`). |
+| `--schema-def` | String | Ya | - | Path absolut ke file `regulatory_taxonomy.json` yang mendefinisikan node, relasi, dan properti yang valid. |
+| `--user-role` | Enum | Ya | - | Peran pengguna untuk validasi RBAC. Opsi: `director`, `auditor`, `analyst`, `public`. |
+| `--max-result-depth` | Integer | Tidak | `3` | Kedalaman maksimum traversal graf untuk mencegah query yang berlebihan membebani memori. |
+| `--output-format` | Enum | Tidak | `json-ld` | Format output hasil query. Opsi: `json-ld` (untuk integrasi sistem), `csv` (untuk analisis data), `text-summary` (untuk ringkasan eksekutif). |
+| `--query` | String | Ya | - | Pertanyaan dalam bahasa natural yang ingin ditanyakan kepada basis pengetahuan. |
+| `--llm-provider` | String | Tidak | `openai` | Provider LLM untuk terjemahan (misal: `openai`, `azure`, `local`). |
+| `--temperature` | Float | Tidak | `0.2` | Parameter kreativitas LLM. Nilai rendah disarankan untuk konsistensi logika bisnis. |
+
+###### 6.9.8.2. Contoh Output
+
+**Format `json-ld` (Standar Industri untuk Semantik Web):**
+
+```json
+{
+  "@context": "https://schema.org/ComplianceQueryContext",
+  "@type": "ComplianceImpactReport",
+  "query_context": {
+    "role": "director",
+    "max_depth": 3,
+    "timestamp": "2023-10-27T10:00:00Z"
+  },
+  "data": [
+    {
+      "@id": "node:incident_2023_045",
+      "@type": "DataBreachIncident",
+      "regulation_violated": "UU_PDP_2022",
+      "sector": "Kesehatan",
+      "financial_exposure": {
+        "value": 500000000,
+        "currency": "IDR"
+      },
+      "risk_level": "CRITICAL"
+    }
+  ],
+  "metadata": {
+    "confidence_score": 0.98,
+    "nodes_traversed": 12,
+    "edges_traversed": 18
+  }
+}
+```
+
+**Format `text-summary` (Untuk Presentasi Eksekutif):**
+
+> **Ringkasan Dampak Kepatuhan: Pelanggaran UU PDP Sektor Kesehatan**
+>
+> Berdasarkan analisis basis pengetahuan kepatuhan, ditemukan 1 insiden utama tahun ini yang melibatkan pelanggaran UU Perlindungan Data Pribadi di sektor kesehatan. Insiden ini dikategorikan sebagai risiko **KRITIS** dengan estimasi eksposur finansial sebesar **Rp 500.000.000**. Insiden ini mencakup data sensitif pasien dan memerlukan tindakan remediasi segera oleh tim manajemen risiko.
+
+###### 6.9.8.3. Alur Kerja Keamanan Query (Secure AI-Intermediate Logic Validation)
+
+Proses penerjemahan dari bahasa natural ke query database tidak dilakukan secara mentah. Sistem mengimplementasikan arsitektur **Semantic Query Translation Layer** yang terdiri dari tiga tahap validasi ketat untuk mencegah *SQL Injection* (atau dalam konteks ini, *Cypher Injection*), kebocoran data, dan hasil yang tidak akurat.
+
+1.  **Intent Extraction & Schema Constrained Generation:**
+    *   LLM tidak langsung menghasilkan query Cypher. Pertama, LLM mengekstrak *intent* bisnis dan entitas kunci (misal: "UU PDP", "Sektor Kesehatan") dari pertanyaan pengguna.
+    *   Ekstraksi ini divalidasi terhadap `schema-def` (`regulatory_taxonomy.json`). Jika entitas yang diminta tidak ada dalam ontology yang didefinisikan, permintaan ditolak segera dengan pesan kesalahan "Entity Not Found in Ontology". Ini mencegah LLM dari "berhalusinasi" membuat node atau relasi yang tidak ada.
+
+2.  **RBAC Policy Injection (Role-Based Access Control):**
+    *   Sebelum query Cypher dieksekusi, sistem menyuntikkan klausa filter RBAC secara otomatis ke dalam query yang dihasilkan.
+    *   Contoh: Jika `--user-role` adalah `public`, sistem secara otomatis menambahkan `WHERE visibility_level = 'PUBLIC'` ke query, sehingga pengguna tidak pernah melihat data internal sensitif.
+    *   Jika `--user-role` adalah `director`, sistem memungkinkan akses ke level finansial tetapi tetap membatasi akses ke data pribadi terenkripsi (PII) yang memerlukan izin `auditor`.
+
+3.  **Depth & Complexity Throttling:**
+    *   Parameter `--max-result-depth` dipertimbangkan saat konstruksi query. Query yang mencoba melakukan traversal lebih dalam dari batas yang diizinkan akan dimodifikasi atau ditolak. Ini mencegah serangan *Denial of Service* melalui query rekursif yang memakan memori berlebihan.
+
+###### 6.9.8.4. Prosedur Verifikasi Hallucination Check
+
+Untuk memastikan integritas data yang disajikan kepada dewan direksi, sistem menjalankan proses **Hallucination Check** sebelum respons dikembalikan. Langkah ini memastikan bahwa setiap klaim yang dibuat oleh model LLM didukung oleh fakta yang ada di dalam graph database.
+
+**Algoritma Verifikasi:**
+
+1.  **Prediksi & Ekstraksi Fakta:**
+    Setelah query Cypher dieksekusi, hasil mentah (JSON/Node list) dianalisis oleh modul validasi. Modul ini membandingkan entitas dan relasi yang diklaim dalam ringkasan teks yang akan dihasilkan dengan data aktual dari database.
+
+2.  **Cross-Reference Validation:**
+    *   Sistem melakukan *lookup* reverse pada setiap entitas. Misalnya, jika query menghasilkan ringkasan "Insiden A melibatkan Departemen B", sistem memverifikasi apakah ada edge `(Departemen B)-[:HAS_INCIDENT]->(Insiden A)` di database.
+    *   Jika relasi tidak ditemukan atau properti memiliki nilai `null` yang tidak diizinkan, entitas tersebut ditandai sebagai "Unverified".
+
+3.  **Pembatasan Output (Data Minimization Enforcement):**
+    *   Sistem hanya menyertakan entitas dan relasi yang telah terverifikasi (Score Validasi = 100%).
+    *   Jika LLM cenderung melebih-lebihkan dampak (misalnya, menghubungkan dua insiden yang tidak saling terkait), sistem akan memutus koneksi tersebut dan menambahkan catatan `"Note: No direct causal link verified in compliance graph."` ke output.
+    *   Prinsip **Data Minimization** diterapkan dengan hanya memuat properti yang relevan dengan pertanyaan awal, menyembunyikan properti sensitif lain (seperti ID karyawan internal atau hash konfigurasi server) kecuali secara eksplisit diminta dan diizinkan oleh RBAC.
+
+###### 6.9.8.5. Troubleshooting Query Engine
+
+| Masalah | Penyebab Potensial | Solusi |
+| :--- | :--- | :--- |
+| `OntologyMismatchError` | Pertanyaan mengandung istilah yang tidak didefinisikan dalam `regulatory_taxonomy.json`. | Perbarui file skema ontology atau gunakan sinonim yang terdaftar dalam definisi skema. |
+| `RBACAccessDenied` | Pengguna mencoba mengakses data di luar cakupan `--user-role`-nya. | Mintakan peningkatan izin ke admin sistem atau ubah `--user-role` sesuai dengan kredensial resmi. |
+| `LLMConfusionError` | Query terlalu ambigu atau multitask, menyebabkan LLM menghasilkan Cypher sintaks yang salah. | Pecah pertanyaan kompleks menjadi beberapa query yang lebih sederhana. Turunkan parameter `--temperature` ke 0.1. |
+| `EmptyResultSet` | Tidak ada data yang cocok dengan filter yang diterapkan (termasuk filter RBAC implisit). | Verifikasi apakah data tersebut benar-benar ada di database dengan query `MATCH (n) RETURN count(n)` untuk debugging awal. |
+
+###### 6.9.8.6. Best Practices untuk Pengguna Eksekutif
+
+1.  **Spesifik dalam Konteks:** Saat mengajukan pertanyaan, cantumkan periode waktu (misal: "tahun ini", "Q3 2023") dan unit organisasi yang spesifik untuk meningkatkan akurasi hasil.
+2.  **Gunakan Istilah Ontologi:** Cobalah menggunakan istilah yang sesuai dengan taxonomi regulasi (misal: gunakan "Data Breach" daripada "Hacking") untuk meminimalkan ambiguitas.
+3.  **Validasi Angka Keuangan:** Selalu perhatikan kolom `confidence_score` dan `metadata` dalam output JSON-LD. Angka yang memiliki skor kepercayaan rendah harus diverifikasi lebih lanjut dengan tim compliance manual.
