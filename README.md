@@ -13672,3 +13672,115 @@ Graph database memungkinkan visualisasi "Peta Panas Kepatuhan" (Compliance Heatm
 ##### 6.4. Keamanan Graph Database
 *   **Autentikasi:** Nikmati fitur autentikasi database native. Jangan pernah menyimpan kredensial `db_uri` dalam kode sumber. Gunakan variabel lingkungan atau *vault* (HashiCorp Vault/AWS Secrets Manager).
 *   **Otorisasi:** Batasi akses tulis hanya untuk pengguna dengan role `Admin` atau `AuditEngine`. Pengguna lain (termasuk dashboard eksekutif) harus memiliki hak akses *read-only* untuk mencegah manipulasi data audit.
+
+
+Berikut adalah konten lanjutan untuk `README.md` yang mencakup spesifikasi teknis skrip simulasi stres, dokumentasi metodologis mendalam, dan prosedur validasi kepatuhan.
+
+---
+
+### 7. Simulasi Stres Keuangan Berbasis Monte Carlo
+
+Untuk menguji ketahanan proyeksi risiko di atas, organisasi menggunakan alat simulasi acak (**Stochastic Modeling**) yang bernama `compliance_financial_risk_stress_tester.py`. Alat ini tidak hanya mengandalkan estimasi titik (point estimate) tunggal, tetapi memodelkan ketidakpastian dalam parameter risiko untuk menghasilkan distribusi probabilitas dari kerugian keuangan potensial.
+
+#### 7.1. Spesifikasi Teknis Skrip Simulator
+
+File ini adalah modul inti yang melakukan iterasi Monte Carlo untuk menghitung **Value at Risk (VaR)** dan **Expected Shortfall (ES)**.
+
+**Instalasi & Dependensi:**
+```bash
+pip install numpy pandas matplotlib scipy json-schema-validator
+```
+
+**Argumen Baris Perintah (CLI):**
+Skrip mendukung konfigurasi fleksibel melalui argparse:
+
+| Argumen | Tipe | Default | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `--simulation-input` | `str` | N/A | Path ke file JSON yang berisi parameter dasar dampak keuangan dan variabel input historis. |
+| `--policy` | `str` | N/A | Path ke `policy_rules_v1.json` yang mendefinisikan ambang batas toleransi risiko dan aturan kepatuhan. |
+| `--iterations` | `int` | `10000` | Jumlah iterasi simulasi. Semakin tinggi, semakin halus kurva distribusi hasil. |
+| `--confidence-level` | `float` | `0.95` | Tingkat kepercayaan untuk perhitungan VaR (bisa juga 0.99 untuk skenario ekstrem). |
+| `--output` | `str` | `stress_test_results.json` | Path keluaran file JSON yang menyimpan statistik kumulatif, distribusi histogram, dan temuan anormal. |
+
+**Contoh Eksekusi:**
+```bash
+python compliance_financial_risk_stress_tester.py \
+  --simulation-input inputs/financial_impact_baseline.json \
+  --policy policies/policy_rules_v1.json \
+  --iterations 50000 \
+  --confidence-level 0.99 \
+  --output results/q3_stress_test_99.json
+```
+
+**Mekanisme Simulasi:**
+1.  **Variabel Acak:** Skrip memvariasikan tiga parameter kunci menggunakan distribusi probabilitas historis:
+    *   `data_breach_frequency`: Distribusi Poisson-Gamma untuk memperkirakan frekuensi kejadian pelanggaran.
+    *   `detection_latency`: Distribusi Log-Normal untuk durasi waktu deteksi insiden (dari penemuan awal hingga notifikasi regulator).
+    *   `regulatory_fine_volatility`: Distribusi Beta yang dinormalisasi berdasarkan fluktuasi suku bunga dan indeks penalti regulator global.
+2.  **Kalkulasi Dampak:** Untuk setiap iterasi, skrip menghitung total kerugian = `Direct_Costs` + `Reputational_Damage` + `Legal_Fees` + `Regulatory_Fines` + `Operational_Downtime_Loss`.
+3.  **Aggregasi:** Hasil 10.000+ iterasi disusun menjadi distribusi kumulatif untuk menghitung persentil VaR.
+
+---
+
+### 8. Metodologi Compliance & Legal: Stochastic Financial Modeling
+
+Bagian ini menjelaskan kerangka kerja teoritis di balik penggunaan simulasi acak dalam manajemen risiko kepatuhan.
+
+#### 8.1. Prinsip Stochastic Financial Modeling
+Berbeda dengan model deterministik yang mengasumsikan semua variabel tetap, **Stochastic Financial Modeling** mengakui bahwa faktor risiko kepatuhan (seperti perubahan regulasi GDPR, skandal reputasional, atau ketidakefisienan internal) bersifat acak dan saling berkorelasi.
+
+Dalam konteks ini, model kami menggunakan proses **Monte Carlo Simulation** untuk:
+1.  **Mengkuantifikasi Ketidakpastian:** Mengubah ketidakpastian kualitatif ("risiko tinggi") menjadi metrik kuantitatif dengan interval kepercayaan.
+2.  **Memodelkan Konektivitas Graph:** Karena data disimpan dalam Graph Database, simulasi ini menelusuri relasi `causedBy` dan `mitigatedBy`. Jika node `Control` tertentu gagal (probabilitas kegagalan $P(F)$ > threshold), simulasi akan menyalakan jalur risiko yang terhubung ke node `Regulation`, memicu perhitungan denda yang proporsional dengan beratnya pelanggaran.
+
+#### 8.2. Tail Risk Management & Cadangan Dana Kepatuhan (Compliance Reserve)
+Dewan Direksi menggunakan hasil simulasi stres untuk menerapkan prinsip **Tail Risk Management**, yaitu fokus pada ekor distribusi (skenario ekstrem) yang sering diabaikan dalam laporan laba rugi tradisional.
+
+*   **Menentukan Compliance Reserve:**
+    Organisasi wajib menyisihkan dana cadangan yang setara dengan **Value at Risk (VaR) 99%**. Artinya, ada peluang hanya 1% bahwa kerugian kepatuhan akan melebihi jumlah ini dalam horizon waktu tertentu. Jumlah ini menjadi dasar likuiditas wajib untuk menghadapi skenario "Black Swan" seperti denda antitrust global atau kebocoran data masif.
+
+*   **Uji Kesiapan Likuiditas:**
+    Skrip ini mengintegrasikan batasan kas saat ini dari neraca keuangan. Jika `VaR_99%` melebihi likuiditas lancar organisasi, sistem akan memberikan peringatan *Red Flag*, menyarankan peningkatan modal atau asuransi cyber liability sebelum skenario ekstrem terjadi.
+
+---
+
+### 9. Validasi Statistik & Kepatuhan Regulasi (IFRS 13)
+
+Untuk memastikan bahwa asumsi distribusi probabilitas yang digunakan dalam simulasi memenuhi standar akuntansi keuangan internasional, khususnya **IFRS 13 (Fair Value Measurement)** dan **IAS 37 (Provisions, Contingent Liabilities)**, prosedur validasi berikut wajib dijalankan secara berkala.
+
+#### 9.1. Uji Kesesuaian Distribusi (Goodness-of-Fit Tests)
+Sebelum menjalankan simulasi stres, parameter input harus diverifikasi menggunakan uji statistik untuk memastikan distribusi probabilitas yang dipilih mewakili data historis secara akurat.
+
+1.  **Kolmogorov-Smirnov Test (K-S Test):**
+    *   Digunakan untuk membandingkan distribusi empiris data historis denda regulator dengan distribusi teoretis (misalnya: Log-Normal untuk biaya deteksi).
+    *   *Kriteria Terima:* Nilai-p ($p$-value) > 0.05, menandakan tidak ada perbedaan signifikan secara statistik.
+
+2.  **Anderson-Darling Test:**
+    *   Lebih sensitif terhadap ekor distribusi (tail) dibandingkan K-S Test. Ini krusial untuk *Tail Risk Management* karena kita tertarik pada skenario ekstrem.
+    *   *Kriteria Terima:* Statistik AD lebih kecil dari nilai kritis pada tingkat signifikansi $lpha = 0.01$.
+
+#### 9.2. Verifikasi IFRS 13: Hierarki Input (Fair Value Hierarchy)
+IFRS 13 mengharuskan pengukuran nilai wajar berdasarkan ketersediaan data. Proses validasi memastikan bahwa model simulasi tidak bergantung pada asumsi subjektif semata.
+
+*   **Level 1 Inputs:** Menggunakan data pasar publik untuk nilai reputasional (misal: fluktuasi harga saham kompetitor pasca-insiden).
+*   **Level 2 Inputs:** Menggunakan data historis internal organisasi (log insiden keamanan) yang disesuaikan dengan indeks makroekonomi.
+*   **Level 3 Inputs:** Estimasi manajemen untuk parameter yang sangat tidak terobservasi (misal: durasi pemulihan brand di pasar emerging markets).
+
+*Catatan:* Bagian Level 3 dalam simulasi harus mencakup **Disclosures of Uncertainty** yang jelas, di mana rentang kemungkinan kerugian diungkapkan secara eksplisit dalam laporan keuangan.
+
+#### 9.3. Prosedur Validasi Otomatis
+Skrip `compliance_financial_risk_stress_tester.py` menyertakan modul `validator.py` yang secara otomatis menjalankan pipeline berikut:
+
+```python
+def validate_distribution_assumptions(data_series, distribution_name):
+    """
+    Memvalidasi apakah data historis sesuai dengan distribusi yang diasumsikan.
+    """
+    # 1. Hitung statistik deskriptif
+    # 2. Jalankan Anderson-Darling Test
+    # 3. Jika Gagal, coba distribusi alternatif (Bootstrap)
+    # 4. Catat hasil validasi ke log audit kepatuhan
+    pass
+```
+
+Hasil validasi ini wajib di-*commit* ke dalam Graph Database sebagai metadata node `comp:Risk` untuk mendukung transparansi audit eksternal oleh auditor independen.
