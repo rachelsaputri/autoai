@@ -14905,3 +14905,195 @@ Untuk memastikan sistem kepatuhan tidak menjadi *single point of failure* dan te
 | Drift Tidak Terdeteksi | Watchdog agent tidak berjalan atau interval scan terlalu lama. | Verifikasi status CronJob `drift-detector`. Turunkan interval scan menjadi setiap 5-10 menit untuk lingkungan kritis. |
 
 Dengan mengintegrasikan **Policy Enforcement Engine** dan menerapkan standar **Runtime Policy Compliance**, organisasi tidak hanya mendeteksi ketidakpatuhan, tetapi secara proaktif dan otomatis memastikan bahwa setiap aspek infrastruktur teknologi beroperasi dalam batas-batas kepatuhan hukum yang ketat, sehingga meminimalkan risiko denda, kerusakan reputasi, dan pelanggaran data.
+
+
+Berikut adalah konten lanjutan untuk dokumentasi `README.md`, yang dirancang untuk ditempel segera setelah bagian **8.3 Troubleshooting Common Issues**. Konten ini mencakup implementasi teknis agen monitoring, arsitektur sistem, dan prosedur operasional untuk menjaga stabilitas notifikasi.
+
+---
+
+### 8.4 Continuous Compliance Monitoring Agent (CCMA)
+
+Untuk mengatasi dinamika lingkungan *cloud-native* di mana konfigurasi berubah setiap detik, skrip statis satu kali jalan (`one-shot`) tidak lagi memadai. Sistem ini memperkenalkan **Continuous Compliance Monitoring Agent (CCMA)**, sebuah daemon Python yang berjalan di latar belakang untuk memantau integritas kebijakan secara *real-time*.
+
+#### 8.4.1 Implementasi Teknis: `compliance_continuous_compliance_monitoring_agent.py`
+
+Agent ini bertindak sebagai sensor pusat yang mengikat event dari Kubernetes API Server, log stream basis data, dan output dari *Policy Enforcement Engine* (PEP).
+
+**Fitur Utama:**
+1.  **Watchdog Kubernetes API:** Memantau perubahan pada `Deployments`, `Services`, `ConfigMaps`, dan `Secrets` dalam namespace target.
+2.  **Log Ingestion:** Mengonsumsi log akses basis data untuk mendeteksi pola akses data PII yang mencurigakan.
+3.  **Drift Detection:** Membandingkan *desired state* (dari deklarasi IaC) dengan *actual state* (dari runtime) menggunakan matriks kepatuhan.
+4.  **Automated Remediation Trigger:** Jika deviasi melampaui ambang batas toleransi, agent memicu webhook ke sistem remediasi atau menandai resource untuk rollback otomatis.
+
+**Argumen Baris Perintah (CLI):**
+
+```bash
+python compliance_continuous_compliance_monitoring_agent.py \
+    --watch-namespace production-compliance \
+    --mapping-matrix /etc/compliance/matrix_v2.json \
+    --alert-webhook https://ops.internal/alerts/compliance \
+    --log-level DEBUG
+```
+
+**Penjelasan Parameter:**
+*   `--watch-namespace` (Required): Namespace Kubernetes khusus tempat resource kepatuhan hidup. Agent hanya memantau perubahan di namespace ini untuk mengurangi noise.
+*   `--mapping-matrix` (Required): Path ke file `compliance_mapping_matrix.json`. File ini berisi pemetaan antara kontrol teknis (misal: `encryption_at_rest`) dan aturan kepatuhan hukum (misal: `GDPR Art. 32`).
+*   `--alert-webhook` (Optional): Endpoint HTTP POST untuk mengirimkan notifikasi ke sistem ticketing (Jira/ServiceNow) atau chat ops (Slack/Teams).
+*   `--log-level` (Optional): Level logging Python. Default `INFO`. Gunakan `DEBUG` untuk troubleshooting mendalam.
+
+**Contoh Implementasi Inti (Konseptual):**
+
+```python
+import kubernetes
+import json
+import logging
+import requests
+import argparse
+from kubernetes import watch, client
+from datetime import datetime
+
+class ComplianceAgent:
+    def __init__(self, namespace, matrix_path, webhook_url, log_level='INFO'):
+        self.namespace = namespace
+        self.matrix = self.load_matrix(matrix_path)
+        self.webhook_url = webhook_url
+        self.logger = self.setup_logging(log_level)
+        self.api_client = client.CustomObjectsApi()
+
+    def setup_logging(self, level):
+        logger = logging.getLogger('CCMA')
+        logger.setLevel(getattr(logging, level))
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        return logger
+
+    def load_matrix(self, path):
+        # Memuat matriks kepatuhan untuk menentukan ambang batas toleransi
+        with open(path, 'r') as f:
+            return json.load(f)
+
+    def on_event(self, event):
+        resource = event['object']
+        kind = resource['kind']
+        name = resource['metadata']['name']
+        
+        # Deteksi perubahan kritis pada konfigurasi
+        if kind in ['Deployment', 'StatefulSet']:
+            self.check_drift(resource)
+            self.logger.info(f"Change detected in {kind}: {name}")
+
+    def check_drift(self, resource):
+        # Logika perbandingan state vs kebijakan
+        # Jika deviasi > threshold dalam matrix, trigger remediasi
+        pass
+
+    def send_alert(self, message):
+        payload = {
+            "text": f"Compliance Alert @ {datetime.now()}: {message}",
+            "channel": "#ops-security"
+        }
+        try:
+            requests.post(self.webhook_url, json=payload)
+        except Exception as e:
+            self.logger.error(f"Failed to send alert: {e}")
+
+    def run(self):
+        # Inisialisasi watcher pada namespace target
+        w = watch.Watch()
+        self.logger.info(f"Starting CCMA for namespace: {self.namespace}")
+        for event in w.stream(self.api_client.list_namespaced_custom_object,
+                              group="apps",
+                              version="v1",
+                              namespace=self.namespace,
+                              plural="deployments"):
+            self.on_event(event)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Continuous Compliance Monitoring Agent")
+    parser.add_argument('--watch-namespace', required=True)
+    parser.add_argument('--mapping-matrix', required=True)
+    parser.add_argument('--alert-webhook', default='http://localhost:8080/alert')
+    parser.add_argument('--log-level', default='INFO')
+    
+    args = parser.parse_args()
+    
+    agent = ComplianceAgent(
+        namespace=args.watch_namespace,
+        matrix_path=args.mapping_matrix,
+        webhook_url=args.alert_webhook,
+        log_level=args.log_level
+    )
+    agent.run()
+```
+
+#### 8.4.2 Arsitektur Event-Driven Compliance
+
+Sistem kepatuhan beralih dari model *Pull-based* (scanning periodik) ke model *Event-Driven* untuk mengurangi *latency* deteksi dari menit menjadi detik.
+
+**Komponen Arsitektur:**
+
+1.  **Event Producers:**
+    *   **Kubernetes Admitter Webhooks:** Menangkap permintaan kustomisasi manifest *before* diterima oleh API Server.
+    *   **Audit Log Streams:** Mengalirkan log akses API Server dan database ke message broker.
+    *   **PEP Outputs:** Output hasil analisis LLM dari `compliance_policy_enforcer.py`.
+
+2.  **Message Broker (Apache Kafka / RabbitMQ):**
+    *   Berfungsi sebagai *backbone* asinkron yang menampung event dengan *throughput* tinggi.
+    *   Menggunakan *Topic* terpisah untuk event kritis (`compliance.critical`) dan non-kritis (`compliance.info`).
+    *   Memastikan tidak ada event yang hilang meskipun agen monitoring sedang melakukan *maintenance* atau *scale-up*.
+
+3.  **Event Consumers (CCMA):**
+    *   Membaca event dari broker.
+    *   Melakukan *context enrichment* (menambahkan metadata user, timestamp, severity).
+    *   Mengevaluasi event terhadap `compliance_mapping_matrix.json`.
+    *   Memicu aksi: `ALLOW`, `DENY`, `LOG`, atau `REMEDIATE`.
+
+**Alur Data:**
+`K8s Event` -> `Sidecar Agent` -> `Kafka Topic` -> `CCMA Consumer` -> `Evaluation Engine` -> `Remediation/Alert`
+
+#### 8.4.3 Standar Real-Time Audit Trail
+
+Untuk memenuhi persyaratan *forensik* dan *non-repudiation*, setiap keputusan kepatuhan harus dicatat dalam log audit yang tidak dapat diubah (*immutable*).
+
+**Prinsip Audit Trail:**
+1.  **Atomic Logging:** Setiap evaluasi kebijakan menghasilkan satu entri log atomik yang mencakup:
+    *   `request_id`: ID unik untuk melacak seluruh siklus event.
+    *   `decision`: ALLOW/DENY.
+    *   `policy_ref`: Referensi ke aturan spesifik dalam `mapping_matrix`.
+    *   `actor`: Siapa/User Account yang memicu perubahan.
+    *   `timestamp`: Waktu kejadian (ISO 8601).
+    *   `reason`: Alasan keputusan (misal: "Missing encryption label").
+2.  **Write-Only Storage:** Log audit ditulis ke sistem penyimpanan seperti AWS CloudTrail Logs atau Elasticsearch dengan kebijakan *WORM* (Write Once, Read Many) untuk mencegah modifikasi pasca-insiden.
+3.  **Correlation ID:** Semua log dari Kubernetes, Database, dan Agent harus memiliki `correlation_id` yang sama untuk memungkinkan rekonstruksi rantai kejadian secara menyeluruh.
+
+#### 8.4.4 Manajemen Notifikasi: Mengatasi Alert Fatigue
+
+Banjir notifikasi (*alert fatigue*) adalah risiko utama dari monitoring *real-time*. Jika tim keamanan menerima 1000 notifikasi sehari, mereka akan mulai mengabaikannya. Sistem ini menerapkan mekanisme **Silence Rule** dan **Aggregation**.
+
+**Strategi Penanganan Alert Fatigue:**
+
+1.  **Rule-Based Silence (Windowing):**
+    *   Implementasikan logika *debouncing* dalam CCMA. Jika resource yang sama memicu alert yang sama lebih dari 3 kali dalam 5 menit, catat hanya sebagai *log*, dan kirimkan *batch summary* setelah jendela waktu tertutup.
+    *   Contoh Konfigurasi dalam `mapping_matrix.json`:
+        ```json
+        {
+          "rule_id": "NO_PUBLIC_DB",
+          "action": "ALERT",
+          "silence_window_seconds": 300,
+          "max_alerts_per_window": 1,
+          "escalation_after": 5
+        }
+        ```
+
+2.  **Severity Classification:**
+    *   **Critical (P1):** Violasi langsung terhadap data sensitif (PII leak, disable encryption). -> *Immediate Page to On-Call Engineer.*
+    *   **High (P2):** Deviasi konfigurasi yang berisiko (open port, weak TLS). -> *Jira Ticket Created.*
+    *   **Info (P3):** Dokumentasi atau best practice yang dilanggar. -> *Log Only / Daily Digest.*
+
+3.  **Dynamic Suppression:**
+    *   Jika ada *change management* ticket yang aktif (misal: deploy besar-besaran yang sudah disetujui), agent harus otomatis menekan *alert* non-critical untuk namespace terkait selama durasi deploy. Ini memerlukan integrasi dengan sistem ticketing ops untuk membaca status "Maintenance Window".
+
+4.  **Post-Incident Review (PIR) Loop:**
+    *   Secara berkala (mingguan), tinjau rasio *True Positive* vs *False Positive*. Jika aturan tertentu menghasilkan >20% *false positive*, turunkan sev-eritasnya atau perbarui logika evaluasinya di `compliance_policy_enforcer.py`.
