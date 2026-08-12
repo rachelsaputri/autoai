@@ -20343,3 +20343,107 @@ Untuk memastikan bahwa auditor ini tidak dapat dimanipulasi, skrip ini berjalan 
 *   **Audit Chain Linking**: Setiap laporan audit baru secara kriptografis ditautkan ke laporan audit sebelumnya, menciptakan rantai bukti yang tidak dapat diputus.
 
 Dengan mengintegrasikan skrip ini ke dalam alur kerja tata kelola perusahaan, organisasi tidak hanya memenuhi persyaratan kepatuhan regulasi, tetapi juga menciptakan aset hukum yang konsisten, dapat diaudit, dan siap eksekusi, secara signifikan mengurangi beban kerja tim legal dan risiko litigasi di masa depan.
+
+
+Berikut adalah konten lanjutan yang komprehensif dan terstruktur untuk melengkapi dokumentasi teknis Anda. Materi ini berfokus pada mekanisme teknis implementasi, penanganan error, dan panduan operasional tingkat lanjut.
+
+---
+
+### 6.6. Mekanisme Verifikasi Kriptografis Lanjut
+
+Untuk menjamin validitas bukti hukum, sistem tidak hanya mengandalkan hash tunggal, melainkan menerapkan konsep **Merkle Tree Singkat** untuk setiap sesi simulasi. Hal ini memungkinkan verifikasi efisiensi O(log n) terhadap integritas seluruh transaksi dalam satu sesi tanpa perlu memuat seluruh database ke memori.
+
+#### 6.6.1. Struktur Hash Berantai (Chained Hashing)
+Setiap entri log baru `$E_i` dihitung berdasarkan hash dari entri sebelumnya `$E_{i-1}`:
+
+$$
+H_i = 	ext{SHA256}(ID_{user} || Timestamp || Data_{payload} || H_{i-1})
+$$
+
+Dimana:
+*   $H_{i-1}$ adalah hash dari entri audit sebelumnya (untuk entri pertama, $H_0$ adalah *genesis hash* yang dikunci secara hardcode).
+*   Operator `||` menyatakan operasi penggabungan byte (concatenation).
+*   Ini memastikan bahwa jika ada satu byte data di tengah sesi diubah, seluruh rangkaian hash setelah titik manipulasi menjadi tidak valid (*chain break*).
+
+#### 6.6.2. Sinkronisasi Waktu (Time-Sync Validation)
+Skrip ini melakukan validasi ketat terhadap *timestamp*.
+1.  **Skew Detection**: Jika selisih waktu antara `timestamp` di JSON log dashboard dan `timestamp` saat verifikasi berjalan melebihi batas toleransi (default: ±5 detik), sistem akan menandai entri tersebut sebagai `WARNING_TIME_DRIFT`.
+2.  **Clock Source Verification**: Pastikan server atau workstation menjalankan protokol NTP (Network Time Protocol) yang terverifikasi. Ketidakakuratan jam sistem dapat invalidate klaim *non-repudiation* di pengadilan.
+
+### 6.7. Penanganan Error dan Logging Debug
+
+Dalam lingkungan produksi, kegagalan verifikasi dapat terjadi karena berbagai alasan eksternal. Skrip dilengkapi dengan handler exception yang granular untuk memudahkan troubleshooting tanpa mengompromi keamanan data.
+
+#### Tabel 6.7.1: Kode Error dan Tindakan Korektif
+
+| Kode Error | Deskripsi | Tindakan yang Disarankan |
+| :--- | :--- | :--- |
+| `ERR_KEY_ACCESS` | Gagal membuka file `--encrypted-logs-key` atau kunci salah. | 1. Verifikasi izin baca file.<br>2. Pastikan kunci dekripsi adalah versi terbaru yang sesuai dengan enkripsi log.<br>3. Hubungi admin keamanan untuk rotasi kunci. |
+| `ERR_HASH_MISMATCH` | Hash visual tidak sesuai dengan referensi integritas. | 1. Periksa apakah file dashboard state telah dimodifikasi secara manual.<br>2. Verifikasi apakah versi `compliance_executive_dashboard_integration_suite.py` sesuai dengan versi saat simulasi berjalan. |
+| `ERR_LOG_CORRUPTION` | File JSON log rusak atau tidak valid format. | 1. Gunakan tool validasi JSON standar untuk file `--dashboard-log`.<br>2. Jika file rusak, identifikasi titik kerusakan dan potong log hingga titik valid terakhir sebelum men-generate report parsial. |
+| `ERR_CHAIN_BREAK` | Rantai hash audit terputus. | Ini indikasi kuat manipulasi data atau serangan *replay*. Jangan jalankan skrip lebih lanjut. Isolasi sistem dan lakukan forensik digital. |
+
+#### 6.7.1. Level Logging
+Gunakan flag `--verbose` untuk meningkatkan detail log output ke `stderr`. Log ini tidak dituliskan ke file output audit utama untuk menjaga kerapatan file laporan, namun sangat berguna untuk debugging teknis.
+
+```bash
+python compliance_audit_verifier.py \
+  --dashboard-log interaction_log.json \
+  --visual-integrity-reports integrity.json \
+  --encrypted-logs-key key.pem \
+  --output-audit-trail report_final.json \
+  --verbose
+```
+
+### 6.8. Panduan Operasional untuk Auditor
+
+Bagian ini memberikan langkah-langkah baku (SOP) bagi tim internal atau auditor eksternal yang menggunakan alat ini.
+
+#### Langkah 1: Preparasi Lingkungan
+1.  Pastikan Python 3.9+ terinstall.
+2.  Instal dependensi:
+    ```bash
+    pip install -r requirements_audit.txt
+    ```
+3.  Verifikasi integritas file biner skrip utama dengan checksum SHA-256 yang disediakan di repo.
+
+#### Langkah 2: Ekstraksi Data
+1.  Unduh log interaksi dashboard (`interaction_log.json`) dari server aplikasi.
+2.  Unduh laporan integritas visual (`integrity.json`) dari sistem penyimpanan terisolasi.
+3.  Pindahkan file kunci dekripsi (`key.pem`) ke direktori kerja auditor yang aman. **Peringatan:** Jangan pernah mengirimkan file kunci ini melalui email atau platform chat.
+
+#### Langkah 3: Eksekusi Audit
+Jalankan perintah verifikasi. Contoh:
+
+```bash
+python compliance_audit_verifier.py \
+  --dashboard-log /secure/path/logs/session_20231027.json \
+  --visual-integrity-reports /secure/path/reports/session_20231027.json \
+  --encrypted-logs-key /secure/path/keys/dekripsi.pem \
+  --output-audit-trail /secure/path/audit_results/finding_20231027.json
+```
+
+#### Langkah 4: Analisis Hasil
+1.  Buka file `finding_20231027.json`.
+2.  Periksa bagian `Legal Compliance Statement`. Jika statusnya `VALID`, maka jejak audit siap digunakan sebagai bukti.
+3.  Jika terdapat entri di `Anomaly Detection Report`, lakukan investigasi lanjutan dengan cross-reference ke log aplikasi backend (`application.log`).
+
+### 6.9. Pertimbangan Keamanan Tambahan (Best Practices)
+
+Untuk menjaga ekosistem audit tetap andal, ikuti praktik terbaik berikut:
+
+1.  **Rotasi Kunci Berkala**: Kunci dekripsi (`--encrypted-logs-key`) harus dirotasi setiap kali ada perubahan besar pada skema data log atau setiap tahun fiskal. Kunci lama harus tetap disimpan untuk keperluan audit masa lalu (retensi data).
+2.  **Immutable Storage**: Simpan `audit_report.json` dan sumber data aslinya (log & integrity) di media *Write-Once-Read-Many* (WORM) atau menggunakan layanan object storage dengan fitur *Object Locking* (misalnya AWS S3 Object Lock atau Azure Immutable Blob).
+3.  **Penyimpanan Terpisah**: File kunci enkripsi tidak boleh disimpan di server yang sama tempat log aplikasi berjalan. Idealnya, kunci disimpan di HSM (*Hardware Security Module*) atau vault (seperti HashiCorp Vault).
+4.  **Pemeliharaan Versi**: Pastikan versi skrip verifier (`compliance_audit_verifier.py`) selalu sinkron dengan versi generator log dan integritas. Perubahan versi skrip tanpa penyesuaian algoritma hash dapat menyebabkan false positive pada deteksi anomali.
+
+### 6.10. Pemecahan Masalah Umum (Troubleshooting)
+
+**Q: Mengapa laporan menunjukkan "Missing Hash Entry" padahal log terlihat utuh?**
+A: Ini terjadi jika ada celah waktu (gap) antara timestamp di log dashboard dan timestamp di laporan integritas visual. Pastikan kedua sumber data direkam dalam sesi yang sama dan clock server terkalibrasi. Cek bagian `warnings` di output JSON.
+
+**Q: Bagaimana cara memverifikasi laporan jika file kunci hilang?**
+A: Jika kunci hilang, Anda tidak dapat mendekripsi database historis. Namun, Anda masih dapat memverifikasi integritas file JSON log dan laporan visual menggunakan SHA-256 standar. Laporan yang dihasilkan akan menandai status kepatuhan sebagai `UNVERIFIABLE_LEGAL_VALUE` karena tidak ada korelasi kriptografis dengan entri database terenkripsi.
+
+**Q: Apakah skrip ini kompatibel dengan Windows?**
+A: Ya, namun pastikan path file menggunakan format escape yang benar (contoh: `C:\path\to\file.json`) atau gunakan *raw string* Python. Untuk lingkungan produksi, disarankan menjalankan skrip di lingkungan Linux/macOS untuk stabilitas timestamp dan izin file.
