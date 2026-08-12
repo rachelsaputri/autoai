@@ -10749,3 +10749,136 @@ Auditor infrastruktur harus memverifikasi hal-hal berikut selama tinjauan sistem
 
 ---
 *Catatan: Dokumentasi ini harus dikaitkan dengan versi terbaru dari `compliance_lifecycle_orchestrator.py` dan dipatuhi secara ketat dalam lingkungan produksi.*
+
+
+Berikut adalah konten lanjutan yang komprehensif untuk bagian **Compliance & Legal** dalam dokumentasi Anda. Konten ini dirancang untuk melengkapi README.md yang sudah ada, fokus pada otomatisasi pemetaan regulasi dan validasi teknis.
+
+***
+
+### 5.5 Otomasi Pemetaan Kontrol Kepatuhan (Control Mapping Automation)
+
+Untuk memastikan bahwa klaim kepatuhan terhadap GDPR (Pasal 32, 33, 34) dan standar ISO/IEC 27001 bukan sekadar pernyataan teoritis, sistem menyediakan utilitas generasi matriks pelacakan aturan (*Rule Traceability Matrix*). Skrip ini secara dinamis menganalisis topologi pipeline, output kuantifikasi risiko, dan laporan dampak etika untuk menghasilkan bukti audit yang dapat ditelusuri.
+
+#### 5.5.1 Spesifikasi Utilitas Generator Matriks
+
+Utilitas ini bernama `compliance_compliance_orchestration_matrix_generator.py`. Fungsi utamanya adalah memetakan setiap komponen teknis dalam `pipeline_graph.json` ke dalam kontrol kepatuhan spesifik, menentukan status kepatuhan, dan menyediakan referensi bukti (log/laporan).
+
+**Tanda Tangan Skrip:**
+
+```bash
+python compliance_compliance_orchestration_matrix_generator.py \
+    --graph-input <path/to/pipeline_graph.json> \
+    --risk-output <path/to/compliance_risk_quantifier_output.json> \
+    --ethics-output <path/to/compliance_ethical_impact_assessor_output.json> \
+    --standard-set <gdpr_iso27001|gdpr_only|iso27001_only> \
+    --output <path/to/compliance_mapping_matrix.json>
+```
+
+**Penjelasan Argumen:**
+*   `--graph-input`: Jalur absolut atau relatif ke file `pipeline_graph.json` yang berisi struktur DAG (Directed Acyclic Graph) dependensi modul pipeline.
+*   `--risk-output`: Jalur ke file JSON output dari `compliance_risk_quantifier.py`. Skrip ini membaca skor risiko residual dan mitigasi yang sudah dihitung sebelumnya.
+*   `--ethics-output`: Jalur ke file JSON output dari `compliance_ethical_impact_assessor.py`. Berisi analisis bias,fairness, dan dampak sosial dari keputusan AI.
+*   `--standard-set`: Himpunan regulasi yang berlaku untuk konteks audit saat ini. Opsi yang didukung:
+    *   `gdpr_iso27001`: Memetakan ke GDPR Articles 32-34 serta ISO/IEC 27001:2013/2022 controls (A.9, A.10, A.12).
+    *   `gdpr_only`: Fokus pada privasi data dan hak subjek data.
+    *   `iso27001_only`: Fokus pada keamanan informasi dan tata kelola IT.
+*   `--output`: Lokasi file hasil `compliance_mapping_matrix.json` yang akan digunakan oleh auditor dan direksi.
+
+#### 5.5.2 Struktur Output Matriks Kepatuhan
+
+File `compliance_mapping_matrix.json` yang dihasilkan memiliki struktur hierarkis yang memudahkan pemindaian otomatis oleh alat audit pihak ketiga. Berikut adalah contoh skema output:
+
+```json
+{
+  "metadata": {
+    "generated_at": "2023-10-27T10:00:00Z",
+    "generator_version": "1.2.0",
+    "standard_set_applied": "gdpr_iso27001",
+    "pipeline_version": "v2.4.1"
+  },
+  "mapping_entries": [
+    {
+      "control_id": "GDPR-Art32-1",
+      "regulation_reference": "GDPR Article 32 (Security of processing)",
+      "iso_mapping": "ISO/IEC 27001 A.12.4.1",
+      "module_id": "data_preprocessing_node_04",
+      "implementation_description": "Enkripsi AES-256 diterapkan pada data mentah sebelum masuk ke model inference. Kunci enkripsi dikelola oleh HSM internal.",
+      "compliance_status": "Compliant",
+      "evidence_references": [
+        {
+          "type": "log",
+          "file_path": "/var/log/audit/encryption_verification.log",
+          "trace_id": "trace_99887766",
+          "timestamp": "2023-10-27T09:45:00Z"
+        },
+        {
+          "type": "config",
+          "file_path": "/etc/ssl/hsm_config.json",
+          "hash_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "risk_score_residual": 0.1,
+      "audit_notes": "Status Compliant karena enkripsi end-to-end aktif dan kunci tidak disimpan di memori aplikasi."
+    },
+    {
+      "control_id": "GDPR-Art33-1",
+      "regulation_reference": "GDPR Article 33 (Notification of a personal data breach to the supervisory authority)",
+      "iso_mapping": "ISO/IEC 27001 A.16.1.4",
+      "module_id": "dlq_processor_service",
+      "implementation_description": "Mekanisme pelaporan insiden otomatis memicu notifikasi ke DPO dalam waktu < 24 jam jika error_type adalah 'SECURITY_BREACH'.",
+      "compliance_status": "Partial",
+      "evidence_references": [
+        {
+          "type": "config",
+          "file_path": "/var/lib/compliance/orchestration_pipeline_config.yaml",
+          "key": "breach_notification_timeout_hours",
+          "value": "24"
+        }
+      ],
+      "risk_score_residual": 0.4,
+      "audit_notes": "Status Partial karena proses validasi awal oleh Komite Etika AI memakan waktu rata-rata 2 jam, mendekati batas waktu 24 jam dalam beban puncak. Disarankan penyesuaian alokasi resource."
+    }
+  ]
+}
+```
+
+**Kolom Penjelasan:**
+1.  `control_id`: ID unik kontrol kepatuhan (misal, `GDPR-Art32-1`).
+2.  `module_id`: ID teknis dari node dalam `pipeline_graph.json` yang bertanggung jawab atas implementasi kontrol.
+3.  `compliance_status`:
+    *   **Compliant**: Implementasi teknis memenuhi syarat regulasi sepenuhnya dengan bukti kuat.
+    *   **Partial**: Implementasi ada tetapi memiliki celah risiko atau ketergantungan manual yang meningkatkan skor risiko residual di atas ambang batas (misal, >0.3).
+    *   **Non-Compliant**: Fitur keamanan atau privasi yang diperlukan tidak diimplementasikan atau dinonaktifkan.
+4.  `evidence_references`: Daftar terstruktur yang mengarahkan auditor langsung ke bukti konkret (log, hash konfigurasi, snapshot database) untuk memverifikasi klaim kepatuhan. Ini meminimalkan waktu audit manual.
+
+#### 5.5.3 Metodologi Validasi "Control Mapping"
+
+Skrip generator ini tidak hanya memetakan teks, tetapi melakukan validasi logis terhadap keadaan sistem saat ini. Metodologi validasi otomatis yang digunakan meliputi:
+
+1.  **Analisis Dependensi Struktural (`pipeline_graph.json`)**:
+    Skrip menganalisis alur data untuk memastikan bahwa modul sensitif (misalnya, modul yang menangani PII - Personally Identifiable Information) secara struktural terhubung ke modul keamanan (seperti enkripsi atau masking). Jika sebuah modul pengolah data PII tidak memiliki "pendamping" keamanan dalam grafik dependensinya, skrip akan menandai kontrol yang relevan sebagai `Non-Compliant` atau `Partial` dengan flag peringatan tinggi.
+
+2.  **Integrasi Skor Risiko Residual**:
+    Output dari `compliance_risk_quantifier.py` digunakan sebagai penentu status.
+    *   Jika `risk_score_residual` untuk suatu kontrol > 0.5, status otomatis diatur ke `Non-Compliant`.
+    *   Jika `risk_score_residual` berada di rentang 0.2 – 0.5, status diatur ke `Partial`, dan auditor harus meninjau mitigasi tambahan.
+    *   Jika `risk_score_residual` < 0.2 dan bukti teknis tersedia, status diatur ke `Compliant`.
+
+3.  **Cross-Reference Dampak Etika**:
+    Output dari `compliance_ethical_impact_assessor.py` disuntikkan ke dalam catatan audit (`audit_notes`). Jika terdapat deteksi bias signifikan pada modul tertentu, meskipun aspek teknis GDPR (seperti enkripsi) sudah lengkap, status kepatuhan holistik dapat diturunkan menjadi `Partial` karena kegagalan dalam prinsip "Fairness" yang juga merupakan bagian dari interpretasi GDPR yang sehat dan standar ISO 42001 (Manajemen Sistem AI).
+
+#### 5.5.4 Prosedur Penandatanganan Dewan Direksi
+
+Laporan kepatuhan final tidak dapat diserahkan kepada Dewan Direksi atau regulator tanpa melalui langkah validasi berikut:
+
+1.  **Jalankan Generator Matriks**: Tim DevOps atau Engineer Keamanan menjalankan skrip dengan argumen `--standard-set gdpr_iso27001` terhadap snapshot lingkungan produksi terbaru.
+2.  **Verifikasi Otomatis**: Skrip akan mengeluarkan ringkasan statistik:
+    *   Total Kontrol: 45
+    *   Compliant: 40
+    *   Partial: 4
+    *   Non-Compliant: 1
+3.  **Review "Partial/Non-Compliant"**: Setiap entri yang tidak berstatus `Compliant` harus memiliki entri `audit_notes` yang menjelaskan rencana mitigasi (Remediation Plan) dengan tenggat waktu yang jelas.
+4.  **Tanda Tangan Digital**: Setelah direview, tim Kepatuhan (Compliance Officer) menandatangani file `compliance_mapping_matrix.json` dengan tanda tangan digital (PKI) untuk menandai bahwa matriks ini adalah cerminan akurat dari keadaan sistem pada waktu tertentu.
+5.  **Arsip Audit**: File yang ditandatangani disimpan bersama dengan `compliance_lifecycle_orchestrator.log` sebagai bukti utama dalam tinjauan audit eksternal.
+
+> **Peringatan Kepatuhan:** Perubahan apapun pada `pipeline_graph.json` yang dilakukan di luar proses PR yang ditinjau Komite Etika AI akan menyebabkan inkonsistensi dalam matriks ini. Skrip generator akan mendeteksi ketidaksesuaian antara grafik dependensi aktif dan konfigurasi yang didokumentasikan, dan akan memblokir penandatanganan laporan hingga inkonsistensi tersebut diselesaikan.
