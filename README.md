@@ -15978,3 +15978,84 @@ Tim Red Team (biasanya dari Internal Audit atau Security External Partner) menge
 Hasil evaluasi digunakan untuk memperbarui prompt internal, matriks hukum, dan skenario stres. Ini menciptakan siklus umpan balik berkelanjutan untuk meningkatkan ketahanan kepatuhan.
 
 > **Catatan Penting:** Jangan pernah menjalankan generator dengan skenario nyata terhadap server regulator atau sistem komunikasi eksternal dalam tahap pengujian. Selalu gunakan lingkungan air-gapped atau mode *dry-run* untuk memastikan tidak ada data sensitif yang bocor selama proses validasi protokol.
+
+
+Berikut adalah konten lanjutan untuk dokumen `README.md` Anda. Bagian ini dirancang untuk ditempelkan langsung setelah bagian "Onboarding Instant" atau sebelum "Prosedur Red Team Exercise", namun lebih efektif ditempatkan sebagai **Sub-bab Baru: 7. Transparansi & Akuntabilitas AI (XAI Module)** untuk menjaga alur logis dari eksekusi ke auditabilitas.
+
+---
+
+### 7. Modul Explainable AI (XAI): Auditabilitas & Kepatuhan Legal
+
+Dalam lanskap regulasi seperti **GDPR Article 22** (otomasi keputusan yang memiliki efek hukum) dan **EU AI Act Article 13** (ketentuan transparansi untuk sistem AI berisiko tinggi), kehitam-hitaman ("black box") tidak lagi dapat diterima secara hukum. Modul ini bukan sekadar alat debugging, melainkan mekanisme **defensif hukum** yang menerjemahkan output biner dari `compliance_policy_enforcer.py` menjadi narasi auditori yang dapat dipertanggungjawabkan.
+
+#### 7.1 Deskripsi Modul: `compliance_ai_explainability_trustworthy_audit.py`
+
+Skrip ini berfungsi sebagai jembatan antara eksekusi kebijakan teknis dan kepatuhan regulasi. Ia mengintegrasikan interpretabilitas dari `compliance_mlp_compliance_llm_policy_interpreter.py` untuk memberikan tiga lapisan transparansi:
+
+1.  **Feature Importance Attribution:** Mengidentifikasi variabel input mana yang paling berkontribusi pada keputusan penolakan/persetujuan (misalnya: "Penolakan disebabkan 70% oleh lokasi IP negara terlarang, bukan usia data").
+2.  **Counterfactual Explanations:** Mensimulasikan perubahan minimal pada input untuk mencapai hasil yang berbeda, memberikan panduan praktis bagi pengguna ("Jika retensi data diubah menjadi 30 hari, keputusan akan menjadi *Approved*").
+3.  **Adversarial Fairness Check:** Menguji apakah penjelasan tersebut menyembunyikan bias diskriminatif yang mungkin tersembunyi dalam model MLP atau LLM interpretasi.
+
+#### 7.2 Implementasi Teknis dan Penggunaan
+
+Jalankan auditor XAI menggunakan log eksekusi dari enforcer kebijakan dan checkpoint model yang telah dilatih.
+
+```bash
+python compliance_ai_explainability_trustworthy_audit.py \
+    --enforcer-logs ./logs/compliance_decisions_20231027.log \
+    --model-checkpoints ./models/llm_interpreter_v2.bin \
+    --target-entities ["GDPR_ARTICLE_22", "EU_AI_ACT_HIGH_RISK"] \
+    --output-explanation ./audit_reports/ai_trustworthy_report.json
+```
+
+**Argumen Parameter:**
+*   `--enforcer-logs`: Path ke file log JSON/CSV yang berisi input request dan output keputusan dari `compliance_policy_enforcer.py`.
+*   `--model-checkpoints`: Path ke file biner atau direktori berisi model `compliance_mlp_compliance_llm_policy_interpreter.py` yang digunakan untuk interpretasi.
+*   `--target-entities`: Daftar string tag regulasi atau yurisdiksi spesifik yang perlu diaudit eksplisit (misal: `["GDPR", "CCPA", "PDP"]`).
+*   `--output-explanation`: Path file output JSON yang berisi laporan audit lengkap, termasuk skor kepercayaan, peta fitur, dan penjelasan counterfactual.
+
+#### 7.3 Metodologi: Causal AI Attribution for Regulatory Defense
+
+Untuk mencegah tuduhan "black box discrimination" di pengadilan, sistem ini menerapkan metodologi **Causal Attribution** yang melampaui korelasi statistik tradisional.
+
+**Prinsip Dasar:**
+Sistem tidak hanya menyatakan *bahwa* suatu fitur penting, tetapi membuktikan *bagaimana* perubahan kausal pada fitur tersebut mengubah hasil keputusan secara signifikan.
+
+1.  **SHAP (SHapley Additive exPlanations) Integration:** Menggunakan nilai SHAP untuk mendistribusikan kontribusi setiap fitur (misal: `transaction_amount`, `user_region`, `device_fingerprint`) terhadap skor output model. Ini memenuhi persyaratan transparansi EU AI Act yang mewajibkan pengungkapan logika dasar sistem.
+2.  **Counterfactual Generative Analysis:**
+    *   Sistem secara otomatis menghasilkan variasi minimal dari input pengguna.
+    *   *Contoh Output:* `"Keputusan: REJECTED. Counterfactual: Jika variabel 'data_retention_days' dikurangi dari 90 menjadi <30, keputusan berubah menjadi APPROVED. Delta Kontribusi: +45% terhadap skor persetujuan."`
+    *   Nilai ini memberikan "Right to Explanation" yang konkret: pengguna tahu persis apa yang harus diubah untuk lolos kepatuhan.
+
+**Mencegah Tuduhan Hukum:**
+Laporan yang dihasilkan mencakup jejak reasoning lengkap yang dapat diverifikasi oleh auditor independen. Jika terjadi diskriminasi, jejak ini akan menunjukkan apakah keputusan didasarkan pada faktor yang dilindungi (seperti ras atau gender) atau faktor bisnis yang sah. Jika model ditemukan bias pada fitur yang dilindungi, sistem akan otomatis menandai entitas tersebut sebagai "Non-Compliant" dan menghentikan eksekusi enforcer hingga model diretrai.
+
+#### 7.4 Standar Algorithmic Transparency Framework
+
+Sistem ini dirancang sesuai dengan standar teknis berikut untuk memastikan kepatuhan terhadap regulasi AI Global:
+
+| Regulasi | Persyaratan | Implementasi dalam Modul |
+| :--- | :--- | :--- |
+| **EU AI Act Art. 13** | Transparency: Informasi harus jelas, mudah diakses, dan lengkap bagi pengguna akhir. | Generasi laporan `ai_trustworthy_report.json` dengan bahasa non-teknis di bagian `summary_human_readable`. |
+| **GDPR Art. 22** | Right to Explanation: Hak untuk tidak subjected to automated decision making solely. | Penyediaan counterfactual explanations yang memungkinkan entitas memahami logika di balik penolakan. |
+| **ISO/IEC 42001** | Management System for AI | Pencatatan jejak audit (audit trail) yang immutable dari input, model, dan output interpretasi. |
+
+#### 7.5 Prosedur Validasi: Adversarial Fairness Testing
+
+Untuk memastikan bahwa laporan transparansi itu sendiri tidak dimanipulasi (misalnya, model "berpura-pura" transparan sambil menyembunyikan bias), jalankan prosedur validasi berikut sebelum deploy ke produksi:
+
+**Langkah 1: Invertible Perturbation Test**
+1.  Ambil sampel keputusan "Rejected" berisiko tinggi.
+2.  Ubah fitur sensitif (misal: mengganti `country_code: DE` dengan `country_code: US`) sambil menjaga fitur bisnis tetap konstan.
+3.  Jalankan XAI pada sampel yang telah diubah.
+4.  **Validasi:** Jika perbedaan dalam `feature_importance` hanya muncul pada fitur sensitif dan mengabaikan fitur bisnis kritis, model dicurigai memiliki bias diskriminatif tersembunyi.
+
+**Langkah 2: Stability of Explanation**
+1.  Jalankan generator XAI 100 kali pada input yang sama dengan seed acak yang berbeda (jika model stochastic).
+2.  Hitung konsistensi skor SHAP untuk setiap fitur.
+3.  **Batas Penerimaan:** Jika varians skor kontribusi fitur utama > 15%, sistem harus menolak menghasilkan laporan final dan beralih ke mode "Manual Review Only" hingga model distabilkan.
+
+**Langkah 3: Red Teaming the Explanations**
+*   Tim kepatuhan (Legal & Risk) harus meninjau 50 laporan acak untuk memastikan bahwa bahasa yang digunakan dalam `counterfactual` tidak menyesatkan atau secara halus menggeser tanggung jawab ke pengguna akhir tanpa dasar teknis yang valid.
+
+> **Peringatan Kepatuatan:** Laporan yang dihasilkan oleh modul ini adalah dokumen hukum yang sah untuk keperluan audit eksternal. Pastikan integritas file `ai_trustworthy_report.json` dijaga dengan hashing SHA-256 dan dicatat dalam ledger internal perusahaan. Jangan pernah memodifikasi file ini secara manual setelah generasi awal.
