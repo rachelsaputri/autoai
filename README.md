@@ -25069,3 +25069,149 @@ Untuk memastikan integritas hasil analisis dalam konteks hukum, ikuti prosedur v
 
 > **Peringatan Hukum Penting:**
 > Alat ini adalah pendukung keputusan (*decision support tool*). Outputnya adalah estimasi probabilistik berdasarkan model AI dan aturan yang dikonfigurasi. Keputusan akhir mengenai klaim privilegi, penolakan discovery, atau produksi dokumen **wajib** dikonsultasikan dan disetujui oleh pengacara berlisensi yang menangani kasus tersebut. Tanggung jawab hukum atas kegagalan produksi atau pelanggaran privasi tetap berada di tanggung jawab klien dan representasi hukumnya, bukan pada perangkat lunak.
+
+
+Berikut adalah konten lanjutan yang komprehensif, terstruktur, dan siap disalin ke dalam file `README.md` Anda. Konten ini mencakup spesifikasi teknis skrip `compliance_evidentiary_chaining_and_blockchain_notarization_service.py` serta bab dokumentasi mendalam mengenai keabsahan hukum dan interoperabilitas forensik.
+
+---
+
+## 9. Layanan Notaris Digital Otonom: Evidentiary Chaining & Blockchain Notarization
+
+Modul ini (`compliance_evidentiary_chaining_and_blockchain_notarization_service.py`) bertindak sebagai lapisan verifikasi akhir dalam pipeline kepatuhan. Fungsinya adalah mengunci integritas bukti digital yang telah diverifikasi oleh modul sebelumnya ke dalam ledger terdistribusi (Blockchain), menciptakan "Immutable Evidence Chain of Custody Ledger" yang memiliki daya tarik hukum tinggi di yurisdiksi global.
+
+Sistem ini mengintegrasikan output dari:
+1.  `compliance_disputed_artifact_chain_of_custody_integrity_verifier.py` (Verifikasi Integritas Awal)
+2.  `compliance_fiduciary_decision_rationale_immortalizer.py` (Rasionalisasi Keputusan Fiduciary)
+
+Dengan mengimplementasikan protokol **Hyperledger Fabric** atau **Ethereum Private**, serta menyematkan metadata standar **ISO 21146 (Security Audit Metadata - SAM)**, skrip ini memastikan bahwa setiap artefak bukti (log, dokumen, rekaman) dapat diaudit secara independen tanpa mengorbankan privasi data sensitif.
+
+### 9.1. Spesifikasi Argumen CLI
+
+Skrip dirancang untuk eksekusi dalam lingkungan enterprise yang aman. Gunakan argumen berikut untuk mengonfigurasi interaksi dengan ledger dan wallet notaris:
+
+| Argumen | Tipe | Deskripsi Wajib | Contoh Nilai |
+| :--- | :--- | :--- | :--- |
+| `--evidence-hash-root` | String | Path absolut ke file `MERKLE_ROOT_HASH.json` yang berisi hash akar Merkle dari seluruh set bukti digital. File ini dihasilkan oleh *Integrity Verifier*. | `/secure/audit/evidence_hashes/20231027_root.json` |
+| `--blockchain-node-url` | String | Endpoint RPC atau gRPC dari node ledger perusahaan (Hyperledger/Ethereum). | `https://fabric-ca.europe.company.com:7054` |
+| `--notary-wallet-key` | String | Path ke file kunci privat (PEM/JSON) yang mewakili identitas digital notaris korporat yang ditunjuk. Kunci ini menandatangani transaksi penotaran. | `/secure/keys/notary_corp_key.pem` |
+| `--output-notarization-certificate` | String | Path output untuk menyimpan sertifikat notaris digital (`evidentiary_notarization_certificate.json`). Sertifikat ini berisi transaksid ID, timestamp, dan hash blok. | `/secure/audit/certs/notarization_20231027.json` |
+| `--ledger-type` | Enum | Pilih protokol blockchain: `hyperledger_fabric` atau `ethereum_private`. Default: `hyperledger_fabric`. | `hyperledger_fabric` |
+| `--iso-sam-compliance` | Boolean | Mengaktifkan penyiapan metadata ISO 21146 (SAM) ke dalam payload transaksi. Default: `True`. | `True` |
+
+### 9.2. Contoh Eksekusi
+
+Berikut adalah contoh perintah untuk menjalankan notaris digital dalam lingkungan produksi yang mematuhi standar forensik tinggi:
+
+```bash
+python3 compliance_evidentiary_chaining_and_blockchain_notarization_service.py \
+    --evidence-hash-root /secure/audit/evidence_hashes/20231027_root.json \
+    --blockchain-node-url https://fabric-ca.apac.company.com:7050 \
+    --notary-wallet-key /secure/keys/notary_key_v2.pem \
+    --output-notarization-certificate /secure/audit/certs/notarization_final.json \
+    --ledger-type hyperledger_fabric \
+    --iso-sam-compliance true
+```
+
+### 9.3. Output: Sertifikat Notaris Digital
+
+Setelah eksekusi berhasil, skrip akan menghasilkan file JSON (`evidentiary_notarization_certificate.json`) yang berisi struktur berikut:
+
+```json
+{
+  "certificate_id": "CERT-20231027-UUID-9988",
+  "timestamp_utc": "2023-10-27T14:30:00Z",
+  "ledger_details": {
+    "type": "hyperledger_fabric",
+    "block_id": 45892,
+    "transaction_id": "tx_id_hash_abc123...",
+    "channel_name": "evidence_channel_compliance"
+  },
+  "evidence_summary": {
+    "merkle_root_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "total_artifacts_locked": 145,
+    "iso_sam_version": "2.0"
+  },
+  "notary_identity": {
+    "wallet_address_or_msp_id": "Org1MSP_NotaryUnit1",
+    "signing_hash_algorithm": "SHA-256"
+  },
+  "legal_disclaimer": "Tanda tangan kriptografik ini membuktikan keberadaan data pada timestamp tertentu dan integritasnya hingga saat verifikasi dilakukan."
+}
+```
+
+---
+
+## 10. Forensic Evidence Provenance & Legal Admissibility
+
+Bagian ini menjelaskan fondasi metodologis di balik sistem *Evidentiary Chaining*. Tujuannya adalah untuk menjawab tantangan utama dalam litigasi modern: **Bagaimana membuktikan secara matematis bahwa bukti digital tidak diubah sejak pengumpulan hingga presentasi di pengadilan?**
+
+### 10.1. Metodologi: Cryptographic Chain of Custody Automation
+
+Sistem ini menghilangkan ketergantungan pada log pusat yang rentan terhadap manipulasi internal dengan menerapkan prinsip **Distributed Ledger Technology (DLT)** sebagai sumber kebenaran tunggal (*single source of truth*).
+
+#### A. Hierarki Hashing Kriptografik
+1.  **Leaf Level:** Setiap file bukti (dokumen, log, rekaman) di-hash menggunakan SHA-256 atau SHA-3.
+2.  **Merkle Tree Construction:** Hash individu disusun ke dalam struktur pohon Merkle. Akar Merkle (*Merkle Root*) menjadi representasi unik dari seluruh set bukti.
+3.  **Immutable Anchoring:** Hash Akar Merkle dan metadata konteks (waktu, aktor, alasan hukum) dibungkus dalam payload transaksi dan dicatat ke dalam blok blockchain.
+4.  **Notary Signature:** Transaksi ditandatangani secara kriptografik menggunakan kunci privat Notaris Korporat. Tanda tangan ini memverifikasi identitas pengirim dan menjamin non-repudiation (tidak dapat disangkal).
+
+#### B. Mengapa Ini Tahan Forensik?
+Pihak lawan yang mencoba memanipulasi satu dokumen di dalam arsip akan mengubah hash leaf dokumen tersebut, yang secara otomatis mengubah hash akar Merkle. Karena hash akar baru tidak cocok dengan yang tertanam di blockchain, integritas keseluruhan set bukti dinyatakan *kompromi*. Ini memberikan bukti matematis, bukan hanya klaim administratif.
+
+### 10.2. Kepatuhan terhadap Standar Hukum Internasional
+
+Sistem ini dirancang untuk memenuhi kriteria admissibilitas bukti elektronik di bawah standar hukum utama:
+
+#### A. Federal Rules of Evidence (FRE) 902(14) - Certified Data Copied from Electronic Device
+FRE 902(14) menyatakan bahwa data dari sumber elektronik dapat dianggap otentik jika dicap oleh cara yang sesuai dengan peraturan pengadilan.
+*   **Implementasi Sistem:** Sertifikat Notaris Digital (`evidentiary_notarization_certificate.json`) bertindak sebagai "sertifikasi" yang memenuhi syarat. Sertifikat ini memuat:
+    *   Hash kriptografik yang unik.
+    *   Identitas penandatangan yang dapat diverifikasi.
+    *   Timestamp yang terverifikasi oleh konsensus jaringan blockchain.
+*   **Keunggulan:** Berbeda dengan sertifikat notaris tradisional yang hanya mengonfirmasi "orang ini hadir di sini", sertifikat digital ini mengonfirmasi "data ini ada dalam bentuk ini pada waktu ini".
+
+#### B. NIST SP 800-86: Guide to Integrating Forensic Techniques into Incident Response
+NIST SP 800-86 menekankan pentingnya integritas data dan *chain of custody* dalam investigasi forensik.
+*   **Non-Repudiation:** Penggunaan kunci privat Notaris Korporat memenuhi prinsip non-repudiation yang disyaratkan oleh NIST untuk memastikan tidak ada pihak yang dapat menyangkal peran mereka dalam pengelolaan bukti.
+*   **Integrity Checking:** Penggunaan hash kriptografik pada setiap tahap (pengumpulan, analisis, notarisasi) memenuhi persyaratan teknis NIST untuk memastikan integritas data selama siklus hidup bukti.
+
+### 10.3. Cross-Border E-Discovery Admissibility Mapping
+
+Salah satu tantangan terbesar dalam litigasi lintas batas negara adalah interoperabilitas format bukti digital. Sistem ini mencakup lapisan pemetaan otomatis untuk menerjemahkan struktur data internal ledger ke dalam standar e-discovery internasional.
+
+#### A. Pemetaan ke Standar EDRMS (Electronic Document and Records Management System)
+Untuk yurisdiksi yang mensyaratkan metadata Records Management (seperti di Inggris/Commonwealth atau Australia):
+*   Sistem secara otomatis mengekstrak atribut dari blockchain (timestamp, creator, action) dan memetakannya ke standar **ISO 15489** dan **MoReq 2.0**.
+*   Contoh: Field `transaction_id` di blockchain dipetakan ke field `unique_record_id` dalam arsip EDRMS.
+
+#### C. Pemetaan ke Standar CCH (Case Management Systems)
+Untuk yurisdiksi yang membutuhkan struktur kasus hukum tradisional (seperti di AS atau Kanada):
+*   Sistem menghasilkan file XML/JSON yang sesuai dengan standar **EDGAR** (SEC) atau format impor ke software manajemen kasus besar seperti **Relativity** atau **Concordance**.
+*   Metadata ISO 21146 (SAM) disematkan dalam bagian `<metadata>` atau `<properties>` untuk memastikan bahwa konteks keamanan dan audit dapat dibaca oleh sistem lawan.
+
+#### B. Protokol Interoperabilitas Data: ISO 21146 (SAM)
+Standar **ISO 21146** mendefinisikan metadata untuk keamanan audit (*Security Audit Metadata*). Sistem kami menyematkan struktur SAM ke dalam setiap transaksi blockchain, yang mencakup:
+*   `EventID`: Identitas unik kejadian audit.
+*   `EventOutcome`: Hasil kejadian (misal: `Success`, `Failure`).
+*   `Actor`: Entitas yang melakukan tindakan (Notaris/Algoritma).
+*   `Object`: Artefak yang dituju (File Bukti).
+
+Dengan menyertakan metadata ini, bukti digital tidak lagi hanya berupa "file biner", melainkan entitas kaya konteks yang dapat diverifikasi oleh auditor independen di negara manapun yang mengakui standar ISO.
+
+### 10.4. Prosedur Penanganan Tantangan Forensik Tingkat Lanjut
+
+Untuk mengantisipasi tantangan dari tim forensik lawan atau auditor regulator, sistem ini menerapkan pertahanan berlapis:
+
+1.  **WORM Storage Integration:**
+    Sebelum notarisasi, bukti asli disimpan di penyimpanan WORM (*Write-Once-Read-Many*) atau perangkat keras FIPS 140-2 Level 3. Blockchain hanya menyimpan hash, bukan data mentah, sehingga mengurangi risiko kebocoran data sensitif saat verifikasi pihak ketiga.
+
+2.  **Verifikasi Independen Pihak Ketiga:**
+    Sertifikat Notaris Digital dirancang agar dapat diverifikasi secara offline. Auditor eksternal dapat mengambil file `evidentiary_notarization_certificate.json`, file bukti asli, dan menjalankan skrip verifikasi lokal untuk memastikan bahwa hash bukti cocok dengan hash yang tertanam di blok blockchain yang telah diverifikasi oleh jaringan.
+
+3.  **Audit Trail Transparan:**
+    Jika ada perubahan pada konfigurasi aturan (misalnya, threshold `waiver_threshold` berubah di modul sebelumnya), perubahan konfigurasi tersebut juga di-hash dan dicatat ke dalam ledger terpisah. Ini mencegah tuduhan bahwa algoritma "diubah" secara dinamis untuk memanipulasi hasil analisis setelah fakta.
+
+---
+
+> **Catatan Implementasi Keamanan:**
+> Kunci privat notaris (`--notary-wallet-key`) adalah aset paling kritis dalam sistem ini. Jangan pernah menyandikan kunci ini ke dalam repositori kode sumber. Gunakan manajemen kunci terpusat seperti HashiCorp Vault, AWS KMS, atau Azure Key Vault, dan hanya berikan akses baca-only pada runtime container/service yang menjalankan skrip ini.
