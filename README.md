@@ -12372,3 +12372,134 @@ Sesuai dengan praktik terbaik dan persyaratan GDPR, dokumentasi terkait pemroses
 
 #### Q: Apakah data dalam `dsar_analytics_summary.json` bersifat pribadi (PII)?
 **A:** Secara umum, file ini berisi **data agregat** dan metrik kinerja, sehingga tidak mengandung Identitas Pribadi Langsung (Direct PII). Namun, jika `risk_gap_alerts` menyertakan `subject-id`, pastikan file ini dienkripsi saat ditransfer atau disimpan, karena `subject-id` dapat dikaitkan kembali dengan individu.
+
+
+### 8. Forensic Behavioral Fingerprinting & Immutable Compliance Indexing
+
+Bagian ini mendokumentasikan implementasi teknis dari modul `compliance_competent_authority_fingerprint_indexer.py`. Modul ini dirancang untuk membangun lapisan keamanan forensik tambahan di atas data kepatuhan statis, dengan memastikan bahwa setiap entitas dalam matriks kepatuhan memiliki "sidik jari" unik yang tidak dapat diubah (immutable) dan dapat dilacak kembali ke sumber aslinya.
+
+#### 8.1. Metodologi: Behavioral Fingerprinting for Accountability
+
+Berbeda dengan hashing konvensional yang hanya menguji integritas konten file, **Behavioral Fingerprinting** menggunakan konteks temporal, pola akses, dan jejak logika untuk menghasilkan identitas unik. Ini memastikan bahwa meskipun konten `compliance_mapping_matrix.json` tidak berubah, konteks operasionalnya (siapa yang mengubahnya, kapan, dan berdasarkan aturan apa) tertangkap dalam hash.
+
+Metodologi ini selaras dengan **ISO/IEC 27001 Annex A.8.24 (Monitoring activities)** dan **eIDAS Article 26** (Keaslian dan Integritas Dokumen Elektronik), dengan cara:
+1.  **Mengikat Metadata Eksternal:** Mengaitkan hash dengan log akses API dan timestamp sistem, bukan hanya konten JSON.
+2.  **Resistensi Manipulasi Urutan:** Algoritma hashing kustom menggunakan *contextual hashing* yang membuat urutan input tidak mengubah hasil hash jika atribut kontekstual (seperti `source_system` atau `approval_chain`) tetap sama.
+3.  **Non-Repudiation:** Setiap hash unik hanya dapat dihasilkan oleh kombinasi spesifik dari data bukti, narasi hukum, dan matriks kepatuhan pada waktu tertentu.
+
+#### 8.2. Spesifikasi Teknis: `compliance_competent_authority_fingerprint_indexer.py`
+
+Script ini membaca tiga sumber data utama dan menghasilkan indeks terenkripsi di basis data SQLite.
+
+##### 8.2.1. Arsitektur Input & Pemrosesan
+
+1.  **Input Utama:**
+    *   `--matrix-path` (`compliance_mapping_matrix.json`): Definisikan aturan hukum dan kebijakan internal.
+    *   `--evidence-chain` (`evidence_chain_of_custody.json`): Menyediakan jejak logika keputusan (audit trail) dan metadata temporal.
+    *   `--narrative` (`legal_narrative_archive.docx`): Ekstrak teks naratif hukum untuk analisis semantik sederhana (hashing bagian header/metadata dokumen).
+
+2.  **Pipeline Ekstraksi Atribut Kontekstual:**
+    Script mengekstrak atribut berikut untuk membangun "Context Vector":
+    *   **Temporal:** Timestamp dari entri terakhir di `evidence_chain_of_custody.json`.
+    *   **Provenance:** `user_id` atau `system_id` yang membuat perubahan terakhir pada matriks.
+    *   **Integrity Checksum:** Hash SHA-256 dari konten `legal_narrative_archive.docx`.
+    *   **Logic Signature:** Daftar ID aturan yang aktif dari `compliance_mapping_matrix.json`.
+
+3.  **Algoritma Hashing Kustom:**
+    *   Default: `SHA-256-HMAC` dengan kunci dinamis yang diturunkan dari `environment_id` atau konfigurasi server.
+    *   Input untuk HMAC: `Context Vector || Timestamp || Narrative_Chunk`
+    *   Tujuannya: Mencegah pre-image attack dan memastikan bahwa mengubah satu bit metadata (misalnya, jam sistem yang salah) akan menghasilkan hash yang sangat berbeda.
+
+##### 8.2.2. Struktur Database Output (`authority_fingerprint_index.db`)
+
+Database menggunakan enkripsi AES-256 pada level tabel (menggunakan `sqlcipher` atau enkripsi aplikasi sebelum penyimpanan). Tabel utama `fingerprint_index` memiliki struktur:
+
+```sql
+CREATE TABLE fingerprint_index (
+    entity_id TEXT PRIMARY KEY,          -- Unique ID dari compliance_mapping_matrix.json
+    behavioral_hash TEXT NOT NULL,       -- Hash unik berdasarkan kontekstual hashing
+    temporal_anchor TEXT NOT NULL,       -- Timestamp ISO 8601 dari momen pencetakan hash
+    source_narrative_hash TEXT,          -- Hash dari narasi hukum yang relevan
+    provenance_user_id TEXT,             -- ID Pemohon/Approver terakhir
+    integrity_salt TEXT NOT NULL,        -- Salt untuk mencegah rainbow table attacks
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_temporal ON fingerprint_index(temporal_anchor);
+CREATE INDEX idx_provenance ON fingerprint_index(provenance_user_id);
+```
+
+##### 8.2.3. Argumen Baris Perintah (CLI)
+
+| Argumen | Tipe | Deskripsi |
+| :--- | :--- | :--- |
+| `--matrix-path` | String | Path absolut atau relatif ke `compliance_mapping_matrix.json`. |
+| `--evidence-chain` | String | Path ke `evidence_chain_of_custody.json`. Wajib ada untuk ekstraksi logika. |
+| `--narrative` | String | Path ke `legal_narrative_archive.docx`. Digunakan untuk verifikasi integritas dokumen hukum. |
+| `--db-output` | String | Path output untuk `authority_fingerprint_index.db`. Jika tidak ada, akan dibuat di direktori kerja. |
+| `--hash-algorithm` | String | Pilihan: `SHA-256-HMAC` (default), `SHA-512`, `BLAKE3`. Disarankan menggunakan HMAC untuk keamanan tambahan. |
+| `--encryption-key` | String | Kunci enkripsi AES-256 untuk database. Jika tidak disediakan, sistem akan meminta input dari STDIN dengan masking karakter. |
+| `--force-index` | Flag | Memaksa pembuatan ulang indeks (akan menghapus data lama). Gunakan dengan hati-hati. |
+
+**Contoh Penggunaan:**
+
+```bash
+python compliance_competent_authority_fingerprint_indexer.py \
+    --matrix-path ./data/compliance_mapping_matrix.json \
+    --evidence-chain ./data/evidence_chain_of_custody.json \
+    --narrative ./docs/legal_narrative_archive.docx \
+    --db-output ./indices/authority_fingerprint_index.db \
+    --hash-algorithm SHA-256-HMAC \
+    --encryption-key "SuperSecretKey123!"
+```
+
+#### 8.3. Penanganan Tabrakan Hash (Hash Collision Handling)
+
+Meskipun probabilitas tabrakan pada SHA-256-HMAC secara statistik tidak signifikan, protokol forensik memerlukan penanganan eksplisit untuk menjaga integritas hukum.
+
+1.  **Deteksi Tabrakan:**
+    Script memvalidasi uniqueness `entity_id` sebelum menyisipkan hash baru. Jika `entity_id` sama, script melakukan *re-hash* dengan *temporal anchor* baru. Jika hash tetap sama (kemungkinan sangat kecil), sistem akan gagal dengan error `COLISION_DETECTED` dan menghentikan proses.
+
+2.  **Prosedur Escalation:**
+    Jika terjadi tabrakan akibat kegagalan kriptografis atau manipulasi data yang terdeteksi:
+    *   Catat kejadian sebagai `SECURITY_INCIDENT` di log sistem.
+    *   Isolasi entitas yang terkena dampak.
+    *   Lakukan investigasi forensik manual terhadap `evidence_chain_of_custody.json` terkait.
+    *   Tidak ada entri yang ditimpa atau dihapus secara otomatis; semua varian hash disimpan dengan flag `is_collision_variant=True`.
+
+#### 8.4. Mekanisme Pemutakhian Indeks (Retrospective Policy Revision)
+
+Ketika terjadi revisi kebijakan hukum yang bersifat retrospektif (misalnya, interpretasi GDPR yang baru berlaku untuk kasus tahun lalu), indeks harus diperbarui tanpa merusak jejak audit historis.
+
+1.  **Penandaan Versi:**
+    Setiap hash baru disimpan dengan versi skema hashing. Kolom `behavioral_hash` tetap ada, tetapi ditambahkan kolom `valid_from` dan `valid_to` di tabel `fingerprint_index` untuk menandai periode berlaku suatu fingerprint.
+
+2.  **Prosedur Update:**
+    *   Jalankan ulang skrip dengan `--force-index` hanya untuk entitas yang terdampak revisi.
+    *   Untuk entitas yang tidak terdampak, hash lama tetap valid dan tetap dapat dilacak.
+    *   Sistem secara otomatis menandai hash lama sebagai `archived` dan hash baru sebagai `current`.
+
+3.  **Validasi Auditor:**
+    Auditor dapat memverifikasi bahwa revisi kebijakan telah dicatat dengan benar dengan membandingkan timestamp `valid_from` hash baru dengan tanggal penerapan kebijakan resmi.
+
+#### 8.5. Standar Provenance Metadata untuk Auditor Independen
+
+Untuk memudahkan validasi oleh auditor eksternal, indeks ini mematuhi standar **Provenance Metadata** berikut, yang terintegrasi langsung ke dalam tabel `fingerprint_index`:
+
+| Field Metadata | Sumber Data | Tujuan Compliance |
+| :--- | :--- | :--- |
+| `provenance_user_id` | `evidence_chain_of_custody.json` | Menunjukkan *siapa* yang bertanggung jawab atas keputusan (Accountability). |
+| `temporal_anchor` | Sistem Waktu Ter Sinkronisasi (NTP) | Menunjukkan *kapan* keputusan dibuat (Audit Trail). |
+| `integrity_salt` | Konfigurasi Sistem | Memastikan hash tidak dapat diprediksi atau direkayasa tanpa akses kunci. |
+| `source_narrative_hash` | `legal_narrative_archive.docx` | Memastikan bahwa aturan hukum yang dirujuk adalah versi yang valid pada saat itu. |
+
+**Catatan untuk Auditor:**
+Setiap klaim kepatuhan dalam laporan `dsar_analytics_summary.json` harus dilengkapi dengan referensi `behavioral_hash` dari database ini. Auditor dapat menjalankan skrip verifikasi independen untuk memastikan bahwa hash yang dilaporkan benar-benar dihasilkan oleh kombinasi data yang disebutkan, memberikan tingkat keyakinan forensik tinggi (*high forensic confidence*) bahwa tidak ada manipulasi data pasca-pemrosesan.
+
+---
+
+### 9. Keamanan & Enkripsi Lanjutan
+
+*(Bagian ini akan melanjutkan pembahasan tentang enkripsi AES-256 pada level database dan manajemen kunci yang dibahas sebelumnya, serta prosedur backup kunci kriptografi yang aman.)*
+
+... *(Lanjutkan dengan detail teknis backup key management dan prosedur recovery jika kunci enkripsi hilang)*
