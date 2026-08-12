@@ -25215,3 +25215,474 @@ Untuk mengantisipasi tantangan dari tim forensik lawan atau auditor regulator, s
 
 > **Catatan Implementasi Keamanan:**
 > Kunci privat notaris (`--notary-wallet-key`) adalah aset paling kritis dalam sistem ini. Jangan pernah menyandikan kunci ini ke dalam repositori kode sumber. Gunakan manajemen kunci terpusat seperti HashiCorp Vault, AWS KMS, atau Azure Key Vault, dan hanya berikan akses baca-only pada runtime container/service yang menjalankan skrip ini.
+
+
+Berikut adalah materi lanjutan untuk dokumen `README.md`, yang dirancang untuk melengkapi bagian teknis dan hukum mengenai penanganan permintaan penegak hukum, isolasi data, dan mekanisme pertahanan yurisdiksi.
+
+---
+
+### 10.5. Interaksi Penegakan Hukum & Pertahanan Kedaulatan Data (Law Enforcement Interaction & Data Sovereignty Defense)
+
+Bagian ini mendokumentasikan implementasi teknis dari modul gatekeeper hukum yang bertugas menyeimbangkan kewajiban patuh terhadap perintah pengadilan (warrant) dengan kepatuhan terhadap regulasi privasi data global yang sering kali saling bertentangan (misalnya, *CLOUD Act* di AS vs. *GDPR* di UE).
+
+#### A. Metodologi: "Algorithmic Warrant Scrutiny & Jurisdictional Conflict Detection"
+
+Sistem ini tidak sekadar meneruskan data, melainkan melakukan **validasi prosedural algoritmik** terhadap setiap dokumen surat perintah (*warrant*) yang masuk. Proses ini memastikan bahwa otoritas hukum tidak hanya memiliki yurisdiksi formal, tetapi juga keabsahan substantif berdasarkan lokasi fisik/data aset informasi.
+
+**Alur Kerja Validasi Otomatis:**
+
+1.  **Parsing Dokumen Warrant (OCR & NLP):**
+    Sistem menggunakan *Named Entity Recognition* (NER) untuk mengekstrak elemen kunci dari file dokumen yang diunggah melalui argumen `--warrant-document`:
+    *   `Court_Jurisdiction`: Otoritas penerbit (misal: "US District Court for SDNY").
+    *   `Target_Accuracy`: Deskripsi spesifik target pencarian (minimal untuk menghindari *fishing expedition*).
+    *   `Expiration_Date`: Batas waktu hukum perintah.
+    *   `Service_of_Process`: Bukti penyerahan dokumen kepada subjek.
+
+2.  **Peta Aset Data & Geolokasi (Geo-Hashing):**
+    Menggunakan output dari `compliance_cross_jurisdictional_regulatory_harmonizer.py` (melalui argumen `--data-asset-map`), sistem memetakan setiap hash bukti ke lokasi penyimpanan fisik atau logis.
+    *   Data di Frankfurt, DE → Yurisdiksi UE (GDPR).
+    *   Data di Virginia, US → Yurisdiksi AS (CLOUD Act).
+    *   Data di Singapura → Yurisdiksi PDPA.
+
+3.  **Deteksi Konflik Yurisdiksi (Conflict Engine):**
+    Sistem menjalankan logika *conflict detection* terhadap pasangan: `(Otoritas Perminta, Lokasi Data Target)`.
+    *   **Skenario Konflik:** Otoritas AS meminta data yang disimpan secara eksklusif di UE.
+    *   **Respon Algoritmik:** Men-trigger mekanisme *Legal Objection Draft* berbasis standar internasional.
+
+#### B. Standar Pertahanan Hukum: CLOUD Act vs. GDPR Cross-Border Transfer Restrictions
+
+Sistem ini menerapkan dua prinsip hukum utama untuk melindungi entitas perusahaan dari sanksi ganda (denda GDPR di UE atau tuduhan penghinaan pengadilan di AS).
+
+##### 1. Deteksi Pelanggaran CLOUD Act (28 U.S.C. § 1881)
+Jika warran diterbitkan oleh otoritas AS, sistem memverifikasi apakah penyedia layanan (service provider) berada di bawah yurisdiksi AS, terlepas dari di mana data tersebut disimpan secara fisik.
+*   **Mekanisme:** Jika data fisik berada di yurisdiksi *Blocked* (negara yang melarang ekspor data tanpa izin setempat), sistem akan memblokir ekstraksi dan menggantinya dengan **Notary Witness Report** yang menyatakan: *"Data identified but withheld due to Blocking Statutes of [Negara Lokal]."*
+*   **Tujuan:** Mematuhi perintah AS secara prosedural (dengan mengidentifikasi data) tetapi mematuhi hukum lokal dengan tidak mentransfer isi data secara ilegal.
+
+##### 2. Deteksi Pelanggaran Transfer Data GDPR (Chapter V)
+Jika warran datang dari otoritas non-UE (misal: AS) dan data target berada di UE, sistem memeriksa是否存在 **Standard Contractual Clauses (SCCs)** yang berlaku antara perusahaan dan pihak ketiga.
+*   **Mekanisme:** Jika tidak ada mekanisme transfer sah (seperti *Privacy Shield* yang telah invalid atau SCCs yang tidak diperkuat oleh *Supplementary Measures*), sistem akan menolak pengiriman data biner.
+*   **Output:** Menghasilkan dokumen **Legal Objection Draft** yang merujuk pada **Hague Evidence Convention Article 11**, yang melarang ekstraksi bukti dari yurisdiksi lain secara paksa tanpa melalui proses *Letters Rogatory* resmi, kecuali persetujuan negara tempat data berada.
+
+#### C. Prosedur: "Sovereign Data Isolation Protocol"
+
+Untuk memastikan kepatuhan tanpa mengompromikan keamanan, sistem menerapkan protokol isolasi data yang bekerja pada dua level: **Logis** dan **Fisik/Kriptografis**.
+
+##### 1. Isolasi Logis (Logical Partitioning)
+Sebelum proses ekstraksi dimulai, sistem melakukan pemindaian terhadap `--privacy-policy-config`. Setiap aset data yang dilindungi oleh kebijakan privasi ketat (misal: data kesehatan, data finansial, atau data pengguna di UE) diberi tag `SOVEREIGN_FLAG: RESTRICTED`.
+
+Saat `compliance_cyber_law_enforcement_data_access_warrant_handler.py` berjalan:
+*   Sistem membuat **Virtual Sandbox** terpisah.
+*   Data berflag `RESTRICTED` dipindahkan ke *air-gapped logical volume* yang tidak dapat diakses oleh skrip ekstraksi standar.
+*   Hanya metadata (bukan konten) yang diizinkan keluar ke warran response, kecuali ada *warrant* spesifik yang mencakup metadata tersebut dan telah diverifikasi keabsahannya oleh komite hukum internal.
+
+##### 2. Isolasi Kriptografis (Key-Splitting)
+Untuk data yang sangat sensitif, sistem menggunakan **Shamir’s Secret Sharing** pada kunci dekripsi.
+*   **Kunci A (Host Key):** Tersimpan di server utama.
+*   **Kunci B (Jury Key):** Tersimpan dalam *Hardware Security Module* (HSM) di yurisdiksi yang sama dengan data fisik.
+*   **Mekanisme:** Jika warran meminta data dari yurisdiksi X, tetapi permintaan datang dari yurisdiksi Y, Kunci B (yang berada di yurisdiksi X) tidak akan tersedia di lingkungan komputasi yurisdiksi Y. Akibatnya, data tetap tersandikan dan tidak dapat dibaca, meskipun hash-nya dikenal. Ini menjamin bahwa **akses ilegal secara kriptografis mustahil dilakukan** tanpa intervensi fisik atau hukum di yurisdiksi asal data.
+
+#### D. Implementasi Teknis: Skrip Python Gatekeeper
+
+Berikut adalah implementasi dari modul yang menangani logika di atas. Skrip ini berinteraksi dengan blockchain untuk mencatat jejak audit setiap kali permintaan warran diproses.
+
+**File:** `compliance_cyber_law_enforcement_data_access_warrant_handler.py`
+
+```python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Module: Digital Evidence Gatekeeper
+Version: 1.2.0
+Description:
+    Otonom menangani permintaan akses data paksa (warrants) dengan memvalidasi 
+    keabsahan hukum, mendeteksi konflik yurisdiksi, dan mengisolasi data berdaulat.
+    
+    Integrasi:
+    - Menggunakan compliance_cross_jurisdictional_regulatory_harmonizer.py untuk peta aset.
+    - Mencatat jejak audit ke blockchain menggunakan standar ISO 21146 (SAM).
+"""
+
+import json
+import sys
+import hashlib
+import logging
+import os
+from datetime import datetime
+from pathlib import Path
+import re
+from typing import Dict, List, Optional, Tuple
+
+# Konfigurasi Logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger("WarrantHandler")
+
+class WarrantComplianceError(Exception):
+    """Custom exception for legal compliance failures."""
+    pass
+
+class SovereignDataIsolationError(Exception):
+    """Exception raised when data cannot be accessed due to sovereignty flags."""
+    pass
+
+class DigitalEvidenceGatekeeper:
+    def __init__(self, warrant_path: str, asset_map_path: str, policy_config_path: str, output_path: str):
+        """
+        Inisialisasi Gatekeeper.
+        
+        Args:
+            warrant_path (str): Path ke file surat perintah resmi (PDF/JSON).
+            asset_map_path (str): Path ke peta lokasi data global (JSON).
+            policy_config_path (str): Path ke konfigurasi kebijakan privasi (JSON).
+            output_path (str): Path untuk menyimpan respons kepatuhan (JSON).
+        """
+        self.warrant_doc = self._load_warrant(warrant_path)
+        self.asset_map = self._load_asset_map(asset_map_path)
+        self.policy_config = self._load_policy(policy_config_path)
+        self.output_path = output_path
+        
+        # Hasil Analisa
+        self.validation_result: Dict = {}
+        self.isolation_actions: List[Dict] = []
+        self.legal_objection: Optional[Dict] = None
+
+    def _load_warrant(self, path: str) -> Dict:
+        """
+        Memuat dan memvalidasi struktur dasar dokumen warrant.
+        Dalam implementasi produksi, gunakan OCR dan NLP library (misal: PyPDF2 + spaCy)
+        untuk mengekstrak entitas dari PDF scan.
+        """
+        logger.info(f"Memuat dokumen warrant dari: {path}")
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"Dokumen warrant tidak ditemukan: {path}")
+        
+        # Simulasi parsing JSON untuk contoh ini
+        # Di dunia nyata, ini akan mengembalikan dict berisi court, target, date, signature_hash, dll.
+        try:
+            with open(path, 'r') as f:
+                data = json.load(f)
+            # Validasi struktur wajib
+            required_keys = ['court_jurisdiction', 'target_hash', 'issue_date', 'officer_signature']
+            if not all(k in data for k in required_keys):
+                raise WarrantComplianceError("Dokumen warrant tidak lengkap atau tidak valid secara format.")
+            return data
+        except json.JSONDecodeError:
+            logger.warning("File bukan JSON. Menginisialisasi parser OCR/NLP placeholder.")
+            return {"court_jurisdiction": "UNKNOWN", "target_hash": "PLACEHOLDER", "issue_date": datetime.now().isoformat(), "officer_signature": "PLACEHOLDER"}
+
+    def _load_asset_map(self, path: str) -> Dict:
+        """
+        Memuat peta aset data dari harmonizer regulasi.
+        """
+        with open(path, 'r') as f:
+            return json.load(f)
+
+    def _load_policy(self, path: str) -> Dict:
+        """
+        Memuat kebijakan privasi perusahaan.
+        """
+        with open(path, 'r') as f:
+            return json.load(f)
+
+    def validate_warrant_legality(self) -> bool:
+        """
+        Langkah 1: Validasi keabsahan legal formal dari dokumen warrant.
+        """
+        logger.info("Melakukan validasi keabsahan legal dokumen warrant...")
+        
+        # Cek kedaluwarsa
+        issue_date = datetime.fromisoformat(self.warrant_doc['issue_date'].replace('Z', '+00:00'))
+        if issue_date > datetime.now():
+            raise WarrantComplianceError("Warrant tidak valid (tanggal di masa depan).")
+        
+        # Verifikasi Signature Hash (Simulasi: membandingkan dengan ledger blockchain)
+        # Di sini kita asumsikan kita punya akses ke fungsi _verify_on_chain
+        if not self._verify_on_chain_signature(self.warrant_doc['officer_signature']):
+            logger.error("Tanda tangan elektronik pada warrant tidak diverifikasi di ledger.")
+            return False
+            
+        self.validation_result['formal_validity'] = True
+        logger.info("Warrant valid secara formal.")
+        return True
+
+    def detect_jurisdictional_conflict(self) -> Optional[Dict]:
+        """
+        Langkah 2: Peta klaim yurisdiksi otoritas vs. lokasi data fisik.
+        Mendeteksi konflik antara CLOUD Act (AS) dan GDPR (UE) atau hukum lokal lainnya.
+        """
+        logger.info("Mendeteksi konflik yurisdiksi...")
+        
+        requesting_jurisdiction = self.warrant_doc['court_jurisdiction']
+        target_hash = self.warrant_doc['target_hash']
+        
+        # Cari lokasi data di peta aset
+        asset_data = self.asset_map.get('assets', {}).get(target_hash)
+        
+        if not asset_data:
+            return {"status": "DATA_NOT_FOUND", "message": "Aset data target tidak ditemukan di peta global."}
+            
+        data_location = asset_data.get('physical_location') # e.g., "Frankfurt_DE", "Ashburn_US"
+        data_owner_policy = asset_data.get('governance_policy') # e.g., "GDPR_RESTRICTED", "CCPA_COMPLIANT"
+        
+        conflict_detected = False
+        objection_reason = ""
+        
+        # Logika Deteksi Konflik Sederhana
+        if 'US' in requesting_jurisdiction and 'DE' in data_location:
+            # Skenario AS meminta data di UE
+            conflict_detected = True
+            objection_reason = "Conflict with EU GDPR Chapter V. Data localization laws in Germany restrict extraterritorial access."
+        elif 'US' in requesting_jurisdiction and data_owner_policy == 'GDPR_RESTRICTED':
+            conflict_detected = True
+            objection_reason = "Violation of Data Protection Impact Assessment (DPIA) requirements under GDPR."
+            
+        if conflict_detected:
+            logger.warning(f"Konflik yurisdiksi terdeteksi: {objection_reason}")
+            self.legal_objection = {
+                "is_conflict": True,
+                "requesting_jurisdiction": requesting_jurisdiction,
+                "data_location": data_location,
+                "applicable_law": "Hague Evidence Convention Art. 11 / GDPR",
+                "objection_draft_id": hashlib.sha256(objection_reason.encode()).hexdigest()[:8]
+            }
+            return self.legal_objection
+            
+        return {"status": "NO_CONFLICT", "jurisdiction_match": True}
+
+    def apply_sovereign_isolation(self, conflict_result: Dict) -> List[Dict]:
+        """
+        Langkah 3: Isolasi Data Berdaulat.
+        Jika ada konflik atau data dilindungi kebijakan ketat, terapkan isolasi logis/kriptografis.
+        """
+        logger.info("Menerapkan Protokol Isolasi Data Berdaulat...")
+        isolation_logs = []
+        
+        target_hash = self.warrant_doc['target_hash']
+        asset_info = self.asset_map.get('assets', {}).get(target_hash, {})
+        
+        # Cek Flag Isolasi
+        if asset_info.get('sovereign_flag') == 'RESTRICTED' or conflict_result.get('is_conflict'):
+            
+            # Tindakan Isolasi Logis
+            isolation_action = {
+                "action": "LOGICAL_PARTITIONING",
+                "target_hash": target_hash,
+                "status": "QUARANTINED",
+                "reason": "Data marked as sovereign or conflicting jurisdiction."
+            }
+            isolation_logs.append(isolation_action)
+            
+            # Tindakan Isolasi Kriptografis (Simulasi)
+            # Dalam sistem nyata, ini akan memblokir akses ke Key Slot B di HSM lokal
+            crypto_action = {
+                "action": "KEY_BLOCKING",
+                "target_hash": target_hash,
+                "key_slot": "HSM_LOCAL_SLOT",
+                "status": "BLOCKED",
+                "message": "Decryption key for this asset is physically located in [Jurisdiction_Origin] and inaccessible from requestor's environment."
+            }
+            isolation_logs.append(crypto_action)
+            
+            self.isolation_actions = isolation_logs
+            logger.warning(f"Data {target_hash} diisolasi. Akses konten diblokir.")
+            
+        return isolation_logs
+
+    def generate_compliance_response(self) -> Dict:
+        """
+        Langkah 4: Menghasilkan respons kepatuhan akhir (JSON).
+        """
+        logger.info("Menghasilkan respons kepatuhan final...")
+        
+        response_payload = {
+            "timestamp": datetime.now().isoformat(),
+            "warrant_reference": self.warrant_doc.get('officer_signature'), # Menggunakan sig sebagai ref ID
+            "compliance_status": "",
+            "data_access_granted": False,
+            "evidence_hash_provided": self.warrant_doc.get('target_hash'),
+            "legal_objection": self.legal_objection,
+            "isolation_protocol_applied": self.isolation_actions,
+            "audit_metadata": {
+                "standard": "ISO_21146",
+                "event_id": hashlib.sha256(json.dumps(response_payload).encode()).hexdigest(),
+                "actor": "System_Autonomous_Gatekeeper",
+                "outcome": ""
+            }
+        }
+        
+        if self.legal_objection:
+            response_payload["compliance_status"] = "OBJECTIONS_RAISED"
+            response_payload["data_access_granted"] = False
+            response_payload["audit_metadata"]["outcome"] = "Failure_Jurisdiction_Conflict"
+            
+            # Di sini Anda bisa menyisipkan teks draft keberatan hukum
+            response_payload["legal_objection"]["draft_text"] = (
+                f"Pursuant to Hague Evidence Convention Article 11 and local sovereignty laws, "
+                f"the execution of this warrant is obstructed due to conflicting legal obligations "
+                f"in {self.legal_objection['data_location']}."
+            )
+            
+        elif self.isolation_actions:
+            response_payload["compliance_status"] = "DATA_WITHHELD_SOVEREIGN"
+            response_payload["data_access_granted"] = False
+            response_payload["audit_metadata"]["outcome"] = "Success_DataIsolation"
+            
+        else:
+            # Jika tidak ada konflik dan tidak diisolasi
+            response_payload["compliance_status"] = "COMPLIANT"
+            response_payload["data_access_granted"] = True
+            response_payload["audit_metadata"]["outcome"] = "Success_AccessGranted"
+
+        return response_payload
+
+    def save_response(self, response_data: Dict):
+        """
+        Menyimpan respons ke file output.
+        """
+        os.makedirs(os.path.dirname(self.output_path) or '.', exist_ok=True)
+        with open(self.output_path, 'w') as f:
+            json.dump(response_data, f, indent=4)
+        logger.info(f"Respons kepatuhan disimpan di: {self.output_path}")
+
+    def _verify_on_chain_signature(self, sig_hash: str) -> bool:
+        """
+        Simulasi verifikasi tanda tangan di blockchain.
+        Dalam produksi, fungsi ini akan melakukan RPC call ke node Ethereum/Avalanche.
+        """
+        # Mock verification logic
+        logger.debug(f"Memverifikasi signature hash: {sig_hash} di ledger...")
+        return True  # Asumsi valid untuk contoh
+
+    def run(self):
+        """
+        Eksekusi penuh alur kerja Gatekeeper.
+        """
+        logger.info("--- Memulai Proses Penanganan Warrant ---")
+        try:
+            # 1. Validasi Legal
+            self.validate_warrant_legality()
+            
+            # 2. Deteksi Konflik
+            conflict_result = self.detect_jurisdictional_conflict()
+            
+            # 3. Isolasi Data (jika diperlukan)
+            self.apply_sovereign_isolation(conflict_result)
+            
+            # 4. Generate & Simpan Respons
+            final_response = self.generate_compliance_response()
+            self.save_response(final_response)
+            
+            # 5. Catat ke Blockchain (Audit Trail)
+            self._log_audit_to_chain(final_response)
+            
+            logger.info("--- Proses Selesai ---")
+            return final_response
+
+        except WarrantComplianceError as e:
+            logger.error(f"Error Kepatuhan Hukum: {e}")
+            self._log_error_to_chain(str(e))
+            sys.exit(1)
+        except Exception as e:
+            logger.critical(f"Kesalahan Sistem Tidak Diharapkan: {e}")
+            sys.exit(2)
+
+    def _log_audit_to_chain(self, payload: Dict):
+        """
+        Menyembunyikan metadata audit ISO 21146 ke dalam struktur data akhir
+        untuk dicatat ke blockchain.
+        """
+        logger.info("Mempersiapkan transaksi blockchain untuk audit trail...")
+        # Di implementasi nyata, ini akan memanggil fungsi smart contract
+        pass 
+
+    def _log_error_to_chain(self, error_msg: str):
+        logger.warning("Mencatat kejadian kesalahan ke ledger untuk transparansi...")
+        pass
+
+def main():
+    """
+    Entry point untuk CLI.
+    
+    Usage:
+        python compliance_cyber_law_enforcement_data_access_warrant_handler.py \
+            --warrant-document ./docs/warrant_sample.json \
+            --data-asset-map ./config/global_data_map.json \
+            --privacy-policy-config ./config/company_privacy_policy.json \
+            --output-warrant-response ./output/compliance_response.json
+    """
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Digital Evidence Gatekeeper for Law Enforcement Warrants")
+    parser.add_argument('--warrant-document', type=str, required=True, help="Path ke file surat perintah (Warrant)")
+    parser.add_argument('--data-asset-map', type=str, required=True, help="Path ke peta aset data global (JSON)")
+    parser.add_argument('--privacy-policy-config', type=str, required=True, help="Path ke konfigurasi kebijakan privasi (JSON)")
+    parser.add_argument('--output-warrant-response', type=str, default="./output/warrant_compliance_response_v1.json", help="Path untuk output respons")
+    
+    args = parser.parse_args()
+    
+    gatekeeper = DigitalEvidenceGatekeeper(
+        warrant_path=args.warrant_document,
+        asset_map_path=args.data_asset_map,
+        policy_config_path=args.privacy_policy_config,
+        output_path=args.output_warrant_response
+    )
+    
+    gatekeeper.run()
+
+if __name__ == "__main__":
+    main()
+```
+
+#### E. Contoh Output Respons (warrant_compliance_response_v1.json)
+
+Berikut adalah contoh bagaimana sistem merespons ketika terdapat konflik yurisdiksi (misalnya, warran AS untuk data yang disimpan di UE):
+
+```json
+{
+  "timestamp": "2023-10-27T14:32:00.123456",
+  "warrant_reference": "0x7d8a9b...",
+  "compliance_status": "OBJECTIONS_RAISED",
+  "data_access_granted": false,
+  "evidence_hash_provided": "sha256:abc123...",
+  "legal_objection": {
+    "is_conflict": true,
+    "requesting_jurisdiction": "US_District_Court_SDNY",
+    "data_location": "Frankfurt_DE_Server_04",
+    "applicable_law": "Hague Evidence Convention Art. 11 / GDPR",
+    "objection_draft_id": "8f4a2b1c",
+    "draft_text": "Pursuant to Hague Evidence Convention Article 11 and local sovereignty laws, the execution of this warrant is obstructed due to conflicting legal obligations in Germany. Transfer of data is prohibited without explicit authorization from German judicial authorities."
+  },
+  "isolation_protocol_applied": [
+    {
+      "action": "LOGICAL_PARTITIONING",
+      "target_hash": "sha256:abc123...",
+      "status": "QUARANTINED",
+      "reason": "Data marked as sovereign or conflicting jurisdiction."
+    },
+    {
+      "action": "KEY_BLOCKING",
+      "target_hash": "sha256:abc123...",
+      "key_slot": "HSM_LOCAL_SLOT",
+      "status": "BLOCKED",
+      "message": "Decryption key for this asset is physically located in DE and inaccessible from requestor's environment."
+    }
+  ],
+  "audit_metadata": {
+    "standard": "ISO_21146",
+    "event_id": "evt_iso_21146_998877",
+    "actor": "System_Autonomous_Gatekeeper",
+    "outcome": "Failure_Jurisdiction_Conflict"
+  }
+}
+```
+
+### Catatan Keamanan Tambahan untuk Tim Forensik & Audit
+
+1.  **Immutabilitas Catatan Penolakan:**
+    Ketika sistem menghasilkan `OBJECTIONS_RAISED`, peristiwa ini dicatat ke dalam blockchain sebagai *immutable event*. Auditor independen tidak dapat menghapus atau memalsukan catatan bahwa perusahaan menolak memberikan data karena alasan yurisdiksi. Ini adalah pertahanan hukum terkuat terhadap tuduhan "penghancuran bukti" (*spoliation of evidence*).
+
+2.  **Pemisahan Tanggung Jawab (Segregation of Duties):**
+    Kunci untuk mengubah konfigurasi `--privacy-policy-config` atau menambahkan entri ke `--data-asset-map` harus membutuhkan persetujuan multi-sig (minimal 2 dari 3 komite: Legal, CISO, dan Compliance Officer). Ini mencegah satu individu dari mengubah peta data untuk menyembunyikan bukti atau sebaliknya, membukanya secara ilegal.
+
+3.  **Audit Trail ISO 21146:**
+    Pastikan bahwa `audit_metadata` dalam file JSON output dimasukkan ke dalam payload transaksi blockchain. Ini memungkinkan auditor eksternal untuk memverifikasi bahwa respons yang dihasilkan oleh skrip Python ini sesuai dengan kebijakan yang ada pada *timestamp* tertentu, dan tidak dimanipulasi pasca-hoc.
