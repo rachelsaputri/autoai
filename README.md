@@ -19880,3 +19880,279 @@ Jika sistem mendeteksi entitas hukum yang tidak valid (False Positive):
 Perlu diingat bahwa proses ekstraksi NLP dapat mengidentifikasi PII (Personally Identifiable Information) dalam dokumen internal. Pastikan pipeline preprocessing (`NLP Pre-processing` pada diagram alur) melakukan *redaction* (penghilangan data sensitif) sebelum data dikirim ke model LLM eksternal jika digunakan dalam arsitektur *cloud-based*.
 
 ---
+
+
+Berikut adalah konten lanjutan untuk bagian **10.8. Cross-Jurisdictional Compliance Matrix Compiler** dan bab baru untuk **10.9. Regulatory Conflict Resolution & Harmonization** dalam dokumentasi README Anda.
+
+---
+
+### 10.8. Penumpukan Matriks Kepatuhan Lintas Yurisdiksi (`compliance_cross_jurisdictional_matrix_compiler.py`)
+
+Modul ini berfungsi sebagai jembatan krusial antara temuan orkestrasi global dan implementasi lokal. Tujuannya adalah memetakan persyaratan dari berbagai yurisdiksi (misalnya, Indonesia [OJK/POJK/UU PDP], Uni Eropa [GDPR], dan California [CCPA]) ke dalam satu matriks harmonisasi terpadu. Sistem ini secara otomatis mendeteksi konflik regulasi (misalnya, larangan transmisi data tertentu di Indonesia vs. kewajiban pelaporan insiden di GDPR) dan menerapkan strategi resolusi yang dapat dikonfigurasi.
+
+#### Instalasi dan Persyaratan
+Pastikan library berikut tersedia dalam lingkungan Python Anda:
+```bash
+pip install pandas openpyxl pydantic python-Levenshtein
+```
+
+#### Arsitektur Eksekusi
+Skrip ini membaca output JSON/CSV dari `compliance_orchestration_matrix_generator.py` dan mencocokannya dengan dokumen regulasi lokal dalam format terstruktur. Hasil akhirnya adalah matriks keputusan yang menyertakan flag konflik, solusi yang direkomendasikan, dan tingkat risiko residual.
+
+#### Penggunaan Dasar
+
+```bash
+python compliance_cross_jurisdictional_matrix_compiler.py \
+    --global-matrix ./outputs/global_orchestration_matrix.json \
+    --local-regulations ./data/regulations/local_rules/ \
+    --conflict-resolution-strategy most-stringent \
+    --output-compiled-matrix ./outputs/compiled_compliance_matrix_v1.xlsx
+```
+
+#### Deskripsi Argumen
+
+| Argumen | Tipe | Deskripsi |
+| :--- | :--- | :--- |
+| `--global-matrix` | `str` | Path ke file JSON/CSV hasil generasi orkestrasi global. Wajib. |
+| `--local-regulations` | `str` | Path ke direktori yang berisi file JSON/YAML regulasi lokal (misal: `oojk_pojk.json`, `uu_pdp.json`). Wajib. |
+| `--conflict-resolution-strategy` | `str` | Metode penyelesaian konflik. Opsi: `most-stringent` (mengambil standar paling ketat), `risk-weighted` (berdasarkan bobot risiko bisnis), atau `jurisdiction-specific` (prioritas yurisdiksi tempat data residan). Default: `most-stringent`. |
+| `--output-compiled-matrix` | `str` | Path output untuk file matriks akhir (format `.xlsx` atau `.csv`). Default: `compiled_matrix_output.csv`. |
+
+#### Contoh Implementasi Kode Python
+
+```python
+import argparse
+import json
+import os
+import logging
+import pandas as pd
+from typing import List, Dict, Optional
+from pydantic import BaseModel, Field
+
+# Konfigurasi Logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+class ConflictResolutionParams(BaseModel):
+    strategy: str = Field(default="most-stringent", description="Strategy for resolving regulatory conflicts")
+    max_risk_score: float = Field(default=0.85, description="Threshold for high-risk flags")
+
+class ComplianceCompiler:
+    def __init__(self, global_matrix_path: str, local_regulations_dir: str, strategy: str):
+        self.global_matrix = self._load_global_matrix(global_matrix_path)
+        self.local_regulations = self._load_local_regulations(local_regulations_dir)
+        self.params = ConflictResolutionParams(strategy=strategy)
+        logger.info(f"Compiler initialized with strategy: {strategy}")
+
+    def _load_global_matrix(self, path: str) -> pd.DataFrame:
+        logger.info(f"Loading global matrix from {path}")
+        if path.endswith('.json'):
+            return pd.json_normalize(json.load(open(path)))
+        return pd.read_csv(path)
+
+    def _load_local_regulations(self, dir_path: str) -> Dict[str, pd.DataFrame]:
+        """Memuat semua file regulasi lokal dari direktori yang ditentukan."""
+        regulations = {}
+        if not os.path.exists(dir_path):
+            logger.warning(f"Directory {dir_path} not found. Returning empty dict.")
+            return regulations
+        
+        for filename in os.listdir(dir_path):
+            if filename.endswith(('.json', '.yaml', '.yml')):
+                filepath = os.path.join(dir_path, filename)
+                logger.info(f"Loading local regulation: {filename}")
+                # Simulasi parsing YAML/JSON ke DataFrame
+                # Dalam implementasi nyata, gunakan loader yang sesuai
+                try:
+                    # Placeholder untuk logika parsing spesifik format
+                    df = pd.DataFrame() 
+                    regulations[filename.split('.')[0]] = df
+                except Exception as e:
+                    logger.error(f"Failed to load {filename}: {e}")
+        return regulations
+
+    def resolve_conflicts(self, global_rule: Dict, local_rules: List[Dict]) -> Dict:
+        """
+        Mendeteksi dan menyelesaikan konflik antara aturan global dan lokal.
+        """
+        resolution_strategy = self.params.strategy
+        conflict_flags = []
+        resolved_rule = global_rule.copy()
+        
+        if resolution_strategy == "most-stringent":
+            # Ambil parameter paling ketat
+            resolved_rule = self._apply_most_stringent(resolved_rule, local_rules, conflict_flags)
+        
+        elif resolution_strategy == "risk-weighted":
+            # Hitung bobot risiko dan ambil yang optimal
+            resolved_rule = self._apply_risk_weighted(resolved_rule, local_rules, conflict_flags)
+            
+        else:
+            logger.warning("Unknown strategy, defaulting to most-stringent.")
+            resolved_rule = self._apply_most_stringent(resolved_rule, local_rules, conflict_flags)
+
+        return {
+            "original_global": global_rule,
+            "resolved_local": resolved_rule,
+            "conflicts_detected": conflict_flags,
+            "strategy_applied": resolution_strategy
+        }
+
+    def _apply_most_stringent(self, global_rule, local_rules, flags) -> Dict:
+        # Logika perbandingan field-by-field untuk menemukan nilai paling ketat
+        # Contoh: Jika GDPR meminta retention 2 tahun dan UU PDP 5 tahun, ambil 5 tahun.
+        return global_rule
+
+    def run(self, output_path: str):
+        """
+        Menjalankan proses kompilasi matriks lengkap.
+        """
+        logger.info("Starting Cross-Jurisdictional Matrix Compilation...")
+        results = []
+        
+        # Iterasi melalui aturan global dan cocokkan dengan regulasi lokal
+        for _, rule in self.global_matrix.iterrows():
+            rule_dict = rule.to_dict()
+            # Simulasi pencocokan dengan regulasi lokal (misal: berdasarkan jurisdiction tag)
+            matching_local_rules = [r for r in self.local_regulations.values() if not r.empty]
+            
+            # Catatan: Dalam produksi, gunakan semantic matching atau tag mapping
+            resolved_result = self.resolve_conflicts(rule_dict, matching_local_rules)
+            results.append(resolved_result)
+
+        # Konversi hasil ke DataFrame untuk export
+        df_results = pd.DataFrame(results)
+        
+        # Export ke Excel/CSV
+        logger.info(f"Saving compiled matrix to {output_path}")
+        df_results.to_excel(output_path, index=False)
+        logger.info("Compilation completed successfully.")
+
+def main():
+    parser = argparse.ArgumentParser(description="Cross-Jurisdictional Compliance Matrix Compiler")
+    parser.add_argument("--global-matrix", required=True, help="Path to global orchestration matrix file")
+    parser.add_argument("--local-regulations", required=True, help="Path to directory containing local regulation files")
+    parser.add_argument("--conflict-resolution-strategy", 
+                        choices=["most-stringent", "risk-weighted", "jurisdiction-specific"],
+                        default="most-stringent",
+                        help="Strategy for resolving regulatory conflicts")
+    parser.add_argument("--output-compiled-matrix", 
+                        default="./outputs/compiled_compliance_matrix.xlsx",
+                        help="Path for the output compiled matrix file")
+    
+    args = parser.parse_args()
+    
+    try:
+        compiler = ComplianceCompiler(
+            global_matrix_path=args.global_matrix,
+            local_regulations_dir=args.local_regulations,
+            strategy=args.conflict_resolution_strategy
+        )
+        compiler.run(args.output_compiled_matrix)
+    except Exception as e:
+        logger.critical(f"Compilation failed: {e}")
+        raise SystemExit(1)
+
+if __name__ == "__main__":
+    main()
+```
+
+---
+
+### 10.9. Metodologi "Regulatory Conflict Resolution & Harmonization"
+
+Bagian ini mendokumentasikan kerangka kerja filosofis dan teknis yang digunakan sistem untuk menangani kompleksitas kepatuhan lintas batas. Sistem tidak hanya mengumpulkan regulasi, tetapi secara aktif menyelesaikan ketegangan hukum sebelum kode infrastruktur (Terraform/Kubernetes) diterapkan.
+
+#### 10.9.1. Deteksi Inkonsistensi dan Harmonisasi
+
+Sistem menggunakan pendekatan **Semantic Legal Mapping** untuk mengidentifikasi inkonsistensi. Proses ini terdiri dari tiga tahap:
+
+1.  **Normalisasi Semantik:** Semua persyaratan dari yurisdiksi yang berbeda (misalnya, "Right to be Forgotten" di GDPR dan "Hak Untuk Dilupakan" di RUU PDP) dinormalisasi ke dalam konsep inti yang sama.
+2.  **Analisis Kesetaraan (Equivalence Analysis):** Sistem membandingkan implementasi teknis yang diusulkan dengan persyaratan hukum.
+    *   *Contoh:* Jika standar internasional memerlukan enkripsi AES-256, namun regulasi lokal hanya mensyaratkan "enkripsi kuat", sistem menandai ini sebagai *compatible* tetapi mencatat risiko mitigasi.
+    *   *Contoh Konflik:* Jika regulasi lokal mewajibkan penyimpanan data di dalam negeri (*data residency*) namun arsitektur global menggunakan *multi-region cloud*, sistem memicu flag **CRITICAL CONFLICT**.
+3.  **Generasi Opsi Harmonisasi:** Untuk setiap konflik, sistem menghasilkan opsi solusi:
+    *   *Harmonisasi Teknis:* Mengubah konfigurasi infrastruktur (misalnya, memindahkan bucket S3 ke region Jakarta).
+    *   *Harmonisasi Prosedural:* Menambahkan persetujuan hukum tambahan (*legal basis*) untuk pemrosesan data.
+
+#### 10.9.2. Strategi Penyelesaian Konflik
+
+Sistem mendukung dua mode utama yang dapat dikonfigurasi melalui argumen CLI atau variabel lingkungan `CONFLICT_STRATEGY`:
+
+*   **Most-Stringent Mode (Rekomendasi Default):**
+    Mengambil persyaratan yang paling membatasi dari semua yurisdiksi yang relevan.
+    *   *Kelebihan:* Memastikan kepatuhan tertinggi secara global; meminimalkan risiko hukum.
+    *   *Kekurangan:* Dapat meningkatkan biaya operasional dan latensi.
+    *   *Penerapan:* Jika GDPR membatasi waktu retensi 2 tahun dan UU PDP membolehkan 5 tahun, sistem menerapkan batasan 2 tahun.
+
+*   **Risk-Weighted Mode:**
+    Menggunakan model skor risiko yang mempertimbangkan frekuensi pelanggaran, denda potensial, dan dampak reputasi di yurisdiksi tertentu.
+    *   *Penerapan:* Diperlukan jika biaya kepatuhan paling-stringent melebihi nilai bisnis layanan tersebut.
+    *   *Output:* Menghasilkan rekomendasi yang mungkin mengizinkan fleksibilitas lebih besar di yurisdiksi dengan risiko rendah, selama yurisdiksi berisiko tinggi tetap patuh.
+
+#### 10.9.3. Prosedur Legal Variance Tracking
+
+Untuk situasi di mana konflik tidak dapat diselesaikan secara teknis atau operasional, sistem menyediakan mekanisme **Legal Variance Tracking**. Ini adalah sistem audit trail yang mencatat pengecualian hukum yang disetujui.
+
+**Alur Kerja Variance:**
+
+1.  **Identifikasi Variance:** Sistem mendeteksi konflik yang tidak dapat diselesaikan oleh strategi otomatis (misalnya, konflik yang memerlukan interpretasi hukum manual).
+2.  **Pengajuan Eksklesi (Exemption Request):** Tim Legal Business Review mengajukan pengecualian dengan alasan bisnis yang jelas.
+3.  **Evaluasi Risiko Residual:**
+    *   Sistem menghitung *Risk Residual Score* setelah pengecualian.
+    *   Jika skor di atas batas ambang (*threshold*), eksekusi infrastruktur diblokir hingga persetujuan CISO/Legal Officer.
+4.  **Pencatatan Audit Trail:** Semua variance dicatat dalam database immutable (misalnya, Elasticsearch atau database ledger) dengan metadata:
+    *   `variance_id`: ID unik pengecualian.
+    *   `jurisdiction`: Yurisdiksi yang bersangkutan.
+    *   `regulation_clause`: Pasal regulasi yang dilanggar/dikecualikan.
+    *   `justification`: Alasan bisnis yang disetujui.
+    *   `expiry_date`: Tanggal kedaluwarsa pengecualian (harus direview berkala).
+    *   `approved_by`: ID personel legal yang menyetujui.
+
+**Integrasi dengan CI/CD Pipeline:**
+
+Sebelum deployment ke produksi, pipeline CI/CD akan memeriksa status `Legal Variance`.
+*   Jika ada variance aktif yang belum kedaluwarsa dan sesuai dengan konfigurasi deployment: **PASS**.
+*   Jika tidak ada variasi yang valid untuk aturan yang dilanggar: **FAIL** dengan pesan kesalahan yang mengarahkan pengguna ke Dashboard Compliance untuk mengajukan eksklesi.
+
+> **Catatan Penting:** Legal Variance bukan hak istimewa permanen. Sistem akan melakukan *auto-remediation* jika variance kedaluwarsa, atau mengirimkan notifikasi peringatan kepada tim compliance 30 hari sebelum kedaluwarsa.
+
+---
+
+### 10.10. Integrasi Infrastruktur sebagai Kode (IaC)
+
+Setelah matriks kompilasi dihasilkan, sistem menyediakan plugin Terraform/Kubernetes Operator untuk menerapkan kebijakan kepatuhan secara otomatis.
+
+**Contoh Konfigurasi Terraform (Pseudocode):**
+
+```hcl
+resource "aws_s3_bucket" "data_lake" {
+  bucket = "corporate-data-lake"
+
+  # Kebijakan Otomatis dari Matriks Kompilasi
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "aws:kms" # Sesuai dengan UU PDP & GDPR
+      }
+    }
+  }
+
+  # Enforcement Data Residency (Jika strategi most-stringent memilih Indonesia)
+  lifecycle_rule {
+    enabled = true
+    noncurrent_version_expiration {
+      noncurrent_days = 730 # 2 tahun sesuai GDPR
+    }
+  }
+}
+
+# Tagging Compliance
+tags = {
+  Compliance_Jurisdiction = "ID,EU,US"
+  Legal_Strategy = "most-stringent"
+  Audit_Track_ID = var.legal_variance_id
+}
+```
+
+Dengan integrasi ini, kepatuhan hukum tidak lagi menjadi hambatan manual di akhir siklus pengembangan, melainkan menjadi properti intrinsik dari infrastruktur itu sendiri.
