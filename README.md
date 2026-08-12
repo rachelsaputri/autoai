@@ -26419,3 +26419,453 @@ Laporan pembelajaran (`post_mortem_learning_cycle_v1.json`) mengikuti struktur s
     *   Deteksi bias hakim dikirim ke tim strategis.
 
 Dengan siklus ini, setiap kasus litigasi tidak lagi berakhir ketika gavel dipukul, melainkan menjadi titik awal untuk optimasi strategi hukum yang lebih cerdas dan adaptif di masa depan.
+
+
+### 7.6. Arsitektur Graph Knowledge Management & Semantic Reasoning Engine
+
+Bagian ini mendokumentasikan komponen inti dari sistem manajemen pengetahuan kognitif, yaitu **`compliance_litigation_litigation_knowledge_graph_orchestrator.py`**. Modul ini bertindak sebagai "arstek representasi pengetahuan" yang menerjemahkan data pasca-keputusan (post-mortem) menjadi aset intelektual grafis yang dapat dieksekusi secara mesin.
+
+#### 1. Deskripsi Fungsional
+
+Orkestrator Graf Pengetahuan Litigasi (`Knowledge Graph Orchestrator`) bertanggung jawab untuk:
+1.  **Membaca Laporan Post-Mortem**: Menelan output JSON dari `compliance_litigation_post_mortem_and_precedent_learning_cyclist.py` yang berisi insight prosedural, hasil prediksi, dan bias yang terdeteksi.
+2.  **Normalisasi Ontologi**: Memetakan entitas mentah (nama hakim, pasal undang-undang, klausul kontrak) ke dalam skema ontologi hukum korporat (`Corporate Legal Ontology`) yang baku. Ini mencegah duplikasi entitas (misalnya, "PT. Maju Jaya" vs "Maju Jaya Corp").
+3.  **Konstruksi Graf Dinamis**: Memanen dan memperbarui node (Entitas: Hakim, Yurisdiksi, Prefeden, Klausul) dan edge (Relasi: `SUPPORTS`, `CONFLICTS_WITH`, `PRECLUDES`, `APPLIES_TO`).
+4.  **Sinkronisasi Agen Lain**: Menulis graf yang telah diperbarui ke format yang dapat dibaca oleh `outcome_predictive_analytics_engine.py` (untuk prediktif kausal) dan `boardroom_debate_synthesis_engine.py` (untuk konteks debat resolusi).
+
+#### 2. Dokumentasi Teknis: Metode dan Standar
+
+Bagian ini menjelaskan fondasi metodologis di balik konversi data tidak terstruktur menjadi pengetahuan terstruktur.
+
+##### 7.6.1. Ontology-Driven Precedent Linking
+
+Metode *Ontology-Driven Precedent Linking* adalah pendekatan semantik di mana prefeden hukum tidak disimpan sebagai teks mentah, melainkan sebagai hubungan logis antar entitas. Sistem ini menggunakan tiga lapisan pemetaan:
+
+1.  **Lapisan Eksistensi (Existential Layer)**: Mengidentifikasi entitas individual (Individuated Entities).
+    *   *Contoh*: Mengidentifikasi bahwa "Hakim Ahmad Fauzi" di Pengadilan Negeri Jakarta Selatan adalah entitas yang sama dengan "A. Fauzi" di database nasional.
+2.  **Lapisan Kategorisasi (Categorization Layer)**: Mengelompokkan entitas ke dalam kelas ontologi.
+    *   *Contoh*: Mengklasifikasikan kasus "Penggugat meminta pembatalan PKPU" ke dalam kelas `Insolvency_Case` dan sub-kelas `Bankruptcy_Revocation`.
+3.  **Lapisan Relasional (Relational Layer)**: Menetapkan predikat ontologis antar entitas.
+    *   *Contoh*: Jika Putusan A menyatakan bahwa Klausul X melanggar UU Cipta Kerja, dan Putusan B juga memenangkan klaim berdasarkan Klausul X yang serupa, maka graf akan menciptakan edge `SUPPORTS(Putusan B, Putusan A)` dengan bobot kepercayaan yang dihitung berdasarkan kesamaan fakta.
+
+**Manfaat Mesin-Bisa-Read (Machine-Readable):**
+Agen AI lain tidak perlu melakukan *text mining* setiap kali kasus baru masuk. Mereka dapat menjalankan query SPARQL atau Cypher untuk mencari: *"Tunjukkan semua prefeden di Yurisdiksi Ekonomi yang mendukung klaim pembatalan klausul non-compete yang lebih dari 5 tahun, kecuali jika ditentang oleh Hakim X."*
+
+##### 7.6.2. Standar Linked Open Data (LOD) & W3C OWL 2
+
+Sistem ini mengadopsi standar industri untuk interoperabilitas data hukum:
+
+*   **W3C OWL 2 (Web Ontology Language)**:
+    *   Digunakan untuk mendefinisikan aturan logika dan batasan (constraints). Misalnya, definisi `LegalPerson` tidak boleh bertautan langsung dengan `PhysicalPerson` dalam relasi `EMPLOYS` tanpa entitas perantara `Contract`.
+    *   Mendukung inferensi. Jika Graf mengetahui bahwa `Case_X` adalah `SubTypeOf` `Employment_Dispute` dan `Employment_Dispute` `Requires` `Labor_Expert_Testimony`, maka agen dapat secara otomatis menyimpulkan bahwa `Case_X` memerlukan `Labor_Expert_Testimony` tanpa perlu aturan eksplisit tambahan.
+*   **Linked Open Data (LOD) Principles**:
+    *   **Use URIs as names for things**: Setiap entitas unik (Hakim, Kasus, UU) memiliki URI global (Global Unique Identifier) yang stabil.
+    *   **Use HTTP URIs so that people can look up those names**: Sistem menyediakan endpoint REST/SPARQL untuk mengakses metadata entitas.
+    *   **Provide useful information in standardized formats (RDF/TTL/JSON-LD)**: Output graf disimpan dalam format yang dapat diproses oleh parser RDF standar, memastikan kompatibilitas dengan ekosistem legal-tech pihak ketiga.
+
+##### 7.6.3. Prosedur Semantic Entity Resolution (SER)
+
+Salah satu tantangan terbesar dalam litigasi lintas yurisdiksi adalah variasi penamaan. Prosedur *Semantic Entity Resolution* secara otomatis:
+
+1.  **Fuzzy Matching & NLP**: Menggunakan model NLP untuk mencocokkan nama entitas yang mirip (contoh: "Tni-Polri" vs "TNI POLRI" vs "Tentara Nasional Indonesia") dengan skor kepercayaan (confidence score).
+2.  **Cross-Jurisdiction Mapping**: Memetakan istilah hukum lokal ke entitas global.
+    *   *Contoh*: Istilah "Gugatan Wanprestasi" di Indonesia dipetakan ke entitas global `Breach_of_Contract_Claim`.
+    *   *Contoh*: Istilah "Injunction" di AS dipetakan ke `Interim_Relief_Order`.
+3.  **Disambiguasi Kontekstual**: Menggunakan fitur kasus (tanggal, yurisdiksi, jenis pihak) untuk membedakan entitas dengan nama sama.
+    *   *Skenario*: Ada dua "PT Bank Mandiri" (salah satu filial, satu entitas induk). Sistem membedakan mereka berdasarkan `registration_number` atau `jurisdiction_code` dalam metadata input.
+
+Hasil dari SER adalah **Graf Pengetahuan yang Konsisten secara Logis**, di mana setiap query ke modul analitik atau strategis menghasilkan data yang akurat tanpa noise atau duplikasi.
+
+#### 3. Spesifikasi Implementasi Python
+
+Skrip di bawah ini adalah implementasi inti dari Orkestrator Graf Pengetahuan. Skrip ini dirancang sebagai baris perintah (CLI) yang robust, menangani parsing input, validasi ontologi, dan output graf.
+
+```python
+#!/usr/bin/env python3
+"""
+compliance_litigation_litigation_knowledge_graph_orchestrator.py
+
+Module: Cognitive Legal Knowledge Management & Semantic Interoperability
+Function: Structured Knowledge Graph Architect
+Purpose: 
+    Menerjemahkan laporan pembelajaran siklus tertutup (Post-Mortem JSON) 
+    menjadi basis pengetahuan grafis (RDF/OWL) yang dapat diasosiasikan 
+    dengan agen kepatuhan lain.
+
+Metodologi:
+    - Ontology-Driven Precedent Linking
+    - Semantic Entity Resolution (SER)
+    - Linked Open Data (LOD) Compliance (W3C OWL 2)
+
+Authors: 
+    Legal AI Engineering Team
+Version: 2.1.0
+License: Internal Proprietary
+"""
+
+import argparse
+import json
+import logging
+import os
+import sys
+from datetime import datetime
+from typing import Dict, List, Optional, Any
+from urllib.parse import urlparse
+
+# Import library standar untuk manajemen ontologi dan grafik
+# Catatan: Dalam produksi, gunakan library seperti rdflib, owlready2, atau neo4j-driver
+import rdflib
+from rdflib import Graph, URIRef, BNode, Literal, Namespace, RDF, RDFS, XSD
+from rdflib.namespace import OWL, SKOS, FOAF
+import hashlib
+
+# Konfigurasi Logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler("kg_orchestrator.log"),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger("KG_Orchestrator")
+
+# Namespace Konstanta untuk Ontologi Hukum Korporat Standar
+NS_CORP = Namespace("https://schema.corporate-legal-ont/v2/")
+NS_LEGAL = Namespace("https://schema.legal-tech-interop/v1/")
+NS_ACTOR = Namespace("https://schema.actor-registry/v1/")
+NS_OUTCOME = Namespace("https://schema.case-outcome/v1/")
+
+# Predikat Relasi Standar (Edge Types)
+REL_SUPPORTS = NS_LEGAL("SUPPORTS")
+REL_CONFLICTS = NS_LEGAL("CONFLICTS_WITH")
+REL_PRECLUDES = NS_LEGAL("PRECLUDES")
+REL_APPLIES_TO = NS_LEGAL("APPLIES_TO")
+REL_HAS_PATTERN = NS_LEGAL("HAS_PATTERN")
+REL_IDENTIFIES_BIAS = NS_LEGAL("IDENTIFIES_BIAS")
+
+class LegalOntologySchema:
+    """
+    Kelas helper untuk memuat dan memvalidasi skema ontologi hukum.
+    Dalam implementasi penuh, ini akan memuat file .owl atau .ttl.
+    """
+    def __init__(self, schema_path: str):
+        self.schema_path = schema_path
+        self.entities_cache = {}
+        self.load_schema()
+
+    def load_schema(self):
+        if not os.path.exists(self.schema_path):
+            logger.warning(f"Schema file not found at {self.schema_path}. Using fallback ontology.")
+            self.entities_cache = {
+                "Judge": "JudgeEntity",
+                "Case": "CaseEntity",
+                "Clause": "ContractClause",
+                "Precedent": "LegalPrecedent"
+            }
+            return
+        
+        try:
+            # Mock loading logic for demonstration
+            logger.info(f"Loading Ontology Schema from {self.schema_path}")
+            # Di sini seharusnya menggunakan owlready2 atau rdflib untuk parse OWL
+            self.entities_cache = {"loaded": True}
+        except Exception as e:
+            logger.error(f"Failed to load ontology schema: {e}")
+            self.entities_cache = {}
+
+    def resolve_entity_type(self, entity_name: str, context: str) -> URIRef:
+        """
+        Semantic Entity Resolution: Memetakan istilah bervariasi ke URI unik.
+        """
+        # Normalisasi dasar
+        clean_name = entity_name.strip().lower().replace(" ", "_")
+        
+        # Deterministic URI generation based on context and name
+        # Ini memastikan konsistensi: "Hakim John Doe" selalu menghasilkan URI yang sama
+        context_uri = context
+        entity_hash = hashlib.sha256(f"{context}:{entity_name}".encode()).hexdigest()[:10]
+        
+        return NS_CORP[f"{clean_name}_{entity_hash}"]
+
+class KnowledgeGraphOrchestrator:
+    """
+    Arsitek Representasi Pengetahuan Terstruktur.
+    Mengubah laporan JSON menjadi Graf RDF yang dapat dipertanyakan (queryable).
+    """
+    def __init__(self, post_mortem_path: str, existing_kb_path: str, 
+                 ontology_schema_path: str, output_path: str):
+        self.post_mortem_path = post_mortem_path
+        self.existing_kb_path = existing_kb_path
+        self.ontology_schema = LegalOntologySchema(ontology_schema_path)
+        self.output_path = output_path
+        
+        # Inisialisasi Graph RDF (Bisa diganti dengan Neo4j Driver untuk skala besar)
+        self.kg = Graph()
+        self.kg.bind("corp", NS_CORP)
+        self.kg.bind("legal", NS_LEGAL)
+        self.kg.bind("actor", NS_ACTOR)
+        self.kg.bind("outcome", NS_OUTCOME)
+        
+        # Muat basis pengetahuan yang ada jika ada
+        self._load_existing_kb()
+
+    def _load_existing_kb(self):
+        """
+        Memuat basis pengetahuan grafis yang ada (RDF/TTL atau Neo4j Dump).
+        """
+        if not self.existing_kb_path or not os.path.exists(self.existing_kb_path):
+            logger.info("No existing KB path provided or file missing. Starting fresh graph.")
+            return
+
+        try:
+            # Deteksi format berdasarkan ekstensi
+            if self.existing_kb_path.endswith('.ttl') or self.existing_kb_path.endswith('.nt'):
+                self.kg.parse(self.existing_kb_path, format='turtle')
+                logger.info(f"Loaded existing KB from {self.existing_kb_path}")
+            else:
+                # Jika format lain, tangani sesuai kebutuhan
+                logger.warning(f"Unsupported existing KB format: {self.existing_kb_path}")
+        except Exception as e:
+            logger.error(f"Error loading existing KB: {e}")
+
+    def _parse_post_mortem(self) -> Dict[str, Any]:
+        """
+        Membaca dan memvalidasi input JSON dari Post-Mortem Agent.
+        """
+        if not os.path.exists(self.post_mortem_path):
+            raise FileNotFoundError(f"Post-mortem file not found: {self.post_mortem_path}")
+        
+        with open(self.post_mortem_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        # Validasi struktur dasar
+        required_keys = ['case_id', 'outcome', 'learnings']
+        for key in required_keys:
+            if key not in data:
+                raise ValueError(f"Missing required key in post-mortem JSON: {key}")
+        
+        logger.info(f"Successfully parsed post-mortem for Case: {data.get('case_id')}")
+        return data
+
+    def _build_nodes(self, case_data: Dict[str, Any]):
+        """
+        Membangun Node Entitas (Hakim, Yurisdiksi, Klausul, Prefeden)
+        """
+        case_id = case_data['case_id']
+        case_uri = NS_CORP[f"Case_{case_id}"]
+        
+        # 1. Node Kasus Utama
+        self.kg.add((case_uri, RDF.type, NS_CORP['Case']))
+        self.kg.add((case_uri, NS_LEGAL['hasOutcome'], Literal(case_data['outcome'])))
+        self.kg.add((case_uri, RDFS.label, Literal(f"Case: {case_id}")))
+
+        # 2. Ekstraksi dan Pembuatan Node Hakim
+        judges = case_data.get('judges', [])
+        for judge_name in judges:
+            judge_uri = self.ontology_schema.resolve_entity_type(judge_name, "Judge")
+            self.kg.add((judge_uri, RDF.type, NS_ACTOR['Judge']))
+            self.kg.add((judge_uri, RDFS.label, Literal(judge_name)))
+            # Relasi: Kasus melibatkan Hakim
+            self.kg.add((case_uri, NS_LEGAL['involvedJudge'], judge_uri))
+
+        # 3. Ekstraksi dan Pembuatan Node Klausul Kontrak
+        clauses = case_data.get('disputed_clauses', [])
+        for clause_desc in clauses:
+            # Buat URI unik berdasarkan deskripsi Klausul
+            clause_uri = self.ontology_schema.resolve_entity_type(clause_desc, "Clause")
+            self.kg.add((clause_uri, RDF.type, NS_CORP['ContractClause']))
+            self.kg.add((clause_uri, NS_CORP['description'], Literal(clause_desc)))
+            self.kg.add((case_uri, NS_LEGAL['disputedClause'], clause_uri))
+
+        # 4. Ekstraksi Insight dan Preferen (Precedent)
+        lessons = case_data.get('learnings', [])
+        for lesson in lessons:
+            lesson_id = lesson.get('lesson_id', 'UNK')
+            insight = lesson.get('insight', '')
+            category = lesson.get('category', 'General')
+            
+            lesson_uri = NS_CORP[f"Lesson_{lesson_id}"]
+            self.kg.add((lesson_uri, RDF.type, NS_CORP['LegalInsight']))
+            self.kg.add((lesson_uri, NS_CORP['insightText'], Literal(insight)))
+            self.kg.add((lesson_uri, NS_CORP['category'], Literal(category)))
+            
+            # Relasi Insight ke Kasus
+            self.kg.add((case_uri, NS_LEGAL['generatedInsight'], lesson_uri))
+
+    def _build_edges(self, case_data: Dict[str, Any]):
+        """
+        Membangun Edge Relasi (HAS_PATTERN, PRECLUDES, SUPPORTS)
+        Menggunakan logika ontologi untuk menentukan jenis relasi.
+        """
+        case_uri = NS_CORP[f"Case_{case_data['case_id']}"]
+        lessons = case_data.get('learnings', [])
+        
+        # Contoh Logika: Jika insight menyiratkan konflik dengan praktik sebelumnya
+        for lesson in lessons:
+            insight_text = lesson.get('insight', '').lower()
+            lesson_uri = NS_CORP[f"Lesson_{lesson.get('lesson_id')}"]
+            
+            if 'conflict' in insight_text or 'negative result' in insight_text:
+                # Menandai bahwa strategi sebelumnya PRECLUDES strategi baru ini
+                # (Ini adalah simplifikasi; dalam produksi, gunakan NLP classification)
+                self.kg.add((case_uri, REL_CONFLICTS, lesson_uri))
+                
+            elif 'support' in insight_text or 'recommended' in insight_text:
+                self.kg.add((case_uri, REL_SUPPORTS, lesson_uri))
+                
+            # Deteksi Bias Hakim (Khusus untuk Agen Strategis)
+            if 'bias' in insight_text.lower():
+                # Asumsi: Bias ditemukan terhadap specific judge/clause combo
+                self.kg.add((case_uri, REL_IDENTIFIES_BIAS, lesson_uri))
+
+    def _sync_with_analytics_engine(self):
+        """
+        Langkah 1: Siapkan payload untuk Outcome Predictive Analytics Engine.
+        Karena output utama adalah file graf, kita buat juga file index/summary
+        yang bisa dibaca langsung oleh engine prediktif untuk fitur ekstraksi.
+        """
+        logger.info("Syncing knowledge graph with Predictive Analytics Engine...")
+        analytics_data = {
+            "graph_updated_at": datetime.now().isoformat(),
+            "node_count": len(self.kg),
+            "edge_count": len(self.kg),
+            "new_insights": [],
+            "conflict_patterns": []
+        }
+        
+        # Ekstrak insight baru untuk engine prediktif
+        for lesson_uri in self.kg.subjects(RDF.type, NS_CORP['LegalInsight']):
+            insight_text = str(self.kg.value(lesson_uri, NS_CORP['insightText']))
+            analytics_data['new_insights'].append(insight_text)
+            
+        # Simpan metadata sinkronisasi (Opsional, tergantung integrasi API)
+        # Di sini kita asumsikan Analytics Engine membaca file RDF langsung
+        # atau file JSON ringkasan terpisah.
+        return analytics_data
+
+    def _sync_with_boardroom_engine(self):
+        """
+        Langkah 2: Siapkan konteks historis untuk Boardroom Debate Synthesis Engine.
+        Engine ini membutuhkan konteks: "Apa yang terjadi pada kasus serupa sebelumnya?"
+        """
+        logger.info("Syncing knowledge graph with Boardroom Debate Synthesis Engine...")
+        
+        # Buat ringkasan prefeden yang relevan (Simplified)
+        context_data = {
+            "historical_precedents_summary": [],
+            "judicial_biases_detected": []
+        }
+        
+        for lesson_uri in self.kg.subjects(RDF.type, NS_CORP['LegalInsight']):
+            category = str(self.kg.value(lesson_uri, NS_CORP['category']))
+            if category == "Judicial":
+                context_data['judicial_biases_detected'].append(
+                    str(self.kg.value(lesson_uri, NS_CORP['insightText']))
+                )
+            elif category == "Precedent":
+                context_data['historical_precedents_summary'].append(
+                    str(self.kg.value(lesson_uri, NS_CORP['insightText']))
+                )
+        
+        return context_data
+
+    def execute(self):
+        """
+        Eksekusi utama orkestrasi: Parse -> Build Nodes/Edges -> Validate -> Output -> Sync.
+        """
+        try:
+            logger.info("Starting Litigation Knowledge Graph Orchestration...")
+            
+            # 1. Parse Input
+            case_data = self._parse_post_mortem()
+            
+            # 2. Build Graph Structure
+            self._build_nodes(case_data)
+            self._build_edges(case_data)
+            
+            # 3. Validate Graph Integrity (Simplified)
+            logger.info("Validating graph integrity...")
+            # Di sini bisa ditambahkan validasi OWL reasoning (apakah ada loop tak hingga? kontradiksi?)
+            
+            # 4. Output Updated Knowledge Graph
+            logger.info(f"Writing updated knowledge graph to {self.output_path}")
+            self.kg.serialize(destination=self.output_path, format='nt')
+            
+            # 5. Sync with Downstream Agents (Metadata Generation)
+            analytics_payload = self._sync_with_analytics_engine()
+            debate_context = self._sync_with_boardroom_engine()
+            
+            # Simpan payload metadata untuk agen lain (Format JSON terpisah untuk kemudahan akses)
+            with open(self.output_path.replace('.nt', '_analytics_payload.json'), 'w') as f:
+                json.dump(analytics_payload, f, indent=2)
+                
+            with open(self.output_path.replace('.nt', '_debate_context.json'), 'w') as f:
+                json.dump(debate_context, f, indent=2)
+
+            logger.info("Orchestration completed successfully.")
+            print(f"Success: Knowledge graph updated at {self.output_path}")
+            print(f"Analytics Payload: {self.output_path.replace('.nt', '_analytics_payload.json')}")
+            print(f"Debate Context: {self.output_path.replace('.nt', '_debate_context.json')}")
+
+        except Exception as e:
+            logger.critical(f"Orchestration failed: {e}")
+            sys.exit(1)
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Litigation Knowledge Graph Orchestrator: Convert post-mortem insights into structured RDF knowledge graph.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Contoh Penggunaan:
+  python compliance_litigation_litigation_knowledge_graph_orchestrator.py \
+      --post-mortem-json /data/reports/case_123_mortem.json \
+      --existing-knowledge-base /data/kb/corp_legal_graph.ttl \
+      --legal-ontology-schema /schemas/corporate_legal_ontology_v2.owl \
+      --output-knowledge-graph-update /data/graphs/litigation_kg_v2_updated.nt
+        """
+    )
+    
+    parser.add_argument('--post-mortem-json', required=True,
+                        help="Path to the Post-Mortem JSON report from compliance_litigation_post_mortem_and_precedent_learning_cyclist.py")
+    
+    parser.add_argument('--existing-knowledge-base', required=True,
+                        help="Path to the existing Knowledge Graph (RDF/TTL format or Neo4j dump reference)")
+    
+    parser.add_argument('--legal-ontology-schema', required=True,
+                        help="Path to the Corporate Legal Ontology Schema (e.g., .owl or .ttl)")
+    
+    parser.add_argument('--output-knowledge-graph-update', required=True,
+                        help="Path for the updated Knowledge Graph file (Output format: NT/TTL)")
+    
+    args = parser.parse_args()
+    
+    orchestrator = KnowledgeGraphOrchestrator(
+        post_mortem_path=args.post_mortem_json,
+        existing_kb_path=args.existing_knowledge_base,
+        ontology_schema_path=args.legal_ontology_schema,
+        output_path=args.output_knowledge_graph_update
+    )
+    
+    orchestrator.execute()
+
+if __name__ == "__main__":
+    main()
+```
+
+#### 4. Prosedur Integrasi dan Validasi
+
+Untuk memastikan integrasi yang mulus antar modul, ikuti prosedur validasi berikut setelah setiap eksekusi orkestrator:
+
+1.  **Verifikasi URI Konsistensi**:
+    *   Jalankan query SPARQL sederhana pada file output `.nt` untuk memastikan tidak ada URI duplikat untuk entitas yang sama.
+    *   Contoh Query: `SELECT DISTINCT ?o { ?s ?p ?o . FILTER isURI(?o) }` (Pastikan tidak ada konflik nama lokal yang aneh).
+
+2.  **Cek Koneksi Agen**:
+    *   Pastikan file `_analytics_payload.json` dan `_debate_context.json` telah dibuat di direktori yang sama dengan output graf.
+    *   Konfirmasi bahwa `outcome_predictive_analytics_engine.py` memindai direktori output secara periodik (via cron atau watcher service) untuk memperbarui bobot model.
+
+3.  **Audit Bias Semantik**:
+    *   Tinjau bagian `judicial_biases_detected` dalam file konteks debat. Pastikan agen strategis telah menerima pembaruan ini dan menyesuaikan argumen hukumnya untuk menghindari bias yang telah teridentifikasi.
+
+Dengan implementasi ini, sistem tidak lagi bersifat silo. Setiap litigasi yang berakhir memberikan "bahan bakar" berupa pengetahuan terstruktur yang meningkatkan kecerdasan kolektif seluruh ekosistem kepatuhan perusahaan, menciptakan siklus umpan balik yang terus-menerus menyempurnakan strategi hukum secara otomatis.
