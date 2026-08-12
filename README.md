@@ -16059,3 +16059,112 @@ Untuk memastikan bahwa laporan transparansi itu sendiri tidak dimanipulasi (misa
 *   Tim kepatuhan (Legal & Risk) harus meninjau 50 laporan acak untuk memastikan bahwa bahasa yang digunakan dalam `counterfactual` tidak menyesatkan atau secara halus menggeser tanggung jawab ke pengguna akhir tanpa dasar teknis yang valid.
 
 > **Peringatan Kepatuatan:** Laporan yang dihasilkan oleh modul ini adalah dokumen hukum yang sah untuk keperluan audit eksternal. Pastikan integritas file `ai_trustworthy_report.json` dijaga dengan hashing SHA-256 dan dicatat dalam ledger internal perusahaan. Jangan pernah memodifikasi file ini secara manual setelah generasi awal.
+
+
+Berikut adalah konten lanjutan untuk `README.md` yang mencakup dokumentasi teknis mendalam, panduan implementasi skrip Python, dan prosedur cross-jurisdictional.
+
+---
+
+#### 7.6 Semantic Harmonization of Legal Standards & Interoperable Compliance Ontologies
+
+Untuk menjembatani kesenjangan antara bahasa hukum yang ambigu dan metrik teknis yang presisi, sistem mengimplementasikan metodologi **Semantic Harmonization**. Pendekatan ini mengubah dokumen regulasi statis menjadi basis pengetahuan dinamis yang dapat dieksekusi oleh mesin.
+
+##### Metodologi: Peta Semantik Hukum-Teknis
+Proses ini tidak hanya melakukan pencocokan kata kunci, tetapi membangun **Graf Ontologi Kepatuhan** yang memetakan:
+1.  **Istilah Hukum (Legal Concepts):** Elemen dari regulasi (misal: "Right to Explanation", "Data Minimisation").
+2.  **Kontrol Teknis (Technical Controls):** Implementasi sistem (misal: `XAI_Generation`, `PII_Redaction`, `Audit_Log_Immutability`).
+3.  **Metrik Validasi (Validation Metrics):** Parameter kuantitatif untuk memastikan kontrol memenuhi persyaratan hukum (misal: `SHAP_Stability_Threshold`, `GDPR_Compliance_Score`).
+
+Taksonomi ini berfungsi sebagai **Kamus Pusat (Central Dictionary)** yang memungkinkan terjemahan otomatis:
+*   *Input Hukum:* "Sistem harus memberikan penjelasan yang dapat dimengerti kepada pengguna."
+*   *Terjemahan Teknis:* `Generate_XAI_Report(Explainability_Mode='Human_Readable', Confidence_Threshold=0.85)`
+*   *Metrik Pengukuran:* `Report_Readability_Score (FKGL <= 10)` dan `Counterfactual_Consistency_Index`.
+
+##### Integrasi Graf Pengetahuan
+Taksonomi ini terhubung langsung dengan `compliance_governance_knowledge_graph_engine.py`. Setiap node dalam graf merepresentasikan entitas regulasi atau kontrol teknis, sementara edge merepresentasikan hubungan "memenuhi-ketentuan-dari" (satisfies-from). Hal ini memungkinkan pelacakan *end-to-end*:
+> `UU_PDP_ID_ARTICLE_20` --> `requires` --> `Explanation_Rights` --> `implemented_by` --> `XAI_Module_Generation` --> `validated_by` --> `Adversarial_Fairness_Test`.
+
+#### 7.7 Panduan Implementasi: Pembangun Taksonomi Kepatuhan NLP
+
+Modul `compliance_regulatory_nlp_taxonomy_builder.py` adalah tulang punggung sistem harmonisasi semantik. Skrip ini memindai arsip dokumen hukum, mengekstrak istilah kunci menggunakan model transformer multibahasa, dan memetakannya ke dalam struktur taksonomi JSON yang kompatibel dengan graf pengetahuan.
+
+##### Deskripsi Fungsional
+1.  **Parsing Dokumen Hukum:** Membaca file `.docx` atau `.pdf` dari direktori yang ditentukan.
+2.  **Ekstraksi Entitas NER:** Menggunakan model transformer (misal: `bert-base-multilingual-cased`) untuk mengidentifikasi istilah hukum kritis dalam bahasa target.
+3.  **Pemetaan Ontologi:** Mencocokkan istilah yang diekstrak dengan definisi standar regulasi (dalam format RDF/OWL) untuk memastikan konsistensi semantik.
+4.  **Generasi Taksonomi:** Menghasilkan file `regulatory_taxonomy.json` yang berisi hierarki istilah hukum, kontrol teknis yang relevan, dan metrik validasi yang disarankan.
+
+##### Spesifikasi Teknis
+
+| Parameter | Tipe | Deskripsi |
+| :--- | :--- | :--- |
+| `--legal-docs-dir` | `str` | Path direktori yang berisi dokumen hukum sumber (`.docx`, `.pdf`). |
+| `--ontologies` | `str` | Path ke file definisi standar regulasi dalam format RDF/OWL. |
+| `--output-taxonomy` | `str` | Path output untuk file hasil taksonomi (`regulatory_taxonomy.json`). |
+| `--language` | `str` | Bahasa target untuk ekstraksi dan pemetaan. Default: `id` (Bahasa Indonesia). |
+| `--verbose` | `bool` | Aktifkan log detail untuk debugging proses NLP. |
+
+##### Contoh Penggunaan
+
+```bash
+# 1. Ekstrak istilah hukum dari dokumen UU PDP dan EU AI Act
+# 2. Mapping ke ontologi GDPR/AI Act standar
+# 3. Hasilkan taksonomi dalam Bahasa Indonesia
+
+python compliance_regulatory_nlp_taxonomy_builder.py \
+    --legal-docs-dir ./docs/legal_archives \
+    --ontologies ./ontologies/global_standards.owl \
+    --output-taxonomy regulatory_taxonomy.json \
+    --language id \
+    --verbose
+
+# 4. Generate taksonomi multibahasa (English & Indonesian)
+python compliance_regulatory_nlp_taxonomy_builder.py \
+    --legal-docs-dir ./docs/legal_archives \
+    --ontologies ./ontologies/iso27001.rdf \
+    --output-taxonomy regulatory_taxonomy_en.json \
+    --language en
+```
+
+##### Arsitektur Pipeline NLP
+1.  **Preprocessing:** Normalisasi teks, penghapusan markup dokumen, dan segmentasi kalimat.
+2.  **Contextual Embedding:** Mengubah teks menjadi vektor dense menggunakan transformer untuk menangkap nuansa konteks hukum (misal: perbedaan "user" vs "data subject").
+3.  **Similarity Matching:** Menghitung cosine similarity antara vektor istilah hukum dan node ontologi regulasi.
+4.  **Disambiguation:** Jika terdapat ambiguitas, sistem memilih definisi ontologi yang memiliki bobot konteks tertinggi berdasarkan domain hukum (misal: Privasi vs Keamanan Siber).
+
+#### 7.8 Panduan Penggunaan: Compiler Matriks Cross-Jurisdictional
+
+Ketika sistem beroperasi di lingkungan multinasional, konflik antara regulasi (misal: GDPR vs. UU PDP Indonesia) dapat terjadi. Modul `compliance_cross_jurisdictional_matrix_compiler.py` dirancang untuk mendeteksi tumpang tindih (overlap), kesenjangan (gaps), dan kontradiksi dalam taksonomi.
+
+##### Fungsi Utama
+*   **Deteksi Konflik Semantik:** Mengidentifikasi persyaratan hukum yang saling bertentangan (misal: "Right to be Forgotten" di GDPR vs. "Retention Period" di regulasi pajak).
+*   **Normalisasi Terjemahan:** Memastikan bahwa istilah yang sama dalam bahasa yang berbeda merujuk pada kontrol teknis yang sama.
+*   **Matrix Generation:** Menghasilkan matriks komparatif yang menunjukkan kepatuhan per yurisdiksi.
+
+##### Alur Kerja
+1.  **Input Taksonomi Ganda:** Sistem menerima dua file taksonomi (`taxonomy_id.json`, `taxonomy_eu.json`).
+2.  **Analisis Graf:** Membandingkan node kontrol teknis di kedua graf.
+3.  **Deteksi Kontradiksi:**
+    *   *Conflict A:* Yurisdiksi A mengharuskan penyimpanan data 10 tahun, Yurisdiksi B mengharuskan penghapusan setelah 2 tahun.
+    *   *Conflict B:* Definisi "Personal Data" berbeda secara signifikan, menyebabkan kontrol teknis `PII_Masking` menjadi tidak memadai untuk satu yurisdiksi.
+4.  **Output:** File `jurisdiction_conflict_report.json` yang mencantumkan titik konflik dan saran mitigasi teknis.
+
+##### Contoh Perintah
+
+```bash
+# Deteksi kontradiksi antara standar Indonesia (UU PDP) dan Uni Eropa (EU AI Act)
+python compliance_cross_jurisdictional_matrix_compiler.py \
+    --taxonomy-id ./regulatory_taxonomy_id.json \
+    --taxonomy-eu ./regulatory_taxonomy_eu.json \
+    --output-report ./conflict_analysis_report.json \
+    --severity-level HIGH
+```
+
+##### Interpretasi Laporan Konflik
+Laporan yang dihasilkan berisi tiga bagian utama:
+1.  **Critical Conflicts:** Persyaratan yang tidak dapat dipenuhi secara bersamaan (memerlukan pemisahan arsitektur data atau penolakan layanan di salah satu yurisdiksi).
+2.  **Soft Overlaps:** Persyaratan yang serupa tetapi memiliki perbedaan teknis minor (dapat dinegosiasikan dengan konfigurasi parameter).
+3.  **Gaps:** Area yang tidak diatur oleh salah satu regulasi, yang mungkin memerlukan kebijakan internal tambahan.
+
+> **Catatan Penting untuk Tim Legal & Teknik:**
+> Laporan konflik ini bersifat *suggestive*. Keputusan akhir mengenai penanganan konflik yurisdiksi harus melibatkan tinjauan ahli hukum, dengan dukungan teknis dari metrik yang dihasilkan oleh modul ini. Jangan pernah mengabaikan konflik "Critical" tanpa dokumentasi risiko yang disetujui oleh CISO dan DPO.
