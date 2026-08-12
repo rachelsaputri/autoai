@@ -15206,3 +15206,145 @@ Sebagai Data Protection Officer (DPO), Anda dapat menggunakan kemampuan `complia
 *   **Tidak Ada Alert Terdeteksi Padahal Ada Perubahan**
     *   Periksa apakah format JSON/RSS feed regulator berubah. Gunakan mode `--log-level DEBUG` untuk melihat respons mentah dari feed URL.
     *   Verifikasi bahwa `internal-rules-path` memuat aturan yang relevan dengan domain regulasi yang dimonitor.
+
+
+Berikut adalah konten lanjutan untuk dokumentasi teknis Anda, yang dirancang untuk langsung menempel ke bagian akhir README.md atau sebagai bagian terpisah dalam bab "Advanced Compliance & Legal".
+
+---
+
+### 9. Cross-Jurisdictional Compliance Matrix Compiler
+
+Saat operasi bisnis melintasi batas negara, organisasi sering kali menghadapi **"Conflict of Laws"** (pertentangan hukum), di mana kewajiban hukum di satu yurisdiksi bertabrakan langsung dengan hak atau larangan di yurisdiksi lain. Contoh klasik adalah kewajiban retensi data lokal (misalnya, undang-undang anti-narkoba di Brasil) yang bertentangan dengan hak penghapusan data (GDPR Art. 17 "Right to be Forgotten") di Uni Eropa.
+
+Modul `compliance_cross_jurisdictional_matrix_compiler.py` berfungsi sebagai mesin logika bisnis hukum yang menstandarisasi konflik ini. Modul ini tidak hanya mendeteksi konflik, tetapi juga menghasilkan **Matriks Resolusi Konflik** yang hierarkis, menentukan strategi mitigasi optimal ("Win-Win" atau "Least Burden") berdasarkan analisis risiko hukum, yurisdiksi pengguna akhir, dan nilai kontrak bisnis.
+
+#### 9.1. Arsitektur Data dan Input
+
+Komiler ini bergantung pada tiga sumber kebenaran (Single Source of Truth) yang dihasilkan oleh modul sebelumnya:
+
+1.  **`regulatory_impact_analysis.json`** (Dari `compliance_regulatory_change_impact_analyzer.py`):
+    *   Berisi konteks dinamika regulasi, termasuk draft undang-undang baru, tren penegakan hukum, dan proyeksi dampak bisnis.
+    *   *Fungsi:* Memberikan bobot dinamis pada risiko yurisdiksi tertentu berdasarkan urgensi perubahan hukum.
+
+2.  **`structured_policy_rules.json`** (Dari `compliance_mlp_compliance_llm_policy_interpreter.py`):
+    *   Memetakan kebijakan internal perusahaan ke dalam struktur logika formal (misalnya: `IF data_source == 'EU' THEN apply_gdpr_delete = True`).
+    *   *Fungsi:* Menjadi basis aturan teknis yang akan diverifikasi melawan regulasi eksternal.
+
+3.  **`compliance_mapping_matrix.json`** (Dari `compliance_compliance_orchestration_matrix_generator.py`):
+    *   Memetakan regulasi spesifik ke kontrol teknis dan kontrol organisasi.
+    *   *Fungsi:* Mengidentifikasi tumpang tindih kontrol dan area di mana kontrol tunggal gagal memenuhi multi-yurisdiksi.
+
+#### 9.2. Metodologi: Conflict of Laws Resolution in Digital Systems
+
+Komiler ini menggunakan metodologi *"Conflict of Laws Resolution in Digital Systems"* yang didasarkan pada prinsip **Contextual Legal Priority**. Alih-alih menerapkan satu aturan statis, sistem ini mengevaluasi konflik secara kontekstual menggunakan model keputusan hierarkis:
+
+1.  **Tingkat 1: Yurisdiksi Pengguna (User Jurisdiction)**
+    *   Data diklasifikasikan berdasarkan negara asal pengguna atau lokasi pemrosesan utama.
+    *   Jika pengguna berada di UE, GDPR menjadi *default constraint*.
+
+2.  **Tingkat 2: Yurisdiksi Perusahaan (Corporate Jurisdiction)**
+    *   Hukum negara tempat entitas hukum perusahaan terdaftar berlaku sebagai lapisan kedua, terutama jika mewajibkan retensi data untuk tujuan fiskal atau penegakan hukum lokal.
+
+3.  **Tingkat 3: Nilai Kontrak Bisnis (Business Contract Value)**
+    *   Untuk konflik minor, nilai strategis klien atau kontrak B2B dapat menjadi penentu prioritas, dengan catatan tidak melanggar *peremptory norms* (norma dasar internasional).
+
+4.  **Tingkat 4: Prinsip Least Burden & Win-Win**
+    *   **Least Burden:** Memilih opsi yang membebani sumber daya operasional paling sedikit sambil tetap mematuhi hukum yang lebih ketat.
+    *   **Win-Win:** Mencari teknik *data masking* atau *pseudonymization* yang memungkinkan perusahaan memenuhi kewajiban retensi (dengan data yang tidak dapat diidentifikasi) sambil menghormati hak privasi individu.
+
+#### 9.3. Standar Supra-National Compliance Logic
+
+Standar ini mendefinisikan bagaimana sistem harus berperilaku ketika hukum nasional tidak selaras dengan standar global (seperti ISO 27701 atau OECD Guidelines). Logika supra-nasional ini memastikan arsitektur kepatuhan tetap robust terhadap perubahan hukum lokal yang tiba-tiba.
+
+*   **Prinsip Harmonisasi Progresif:** Selalu menerapkan standar tertinggi (highest common denominator) saat tidak ada konflik eksplisit.
+*   **Prinsip Isolasi Kontainer (Container Isolation):** Jika konflik tidak dapat diatasi secara logis, data harus diisolasi dalam silo hukum (legal silos) di mana kebijakan kepatuhan yang berbeda diterapkan tanpa tumpang tindih logis.
+*   **Audit Trail Hukum:** Setiap resolusi konflik harus dicatat dalam log audit, menyertakan yurisdiksi yang dipilih, alasan pemilihan (berdasarkan bobot risiko), dan referensi regulasi yang dilanggar/diabaikan parsial.
+
+#### 9.4. Cara Penggunaan (Usage)
+
+Jalankan kompiler untuk menganalisis konflik dan menghasilkan matriks resolusi:
+
+```bash
+python compliance_cross_jurisdictional_matrix_compiler.py \
+    --impact-report "./output/regulatory_impact_analysis.json" \
+    --internal-rules "./output/structured_policy_rules.json" \
+    --mapping-matrix "./output/compliance_mapping_matrix.json" \
+    --output-matrix "./output/conflict_resolution_matrix.json" \
+    --risk-weighting high \
+    --strategy "least_burden"
+```
+
+**Argumen详解:**
+
+| Argumen | Deskripsi | Tipe Data | Wajib |
+| :--- | :--- | :--- | :--- |
+| `--impact-report` | Path ke file JSON analisis dampak regulasi dari modul *Change Impact Analyzer*. | String (Path) | Ya |
+| `--internal-rules` | Path ke file JSON aturan kebijakan internal yang telah diinterpretasikan oleh LLM. | String (Path) | Ya |
+| `--mapping-matrix` | Path ke file JSON matriks pemetaan kontrol kepatuhan. | String (Path) | Ya |
+| `output-matrix` | Path keluaran untuk file `conflict_resolution_matrix.json` yang berisi hasil keputusan. | String (Path) | Ya |
+| `--risk-weighting` | Tingkat sensitivitas penentuan konflik: `low`, `medium`, `high`. Default: `medium`. | Enum | Tidak |
+| `--strategy` | Strategi resolusi default jika konflik ambigiu: `win_win` (berusaha memenuhi kedua sisi) atau `least_burden` (memilih jalur terkecil kepatuhan). | Enum | Tidak |
+| `--dry-run` | Simulasikan proses resolusi tanpa menulis file keluaran. | Flag | Tidak |
+
+#### 9.5. Struktur Keluaran: `conflict_resolution_matrix.json`
+
+File keluaran adalah dokumen strategis bagi penasihat hukum dan arsitek data. Contoh struktur:
+
+```json
+{
+  "matrix_id": "CRX-2025-001",
+  "generated_at": "2025-05-20T10:00:00Z",
+  "conflicts": [
+    {
+      "conflict_id": "CF-001",
+      "description": "Konflik Retensi Data vs. Hak Dihapus",
+      "jurisdictions_involved": ["EU_GDPR", "ID_PDP", "BR_LGPD"],
+      "severity": "High",
+      "analysis": {
+        "obligation_eu": "Hak untuk dilupakan (Art. 17 GDPR) - Hapus data personal setelah permintaan.",
+        "obligation_id": "Kewajiban Retensi untuk Audit Pajak (UU HPP) - Simpan data selama 10 tahun.",
+        "technical_conflict": "Pernyataan DELETE SQL di sisi EU akan menghapus data yang wajib disimpan di sisi ID."
+      },
+      "resolution_strategy": "Win-Win via Pseudonymization",
+      "decision": {
+        "priority_rule": "EU_User_Data_Treatment",
+        "action": "Separate Logical Storage",
+        "mitigation_details": [
+          "Pisahkan kolom PII (Nama, Email) dari data transaksi dalam tabel terpisah.",
+          "Terapkan GDPR delete hanya pada tabel PII.",
+          "Data transaksi tetap tersimpan dengan kolom PII yang ter-enkripsi/ter-mask (pseudonymized) untuk keperluan audit ID.",
+          "Akses penuh ke data mentah untuk audit hanya memerlukan kunci dekripsi khusus (Role-Based Access Control)."
+        ],
+        "risk_level": "Medium",
+        "legal_review_required": true,
+        "review_note": "Pastikan pseudonymization memenuhi definisi 'data anonim' di bawah GDPR agar tidak termasuk dalam hak dihapus."
+      }
+    }
+  ],
+  "summary": {
+    "total_conflicts_detected": 12,
+    "resolved_auto": 10,
+    "requires_legal_review": 2,
+    "unresolvable_technically": 0
+  }
+}
+```
+
+#### 9.6. Panduan Strategis untuk Penasihat Hukum Global (DPO & Legal Counsel)
+
+Bagian ini memberikan panduan operasional bagi tim hukum dalam menafsirkan dan mengimplementasikan keluaran dari kompiler ini:
+
+1.  **Validasi Logika "Win-Win"**:
+    *   Strategi "Win-Win" (seperti pseudonymization) sangat ideal, namun memiliki risiko interpretasi hukum. Tim hukum harus memastikan bahwa teknik *masking* yang digunakan benar-benar memenuhi standar anonimitas di yurisdiksi yang paling ketat (biasanya GDPR atau SCC). Jika tidak, hak untuk dilupakan tidak terpenuhi.
+    *   *Tindakan:* Minta arsitek data untuk memberikan spesifikasi teknis enkripsi/masking yang digunakan untuk resolusi "Win-Win" agar divalidasi secara legal.
+
+2.  **Prioritas Konflik "High Severity"**:
+    *   Konflik dengan bobot risiko "High" yang diresolusi secara otomatis oleh sistem ("Least Burden") harus ditinjau manual. Jika sistem memilih jalur "Least Burden" dengan mengabaikan kewajiban retensi lokal demi privasi global, ini bisa melanggar hukum lokal (hukum pidana atau administratif).
+    *   *Tindakan:* Tetapkan threshold manual. Jika konflik melibatkan hukum pidana atau sanksi denda > 2% pendapatan global, wajib review dewan direksi.
+
+3.  **Pembaruan Dinamis**:
+    *   Karena regulasi bersifat dinamis, `conflict_resolution_matrix.json` bukanlah dokumen statis. Ini harus dihasilkan ulang secara berkala (mingguan/bulanan) setiap kali ada perubahan signifikan pada `regulatory_impact_analysis.json`.
+    *   *Tindakan:* Otomatisasi pipeline CI/CD untuk menjalankan kompiler ini setiap kali modul *Regulatory Watch* mendeteksi perubahan draft regulasi baru.
+
+4.  **Audit Trail sebagai Bukti Kehati-hatian (Due Diligence)**:
+    *   Simpan setiap versi `conflict_resolution_matrix.json` sebagai bukti bahwa perusahaan secara proaktif mengelola risiko lintas batas. Ini dapat digunakan sebagai mitigasi denda di masa depan jika terjadi pelanggaran, menunjukkan bahwa konflik tersebut telah diidentifikasi dan diminimalkan seoptimal mungkin.
