@@ -21558,3 +21558,96 @@ Setiap aksi pengguna di dashboard (perubahan slider, pemilihan skenario, klik "J
 
 **Q: Bagaimana cara meningkatkan sensitivitas deteksi anomali?**
 **A:** Sensitivitas dikontrol oleh model statistik di `compliance_boardroom_simulation_audit_trail_analyzer.py`. Anda dapat menyesuaikan parameter `threshold_sigma` (deviasi standar) pada file konfigurasi analyzer. Penurunan nilai ini akan membuat sistem lebih sensitif terhadap fluktuasi kecil.
+
+
+Berikut adalah konten lanjutan yang komprehensif dan terstruktur untuk ditambahkan ke `README.md`, mencakup spesifikasi teknis antarmuka skrip dan dokumentasi mendalam mengenai metodologi visualisasi dan kepatuhan regulasi.
+
+---
+
+## 9. Executive Dashboard & Crisis Visualization Layer
+
+Bagian ini mendefinisikan spesifikasi teknis untuk modul `compliance_executive_dashboard_integration_suite.py`. Modul ini berfungsi sebagai *Single Pane of Glass* bagi Dewan Direksi, menerjemahkan data forensik tingkat rendah dari simulator menjadi *actionable insights* strategis, sambil menerapkan mekanisme keamanan tingkat tinggi untuk mencegah manipulasi data visual.
+
+### 9.1. Arsitektur Integrasi & Alur Data
+
+Dashboard ini bukan sekadar pelaporan pasif, melainkan lapisan kontrol aktif yang berinteraksi secara *real-time* dengan engine simulasi dan modul audit. Arsitektur datanya mengikuti pola berikut:
+
+1.  **Ingestion**: Menghubungkan ke endpoint simulasi (`--api-backend`) menggunakan WebSocket atau Server-Sent Events (SSE) untuk menerima *stream* data metrik risiko (Value at Risk, Liquidity Coverage Ratio, dll.).
+2.  **Analysis Correlation**: Memuat konfigurasi anomali (`--audit-config`) dari analyzer untuk melakukan *cross-referencing* instan. Jika metrik visual melampaui `threshold_sigma` yang ditentukan, status dashboard berubah dari "Normal" ke "Review Required".
+3.  **Visualization Engine**: Menggunakan framework *hybrid* (FastAPI untuk backend logika dan Streamlit/Dash untuk rendering frontend) yang dioptimalkan untuk latensi rendah. Aset statis tema korporat dimuat dari `--output-dashboard` untuk memastikan konsistensi branding dan performa.
+4.  **Crisis Lockdown**: Ketika algoritma mendeteksi pola "Kritikal", sistem memicu *Interactive Lockdown Mode*. Slider dan input parameter risiko di UI dimatikan (*disabled*), dan overlay peringatan merah dipaksakan hingga persetujuan auditor senior diberikan melalui tombol "Override with Justification" yang mencatat alasan manual ke log audit.
+
+### 9.2. Referensi Penggunaan Skrip
+
+Eksekusi dashboard dilakukan melalui skrip utama berikut:
+
+```bash
+python compliance_executive_dashboard_integration_suite.py \
+    --api-backend "http://localhost:8000/sim-stream" \
+    --audit-config "./config/anomaly_thresholds.yaml" \
+    --theme-config "./assets/corporate_theme_v2.json" \
+    --output-dashboard "./dist/dashboard_assets" \
+    --port 8501
+```
+
+**Penjelasan Argumen:**
+
+| Argumen | Tipe | Wajib | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `--api-backend` | String | Ya | URL endpoint HTTP/WebSocket dari `compliance_boardroom_simulator_dashboard.py` untuk menerima stream data metrik waktu nyata. |
+| `--audit-config` | String | Ya | Path ke file YAML/JSON yang mendefinisikan threshold anomali (misal: `threshold_sigma: 2.5`, `max_deviation: 0.05`) yang digunakan oleh analyzer untuk memicu alert visual. |
+| `--theme-config` | String | Ya | Path ke file konfigurasi tema korporat (JSON/SCSS) yang mendefinisikan palet warna, tipografi, dan layout component sesuai standar branding perusahaan. |
+| `--output-dashboard` | String | Ya | Direktori tempat aset statis (HTML/CSS/JS) dashboard akan dibangun dan dilayani. Pastikan direktori ini memiliki izin baca yang tepat. |
+| `--port` | Integer | Tidak | Port untuk menjalankan server dashboard (Default: `8501`). |
+
+### 9.3. Fitur Kunci: Visual Risk Intelligence
+
+Dashboard ini menerapkan metodologi **"Visual Risk Intelligence & Immediate Decision Support"** yang dirancang untuk mengurangi *cognitive load* eksekutif.
+
+*   **Hierarki Visual Prioritas**: Data ditampilkan dalam tiga layer:
+    1.  *Top-Level KPIs*: Kartu metrik utama (Risiko Likuiditas, Eksposur Pasar) dengan indikator warna (Hijau/Kuning/Merah).
+    2.  *Trend & Anomaly Heatmaps*: Grafik historis yang menyoroti deviasi statistik secara otomatis. Area anomali di-*highlight* dengan animasi halus untuk menarik perhatian tanpa mengganggu pandangan.
+    3.  *Drill-Down Forensics*: Klik pada komponen visual membuka panel detail yang menampilkan sumber data mentah dan log audit terkait, hanya jika izin akses memenuhi syarat.
+*   **Scenario Comparison (What-If Visualizer)**: Eksekutif dapat mensimulasikan perubahan parameter (misal: kenaikan suku bunga 50bps). Hasilnya ditampilkan sebagai *overlay* transparan pada grafik utama, memungkinkan perbandingan langsung antara skenario saat ini dan skenario hipotetis tanpa meninggalkan konteks visual utama.
+
+### 9.4. Standar Kepatuhan: SEC Reg FD untuk Internal Data Handling
+
+Meskipun bersifat internal, sistem ini dirancang mengikuti prinsip **Securities and Exchange Commission (SEC) Regulation Fair Disclosure (Reg FD)** untuk menjaga integritas informasi material.
+
+1.  **Equal Access to Information**: Dashboard dirancang untuk mencegah *selective disclosure*. Semua eksekutif dengan hak akses yang sama melihat data yang identik pada waktu yang sama. Tidak ada versi "tersembunyi" atau dimodifikasi dari data real-time.
+2.  **Non-Repudiation via Hashing**: Setiap frame visual atau snapshot metrik yang ditampilkan di dashboard dikaitkan dengan hash kriptografik (`hash_signature`) dari data sumber di simulator. Ini memastikan bahwa tidak ada pihak yang dapat mengklaim bahwa data yang ditampilkan pada rapat direksi berbeda dengan data yang sebenarnya dipantau oleh sistem operasional.
+3.  **Audit Trail for Visual Interactions**: Setiap interaksi pengguna di dashboard (zoom, filter, perubahan view) dicatat ke dalam log audit terenkripsi. Jika terjadi insiden kepatuhan, auditor dapat merekonstruksi persis apa yang dilihat dan kapan hal tersebut terjadi, mencegah tuduhan manipulasi data pasca-fakta.
+
+### 9.5. Visual Non-Repudiation Framework
+
+Untuk menjamin bahwa visualisasi tidak dimanipulasi secara selektif (*cherry-picking*) untuk menyembunyikan risiko, sistem menerapkan **Visual Non-Repudiation Framework** dengan langkah-langkah berikut:
+
+1.  **Cryptographic Binding**:
+    Setiap set data yang dirender ke komponen visual (misal: grafik line chart risiko) memiliki *metadata* tersembunyi yang berisi:
+    *   Timestamp generasi data.
+    *   `hash_signature` dari payload JSON sumber.
+    *   ID sesi audit unik.
+
+2.  **Real-Time Verification**:
+    Saat dashboard memuat atau memperbarui data, klien (browser) memverifikasi hash tersebut secara kriptografik menggunakan `--encrypt-key` yang disepakati dengan backend simulator. Jika hash tidak cocok, komponen visual dimatikan dan digantikan oleh indikator "Data Integrity Compromised".
+
+3.  **Immutable Snapshots for Reporting**:
+    Saat eksekutif mengambil *snapshot* layar untuk keperluan laporan direksi (PDF/Imgs), sistem secara otomatis menyertakan *digital watermark* dan checksum dari seluruh konteks data visual saat itu. Dokumen hasil tangkapan layar ini tidak dapat diverifikasi ulang oleh auditor eksternal untuk memastikan konsistensi dengan log sistem pusat.
+
+4.  **Override Logging**:
+    Dalam mode "Lockdown Interaktif", jika seorang administrator mencoba memaksakan perubahan visual atau mengabaikan peringatan anomali, sistem mewajibkan entri teks alasan (*justification*) yang dikunci secara kriptografik. Tindakan ini tidak dapat dibatalkan dan tercatat secara permanen dalam log audit forensik, memberikan pertanggungjawaban penuh (*full accountability*) atas setiap penyimpangan dari protokol visual standar.
+
+---
+
+## 10. Panduan Pengembangan & Kontribusi
+
+*(Bagian ini opsional, namun disarankan untuk proyek kolaboratif)*
+
+1.  **Menambah Metrik Baru**:
+    Tambahkan definisi metrik baru di `config/metrics.yaml` dan perbarui komponen Streamlit/Dash sesuai kebutuhan. Pastikan metrik baru tersebut memiliki mapping ke field di `compliance_boardroom_simulation_audit_trail_analyzer.py` untuk analisis anomali otomatis.
+
+2.  **Testing Visual Regression**:
+    Gunakan library seperti `pytest-visual` atau snapshot testing di Storybook untuk memastikan perubahan pada tema korporat tidak merusak layout atau kontras warna yang penting untuk aksesibilitas.
+
+3.  **Security Audit**:
+    Lakukan peninjauan kode berkala, khususnya pada bagian penanganan `--encrypt-key` dan validasi input di endpoint API, untuk memastikan tidak ada kerentanan *Server-Side Request Forgery (SSRF)* atau *Cross-Site Scripting (XSS)*.
