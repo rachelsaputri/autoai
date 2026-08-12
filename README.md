@@ -15467,3 +15467,142 @@ Sebelum presenting di ruang dewan direksi, lakukan langkah berikut:
 1.  **Dry Run dengan Skenario Baseline**: Verifikasi bahwa hasil simulasi sesuai dengan laporan audit kuartalan terbaru.
 2.  **Cek Koneksi TLS**: Pastikan sertifikat SSL valid dan tidak kedaluwarsa.
 3.  **Siapkan Skenario Terburuk (Worst-Case)**: Siapkan slider pada posisi ekstrem (denda 100%, deteksi 100%) untuk menunjukkan ketahanan modal perusahaan di bawah tekanan maksimal.
+
+
+Berikut adalah konten lanjutan untuk file `README.md`. Bagian ini dirancang untuk menyambung dengan Bab 9 yang sudah ada, fokus pada aspek **Compliance, Legal, dan Etika AI**, serta menyediakan dokumentasi teknis lengkap untuk skrip auditor bias baru.
+
+---
+
+### 9.9. Kerangka Kerja Akuntabilitas Algoritma (Algorithmic Accountability Governance)
+
+Dalam konteks regulasi modern seperti **EU AI Act** (khususnya High-Risk Systems, Annex III) dan prinsip perlindungan data (GDPR/POU), penggunaan model LLM dalam keputusan kepatuhan menuntut transparansi tingkat tinggi. Sistem tidak hanya harus akurat secara teknis, tetapi juga adil secara substantif dan prosedural.
+
+#### 9.9.1. Prinsip Dasar Kepatuhan AI
+Modul `compliance_mlp_compliance_llm_policy_interpreter` harus divalidasi secara berkata terhadap risiko diskriminasi tidak adil. Prinsip validasi meliputi:
+
+1.  **Keadilan Prosedural (Procedural Fairness):**
+    *   Memastikan bahwa proses pengambilan keputusan algoritmik dapat diaudit, dilacak (traceable), dan dijelaskan (explainable) kepada regulator atau auditor eksternal.
+    *   Setiap output dari sistem harus memiliki *audit trail* yang mencatat input demografis (secara agregat/tersembunyi untuk privasi) dan bobot keputusan.
+
+2.  **Keadilan Substantif (Substantive Fairness):**
+    *   Hasil output tidak boleh menyebabkan disparitas yang signifikan antara kelompok demografi yang dilindungi (misalnya: berdasarkan ras, gender, usia, atau latar belakang sosial-ekonomi) dibandingkan dengan kelompok referensi.
+    *   Risiko penalti atau flagging kepatuhan harus didistribusikan secara proporsional terhadap tingkat pelanggaran riil, bukan terhadap ciri khas pribadi.
+
+#### 9.9.2. Protokol "Human-in-the-Loop Override"
+Agar sistem memenuhi standar etika AI tertinggi, implementasi ini mewajibkan mekanisme **Human-in-the-Loop (HITL)** yang ketat:
+
+1.  **Validasi Independen:** Hasil dari `compliance_ai_bias_and_fairness_auditor.py` **tidak boleh** secara otomatis memperbarui `compliance_mapping_matrix.json` tanpa intervensi manusia.
+2.  **Persetujuan Penasihat Hukum:** Audit bias dianggap "berhasil" dan dapat diterapkan ke lingkungan produksi hanya setelah ditandatangani digital oleh penasihat hukum independen atau *Data Protection Officer* (DPO).
+3.  **Mekanisme Override:** Jika skor bias melebihi ambang batas kritis (misalnya: *Disparate Impact Ratio* < 0.8), sistem secara otomatis menggantung penempatan fitur interpretasi LLM baru hingga tinjauan ulang komprehensif dilakukan.
+
+---
+
+### 9.10. Auditor Bias dan Keadilan AI (`compliance_ai_bias_and_fairness_auditor.py`)
+
+Skrip ini berfungsi sebagai validator independen yang melakukan penelusuran balik (*traceability analysis*) terhadap dataset pelatihan dan hasil inferensi. Tujuannya adalah mendeteksi diskriminasi tidak adil dan memastikan bahwa efisiensi operasional tidak mengorbankan hak subjektif data.
+
+#### 9.10.1. Arsitektur Deteksi Bias
+Skrip ini menganalisis interaksi antara `compliance_mlp_compliance_llm_policy_interpreter` dengan input demografis tersembunyi (pseudo-anonymized) untuk menghitung metrik keadilan:
+
+*   **Traceability Analysis:** Menelusuri bagaimana atribut sensitif mempengaruhi logits output model.
+*   **Distributional Analysis:** Membandingkan distribusi risiko (risk scores) antar kelompok demografi.
+*   **Mitigation Mapping:** Mencocokkan temuan bias dengan mitigasi yang sudah ada di `compliance_mapping_matrix.json`.
+
+#### 9.10.2. Instalasi dan Dependensi
+Pastikan lingkungan Python Anda memiliki pustaka berikut:
+```bash
+pip install transformers pandas numpy scikit-learn fairlearn
+```
+
+#### 9.10.3. Penggunaan Skrip (Command Line Interface)
+
+Berikut adalah cara menjalankan auditor bias dari baris perintah:
+
+```bash
+python compliance_ai_bias_and_fairness_auditor.py \
+    --model-checkpoint ./models/compliance_llm_bert \
+    --inference-logs ./data/historical_inference_logs.csv \
+    --demographic-schema ./config/demographic_groups.json \
+    --fairness-metric demographic_parity \
+    --output-audit ./reports/ai_fairness_audit_report.json
+```
+
+#### 9.10.4. Parameter Argumen
+
+| Argumen | Tipe | Deskripsi |
+| :--- | :--- | :--- |
+| `--model-checkpoint` | `str` | Path ke direktori checkpoint model embedding (HuggingFace format). Wajib untuk melakukan analisis gradien dan attention maps. |
+| `--inference-logs` | `str` | Path ke file CSV/JSON berisi log inferensi historis (input teks, output keputusan, timestamp, dan ID sesi anonymized). |
+| `--demographic-schema` | `str` | File JSON yang mendefinisikan atribut sensitif dan pengelompokan demografi (contoh: `{"gender": ["M", "F", "Non-binary"]}`). |
+| `--fairness-metric` | `str` | Metrik keadilan yang digunakan. Opsi yang didukung: <br>- `demographic_parity`: Distribusi hasil positif harus seimbang antar kelompok.<br>- `equalized_odds`: Tingkat False Positive dan False Negative harus seimbang antar kelompok.<br>- `equal_opportunity`: Fokus pada True Positive Rate yang setara. |
+| `--output-audit` | `str` | Path file output untuk menyimpan laporan audit komprehensif dalam format JSON (`ai_fairness_audit_report.json`). |
+
+#### 9.10.5. Struktur Laporan Audit Output
+
+Laporan yang dihasilkan (`ai_fairness_audit_report.json`) berisi struktur data berikut untuk keperluan compliance:
+
+```json
+{
+  "audit_metadata": {
+    "timestamp": "2023-10-27T10:00:00Z",
+    "model_version": "compliance_llm_v2.1",
+    "auditor_version": "1.0.0",
+    "metric_used": "equalized_odds"
+  },
+  "bias_score": {
+    "overall_disparity_index": 0.04,
+    "max_group_disparity": 0.09,
+    "threshold_compliant": true
+  },
+  "demographic_analysis": {
+    "group_A": {
+      "sample_size": 5000,
+      "false_positive_rate": 0.02,
+      "false_negative_rate": 0.05
+    },
+    "group_B": {
+      "sample_size": 4800,
+      "false_positive_rate": 0.021,
+      "false_negative_rate": 0.052
+    }
+  },
+  "mitigation_recommendations": [
+    {
+      "issue": "Slight drift in False Negative Rate for group_B",
+      "severity": "Medium",
+      "action": "Re-weight training data for compliance_mlp module or adjust decision threshold for region-specific regulations."
+    }
+  ],
+  "legal_compliance_status": {
+    "eu_ai_act_high_risk": "Pending Human Approval",
+    "gdpr_algorithmic_impact": "Assessed"
+  }
+}
+```
+
+#### 9.10.6. Integrasi dengan Pipeline Ops (Opsional)
+
+Untuk mengotomatisasi deteksi bias tanpa melanggar protokol HITL, integrasikan skrip ini sebagai *pre-deployment gate* di CI/CD pipeline:
+
+1.  Jalankan auditor terhadap dataset *shadow* (data tiruan yang mirip distribusi produksi).
+2.  Jika `bias_score.overall_disparity_index` > 0.05, pipeline **gagal** (Fail Build).
+3.  Jika lolos, laporan dikirim ke channel Slack #legal-compliance untuk tinjauan manual sebelum *approval* akhir.
+
+---
+
+### 9.11. Panduan Keamanan Jaringan Lanjutan (Network Security Hardening)
+
+*(Melanjutkan dari bagian 9.8 jika diperlukan, atau sebagai penutup teknis untuk aspek infrastruktur)*
+
+Selain menjalankan dashboard di VPC Private Subnet, pastikan konfigurasi keamanan jaringan mendukung isolasi ketat:
+
+#### 9.11.1. Isolasi Model Inference
+Endpoint inferensi LLM harus dipisahkan dari endpoint Dashboard/UI menggunakan Security Groups terpisah.
+*   **Security Group Dashboard:** Hanya mengizinkan trafik HTTPS dari IP range Corporate VPN atau Bastion Host.
+*   **Security Group Model Inference:** Hanya mengizinkan trafik internal (intra-VPC) dari IP address EC2/Container yang menjalankan `compliance_boardroom_simulator_dashboard.py`. Tidak ada akses ingress dari internet.
+
+#### 9.11.2. Enkripsi Data dalam Transisi (TLS 1.3)
+Pastikan semua komunikasi internal antar modul (misalnya dari Dashboard ke API Interpreter) menggunakan TLS 1.3 dengan validasi sertifikat mutual (mTLS) jika memungkinkan, untuk mencegah *eavesdropping* bahkan di dalam jaringan internal.
+
+#### 9.11.3. Logging dan Audit Trail Jaringan
+Aktifkan VPC Flow Logs untuk mencatat semua paket yang masuk/keluar dari instance. Log ini harus dikirim ke CloudWatch Logs atau SIEM terpisah (tidak ke bucket S3 publik) untuk keperluan forensik jika terjadi insiden kebocoran data atau manipulasi model.
