@@ -20976,3 +20976,122 @@ sha256sum paket_bukti_pengadilan_v1.zip
 4.  **Audit Trail yang Jelas**: Setiap paket bukti dilengkapi dengan manifest digital yang menjelaskan secara rinci asal-usul, integritas, dan autentikasi setiap elemen di dalamnya, sehingga memperkuat posisi hukum saat pemeriksaan silang (*cross-examination*).
 
 Dengan mengintegrasikan `compliance_evidentiary_admissibility_preparer.py`, tim forensik tidak hanya menghasilkan bukti yang *secara teknis valid*, tetapi juga *secara prosedural siap pakai* di pengadilan.
+
+
+Berikut adalah konten lanjutan yang dirancang untuk ditambahkan ke `README.md`. Konten ini mencakup dokumentasi teknis untuk skrip simulasi baru, serta bab mendalam mengenai metodologi komunikasi forensik dan kepatuhan yudisial.
+
+---
+
+### 6.14.6. Simulasi Ujian Keterjemahan Teknis-Hukum (Technical-to-L legal Interpretation Simulator)
+
+Sebelum presentasi di pengadilan atau auditor ekstern, tim hukum sering kali menghadapi risiko "Gap Komunikasi Forensik": di mana bukti teknis valid secara matematis, namun gagal dijelaskan dengan jelas atau meyakinkan bagi non-teknisi (hakim/juri).
+
+Modul `compliance_judicial_witness_interrogation_simulator.py` berfungsi sebagai **agens simulasi adversarial**. Alat ini membaca paket bukti yang telah diverifikasi oleh langkah sebelumnya, kemudian mensimulasikan pertanyaan kritis dari berbagai persona penanya. Tujuannya adalah mengidentifikasi celah dalam narasi hukum (*legal narrative*) tim internal, memastikan bahwa penjelasan mengenai *hashing*, *chain of custody*, dan *timestamp* tidak hanya akurat secara teknis, tetapi juga koheren secara hukum.
+
+#### 6.14.6.1. Instalasi dan Penggunaan
+
+Skrip ini mengimpor struktur data dari paket bukti yang dihasilkan oleh `compliance_evidentiary_admissibility_preparer.py`.
+
+```bash
+# Contoh dasar: Simulasi dengan persona Hakim Ahli
+python compliance_judicial_witness_interrogation_simulator.py \
+    --case-package paket_bukti_pengadilan_v1.zip \
+    --auditor-persona technical_expert_judge \
+    --legal-context ./docs/referensi_hukum_uu_pdp_indonesia.md \
+    --output-simulation-report judicial_interrogation_simulation.json
+```
+
+#### 6.14.6.2. Argumen Referensi
+
+| Argumen | Tipe | Deskripsi |
+| :--- | :--- | :--- |
+| `--case-package` | String (Path) | Path ke file `.zip` hasil dari `compliance_evidentiary_admissibility_preparer.py`. Skrip akan mengekstrak manifest digital untuk dianalisis. |
+| `--auditor-persona` | Enum | Menentukan gaya pertanyaan penanya. Pilih salah satu:<br>• `technical_expert_judge`: Fokus pada detail algoritma, entropy, dan standar ISO. Pertanyaan cenderung kaku dan teknis.<br>• `prosecution_attorney`: Fokus pada implikasi hukum, intent, dan kemungkinan manipulasi. Pertanyaan cenderung agresif dan menantang konsistensi.<br>• `regulatory_inspector`: Fokus pada kepatuhan terhadap regulasi spesifik (misal: OJK, Bank Indonesia, PDP). Pertanyaan mengarah pada dokumen administratif dan audit trail. |
+| `--legal-context` | String (Path) | Path ke dokumenMarkdown atau teks yang berisi klausul hukum relevan. Simulasi akan menyandingkan temuan teknis dengan klausul ini untuk menilai kekuatan argumen hukum. |
+| `--output-simulation-report` | String (Path) | Path output untuk laporan JSON. Laporan ini berisi daftar pertanyaan simulasi, jawaban kandidat ideal (berbasis fakta teknis), dan skor "Kejelasan Non-Teknisi" (Non-Technical Clarity Score). |
+
+#### 6.14.6.3. Output Laporan Simulasi (`judicial_interrogation_simulation.json`)
+
+Laporan JSON yang dihasilkan tidak hanya berisi daftar pertanyaan, tetapi juga analisis risiko:
+
+```json
+{
+  "simulation_id": "sim_20231027_v1",
+  "persona": "technical_expert_judge",
+  "risk_assessment": "HIGH",
+  "findings": [
+    {
+      "id": "Q_01",
+      "question": "Bagaimana Anda menjamin bahwa hash SHA-256 tidak dapat dibatalkan (collision attack) pada saat pengambilan bukti?",
+      "technical_factual_base": "SHA-256 adalah standar saat ini dan belum ada collision praktis. Hashing dilakukan segera setelah isolasi disk.",
+      "gap_analysis": "Jawaban teknis benar, tetapi tidak menjawab implikasi 'integrity' dalam konteks UU ITE. Kekurangan referensi pada protokol standardisasi BSSN.",
+      "suggested_improvement": "Sebutkan bahwa prosedur mengikuti standar NIST SP 800-86 dan bahwa waktu pengambilan hash tercatat dalam log timestamp otoritatif."
+    },
+    {
+      "id": "Q_02",
+      "question": "Siapa yang memiliki akses fisik ke server selama periode 24 jam sebelum bukti diambil?",
+      "technical_factual_base": "Log akses menunjukkan hanya Admin A dan B.",
+      "gap_analysis": "Jawaban terlalu umum. Perlu menyebutkan prosedur 'Lockdown' dan audit trail akses login yang sudah divalidasi.",
+      "suggested_improvement": "Tunjukkan bukti 'Chain of Custody' untuk periode spesifik tersebut dan sertakan log autentikasi multi-faktor."
+    }
+  ],
+  "stress_test_result": {
+    "explainability_score": 7.5,
+    "recommendation": "Tim hukum perlu dilatih untuk menggunakan analogi 'Segel Plastik' untuk menjelaskan immutable hash log kepada non-teknisi, tanpa menghilangkan presisi fakta bahwa hash adalah fungsi satu arah."
+  }
+}
+```
+
+---
+
+### 6.15. Legal Preparedness & Crisis Management
+
+Bagian ini menjelaskan metodologi inti yang mendasari kemampuan sistem dalam mempersiapkan tim hukum. Tidak cukup hanya memiliki bukti yang "bersih"; bukti tersebut harus bisa "bertahan" dari tekanan pertanyaan lintas disiplin ilmu.
+
+#### 6.15.1. Forensic Communication Gap Analysis (FCGA)
+
+**FCGA** adalah metodologi analisis yang digunakan oleh `compliance_judicial_witness_interrogation_simulator.py` untuk mendeteksi diskrepansi antara fakta teknis dan narasi hukum yang disampaikan oleh saksi ahli atau eksekutif.
+
+Dalam litigasi digital, kegagalan sering terjadi bukan karena bukti palsu, tetapi karena **ketidakmampuan menerjemahkan kompleksitas teknis menjadi kejelasan hukum**. FCGA bekerja dengan tiga tahap:
+
+1.  **Mapping (Peta Fakta)**: Sistem memetakan setiap elemen dalam `verification_report.json` (misal: `file_hash`, `timestamp_source`, `access_log`) ke klausul hukum yang relevan (misal: Pasal 108 KUHAP mengenai alat bukti elektronik).
+2.  **Gap Detection (Deteksi Celah)**: Sistem mengidentifikasi di mana penjelasan teknis gagal memenuhi standar pembuktian hukum.
+    *   *Contoh Celah*: Tim hukum menyatakan "Data ini asli karena ada hash," namun gagal menjelaskan *bagaimana* hash tersebut dikaitkan dengan *waktu* kejadian di luar pengadilan (out-of-band verification).
+    *   *Contoh Celah*: Penjelasan teknis tentang enkripsi AES-256 tidak disertai penjelasan hukum tentang bagaimana kunci enkripsi dikelola (key management), yang menjadi titik lemah untuk serangan *tampering*.
+3.  **Bridging Strategy (Strategi Jembatan)**: Sistem menghasilkan rekomendasi frasa atau analogi yang menjembatani celah tersebut.
+    *   *Rekomendasi*: Alih-alih hanya menyebutkan "SHA-256", gunakan narasi: "Sistem menggunakan *digital fingerprint* standar internasional yang secara matematis memastikan bahwa jika data diubah sedikit pun, sidik jarinya akan berubah total, terbukti oleh ketidakcocokan hash di akhir proses."
+
+#### 6.15.2. Standar Judicial Admissibility of Digital Evidence
+
+Sistem ini dirancang untuk mematuhi prinsip-prinsip penerimaan bukti digital yang berlaku secara umum, dengan penyesuaian konteks Indonesia (KUHAP/KUHAP Baru) dan standar internasional (FRE 901/902).
+
+##### A. Relevansi dan Keabsahan (Authenticity) - *Sesuai FRE 901 / KUHAP*
+Agar bukti digital dapat diterima, pembuktian autentikasi harus menunjukkan bahwa bukti tersebut benar-benar berasal dari klaim asalnya.
+*   **Sistem Kita**: Mengimplementasikan **Proof of Non-Tampering** melalui hash kumulatif (Merkle Tree) pada manifest paket. Setiap file dalam arsip memiliki hash individual, dan struktur foldernya memiliki hash agregat. Jika satu byte berubah di level file manapun, hash agregat akan berubah, membuktikan adanya intervensi.
+*   **Implementasi Hukum**: Dokumentasi teknis diubah menjadi pernyataan hukum: "Bukti ini disajikan dalam keadaan utuh dan tidak dapat diubah sejak saat pengambilan, sebagaimana dibuktikan oleh tanda tangan digital notaris yang terikat pada struktur hash tersebut."
+
+##### B. Aturan Keras (Best Evidence Rule) & Salinan
+Bukti digital rentan terhadap klaim "salinan tidak sama dengan asli".
+*   **Sistem Kita**: Menggunakan **Timestamp Otoritatif** (dari server waktu terpercaya) yang ditandatangani secara kriptografis. Ini membuktikan *bukan hanya* konten file, tetapi juga *konteks waktu* saat bukti tersebut exist dan utuh.
+*   **Implementasi Hukum**: Tim hukum dapat berargumen bahwa "Asli" dalam konteks digital bukan tentang fisik harddisk, tetapi tentang integritas data yang divalidasi oleh pihak ketiga netral (notaris/server waktu), yang memenuhi syarat alat bukti tulisan sesuai hukum acara.
+
+#### 6.15.3. Prosedur "Explainability Stress Test"
+
+Untuk memastikan bahwa penjelasan teknis tidak hanya benar, tetapi juga *dapat dipertanggungjawabkan* di hadapan non-teknisi, sistem menjalankan **Explainability Stress Test** pada setiap output simulasi.
+
+Uji ini mengukur tiga metrik utama:
+
+1.  **Cognitive Load (Beban Kognitif)**:
+    *   Apakah penjelasan mengandung jargon teknis yang tidak perlu (misal: "entropy", "padding scheme") tanpa analogi pendukung?
+    *   *Pass Criteria*: Setiap istilah teknis yang digunakan harus disertai analogi dunia nyata atau definisi hukum yang setara.
+
+2.  **Consistency Check (Konsistensi Narasi)**:
+    *   Apakah penjelasan mengenai "rantai kustodi" (*chain of custody*) bertentangan dengan penjelasan mengenai "verifikasi hash"?
+    *   *Pass Criteria*: Tidak ada kontradiksi antara log waktu akses dan timestamp tanda tangan digital.
+
+3.  **Adversarial Resilience (Ketahanan terhadap Lawan)**:
+    *   Apakah penjelasan tersebut memungkinkan pihak lawan untuk berargumen bahwa "Sistem Anda mungkin memiliki bug" atau "Notaris mungkin bisa memanipulasi waktu"?
+    *   *Pass Criteria*: Penjelasan harus mengakui batasan sistem secara transparan namun menunjukkan mitigasi yang sudah dilakukan (misal: "Meskipun tidak ada sistem yang 100% bebas bug, kami menggunakan validasi silang multi-layer yang telah diverifikasi oleh auditor independen...").
+
+**Dampak Bisnis:**
+Dengan menerapkan `Forensic Communication Gap Analysis` dan `Explainability Stress Test`, organisasi tidak hanya menghasilkan bukti yang kuat secara teknis, tetapi juga membangun **trust capital** di hadapan hakim dan regulator. Hal ini mengurangi risiko penolakan bukti, mempercepat proses litigasi, dan melindungi reputasi perusahaan dari klaim ketidaktransparanan.
