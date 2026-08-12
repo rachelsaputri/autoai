@@ -11390,3 +11390,116 @@ Meskipun skrip ini ringan, untuk deployment produksi, disarankan untuk menambahk
 3.  **Rate Limiting:** Terapkan *rate limiting* di level Nginx atau firewall untuk mencegah penggunaan sumber daya berlebihan oleh dashboard yang melakukan *polling* terlalu agresif.
 
 Dengan menggunakan pendekatan ini, tim keamanan mendapatkan visibilitas real-time tanpa harus membangun infrastruktur database kompleks yang mahal, sementara eksekutif mendapatkan metrik yang akurat dan dapat ditindaklanjuti mengenai efektivitas strategi *Self-Healing* perusahaan.
+
+
+### 4. Generator Incident Response Playbook (Otomatisasi SOP)
+
+Untuk memastikan kepatuhan terhadap regulasi privasi data (seperti GDPR, UU PDP, atau HIPAA) dan standar keamanan siber, implementasi ini menyediakan skrip Python `compliance_incident_response_playbook_generator.py`. Skrip ini berfungsi sebagai jembatan antara analisis dampak keuangan dan pemetaan kepatuhan, dengan tujuan menghasilkan dokumen tindakan forensik yang terstruktur secara otomatis.
+
+#### A. Deskripsi Fungsional
+
+Skrip ini menganalisis dua input JSON utama yang dihasilkan oleh modul sebelumnya:
+1.  **`risk_financial_impact.json`**: Berisi estimasi kerugian finansial, cakupan data yang terpapar, dan kategori sensitivitas data.
+2.  **`compliance_mapping_matrix.json`**: Berisi aturan kepatuhan spesifik (misalnya, GDPR Article 33, ISO 27001 Control A.16) yang relevan dengan jenis data dan jenis insiden yang terdeteksi.
+
+Berdasarkan kedua input tersebut, skrip melakukan logika bisnis berikut:
+*   **Identifikasi Tingkat Keparahan**: Menentukan apakah insiden memerlukan notifikasi wajib ke otoritas regulator dalam waktu tertentu (misalnya, 72 jam untuk GDPR) atau sekadar dokumentasi internal.
+*   **Pembuatan Checklist Forensik**: Menghasilkan langkah-langkah teknis isolasi, pengumpulan bukti (chain of custody), dan analisis akar masalah.
+*   **Template Komunikasi**: Menyediakan draf template notifikasi hukum dan komunikasi stakeholder yang disesuaikan dengan bahasa yang diminta.
+*   **Alur Eskalasi**: Menentukan hierarki eskalasi berdasarkan dampak keuangan dan risiko reputasi.
+
+#### B. Instalasi dan Dependensi
+
+Pastikan lingkungan Python Anda memiliki pustaka berikut. Skrip ini dirancang untuk menggunakan pustaka standar Python untuk memaksimalkan kompatibilitas tanpa dependensi eksternal yang berat.
+
+```bash
+pip install json
+```
+
+#### C. Penggunaan Skrip (Usage)
+
+Jalankan skrip dari baris perintah (CLI) menggunakan argumen berikut:
+
+```bash
+python compliance_incident_response_playbook_generator.py \
+  --risk-input data/risk_financial_impact.json \
+  --matrix-input data/compliance_mapping_matrix.json \
+  --output docs/incident_playbook_v1.md \
+  --language id
+```
+
+**Penjelasan Argumen:**
+
+| Argumen | Tipe | Wajib | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `--risk-input` | String | Ya | Path absolut atau relatif ke file `risk_financial_impact.json`. |
+| `--matrix-input` | String | Ya | Path absolut atau relatif ke file `compliance_mapping_matrix.json`. |
+| `--output` | String | Ya | Path output untuk file Markdown yang dihasilkan (contoh: `incident_playbook_v1.md`). |
+| `--language` | String | Tidak | Kode bahasa untuk output dokumen. Default: `id` (Indonesia). Opsi lain: `en` (English). |
+
+#### D. Contoh Struktur Output (`incident_playbook_v1.md`)
+
+File Markdown yang dihasilkan akan terstruktur sebagai berikut:
+
+```markdown
+# Incident Response Playbook: [Judul Insiden Berdasarkan Kategori Data]
+
+## 1. Ringkasan Eksekutif
+- **Tingkat Keparahan**: [CRITICAL/HIGH/MEDIUM/LOW]
+- **Kewajiban Regulasi**: [GDPR Article 33, UU PDP Pasal X]
+- **Deadline Notifikasi**: [72 Jam sejak Penemuan]
+- **Estimasi Dampak Finansial**: [IDR XXX Million]
+
+## 2. Checklist Forensik & Isolasi
+- [ ] Isolasi host yang terinfeksi dari jaringan produksi.
+- [ ] Simpan log sistem dan akses ke dalam media yang tidak dapat diubah (Write-Once).
+- [ ] Buat image forensik dari memory dan disk jika diperlukan.
+- [ ] Dokumentasikan waktu penemuan dan waktu respons pertama.
+
+## 3. Alur Eskalasi Kritis
+1. **Level 1 (Teknis)**: CISO Team Lead - Notifikasi dalam 1 jam.
+2. **Level 2 (Hukum)**: Legal Counsel & DPO - Evaluasi kewajiban notifikasi regulator dalam 4 jam.
+3. **Level 3 (Eksekutif)**: CEO/Board - Persetujuan komunikasi publik jika risiko reputasi tinggi.
+
+## 4. Template Notifikasi Hukum (GDPR Compliant)
+> *Berikut adalah draf notifikasi yang dapat disesuaikan oleh tim hukum...*
+[Isi Template Notifikasi...]
+```
+
+#### E. Panduan Integrasi ITSM (ServiceNow / Jira)
+
+Agar setiap langkah penanggulangan insiden tercatat, dilacak, dan dapat diaudit secara forensik oleh regulator, integrasi playbook ini ke dalam platform ITSM sangat disarankan. Berikut adalah panduan teknis untuk integrasi tersebut:
+
+##### 1. Sinkronisasi Data ke ITSM
+Jangan mengandalkan file Markdown statis saja. Gunakan API ITSM untuk mengonversi item checklist dalam playbook menjadi *Service Ticket* atau *Incident Record*.
+
+*   **ServiceNow**:
+    Gunakan *Script Action* atau *Integration Hub* untuk membaca JSON output dari generator sebelumnya. Buat *Task* baru di tabel `task` atau `incident` dengan field *Description* berisi link ke `incident_playbook_v1.md`.
+*   **Jira**:
+    Buat *Project* khusus untuk "Compliance Incidents". Gunakan *Automation for Jira* untuk membuat *Issue* baru berdasarkan webhook dari skrip Python. Setiap item checklist dalam Markdown dapat di-*parse* menjadi *Sub-tasks* dalam Jira.
+
+##### 2. Penjeakan Audit Forensik (Chain of Custody)
+Untuk keperluan audit regulator, setiap tindakan dalam playbook harus memiliki jejak audit (audit trail) yang tidak dapat diubah.
+
+*   **Timestamping**: Pastikan setiap update status pada tiket ITSM tercatat dengan waktu server yang akurat (UTC).
+*   **Attachment Evidence**: Izinkan tim respons insiden untuk mengunggah bukti (log, screenshot, hash file) langsung ke tiket ITSM.
+*   **Approval Workflow**: Untuk langkah kritis (seperti notifikasi ke regulator), terapkan *approval workflow* di ITSM. Ini memastikan bahwa keputusan hukum didokumentasikan dan disetujui oleh personel berwenang sebelum eksekusi.
+
+##### 3. Pelaporan ke Regulator
+Banyak regulator (seperti Otoritas Perlindungan Data Pribadi di Indonesia atau supervisory authority di UE) memerlukan formulir notifikasi insiden yang standar.
+
+*   **Pengambilan Data Otomatis**: Ekstrak data kunci dari file `risk_financial_impact.json` (misalnya, jumlah subjek data yang terpengaruh, jenis data yang disusupi) dan isi secara otomatis ke dalam formulir notifikasi regulator.
+*   **Verifikasi Kepatuhan**: Gunakan `compliance_mapping_matrix.json` untuk memverifikasi bahwa semua informasi yang dilaporkan sudah sesuai dengan persyaratan minimal regulasi.
+
+#### F. Kerangka Kerja "Incident Response Lifecycle" (NIST SP 800-61 Rev. 2)
+
+Playbook yang dihasilkan oleh skrip ini selaras dengan empat fase utama dalam standar NIST SP 800-61 Rev. 2 (*Computer Security Incident Handling Guide*). Pemahaman ini membantu tim keamanan menavigasi kompleksitas respons insiden.
+
+| Fase NIST SP 800-61 | Aktivitas dalam Playbook Ini | Dukungan ITSM |
+| :--- | :--- | :--- |
+| **1. Preparation (Persiapan)** | - Definisi peran dan tanggung jawab.<br>- Penyusunan template komunikasi hukum.<br>- Penyiapan checklist forensik. | - *Runbooks* di Jira/ServiceNow.<br>- Daftar kontak darurat yang tersimpan di sistem. |
+| **2. Detection & Analysis (Deteksi & Analisis)** | - Penentuan tingkat keparahan berdasarkan dampak finansial.<br>- Klasifikasi jenis insiden untuk pemetaan regulasi. | - Penciptaan *Incident Ticket* awal.<br>- *Logging* semua aktivitas deteksi untuk analisis akar masalah. |
+| **3. Containment, Eradication & Recovery (Kontainmen, Pemberantasan & Pemulihan)** | - Langkah isolasi teknis.<br>- Validasi pembersihan sistem.<br>- Restorasi layanan dari backup yang terverifikasi. | - *Tasks* teknis untuk tim IT/DevOps.<br>- Verifikasi sign-off oleh CISO sebelum layanan kembali online. |
+| **4. Post-Incident Activity (Aktivitas Pasca-Insiden)** | - Dokumentasi pelajaran yang dipelajari (*Lessons Learned*).<br>- Update *compliance_mapping_matrix* jika ada celah baru.<br>- Audit kepatuhan pasca-insiden. | - *Close Ticket* dengan temuan root cause.<br>- Generate *Report* untuk manajemen dan regulator. |
+
+Dengan mengintegrasikan pendekatan ini, organisasi tidak hanya memenuhi kewajiban kepatuhan reguler, tetapi juga membangun ketahanan operasional yang dapat diukur dan diaudit, mengurangi risiko denda dan kerusakan reputasi di masa depan.
