@@ -16275,3 +16275,82 @@ Dalam kasus di mana simulasi serangan atau audit live mendeteksi kegagalan krusi
 *   **Covered Threats:** Alat ini dirancang untuk mendeteksi ancaman yang berasal dari manipulasi prompt, *semantic drift*, dan eksploitasi kerentanan model LLM standar.
 *   **Excluded Threats:** Keamanan terhadap serangan infrastruktur fisik, *side-channel attacks* tingkat rendah (hardware), atau ancaman ransomware eksternal tidak menjadi cakupan alat ini.
 *   **Dynamic Nature of LLMs:** Karena model LLM bersifat dinamis dan terus berkembang, hasil pengujian bersifat *point-in-time*. Pengujian ulang disarankan dilakukan setiap kali terjadi pembaruan signifikan pada model dasar (*base model*) atau perubahan regulasi yurisdiksi utama.
+
+
+##### 5. Engine Peta Kepatuhan Semantik: `compliance_governance_knowledge_graph_engine.py`
+
+Untuk mengubah data kepatuhan statis menjadi wawasan strategis yang dapat ditindaklanjuti, sistem ini mencakup modul inti bernama `compliance_governance_knowledge_graph_engine.py`. Modul ini bertindak sebagai jembatan antara layer teknis (temuan audit) dan layer bisnis (risiko finansial & hukum), memungkinkan pertanyaan analitis kompleks yang melampaui kemampuan database relasional tradisional.
+
+###### 5.1 Arsitektur "Semantic Compliance Mapping"
+
+Arsitektur ini mengadopsi pendekatan **Knowledge Graph (KG)** berbasis RDF (Resource Description Framework) dan JSON-LD. Berbeda dengan tabel flat, pendekatan ini memodelkan entitas sebagai *Node* (misalnya: `Violation`, `Regulation`, `FinancialLoss`) dan hubungannya sebagai *Edges* (misalnya: `CAUSES`, `VIOLATES`, `RESULT_IN`).
+
+**Manfaat Strategis:**
+1.  **Propagasi Risiko Causal:** Memungkinkan penelusuran jejak mundur dari dampak finansial tertinggi ke akar penyebab teknis. Contoh: Mengidentifikasi bahwa *data leakage* di modul A menyebabkan denda GDPR, yang berkontribusi sebesar 15% terhadap estimasi kerugian tahunan.
+2.  **Ontologi Terstandarisasi:** Menggunakan standar **OWL (Web Ontology Language)** untuk mendefinisikan kelas entitas secara eksplisit. Ini memastikan konsistensi semantik antar modul (misalnya, istilah "Critical Control" di modul *Govern* memiliki definisi yang sama persis dengan "High-Impact Control" di modul *Measure*).
+3.  **Integrasi Dashboard Eksekutif:** Graph database (seperti Neo4j atau Amazon Neptune) memungkinkan visualisasi interaktif bagi Dewan Direksi, menampilkan "Hotspots" kepatuhan yang memengaruhi eksposur dewan secara real-time.
+
+###### 5.2 Spesifikasi Implementasi Teknis
+
+Script ini dirancang untuk orkestrasi data, ingest, dan query awal. Berikut adalah daftar argumen baris perintah yang didukung:
+
+| Argumen | Tipe | Deskripsi |
+| :--- | :--- | :--- |
+| `--matrix` | `str` | Path absolut ke file `compliance_mapping_matrix.json` yang dihasilkan oleh `compliance_compliance_orchestration_matrix_generator.py`. |
+| `--financial` | `str` | Path absolut ke file `risk_financial_impact.json` yang dihasilkan oleh `compliance_risk_quantifier.py`. |
+| `--narrative` | `str` | Path absolut ke file `legal_narrative_archive.docx` yang dihasilkan oleh `compliance_forensic_chronicle_builder.py`. |
+| `--db-uri` | `str` | URI koneksi ke Graph Database (contoh: `bolt://localhost:7687` untuk Neo4j). |
+| `--output-graph` | `str` | Path file untuk export grafik dalam format `.dot` (Graphviz) atau `.jsonld` untuk tujuan arsip atau migrasi. |
+
+**Alur Kerja Ingest Data:**
+1.  **Parsing `--matrix`:** Mengekstrak hubungan `Control -> Regulation` dan memetakannya ke node `TechnicalControl` dan `LegalRequirement`.
+2.  **Analisis `--financial`:** Membaca skor risiko kuantitatif dan membuat node `RiskEvent` dengan properti `impact_value` (dalam mata uang lokal).
+3.  **Extraction `--narrative`:** Menggunakan NLP dasar untuk mengekstrak entitas hukum (Nama Pasal, Yurisdiksi, Jenis Denda) dari arsip naratif dan menghubungkannya dengan node `LegalRequirement` yang relevan.
+4.  **Graph Construction:** Membangun graph RDF di memori, lalu melakukan *bulk load* ke Graph Database yang dituju melalui `--db-uri`.
+5.  **Export:** Jika argumen `--output-graph` diberikan, skrip akan melakukan serialisasi graph menjadi format teks yang dapat dibaca manusia untuk audit trail statis.
+
+**Contoh Query Analitis (Cypher/Neo4j):**
+Setelah ingest berhasil, arsitek data dapat menjalankan query berikut untuk menjawab pertanyaan strategis:
+
+```cypher
+// Temukan semua celah kepatuhan yang berkontribusi langsung terhadap risiko denda GDPR tertinggi
+MATCH (v:Violation)-[:CONTRIBUTES_TO]->(r:RiskEvent)
+MATCH (r)-[:HAS_REGULATION]->(reg:Regulation {jurisdiction: 'EU', type: 'GDPR'})
+MATCH (v)-[:HAS_CONTROL]->(c:Control {status: 'FAILING'})
+RETURN v.description, c.control_id, r.estimated_fine_eur
+ORDER BY r.estimated_fine_eur DESC
+LIMIT 10;
+```
+
+###### 5.3 Panduan Integrasi untuk Arsitek Data
+
+Untuk mengintegrasikan visualisasi pengetahuan ini ke dalam **Decision Support System (DSS)** dewan direksi, ikuti langkah-langkah berikut:
+
+1.  **Penyiapan Graph Database:**
+    Pastikan instances Neo4j/Neptune telah dikonfigurasi dengan indeks pada properti `label`, `id`, dan `status` untuk performa query yang optimal pada dataset skala besar.
+
+2.  **Definisi Ontologi OWL:**
+    File definisi ontologi harus dideploy secara terpisah atau di-hash ke dalam graph metadata. Kelas-kelas kunci meliputi:
+    *   `RegulatoryEntity`: Subclass dari `OntologyConcept`.
+    *   `TechnicalControl`: Harus memiliki properti `riskLevel` dan `implementationStatus`.
+    *   `FinancialMetric`: Terhubung ke `RiskEvent` melalui relasi `QUANTIFIED_AS`.
+
+3.  **Koneksi ke Dashboard:**
+    Gunakan driver API resmi (misalnya `py2neo` untuk Python atau driver Java untuk backend DSS) untuk menarik data dari graph database. Hindari query langsung dari frontend dashboard untuk alasan keamanan dan performa; alih-alih, gunakan lapisan *aggregation service* yang menyimpan hasil query umum (seperti "Top 10 Risks") dalam cache Redis.
+
+4.  **Pemeliharaan Ontologi:**
+    Setiap kali terdapat perubahan regulasi baru atau penambahan kontrol teknis, jalankan ulang `compliance_governance_knowledge_graph_engine.py` dengan argumen `--output-graph` untuk menghasilkan snapshot versioned dari graph. Ini penting untuk keperluan audit kepatuhan historis.
+
+###### 5.4 Contoh Skenario Penggunaan: "Root Cause Analysis Denda"
+
+Skenario ini menggambarkan bagaimana *engine* ini mendukung tim compliance dalam investigasi insiden:
+
+1.  **Insiden:** Tim hukum menerima surat peringatan dari regulator terkait pelaporan data breach yang terlambat.
+2.  **Query Engine:** Arsitek data menjalankan query:
+    ```cypher
+    MATCH (n:NotificationFailure)-[:CAUSED_BY]->(c:TechnicalControl)
+    RETURN n.event_date, c.control_id, c.description;
+    ```
+3.  **Hasil:** Sistem mengidentifikasi bahwa kontrol `DataRetentionPolicy_v2` gagal menjalankan validasi waktu proses (latency issue) yang menyebabkan keterlambatan pelaporan.
+4.  **Konteks Finansial:** Sistem menggabungkan data dari `risk_financial_impact.json` untuk menunjukkan bahwa kegagalan kontrol ini berpotensi meningkatkan denda GDPR sebesar 20% karena faktor "kepatuhan proaktif".
+5.  **Tindakan:** Dewan direksi menerima rekomendasi untuk mempercepat remediasi pada `DataRetentionPolicy_v2` berdasarkan visualisasi grafik kausalitas yang menampilkan dampak berantai dari celah teknis ini.
