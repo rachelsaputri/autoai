@@ -13884,3 +13884,98 @@ Kerucut ketidakpastian memplot nilai proyeksi kerugian seiring bertambahnya hori
 
 **Rekomendasi Praktis:**
 Dalam presentasi dewan direksi, hindari menampilkan nilai tunggal (misal: "Kerugian diperkirakan $1M"). Sebaliknya, tunjukkan keruc ketidakpastian dan jelaskan: *"Berdasarkan model kami, kami memiliki keyakinan 95% bahwa kerugian tidak akan melebihi $1.5M, namun dalam skenario ekstrem (0.1% probabilitas), kerugiannya bisa mencapai $10M. Cadangan dana kita saat ini cukup untuk menutupi skenario 95%, tetapi memerlukan mitigasi tambahan untuk skenario ekor hitam."* Pendekatan ini secara etis dan hukum lebih defensif daripada menjamin akurasi prediksi tunggal.
+
+
+# Deployment and Operations
+
+Bagian ini menguraikan instruksi teknis untuk instalasi, konfigurasi, dan operasional simulator kepatuhan berbasis dewan direksi. Alat ini dirancang bukan sekadar sebagai visualizer data, melainkan sebagai lingkungan **Interactive Risk Sensitivity** yang memungkinkan manajemen senior melakukan *What-If Analysis* secara real-time terhadap parameter risiko makro dan mikro.
+
+## 1. Instalasi dan Persiapan Lingkungan
+
+Pastikan lingkungan Python Anda memiliki dependensi berikut:
+
+```bash
+pip install flask dash plotly numpy scipy json
+```
+
+## 2. Konfigurasi Jalur Data (Data Ingestion)
+
+Simulator ini bergantung pada dua output utama dari pipeline kepatuhan sebelumnya. Anda harus menyediakan path absolut atau relatif ke file-file tersebut saat menjalankan server.
+
+1.  **Hasil Simulasi Stres (`stress_test_results.json`):**
+    Dihasilkan oleh `compliance_financial_risk_stress_tester.py`. File ini berisi distribusi probabilitas kerugian (Loss Distribution), termasuk *percentiles* (5th, 50th, 95th) dan skenario ekor hitam (*tail risk*).
+2.  **Matriks Pemetaan Kepatuhan (`compliance_mapping_matrix.json`):**
+    Dihasilkan oleh `compliance_compliance_orchestration_matrix_generator.py`. File ini memetakan risiko operasional terhadap standar regulasi (seperti OJK, Basel III, atau ISO 27001) dan faktor koreksi denda.
+
+## 3. Parameter Jalur Perintah (CLI Arguments)
+
+Jalankan script `compliance_boardroom_simulator_dashboard.py` dengan argumen berikut untuk menyesuaikan perilaku dashboard:
+
+| Argumen | Deskripsi | Default | Contoh Penggunaan |
+| :--- | :--- | :--- | :--- |
+| `--stress-results` | Path ke file JSON hasil simulasi stres. Wajib ada. | N/A | `--stress-results ./data/output/stress_test_results.json` |
+| `--mapping-matrix` | Path ke file JSON matriks kepatuhan. Wajib ada. | N/A | `--mapping-matrix ./data/config/compliance_mapping_matrix.json` |
+| `--port` | Port jaringan tempat server Flask/Dash berjalan. | `8080` | `--port 9090` |
+| `--access-control` | Mengaktifkan mode RBAC. Jika diaktifkan, hanya peran **Direksi** dan **Komisaris** yang dapat mengakses dashboard. Tanpa flag ini, dashboard bersifat publik/readonly tanpa otentikasi. | Disabled | `--access-control` |
+
+**Contoh Perintah Eksekusi:**
+
+```bash
+python compliance_boardroom_simulator_dashboard.py \
+    --stress-results ./compliance_outputs/stress_test_results.json \
+    --mapping-matrix ./compliance_outputs/compliance_mapping_matrix.json \
+    --port 8080 \
+    --access-control
+```
+
+## 4. Metodologi: Interactive Risk Sensitivity
+
+Dashboard ini menerapkan prinsip **Interactive Risk Sensitivity**, di mana "Cone of Uncertainty" tidak statis, melainkan dinamis berdasarkan input pengguna. Ini mengubah paradigma pelaporan risiko dari *backward-looking* (berdasarkan data historis) menjadi *forward-looking* berbasis skenario.
+
+### Mekanisme Sensitivitas Real-Time
+Ketika pengguna menyesuaikan slider parameter, backend melakukan perhitungan ulang distribusi probabilitas secara lokal tanpa perlu menjalankan ulang simulasi Monte Carlo yang berat (karena basis data sudah dimuat). Perubahan parameter memengaruhi:
+
+1.  **Intensitas Denda Regulasi (`penalty_intensity`):**
+    *   *Pengaruh:* Menggeser kurva densitas probabilitas ke kanan (meningkatkan ekor atas).
+    *   *Dampak Visual:* Bagian merah (*high-risk zone*) pada kerucut membesar, menunjukkan peningkatan potensi pelanggaran Capital Adequacy Ratio (CAR).
+2.  **Tingkat Deteksi Insiden (`detection_rate`):**
+    *   *Pengaruh:* Mengurangi frekuensi insiden terdeteksi, sehingga mengurangi volatilitas operasional jangka pendek.
+    *   *Dampak Visual:* Lebar kerucut di bagian tengah (Base Case) menyempit, meningkatkan kepercayaan (*confidence level*) pada proyeksi laba bersih.
+3.  **Skenario Likuiditas Kritis (`liquidity_shock`):**
+    *   *Pengaruh:* Menambahkan *stress factor* pada modal operasional.
+    *   *Dampak Visual:* Garis batas CAR minimum menjadi lebih dekat dengan batas bawah kerucut, menyoroti kerentanan likuiditas dalam skenario terburuk.
+
+### Antarmuka Pendukung Keputusan Eksekutif (Executive Decision Support Interface)
+Antarmuka ini dirancang khusus untuk mengurangi *cognitive load* pada anggota dewan direksi:
+
+*   **Visualisasi Hierarkis:** Risiko dikategorikan berdasarkan dampak terhadap CAR (Capital Adequacy Ratio). Warna hijau menunjukkan ketahanan modal, sedangkan merah menunjukkan ketidakcukupan cadangan.
+*   **Eksposisi "Tail Risk" yang Etis:** Dashboard secara eksplisit menampilkan skenario ekor hitam (0.1% probabilitas). Ini memastikan bahwa keputusan strategis (seperti pembayaran dividen) tidak didasarkan hanya pada ekspektasi rata-rata, tetapi juga pada ketahanan terhadap skenario ekstrem.
+*   **Defensibilitas Komunikasi:** Data yang ditampilkan dapat langsung diekspor sebagai visualisasi yang siap digunakan dalam presentasi ke pemangku kepentingan eksternal, dengan catatan metodologis yang jelas mengenai asumsi sensitivitas yang digunakan.
+
+## 5. Protokol Keamanan Data Sensitif
+
+Karena dashboard ini memproses data risiko strategis dan profil kepatuhan yang sangat sensitif, implementasi keamanan mengikuti standar **Zero Trust** untuk data internal level senior.
+
+### A. Autentikasi dan Autorisasi (RBAC)
+Saat flag `--access-control` diaktifkan, sistem mengintegrasikan lapisan autentikasi wajib:
+*   **Level Direksi & Komisaris:** Akses penuh ke seluruh parameter slider dan hasil simulasi.
+*   **Level Manajer Operasional/IT:** Dilarang mengakses dashboard ini. Data tidak tersedia dalam antarmuka mereka.
+*   **Mekanisme:** Menggunakan session-based authentication dengan token yang di-encrypt. Tidak ada penyimpanan kredensial dalam plaintext.
+
+### B. Enkripsi Data
+*   **Encryption at Rest:** File `stress_test_results.json` dan `compliance_mapping_matrix.json` harus disimpan dalam partisisi terenkripsi (misalnya, menggunakan LUKS atau enkripsi folder berbasis cloud). Script memuat data ke dalam memori terenkripsi selama sesi.
+*   **Encryption in-Transit:** Dashboard hanya dapat diakses melalui **HTTPS/TLS 1.3**. Sertifikat SSL harus dikonfigurasi di sisi server (Reverse Proxy seperti Nginx atau Caddy direkomendasikan untuk produksi). Semua komunikasi antara klien (browser direksi) dan server Flask dilindungi dari *Man-in-the-Middle* attacks.
+
+### C. Manajemen Jejak Log (Audit Trail & Privacy)
+Untuk menjaga kerahasiaan strategi mitigasi risiko:
+1.  **Tidak Ada Log Simulasi Publik:** Interaksi pengguna (pergeseran slider, perubahan parameter) **tidak** dicatat dalam log akses standar (`access.log`) atau log aplikasi terbuka. Hal ini mencegah karyawan level operasional atau pihak eksternal mengetahui asumsi risiko yang sedang dipertimbangkan oleh direksi.
+2.  **Log Audit Minimalis:** Hanya log administratif yang dicatat (misalnya: "Sesi login berhasil untuk user [ID]"), tanpa menyertakan detail parameter apa yang diubah.
+3.  **Pembersihan Memori:** Setelah sesi dibekukan atau browser ditutup, data sensitif dihapus dari memori RAM secara otomatis untuk mencegah kebocoran melalui *core dumps* atau *memory scraping*.
+
+### D. Isolatasi Jaringan
+Disarankan untuk menjalankan dashboard ini dalam **VPC (Virtual Private Cloud)** atau jaringan internal yang terisolasi, yang hanya dapat diakses melalui VPN perusahaan atau jaringan intranet yang diautentikasi kuat. Port publik (8080) tidak boleh terbuka langsung ke internet.
+
+---
+
+**Catatan Penting untuk Administrator Sistem:**
+Pastikan file `stress_test_results.json` diperbarui setidaknya setiap kuartal atau setiap kali terjadi perubahan material dalam profil risiko perusahaan. Data yang usang akan menghasilkan visualisasi kerucut ketidakpastian yang menyesatkan dan berisiko terhadap pengambilan keputusan strategis.
