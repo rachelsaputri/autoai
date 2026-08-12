@@ -25686,3 +25686,92 @@ Berikut adalah contoh bagaimana sistem merespons ketika terdapat konflik yurisdi
 
 3.  **Audit Trail ISO 21146:**
     Pastikan bahwa `audit_metadata` dalam file JSON output dimasukkan ke dalam payload transaksi blockchain. Ini memungkinkan auditor eksternal untuk memverifikasi bahwa respons yang dihasilkan oleh skrip Python ini sesuai dengan kebijakan yang ada pada *timestamp* tertentu, dan tidak dimanipulasi pasca-hoc.
+
+
+Berikut adalah konten lanjutan yang dirancang untuk ditempatkan langsung setelah bagian "Catatan Keamanan Tambahan untuk Tim Forensik & Audit" dalam file `README.md`.
+
+---
+
+### Forensic Admissibility & Witness Credibility Assurance
+
+Bagian ini mendefinisikan arsitektur dan metodologi dari **Compliance Forensic Witness Testimony Validation Engine**. Sistem ini bukan sekadar alat pelaporan, melainkan sebuah "simulator pengadilan virtual" yang dirancang untuk menguji ketangguhan kesaksian ahli forensik (*expert witness*) sebelum diajukan di depan pengadilan. Dengan mengintegrasikan data dari verifier *chain-of-custody* dan matriks privilege lintas yurisdiksi, engine ini melakukan validasi silang terhadap konsistensi logis, keabsahan metodologi, dan objektivitas interpretasi teknis.
+
+#### 1. Arsitektur Validasi: `compliance_forensic_witness_testimony_validation_engine.py`
+
+Script Python ini berfungsi sebagai lapisan terakhir dalam pipeline forensik, bertindak sebagai gatekeeper kualitas bukti. Sistem ini mensimulasikan interogasi kritis dengan membandingkan narasi ahli (dari laporan teknis) dengan realitas data mentah (metadata terverifikasi).
+
+**Cara Penggunaan:**
+
+```bash
+python compliance_forensic_witness_testimony_validation_engine.py \
+    --expert-report-input /path/to/expert_forensic_report.pdf \
+    --technical-evidence-metadata /path/to/verified_metadata_bundle.json \
+    --cross-examination-scenarios /path/to/scenario_config.yaml \
+    --output-credibility-assessment /path/to/witness_credibility_validation.json
+```
+
+**Parameter Input:**
+
+*   `--expert-report-input` (Wajib): Path absolut ke file laporan ahli forensik (.pdf, .docx, atau .json). Sistem akan melakukan ekstraksi teks dan parsing struktur untuk mengidentifikasi klaim teknis, kesimpulan, dan metodologi yang dikutip.
+*   `--technical-evidence-metadata` (Wajib): Path ke kumpulan metadata forensik terverifikasi yang telah diverifikasi oleh `compliance_disputed_artifact_chain_of_custody_integrity_verifier.py`. Ini berfungsi sebagai "ground truth" atau standar emas untuk memvalidasi klaim ahli.
+*   `--cross-examination-scenarios` (Opsional): Path ke file konfigurasi YAML/JSON yang mendefinisikan gaya interogasi pihak lawan. Opsi default mencakup:
+    *   `aggressive`: Fokus pada kontradiksi halus dan kesalahan metodologis kecil.
+    *   `technical`: Fokus pada celah dalam algoritma hashing atau struktur ledger.
+    *   `procedural`: Fokus pada kepatuhan terhadap standar hukum dan protokol chain-of-custody.
+*   `--output-credibility-assessment`: Path tujuan untuk menyimpan laporan JSON hasil validasi. Laporan ini berisi skor kredibilitas, daftar potensi kontradiksi, dan rekomendasi mitigasi sebelum sidang.
+
+#### 2. Metodologi: "Pre-Trial Evidentiary Stress-Testing"
+
+Sistem ini menerapkan kerangka kerja **Pre-Trial Evidentiary Stress-Testing** untuk memastikan bahwa setiap klaim ahli bertahan terhadap tekanan logika yang ketat. Proses ini terdiri dari tiga pilar verifikasi:
+
+1.  **Traceability Verification (Penelusuran Matematis):**
+    Setiap klaim faktual dalam laporan ahli (misalnya, *"File X terbukti asli karena hash SHA-256 cocok"*) harus dapat ditelusuri secara otomatis ke entri metadata mentah dalam ledger blockchain. Jika hash dalam laporan tidak cocok dengan hash yang terekam di ledger pada timestamp spesifik, sistem akan menandai klaim tersebut sebagai `UNVERIFIABLE_CLAIM`. Ini mencegah ahli menggunakan data lama atau data yang telah dimodifikasi secara implisit.
+
+2.  **Consistency Logic Check (Uji Konsistensi Logis):**
+    Sistem memverifikasi tidak ada kontradiksi internal dalam laporan. Misalnya, jika ahli menyatakan bahwa "Data tidak dapat diakses di wilayah Y" di satu paragraf, tetapi menggunakan data dari wilayah Y di paragraf lain sebagai bukti, engine akan mendeteksi kontradiksi prosedural ini.
+
+3.  **Jurisdictional Alignment Audit:**
+    Memastikan interpretasi privilage dan hak milik data selaras dengan standar yurisdiksi yang relevan. Jika ahli forensik membuat klaim tentang kepemilikan data yang bertentangan dengan status `SOVEREIGN` atau `BLOCKED` yang dicatat dalam ledger, sistem akan memberikan peringatan `JURISDICTIONAL_RISK_HIGH`.
+
+#### 3. Standar Hukum yang Dijadikan Acuan
+
+Sistem ini dirancang untuk memenuhi standar baku pengakuan bukti di yurisdiksi utama, dengan penyesuaian kontekstual:
+
+*   **Daubert Standard (AS) & Fed. R. Evid. 702:**
+    Sistem memvalidasi apakah metodologi ahli memiliki tingkat ketetapan yang dapat diuji (*testability*), telah melalui peer review, memiliki tingkat kesalahan yang dikenal, dan diterima secara luas dalam komunitas ilmiah. Engine secara otomatis memindai laporan untuk memastikan referensi metodologi (seperti NIST SP 800-86) digunakan dengan benar dan tidak dipaksakan untuk konteks yang tidak sesuai.
+
+*   **Yurisprudensi Bukti Elektronis Indonesia (UU ITE & KUHAP):**
+    Dalam konteks Indonesia, sistem menekankan validitas **Bukti Alat** dan **Bukti Digital** sesuai Pasal 107 KUHAP dan UU No. 11 Tahun 2008 tentang ITE. Sistem memverifikasi integritas data (integritas konten) dan keaslian sumber data. Jika ada gap dalam *chain-of-custody* yang tidak dapat dijelaskan oleh metadata teknis, sistem akan menandainya sebagai potensi kerentanan dalam penerimaan bukti di pengadilan Indonesia, di mana keabsahan teknik forensik sering kali menjadi titik kritis gugatan.
+
+#### 4. Prosedur Deteksi Bias: "Bias Detection in Expert Interpretation"
+
+Salah satu ancaman terbesar bagi kredibilitas ahli di pengadilan bukan hanya kesalahan teknis, melainkan **subjektivitas tersembunyi** atau **kecenderungan konfirmasi** (*confirmation bias*). Engine ini menggunakan modul **NLP-Based Linguistic Analysis** untuk membedah bahasa yang digunakan dalam laporan ahli.
+
+**Mekanisme Kerja:**
+
+1.  **Identifikasi Bahasa Subjektif:**
+    Sistem memindai frasa yang menunjukkan opinibukan fakta, seperti:
+    *   *"Secara intuitif, data ini terlihat dimodifikasi..."*
+    *   *"Hampir pasti, ini adalah hasil serangan internal..."*
+    *   *"Dapat disimpulkan bahwa..."* (tanpa dukungan data statistik kuat).
+
+2.  **Deteksi Klaim Berlebihan (Overclaiming):**
+    Sistem membandingkan tingkat kepastian pernyataan ahli dengan tingkat ketidakpastian data. Jika data memiliki *confidence interval* 95% tetapi ahli menyatakan kepastian 100% ("Pasti", "Tidak ada keraguan"), sistem akan menandai ini sebagai `OVERCONFIDENCE_RISK`.
+
+3.  **Analisis Tone & Framing:**
+    Sistem mendeteksi penggunaan bahasa yang cenderung menuduh tanpa bukti teknis langsung (*leading language*). Misalnya, menggunakan kata *"diduga"* atau *"terlihat mencurigakan"* berulang kali tanpa adanya *hash mismatch* atau *anomaly score* yang signifikan.
+
+**Output Deteksi Bias:**
+Laporan `witness_credibility_validation.json` akan mencakup bagian `linguistic_analysis` yang berisi:
+*   Daftar kalimat bermasalah beserta saran perbaikan menjadi bahasa objektif (misal: mengubah *"Hacker ini jahat"* menjadi *"Akses tidak sah terdeteksi dari IP Z"*).
+*   Skor Objektivitas Ahli (0-100), di mana skor rendah mengindikasikan perlunya penyusunan ulang laporan sebelum diajukan ke pengadilan.
+
+#### 5. Pencegahan Kejutan Forensik (Prevention of Forensic Surprise)
+
+Tujuan utama dari Validasi Keabsahan Kesaksian ini adalah menghilangkan elemen "kejutan" (*surprise*) selama persidangan. Dengan menjalankan skenario interogasi agresif secara otomatis sebelum sidang:
+
+1.  **Memprediksi Titik Lemah:** Pihak hukum perusahaan akan mengetahui persis argumen apa yang akan dilontarkan oleh pihak lawan untuk meruntuhkan kredibilitas ahli.
+2.  **Penguatan Argumen:** Kontradiksi teknis antara laporan ahli dan data mentah dapat diperbaiki atau dijelaskan lebih komprehensif di dalam laporan sebelum diserahkan ke pengadilan.
+3.  **Kredibilitas Jangka Panjang:** Ahli yang laporannya telah "divalidasi" oleh sistem independen cenderung lebih dipercaya oleh hakim karena menunjukkan transparansi metodologis dan ketahanan terhadap pemeriksaan silang.
+
+Dengan demikian, integrasi antara *immutable ledger data*, *automated logic verification*, dan *NLP bias detection* menciptakan benteng pertahanan hukum yang kokoh, memastikan bahwa posisi perusahaan didukung oleh fakta teknis yang tak terbantahkan dan ahli yang siap menghadapi interogasi terberat sekalipun.
