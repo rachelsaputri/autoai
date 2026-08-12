@@ -14756,3 +14756,152 @@ Analisis dampak regulasi melibatkan data sensitif tentang struktur kebijakan int
 *   **Encryption at Rest & in Transit:** Semua file JSON, database, dan komunikasi antar microservice dienkripsi menggunakan TLS 1.3 dan AES-256.
 
 Dengan menerapkan kerangka kerja **Proactive Regulatory Intelligence** dan **Dynamic Control Mapping** ini, organisasi tidak lagi bereaksi terhadap perubahan regulasi setelah denda atau insiden terjadi. Sebaliknya, perusahaan memiliki visibilitas real-time, kemampuan kalkulasi risiko yang akurat, dan alur persetujuan yang cepat untuk beradaptasi dengan lanskap hukum global yang terus berubah.
+
+
+Berikut adalah konten lanjutan untuk dokumentasi `README.md`. Bagian ini dirancang untuk melengkapi kerangka kerja sebelumnya dengan detail teknis eksekusi kebijakan (*Policy Enforcement*) dan arsitektur keamanan *Zero Trust*, sesuai dengan spesifikasi tugas.
+
+***
+
+### 7.5 Policy Enforcement Engine (PEP) & Implementasi Kontrol Teknis
+
+Untuk menerjemahkan temuan risiko dari LLM menjadi tindakan teknis yang konkret dan tidak dapat diabaikan (*non-bypassable*), sistem ini menyediakan **`compliance_policy_enforcer.py`**. Modul ini berfungsi sebagai lapisan eksekusi kebijakan (*Policy Enforcement Point*) yang secara aktif memantau dan memperbaiki konfigurasi infrastruktur agar selaras dengan aturan kepatuhan yang dihasilkan oleh interpreter LLM.
+
+#### A. Arsitektur Zero Trust Policy Engine
+
+Sistem ini mengadopsi paradigma **Zero Trust** dengan prinsip *"Never Trust, Always Verify"*. Tidak ada permintaan jaringan atau akses data yang dianggap otomatis terpercaya berdasarkan lokasi jaringan internal. Sebaliknya, setiap kontainer dan mikroservis harus divalidasi secara real-time terhadap kebijakan kepatuhan.
+
+1.  **Dynamic Policy Compilation:**
+    Kebijakan dari `structured_policy_rules.json` (hasil interpretasi semantik) dan `compliance_mapping_matrix.json` (hasil matriks kepatuhan) dikompilasi menjadi program *iptables*, *Kubernetes NetworkPolicy*, dan konfigurasi *RBAC* Kubernetes. Proses ini memastikan bahwa logika bisnis hukum diubah menjadi aturan firewall dan manajemen akses yang ketat.
+
+2.  **Enforcement Layers:**
+    *   **Network Layer:** Penerapan `NetworkPolicy` Kubernetes untuk memblokir lalu lintas masuk/keluar yang tidak terotorisasi. Misalnya, membatasi akses database hanya dari pod aplikasi tertentu dan mengisolasi segmen data sensitif.
+    *   **Identity & Access Layer:** Enforce granular *Role-Based Access Control* (RBAC) pada level Namespace dan Resource. Hanya service account dengan izin eksplisit yang diperbolehkan mengakses Secret atau ConfigMap yang ditandai sebagai "Confidential" dalam matriks kepatuhan.
+    *   **Data Layer:** Otomatisasi penerapan enkripsi *at-rest* pada volume Persistent Volume (PV) yang menampung data pribadi (PII), sesuai dengan definisi kategori data dalam `structured_policy_rules.json`.
+
+#### B. Panduan Penggunaan: `compliance_policy_enforcer.py`
+
+Script ini menggunakan Kubernetes Python Client untuk berinteraksi dengan cluster target. Script ini membaca input JSON, memvalidasi konsistensi, dan menerapkan perubahan infrastruktur.
+
+**Prasyarat:**
+*   Python 3.9+
+*   Library `kubernetes`, `pyyaml`, `jsonschema`
+*   Akses kubeconfig dengan izin admin untuk namespace target.
+
+**Instalasi Dependensi:**
+```bash
+pip install kubernetes pyyaml jsonschema
+```
+
+**Argumen Baris Perintah (CLI):**
+
+| Argumen | Deskripsi | Wajib? | Default |
+| :--- | :--- | :--- | :--- |
+| `--rules-path` | Path ke file `structured_policy_rules.json` dari interpreter LLM. | Ya | N/A |
+| `--mapping-path` | Path ke file `compliance_mapping_matrix.json` dari generator matriks. | Ya | N/A |
+| `--cluster-context` | Nama konteks Kubernetes (dari `~/.kube/config`) untuk target cluster. | Ya | N/A |
+| `--dry-run` | Mode simulasi. Menampilkan apa yang *akan* diubah tanpa mengubah konfigurasi cluster. | Tidak | False |
+| `--log-level` | Tingkat keparahan log (DEBUG, INFO, WARNING, ERROR). | Tidak | INFO |
+
+**Contoh Eksekusi:**
+
+1.  **Mode Simulasi (Disarankan untuk uji coba pertama):**
+    ```bash
+    python compliance_policy_enforcer.py \
+        --rules-path ./data/output/structured_policy_rules.json \
+        --mapping-path ./data/output/compliance_mapping_matrix.json \
+        --cluster-context production-cluster \
+        --dry-run
+    ```
+
+2.  **Mode Produksi (Eksekusi Kebijakan):**
+    ```bash
+    python compliance_policy_enforcer.py \
+        --rules-path ./data/output/structured_policy_rules.json \
+        --mapping-path ./data/output/compliance_mapping_matrix.json \
+        --cluster-context staging-cluster
+    ```
+
+**Struktur Input JSON (Ringkasan):**
+
+*   `structured_policy_rules.json`: Berisi aturan logis, seperti `{"rule_id": "GDPR-001", "action": "encrypt_at_rest", "scope": ["pii_data_volume"], "encryption_standard": "AES-256"}`.
+*   `compliance_mapping_matrix.json`: Berisi pemetaan antara aturan hukum dan kontrol teknis, seperti `{"regulation": "UU_PDP", "control_id": "NET-POL-04", "description": "Block unencrypted traffic for PII", "technical_implemention": "network_policy"}`.
+
+#### C. Prosedur Remediasi Otomatis untuk Policy Drift
+
+Dalam lingkungan dinamis seperti Kubernetes, konfigurasi sering kali menyimpang dari kebijakan yang ditetapkan (*policy drift*) akibat aksi manual, update otomatis, atau perubahan arsitektur. Sistem ini mengintegrasikan mekanisme deteksi dan remediasi drift untuk memastikan kepatuhan berkelanjutan.
+
+**Alur Kerja Remediasi:**
+
+1.  **Continuous Drift Detection:**
+    Seorang *Watchdog Agent* (dapat dijalankan sebagai CronJob Kubernetes) secara berkala membandingkan konfigurasi aktual cluster (`kubectl get all --all-namespaces -o yaml`) dengan *desired state* yang didefinisikan dalam matriks kepatuhan.
+
+2.  **Gap Analysis & Severity Classification:**
+    Setiap penyimpangan diklasifikasikan berdasarkan tingkat risiko:
+    *   **Critical:** Enkripsi PII dinonaktifkan, Network Policy diblokir, atau akses root diberikan pada pod produksi.
+    *   **High:** Tagging metadata kepatuhan hilang, atau rate limiting tidak aktif.
+    *   **Low:** Penyimpangan konfigurasi non-fungsional yang tidak berdampak langsung pada keamanan data.
+
+3.  **Auto-Remediation Actions:**
+    *   **Untuk Critical/High:** `compliance_policy_enforcer.py` dipicu secara otomatis oleh event trigger. Script akan:
+        1.  Memulihkan manifest Kubernetes yang telah diubah kembali ke versi yang sesuai kebijakan.
+        2.  Melakukan *rolling restart* pada pod yang terpengaruh untuk menerapkan ulang konfigurasi aman.
+        3.  Memicu alert ke sistem SIEM/SOC dengan detail penyimpangan dan tindakan yang diambil.
+    *   **Untuk Low:** Mencatat log audit dan membuat tiket ke tim DevOps untuk perbaikan manual dalam sprint berikutnya.
+
+4.  **Audit Trail:**
+    Semua tindakan remediasi (otomatis atau manual) dicatat dalam log immutable (misalnya, dikirim ke Elasticsearch atau S3 dengan versiing aktif) untuk keperluan audit kepatuhan (GDPR, UU PDP, ISO 27001).
+
+### 8. Deployment and Operations
+
+Bagian ini memberikan panduan bagi Arsitek Keamanan dan tim DevOps untuk men-deploy dan mengelola seluruh komponen sistem kepatuhan secara produksi-ready.
+
+#### 8.1 Deployment Architecture pada Kubernetes/OpenShift
+
+Sistem ini direkomendasikan untuk di-deploy sebagai namespace terpisah (misal: `compliance-system`) dengan resource quotas yang ketat untuk mencegah kontaminasi dengan workload aplikasi bisnis.
+
+**Rekomendasi Topologi:**
+
+1.  **Compliance Ingestion Layer:**
+    *   Deploy sebagai *StatefulSet* dengan 1 replika untuk memastikan konsistensi parsing.
+    *   Gunakan *Sidecar Container* untuk buffering data ke RabbitMQ/Kafka sebelum diproses oleh LLM.
+
+2.  **LLM & Impact Analysis Worker:**
+    *   Deploy sebagai *Job* atau *CronJob* yang dipicu oleh event di Queue.
+    *   **GPU Affinity:** Gunakan *Node Selector* atau *Affinity Rules* untuk memastikan pod ini hanya berjalan di node dengan akses GPU terenkripsi.
+    *   Gunakan *Pod Disruption Budget (PDB)* untuk menjaga ketersediaan saat pemeliharaan node.
+
+3.  **Policy Enforcement Engine (PEP):**
+    *   Deploy sebagai *DaemonSet* atau *Deployment* tunggal dengan izin RBAC terbatas hanya pada namespace yang diawasi.
+    *   Jalankan dalam mode *watch* untuk merespons perubahan konfigurasi secara real-time.
+
+4.  **Dashboard & API Gateway:**
+    *   Deploy di belakang Ingress Controller dengan autentikasi SSO (OAuth2/OIDC).
+    *   Terapkan *Rate Limiting* untuk mencegah abuse terhadap endpoint analisis.
+
+#### 8.2 Standards for Runtime Policy Compliance
+
+Untuk memastikan sistem kepatuhan tidak menjadi *single point of failure* dan tetap sesuai standar industri, terapkan standar berikut:
+
+*   **Non-Bypassable Controls:**
+    Kontrol teknis (seperti Network Policy dan enkripsi volume) harus diterapkan pada level infrastruktur (CNI driver dan Storage Class), bukan hanya pada level aplikasi. Hal ini memastikan bahwa bahkan jika aplikasi bisnis mengandung bug kerentanan, data sensitif tetap terlindungi dan tidak dapat diakses secara tidak sah.
+
+*   **Least Privilege Principle:**
+    Setiap komponen microservice dalam pipeline kepatuhan hanya diberikan izin RBAC minimum yang diperlukan. Contoh: Worker analisis LLM hanya boleh membaca dari Queue dan menulis ke Database Hasil, tetapi tidak memiliki izin untuk memanipulasi resource jaringan atau secret lain.
+
+*   **Immutable Infrastructure:**
+    Hindari *in-place updates* pada konfigurasi kepatuhan. Gunakan deklarasi infrastruktur sebagai kode (IaC) melalui Terraform atau ArgoCD. Jika ada perubahan kebijakan, manifes IaC diperbarui, dan sistem orkestrasi akan melakukan *rollback* otomatis jika drift terdeteksi.
+
+*   **Regulatory Alignment (GDPR & UU PDP):**
+    *   **Data Residency:** Pastikan volume penyimpanan data PII diatur agar hanya berada di zona geografis yang diizinkan oleh regulasi lokal. Gunakan *StorageClass* dengan label `region: id-central-1` (contoh).
+    *   **Right to be Forgotten:** Implementasikan skrip cron yang memindai database waktu-serial dan menghapus atau anakanimasi data individu berdasarkan permintaan hapus, dengan mencatat log pemindaian sebagai bukti kepatuhan.
+
+#### 8.3 Troubleshooting Common Issues
+
+| Masalah | Kemungkinan Penyebab | Solusi |
+| :--- | :--- | :--- |
+| `RBAC Access Denied` saat PEP berjalan | Service Account tidak memiliki hak `roles: cluster-admin` atau `role: admin` di namespace target. | Verifikasi dan perbaiki `RoleBinding` untuk service account `compliance-pep-sa`. |
+| LLM Timeout / Latency Tinggi | Model LLM kehabisan memori GPU atau antrian terlalu padat. | Scale up GPU nodes atau tingkatkan parallelism di Consumer Worker. Cek log RabbitMQ/Kafka. |
+| False Positive Rate Tinggi | Prompt engineering LLM kurang spesifik atau aturan hukum sudah kedaluwarsa. | Tinjau ulang prompt templates. Perbarui `regulation_knowledge_base` dengan dokumen hukum terbaru. |
+| Drift Tidak Terdeteksi | Watchdog agent tidak berjalan atau interval scan terlalu lama. | Verifikasi status CronJob `drift-detector`. Turunkan interval scan menjadi setiap 5-10 menit untuk lingkungan kritis. |
+
+Dengan mengintegrasikan **Policy Enforcement Engine** dan menerapkan standar **Runtime Policy Compliance**, organisasi tidak hanya mendeteksi ketidakpatuhan, tetapi secara proaktif dan otomatis memastikan bahwa setiap aspek infrastruktur teknologi beroperasi dalam batas-batas kepatuhan hukum yang ketat, sehingga meminimalkan risiko denda, kerusakan reputasi, dan pelanggaran data.
