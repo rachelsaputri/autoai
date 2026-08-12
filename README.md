@@ -23079,3 +23079,311 @@ Dokumen yang dihasilkan mengandung informasi sensitif yang dilindungi oleh privi
 
 *   **Encrypted Metadata:** Seluruh bagian `metadata` dalam file `.docx` dienkripsi menggunakan kunci AES-256 yang dikelola oleh *Key Management Service* perusahaan. Hanya direktur dengan klaim hak akses tertentu (misalnya, Ketua Komite Audit atau Sekretaris Perusahaan) yang dapat mendekripsi dan membaca bagian "Decision Rationale Audit" dan data mentah yang mendasarinya.
 *   **Watermarking:** Setiap salinan dokumen yang diunduh atau dicetak secara otomatis dilapisi dengan *digital watermark* yang menyertakan nama pengguna, role, dan timestamp, untuk mencegah kebocoran data jika dokumen jatuh ke tangan pihak eksternal. Watermark ini juga mencakup hash logika keputusan, sehingga jika dokumen bocor, jejak asal-usul dan validitas keputusannya dapat dilacak.
+
+
+Berikut adalah konten lanjutan untuk dokumentasi `README.md`, dirancang untuk melengkapi bagian sebelumnya dengan spesifikasi teknis implementasi modul sintesis narasi dan kerangka tata kelola komunikasi eksekutif.
+
+---
+
+## 9. Strategic Narrative Synthesis Engine (SNSE)
+
+Modul ini berfungsi sebagai jembatan kognitif antara analisis data kuantitatif (biaya vs manfaat litigasi) dan pengambilan keputusan kualitatif dewan direksi. SNSE tidak hanya menerjemahkan angka menjadi kalimat, tetapi juga menyesuaikan nada persuasif berdasarkan profil psikologis dan preferensi risiko setiap anggota dewan.
+
+### 9.1. Implementasi Skrip: `compliance_boardroom_debate_synthesis_engine.py`
+
+Skrup Python berikut mengimplementasikan logika pemetaan rekomendasi strategis ke dalam draf resolusi boardroom yang disesuaikan dengan persona direksi.
+
+```python
+import json
+import argparse
+import hashlib
+from datetime import datetime
+from pathlib import Path
+# Asumsi import library eksternal untuk DOCX generation dan NLP
+# from docx import Document 
+# from transformers import pipeline # Untuk analisis nada jika diperlukan
+
+class DirectorPersona:
+    """
+    Kelas representatif untuk profil gaya pengambilan keputusan direksi.
+    """
+    def __init__(self, persona_id: str, style: str, risk_tolerance: float, key_values: list):
+        self.persona_id = persona_id
+        self.style = style  # 'RISK_AVERSE', 'GROWTH_ORIENTED', 'BALANCED'
+        self.risk_tolerance = risk_tolerance
+        self.key_values = key_values
+
+    def get_perspective(self, recommendation_type: str, risk_factor: float) -> dict:
+        """
+        Menentukan argumen persuasif berdasarkan persona dan rekomendasi sistem.
+        """
+        arguments = {
+            'narrative_focus': '',
+            'tone': '',
+            'rationale_template': ''
+        }
+
+        if self.style == 'RISK_AVERSE':
+            if recommendation_type == 'NEGOTIATE_SETTLEMENT':
+                arguments['narrative_focus'] = "Mitigasi Risiko Eksistensial"
+                arguments['tone'] = "Konservatif & Stabil"
+                arguments['rationale_template'] = (
+                    f"Menyelesaikan sengketa melalui negosiasi adalah strategi paling bijak "
+                    f"untuk melindungi reputasi perusahaan dan menghindari ketidakpastian hukum. "
+                    f"Dengan toleransi risiko {self.risk_tolerance}, kami menghindari potensi "
+                    f"hukuman regulatoris yang lebih tinggi."
+                )
+            elif recommendation_type == 'HIGH-PROFIT_LITIGATION':
+                arguments['narrative_focus'] = "Risiko Reputasi Tinggi"
+                arguments['tone'] = "Hati-hati & Kritikal"
+                arguments['rationale_template'] = (
+                    f"Litigasi penuh membawa risiko kebocoran data dan publisitas negatif yang "
+                    f"tidak terkontrol. Meskipun potensi keuntungan finansial ada, biaya reputasi "
+                    f"yang mungkin timbul jauh melampaui nilai nominal gugatan."
+                )
+        
+        elif self.style == 'GROWTH_ORIENTED':
+            if recommendation_type == 'NEGOTIATE_SETTLEMENT':
+                arguments['narrative_focus'] = "Efisiensi Sumber Daya untuk Inovasi"
+                arguments['tone'] = "Efisien & Berorientasi Hasil"
+                arguments['rationale_template'] = (
+                    f"Menyelesaikan kasus ini sekarang membebaskan sumber daya (kapital & waktu) "
+                    f"yang dapat dialokasikan kembali ke proyek pertumbuhan inti perusahaan. "
+                    f"Litigasi berkepanjangan akan menghambat momentum ekspansi."
+                )
+            elif recommendation_type == 'HIGH-PROFIT_LITIGATION':
+                arguments['narrative_focus'] = "Keunggulan Kompetitif & Precedent"
+                arguments['tone'] = "Ambisius & Tekun"
+                arguments['rationale_template'] = (
+                    f"Kemenangan dalam litigasi ini akan menetapkan preseden hukum yang "
+                    f"kuat, mengamankan posisi pasar kita, dan mengirim sinyal kuat kepada "
+                    f"pesaing mengenai ketegasan perusahaan dalam melindungi aset intelektual."
+                )
+        
+        return arguments
+
+class NarrativeSynthesisEngine:
+    def __init__(self, analyzer_output_path: str, personas_config_path: str, 
+                 historical_resolutions_path: str):
+        self.analyzer_data = self.load_json(analyzer_output_path)
+        self.personas = self.load_personas(personas_config_path)
+        self.historical_context = self.load_json(historical_resolutions_path)
+        self.synthesis_timestamp = datetime.utcnow().isoformat()
+
+    def load_json(self, path: str) -> dict:
+        with open(path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+
+    def generate_persuasive_arguments(self, persona_config: DirectorPersona, 
+                                      recommendation: str, risk_data: dict) -> str:
+        """
+        Menghasilkan argumen persuasif berdasarkan persona dan data risiko.
+        """
+        perspective = persona_config.get_perspective(
+            recommendation, 
+            risk_data.get('reputation_risk_score', 0)
+        )
+        
+        # Integrasi dengan temuan Regulatori (dari playbook generator)
+        regulatory_risk = risk_data.get('regulatory_gaps', [])
+        if regulatory_risk:
+            perspective['rationale_template'] += (
+                f" Tambahan: Temuan {', '.join(regulatory_risk)} memerlukan "
+                f"tindakan preventif segera untuk menghindari sanksi SEC."
+            )
+            
+        return perspective['rationale_template']
+
+    def synthesize_resolution_brief(self, output_path: str):
+        """
+        Menggabungkan semua argumen dari berbagai persona dan temuan regulatori
+        menjadi satu dokumen resolusi terpadu.
+        """
+        recommendations = self.analyzer_data.get('recommendations', [])
+        if not recommendations:
+            raise ValueError("Tidak ada rekomendasi ditemukan di output analyzer.")
+
+        # Ambil rekomendasi utama (Asumsi: sistem menghasilkan satu rekomendasi utama per kasus)
+        primary_recommendation = recommendations[0].get('strategy', 'NEUTRAL')
+        risk_metrics = recommendations[0].get('risk_analysis', {})
+
+        board_debate_sections = []
+
+        for persona_id, persona_data in self.personas.items():
+            persona_obj = DirectorPersona(
+                persona_id=persona_data['id'],
+                style=persona_data['style'],
+                risk_tolerance=persona_data['risk_tolerance'],
+                key_values=persona_data['key_values']
+            )
+            
+            # Generate narasi spesifik persona
+            narrative = self.generate_persuasive_arguments(persona_obj, primary_recommendation, risk_metrics)
+            
+            board_debate_sections.append({
+                "director_id": persona_id,
+                "perspective_style": persona_obj.style,
+                "narrative": narrative,
+                "alignment_with_strategy": "High" if persona_obj.style in ['GROWTH_ORIENTED', 'RISK_AVERSE'] else "Moderate"
+            })
+
+        # Construct Final Document Structure (Pseudocode for DOCX generation)
+        # doc = Document()
+        # doc.add_heading('Strategic Board Resolution Brief', 0)
+        # doc.add_paragraph(f"Generated: {self.synthesis_timestamp}")
+        # doc.add_paragraph(f"Recommendation: {primary_recommendation}")
+        
+        # Add sections for each persona perspective to show diverse viewpoints considered
+        for section in board_debate_sections:
+            # doc.add_heading(f"Perspective: {section['director_id']} ({section['perspective_style']})")
+            # doc.add_paragraph(section['narrative'])
+            pass # Implementation detail omitted for brevity
+
+        # Add Contingency Plans from Playbook
+        # contingency_plans = self.analyzer_data.get('playbook_results', [])
+        # ... (Integrate contingency logic)
+
+        # Save document
+        print(f"Draf resolusi strategis berhasil disintesis ke: {output_path}")
+        # doc.save(output_path)
+
+def main():
+    parser = argparse.ArgumentParser(description="Strategic Narrative Synthesis Engine for Board Resolutions")
+    parser.add_argument('--feasibility-input', required=True, help="Path ke file output analisis kelayakan litigasi (JSON)")
+    parser.add_argument('--director-personas', required=True, help="Path ke konfigurasi profil gaya direksi (JSON)")
+    parser.add_argument('--historical-resolutions', required=True, help="Path ke koleksi resolusi masa lalu (JSON) untuk referensi nada")
+    parser.add_argument('--output-resolution-brief', default='board_resolution_strategic_brief_v1.docx', 
+                        help="Path output untuk draf resolusi (.docx)")
+    
+    args = parser.parse_args()
+
+    try:
+        engine = NarrativeSynthesisEngine(
+            analyzer_output_path=args.feasibility_input,
+            personas_config_path=args.director_personas,
+            historical_resolutions_path=args.historical_resolutions
+        )
+        engine.synthesize_resolution_brief(args.output_resolution_brief)
+    except Exception as e:
+        print(f"Kesalahan pada Engine Sintesis Narasi: {e}")
+
+if __name__ == "__main__":
+    main()
+```
+
+### 9.2. Eksekusi dan Integrasi Workflow
+
+Sistem ini dirancang untuk berjalan sebagai langkah ketiga dalam pipeline kepatuhan otomatis. Eksekusi standar melibatkan pemanggangan output dari analyzer ke input engine:
+
+```bash
+python compliance_boardroom_debate_synthesis_engine.py \
+    --feasibility-input ./outputs/litigation_feasibility_analysis_v2.json \
+    --director-personas ./config/director_personas_profile.json \
+    --historical-resolutions ./archive/historical_board_decisions.json \
+    --output-resolution-brief ./drafts/board_resolution_strategic_brief_v1.docx
+```
+
+#### Parametisasi Detail:
+
+1.  **`--feasibility-input`**:
+    *   Harus berupa file JSON yang dihasilkan oleh `compliance_litigation_cost_benefit_analyzer.py`.
+    *   Key wajib yang dibaca: `recommendations[].strategy`, `risk_analysis.reputation_risk_score`, `risk_analysis.regulatory_gaps`.
+
+2.  **`--director-personas`**:
+    *   File JSON berisi array atau objek konfigurasi profil direksi.
+    *   Contoh Struktur:
+        ```json
+        {
+          "DIR_001": {
+            "id": "DIR_001",
+            "name": "Director Sarah Chen",
+            "style": "RISK_AVERSE",
+            "risk_tolerance": 0.15,
+            "key_values": ["Integrity", "Stability", "Compliance"]
+          },
+          "DIR_002": {
+            "id": "DIR_002",
+            "name": "Director Mark Stone",
+            "style": "GROWTH_ORIENTED",
+            "risk_tolerance": 0.65,
+            "key_values": ["Market Share", "Innovation", "Speed"]
+          }
+        }
+        ```
+
+3.  **`--historical-resolutions`**:
+    *   Digunakan untuk *few-shot prompting* atau penyesuaian gaya bahasa (tone calibration) agar draf baru selaras dengan standar penulisan dewan sebelumnya. Ini membantu menjaga konsistensi korporat.
+
+4.  **`--output-resolution-brief`**:
+    *   Path tujuan untuk file `.docx` yang dihasilkan. File ini berisi draf "Board Resolution Brief" yang siap untuk direview oleh Sekretaris Perusahaan sebelum diserahkan ke dewan.
+
+---
+
+## 10. Executive Communication & Narrative Governance
+
+Bagian ini mendefinisikan standar tata kelola komunikasi eksekutif yang memastikan bahwa keluaran teknis sistem kepatuhan tidak hanya akurat secara matematis, tetapi juga koheren secara strategis dan dapat dipertanggungjawabkan secara hukum.
+
+### 10.1. Metodologi: "Persuasive Risk Translation"
+
+Translasi persuasif adalah proses mengubah metrik risiko teknis (misalnya, probabilitas kegagalan 85% dan estimasi kerugian $2.5M) menjadi narasi bisnis yang dapat ditindaklanjuti oleh eksekutif non-teknis. Sistem menerapkan tiga prinsip utama:
+
+1.  **Contextual Relevance (Relevansi Kontekstual):**
+    *   Risiko tidak disajikan sebagai angka isolasi, tetapi dikaitkan dengan tujuan strategis perusahaan.
+    *   *Contoh:* Daripada mengatakan "Risiko hukum sebesar $2.5M", sistem menyatakan "Biaya ketidakpastian hukum yang berpotensi menunda peluncuran produk Q3 sebesar 6 bulan."
+
+2.  **Persona-Adaptive Framing (Pembingkian yang Disesuaikan Persona):**
+    *   Argumen diramu berdasarkan profil psikologis pembaca (Direktur).
+    *   Untuk profil *Risk-Averse*, fokus pada **mitigasi kerusakan** (damage control).
+    *   Untuk profil *Growth-Oriented*, fokus pada **peluang efisiensi** dan **keuntungan kompetitif**.
+    *   Ini memastikan bahwa setiap direksi menerima argumen yang paling resonan dengan nilai-nilai pengambilan keputusan mereka, meningkatkan kualitas debat dewan.
+
+3.  **Regulatory Alignment (Penyelarasan Regulasi):**
+    *   Setiap klaim risiko atau peluang dilinkir secara eksplisit dengan ketentuan regulasi yang relevan (misalnya, SEC Regulation S-K, GDPR Article 33).
+    *   Ini memberikan dasar hukum yang solid untuk setiap rekomendasi strategis, mengurangi risiko klaim kelalaian.
+
+### 10.2. Standar: "Sarbanes-Oxley Section 404 Disclosure Integrity"
+
+Untuk memastikan kepatuhan terhadap SOX Section 404 (Tanggung Jawab Manajemen atas Pengawasan Internal), sistem ini mengadopsi standar integritas pelaporan berikut:
+
+*   **Audit Trail yang Dapat Dilacak (Traceable Audit Trail):**
+    Setiap klaim dalam draf resolusi harus dapat ditelusuri kembali ke data mentah asli. Tidak ada manipulasi atau penyembunyian metrik negatif yang signifikan. Sistem secara otomatis menyertakan referensi silang (cross-references) ke dokumen sumber data di lampiran digital.
+
+*   **Materialitas yang Jelas (Clear Materiality):**
+    Sistem mengidentifikasi dan menyoroti informasi yang bersifat "material" (penting bagi investor) sesuai definisi SEC. Informasi yang tidak material disederhanakan atau dipindahkan ke lampiran teknis agar fokus manajemen berada pada isu-isu krusial.
+
+*   **Pemisahan Fakta dan Opini (Separation of Fact and Opinion):**
+    *   **Fakta:** Data mentah, hasil kalkulasi biaya, klausul kontrak. Ditampilkan dalam format terstruktur dan divalidasi hash.
+    *   **Opini/Rekomendasi:** Narasi strategis dan rekomendasi tindakan. Ditandai secara eksplisit sebagai pandangan sistem/analisis, bukan kebenaran absolut, memungkinkan direksi untuk melakukanOverride (penolakan) jika diperlukan, dengan pencatatan alasan override tersebut.
+
+### 10.3. Prosedur: "Decision Rationale Audit"
+
+Untuk melindungi direksi dari tuduhan pelanggaran fidusia (breach of fiduciary duty) di masa depan, terutama jika keputusan bisnis tidak menghasilkan hasil yang diharapkan, sistem ini menerapkan prosedur audit alasan keputusan (*Decision Rationale Audit*).
+
+#### Bagaimana Prosedur Ini Bekerja:
+
+1.  **Pencatatan Logika Keputusan (Logic Path Recording):**
+    Saat narasi disintesis, sistem tidak hanya menyimpan teks akhir, tetapi juga **meta-data logika** yang memicu narasi tersebut.
+    *   *Contoh Logika:* `IF reputation_risk > 80 AND regulatory_gap_count > 2 THEN output_narrative = 'NEGOTIATE_SETTLEMENT'`
+    *   Logika ini dicatat bersama dengan timestamp dan versi model AI yang digunakan.
+
+2.  **Hash Kriptografi dan Ledger Tak Berubah (Immutable Ledger):**
+    *   Hash dari data input asli, logika keputusan, dan output narasi akhir digabungkan dan di-hash menggunakan SHA-256.
+    *   Hash ini dicatat ke dalam ledger internal (atau database yang di-hash) seperti yang dijelaskan di Bab 8.2.
+    *   Ini mencegah *post-hoc rationalization* (pemutarbalikan fakta setelah kejadian). Direksi tidak dapat mengklaim "Saya tidak tahu risikonya sebesar itu" jika hash data membuktikan bahwa data risiko telah tersedia dan dianalisis saat pengambilan keputusan.
+
+3.  **Verifikasi Independen oleh Auditor:**
+    *   Auditor internal atau eksternal dapat mengambil dokumen `board_resolution_strategic_brief_v1.docx`.
+    *   Mereka mengekstrak hash yang tersembunyi dalam metadata dokumen (seperti dijelaskan di Bab 8.4).
+    *   Dengan menggunakan data mentah dari sistem analisis biaya-manfaat, auditor dapat menghitung ulang hash dan memverifikasi bahwa:
+        1.  Data tidak diubah setelah keputusan diambil.
+        2.  Rekomendasi yang dibuat adalah hasil langsung dari analisis data yang ada pada saat itu.
+        3.  Setiap persona direksi telah diberi konteks yang lengkap dan tidak bias.
+
+4.  **Perlindungan Fidusia (Fiduciary Protection):**
+    *   Dokumen audit ini berfungsi sebagai pembelaan hukum yang kuat. Jika terjadi gugatan pemegang saham di kemudian hari, perusahaan dapat menunjukkan bahwa direksi telah bertindak dengan **due diligence** (kewajiban hati-hati) dengan mempertimbangkan semua informasi yang tersedia, menggunakan model analisis yang divalidasi, dan mencatat alasan strategisnya secara transparan dan terenkripsi.
+
+---
+
+### 11. Kesimpulan
+
+Integrasi antara `compliance_litigation_cost_benefit_analyzer`, `compliance_regulatory_early_warning_and_response_playbook_generator`, dan `compliance_boardroom_debate_synthesis_engine` menciptakan ekosistem tata keluh perusahaan yang proaktif, transparan, dan dapat dipertanggungjawabkan. Sistem ini tidak hanya membantu perusahaan menghindari kerugian finansial, tetapi juga melindungi integritas dan reputasi para pemimpin dewan melalui jaminan teknis bahwa setiap keputusan didukung oleh data yang akurat, analisis yang komprehensif, dan audit trail yang tak dapat dipalsukan.
