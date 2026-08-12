@@ -26268,3 +26268,154 @@ Keluaran dari sistem ini (`litigation_budget_and_filing_schedule.json`) dirancan
 3.  **Mengambil Keputusan Strategis:** Menggunakan rekomendasi strategis yang dihasilkan bersamaan dengan data finansial untuk memutuskan apakah akan melanjutkan litigasi atau menerima penawaran penyelesaian (settlement).
 
 Dengan menggabungkan validasi linguistik, analisis kausal, simulasi kontrafaktual, dan orkestrasi sumber daya otomatis, sistem ini tidak hanya mengurangi biaya litigasi tetapi juga meningkatkan kualitas pertahanan hukum melalui disiplin prosedural yang ketat dan transparansi data.
+
+
+## 7. Continuous Legal Intelligence & Adaptive Strategy Optimization
+
+Bagian ini mendokumentasikan modul inti dari siklus pembelajaran tertutup (*Closed-Loop Learning*), yaitu `compliance_litigation_post_mortem_and_precedent_learning_cyclist.py`. Modul ini bertindak sebagai "agen pembelajaran mandiri" yang mengubah pengalaman litigasi dari sekadar catatan administratif menjadi aset intelektual dinamis.
+
+Sistem ini tidak hanya menghitung apakah strategi berhasil atau gagal, tetapi menganalisis *mengapa*偏差 (deviasi) terjadi antara prediksi awal dan realitas hukum, kemudian secara otomatis menyesuaikan bobot algoritma prediktif dan memperkaya basis pengetahuan strategis perusahaan.
+
+### 7.1. Arsitektur Agen Pembelajaran Pascatertutup (Post-Mortem Learning Agent)
+
+Agen ini mengintegrasikan tiga sumber data utama untuk melakukan audit kinerja retrospektif:
+1.  **Output Final Plan**: Dari `compliance_automated_litigation_budget_and_e_filing_orchestrator.py` (rencana biaya, jadwal, dan alokasi sumber daya).
+2.  **Initial Prediction Model**: Dari `compliance_litigation_outcome_predictive_analytics_engine.py` (probabilitas kemenangan awal).
+3.  **Final Case Outcome**: Data hasil akhir nyata (putusan pengadilan resmi atau dokumen penyelesaian/seattle agreement).
+
+#### Metodologi: Iterative Model Retraining for Litigation Outcomes
+
+Proses pembelajaran mengikuti kerangka kerja **Iterative Model Retraining** yang terdiri dari tiga fase kognitif:
+
+1.  **Gap Analysis & Accuracy Deviation Calculation**:
+    Sistem menghitung *Accuracy Deviation* ($D_{acc}$) dengan membandingkan probabilitas kemenangan prediksi ($P_{pred}$) dengan hasil biner aktual ($R_{actual}$: 1 untuk menang/settlement sukses, 0 untuk kalah).
+    
+    $$ D_{acc} = | P_{pred} - R_{actual} | $$
+    
+    Jika $D_{acc}$ melebihi ambang batas toleransi yang ditentukan (misalnya, 15%), sistem menandai kasus tersebut sebagai *High-Deviation Event* yang memerlukan penyesuaian bobot model.
+
+2.  **Causal Attribution & Lesson Extraction**:
+    Menggunakan teknik *Natural Language Understanding (NLU)* pada catatan hakim (*opinion*) dan dokumen *settlement*, agen mengekstrak "Pelajaran Strategis" (*Lessons Learned*). Contoh ekstraksi:
+    *   *Input*: "Hakim menolak argumen berbasis preseden Yurisdiksi B karena adanya putusan baru tahun 2024."
+    *   *Output Lesson*: `"Key_Failure_Point": "Outdated Precedent Reliance", "Corrective_Action": "Update Precedent Database quarterly".`
+    
+    Pelajaran ini dikategorikan ke dalam klaster tematik (misalnya: *Procedural Error*, *Evidence Weakness*, *Judicial Bias*) untuk analisis tren makro.
+
+3.  **Weight Adjustment & Knowledge Base Injection**:
+    Bobot algoritma prediksi di dalam `predictive_analytics_engine` disesuaikan menggunakan teknik *Gradient Descent* ringan pada fitur-fitur yang berkontribusi terhadap kesalahan prediksi. Selain itu, dokumen "Lesson Learned" yang terstruktur disuntikkan ke dalam `strategic-playbook-archive` sebagai referensi masa depan.
+
+### 7.2. Standar ISO 30401: Knowledge Management Systems
+
+Implementasi agen ini didesain untuk mematuhi prinsip-prinsip **ISO 30401:2018** (Sistem Manajemen Pengetahuan), khususnya dalam hal:
+
+*   **Knowledge Identification**: Secara otomatis mengidentifikasi pengetahuan eksplisit (data keputusan) dan tacit knowledge (nugset strategi yang diekstrak dari teks putusan).
+*   **Knowledge Sharing & Transfer**: Laporan pembelajaran (`post_mortem_learning_cycle_v1.json`) dirancang untuk dapat dibaca oleh manusia (direksi) dan mesin (sistem prediksi lainnya), memastikan transfer pengetahuan lintas divisi hukum dan keuangan.
+*   **Knowledge Retention**: Menyimpan riwayat prediksi vs. aktual sebagai aset permanen, memungkinkan perusahaan untuk "belajar dari sejarah" tanpa kehilangan konteks keputusan.
+
+> **Nilai Bisnis**: Dengan mengubah pengalaman episodik menjadi pembelajaran terstruktur, organisasi mengurangi biaya litigasi berulang untuk kesalahan yang sama dan meningkatkan tingkat keberhasilan strategi di masa depan.
+
+### 7.3. Prosedur: Bias Correction in Judicial Pattern Recognition
+
+Salah satu fitur canggih dari agen ini adalah kemampuan mendeteksi bias sistematis dalam prediksi yang disebabkan oleh karakteristik yurisdiksi atau hakim tertentu. Ini disebut **Bias Correction in Judicial Pattern Recognition**.
+
+#### Deteksi Bias
+Agen melakukan analisis statistik terhadap kumpulan data historis untuk mendeteksi pola deviasi yang konsisten. Misalnya, jika model secara konsisten meremehkan probabilitas kemenangan di depan Hakim A sebesar 20% di Yurisdiksi B, sistem akan mendeteksi "Judicial Anomaly".
+
+#### Mekanisme Koreksi
+1.  **Flagging**: Sistem menandai yurisdiksi/hakim dengan deviasi berulang di luar simpangan baku normal.
+2.  **Contextual Enrichment**: Model dilatih untuk menambahkan faktor koreksi kontekstual (misalnya, *"Hakim A cenderung lebih menghargai argumen berbasis data statistik daripada argumen yuridis murni"*).
+3.  **Dynamic Strategy Adjustment**:
+    *   Tim kepatuhan menerima notifikasi: *"Deteksi bias terhadap Yurisdiksi X. Rekomendasi: Ubah gaya argumentasi menjadi lebih data-driven."*
+    *   Algoritma prediksi memperbarui prior probability untuk kasus mendatang di yurisdiksi tersebut.
+
+Ini memungkinkan tim hukum untuk menyesuaikan strategi argumentasi secara dinamis, bukan hanya berdasarkan hukum materiil, tetapi juga berdasarkan "profil psikologis dan procedural" hakim berdasarkan data empiris masa lalu.
+
+---
+
+### 7.4. Dokumentasi Teknis Skrip Pembelajaran
+
+Berikut adalah detail teknis untuk menjalankan agen pembelajaran pascatertutup.
+
+#### 7.4.1. Eksekusi Skrip
+
+Skrip ini memerlukan hasil keluaran dari dua skrip sebelumnya dan data hasil akhir kasus.
+
+**Argumen Baris Perintah:**
+
+| Argumen | Deskripsi | Tipe | Contoh |
+| :--- | :--- | :--- | :--- |
+| `--final-case-outcome` | Path ke file JSON/XML yang berisi hasil akhir resmi kasus (putusan hakim, berita acara penyelesaian, dll). | `string` | `/data/cases/case_2024_001/outcome.pdf.json` |
+| `--initial-prediction-model` | Path ke file JSON yang menyimpan prediksi probabilitas kemenangan awal dari engine analitik. | `string` | `/models/predictions/case_2024_001_prediction_v1.json` |
+| `--strategic-playbook-archive` | Path ke direktori penyimpanan koleksi playbook strategi litigasi perusahaan. | `string` | `/knowledge_base/playbooks/` |
+| `--output-learning-cyclist-report` | Path untuk menyimpan laporan pembelajaran siklus tertutup (`post_mortem_learning_cycle_v1.json`). | `string` | `/reports/learning_cycles/2024_q3_post_mortem.json` |
+| `--retrain-predictive-model` | *(Opsional)* Flag untuk memicu penyesuaian bobot model prediksi internal jika diaktifkan. | `boolean` | `--retrain-predictive-model` |
+
+**Contoh Perintah Eksekusi:**
+
+```bash
+python compliance_litigation_post_mortem_and_precedent_learning_cyclist.py \
+  --final-case-outcome /data/cases/case_2024_001/final_verdict.json \
+  --initial-prediction-model /models/predictions/case_2024_001_initial_pred.json \
+  --strategic-playbook-archive /knowledge_base/legal_playbooks/ \
+  --output-learning-cyclist-report /reports/learning_cycles/post_mortem_case_001.json \
+  --retrain-predictive-model
+```
+
+#### 7.4.2. Struktur Keluaran (Output Format)
+
+Laporan pembelajaran (`post_mortem_learning_cycle_v1.json`) mengikuti struktur standar berikut untuk memastikan kompatibilitas dengan sistem manajemen pengetahuan korporat:
+
+```json
+{
+  "meta": {
+    "report_id": "LC-2024-001-ABC",
+    "generated_at": "2024-05-20T10:00:00Z",
+    "model_version": "v1.2.0"
+  },
+  "case_summary": {
+    "case_id": "CASE-2024-001",
+    "yurisdiction": "Eastern District of NY",
+    "judge_name": "Hon. J. Smith",
+    "strategy_type": "Aggressive Discovery"
+  },
+  "performance_audit": {
+    "predicted_win_probability": 0.75,
+    "actual_outcome_score": 0.2, 
+    "accuracy_deviation": 0.55,
+    "status": "HIGH_DEVIATION"
+  },
+  "bias_detection": {
+    "flagged_judge_bias": true,
+    "bias_pattern": "Underestimation of Judge Smith's preference for procedural technicalities",
+    "corrective_weight_adjustment": +0.15
+  },
+  "lessons_learned": [
+    {
+      "lesson_id": "LL-001",
+      "category": "Procedural",
+      "insight": "Excessive reliance on motion to dismiss without prior discovery yielded negative results.",
+      "recommended_playbook_update": "Update 'Pre-Filing Strategy' playbook to mandate minimal discovery phase."
+    }
+  ],
+  "knowledge_base_update": {
+    "new_playbooks_created": ["strategy_litigation_discovery_phase.json"],
+    "models_updated": true,
+    "next_review_date": "2024-06-20"
+  }
+}
+```
+
+### 7.5. Alur Kerja Integrasi End-to-End
+
+1.  **Litigasi Berjalan**: Orchestrator (`orchestrator.py`) mengelola anggaran dan e-filing.
+2.  **Prediksi Awal**: Engine Analitik (`predictive_analytics.py`) memberikan prediksi probabilitas kemenangan.
+3.  **Penyelesaian Kasus**: Kasus berakhir (memenangkan putusan atau settlement).
+4.  **Input Data Akhir**: Tim hukum memasukkan hasil akhir (`final-case-outcome`) ke dalam sistem.
+5.  **Eksekusi Agen Pembelajaran**: `compliance_litigation_post_mortem_and_precedent_learning_cyclist.py` dijalankan.
+6.  **Hasil**:
+    *   Laporan audit kinerja dibuat.
+    *   Basis pengetahuan playbook diperbarui.
+    *   Bobot model prediksi disesuaikan untuk kasus mendatang.
+    *   Deteksi bias hakim dikirim ke tim strategis.
+
+Dengan siklus ini, setiap kasus litigasi tidak lagi berakhir ketika gavel dipukul, melainkan menjadi titik awal untuk optimasi strategi hukum yang lebih cerdas dan adaptif di masa depan.
