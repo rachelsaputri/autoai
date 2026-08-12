@@ -17304,3 +17304,124 @@ python compliance_boardroom_simulator_dashboard.py \
 | `JSONDecodeError` | Format `stress_test_results.json` tidak valid. | Pastikan file output dari `compliance_financial_risk_stress_tester.py` berupa JSON valid. |
 | `Permission Denied` (RBAC) | Role pengguna tidak termasuk dalam `ALLOWED_ROLES`. | Periksa konfigurasi pengguna di bagian autentikasi atau tambahkan role ke daftar whitelist. |
 | Grafik Tidak Refresh | Browser caching plotly.js versi lama. | Hard refresh browser (`Ctrl+F5` atau `Cmd+Shift+R`). |
+
+
+#### 6.9. Orkestrasi Inti dan Generasi Matriks Kepatuhan
+
+Bagian ini mendefinisikan **Orchestration Core**, sebuah modul strategis (`compliance_compliance_orchestration_matrix_generator.py`) yang bertindak sebagai jembatan logis antara kepatuhan hukum ("Rule of Law") dan infrastruktur teknis ("Code of Infrastructure"). Modul ini tidak hanya mengumpulkan data, tetapi menstandarisasi temuan audit, kebijakan, dan risiko finansial ke dalam format yang dapat dieksekusi secara machines-readbyable dan audit-by-design.
+
+##### 6.9.1. Deskripsi Fungsional
+
+Generator Matriks Orkestrasi berfungsi sebagai pusat kendali yang mengintegrasikan empat pilar data utama:
+1.  **Audit Readiness** (`compliance_audit_readiness_assessor.py`): Menyediakan temuan ketidaksesuaian (gaps) dan bukti kesiapan.
+2.  **Policy Enforcement** (`compliance_policy_enforcer.py`): Menyediakan daftar kontrol teknis, aturan bisnis, dan standar implementasi kode.
+3.  **Regulatory Impact** (`compliance_regulatory_change_impact_analyzer.py`): Memberikan konteks prioritas berdasarkan perubahan regulasi terbaru dan tingkat urgensi kepatuhan.
+4.  **Risk Quantification** (`compliance_risk_quantifier.py`): Menyediakan estimasi eksposur finansial dari setiap ketidakefisienan kepatuhan.
+
+Output akhir adalah `compliance_mapping_matrix.json`, sebuah struktur data hierarkis yang memetakan setiap item audit ke kontrol teknis yang relevan, menghitung skor risiko gabungan, dan menetapkan owner serta status remediasi secara real-time.
+
+##### 6.9.2. Instruksi Eksekusi
+
+Jalankan skrip orkestrasi dengan argumen path ke sumber data predecessor. Pastikan semua file sumber tersedia sebelum eksekusi untuk menghindari fallback ke data dummy.
+
+```bash
+python compliance_compliance_orchestration_matrix_generator.py \
+    --audit-report ./data/input/audit_readiness_report.json \
+    --impact-analysis ./data/output/regulatory_impact_analysis.json \
+    --financial-impact ./data/output/financial_risk_exposure.json \
+    --policy-enforcer-config ./config/policy_enforcement_rules.yaml \
+    --output-matrix ./data/output/compliance_mapping_matrix.json
+```
+
+**Penjelasan Argumen:**
+
+*   `--audit-report`: Path absolut atau relatif ke file JSON yang berisi hasil penilaian kesiapan audit dari modul `compliance_audit_readiness_assessor.py`.
+*   `--impact-analysis`: Path ke file JSON yang berisi analisis dampak perubahan regulasi dari `compliance_regulatory_change_impact_analyzer.py`. Ini menentukan bobot prioritas.
+*   `--financial-impact`: Path ke file JSON yang berisi kalkulasi risiko finansial dari `compliance_risk_quantifier.py`. Data ini digunakan untuk menghitung *Financial Exposure Score*.
+*   `--policy-enforcer-config`: Path ke konfigurasi YAML/JSON yang mendefinisikan kontrol teknis, parameter batas (thresholds), dan logika penekanan dari `compliance_policy_enforcer.py`.
+*   `--output-matrix`: Path tujuan penulisan file `compliance_mapping_matrix.json`. Jika path direktori tidak ada, skrip akan membuat direktori tersebut secara otomatis.
+
+**Catatan Penting:**
+Jika salah satu argumen path tidak valid atau file tidak ditemukan, skrip akan mengeluarkan peringatan `WARNING` dan melanjutkan dengan *fallback mechanism*. Namun, dalam mode produksi, hal ini akan menyebabkan *critical error* dan pembatalan proses untuk mencegah pembuatan matriks yang tidak lengkap.
+
+##### 6.9.3. Metodologi "Unified Compliance Graphing"
+
+Matriks yang dihasilkan tidak bersifat statis; ia dibangun menggunakan metodologi **Unified Compliance Graphing**. Pendekatan ini merepresentasikan kepatuhan sebagai graf berarah, di mana simpul (nodes) adalah entitas seperti "Regulasi OJK No. 12", "Kontrol API Rate Limiting", atau "Ketidaksesuaian Pelaporan Q3", dan sisi (edges) merepresentasikan hubungan logis seperti `SUPPORTED_BY`, `MITIGATES_RISK`, atau `REQUIRES_REMEDIATION`.
+
+Struktur ini memungkinkan:
+1.  **Traceability End-to-End:** Setiap baris dalam matriks dapat dilacak kembali ke sumber hukumnya (regulasi), bukti teknisnya (log audit), dan dampaknya (finansial).
+2.  **Impact Propagation:** Jika ada perubahan regulasi, sistem dapat secara otomatis menghitung ulang prioritas remediasi untuk semua kontrol yang terhubung dengan regulasi tersebut.
+3.  **Single Source of Truth (SSOT):** Dashboard dan auditor menggunakan matriks ini sebagai satu-satunya referensi kebenaran, menghilangkan diskrepansi antara laporan legal, teknis, dan keuangan.
+
+##### 6.9.4. Standar "Risk-Based Control Mapping"
+
+Matriks menerapkan standar pemetaan berbasis risiko yang mengintegrasikan tiga dimensi penilaian:
+
+1.  **Likelihood & Vulnerability:** Diambil dari `audit_report`. Seberapa sering kontrol gagal atau ditemukan lemah?
+2.  **Impact Severity (Financial):** Diambil dari `financial_impact`. Berapa kerugian moneternya jika kontrol ini gagal?
+3.  **Regulatory Urgency:** Diambil dari `impact_analysis`. Berapa cepat waktu yang tersisa untuk kepatuhan sebelum sanksi berlaku?
+
+**Rumus Perhitungan Prioritas:**
+Setiap entri dalam matriks dihitung menggunakan algoritma dinamis:
+$$ Risk\_Score = (W_{sec} 	imes Security\_Gap) + (W_{fin} 	imes Financial\_Exposure) + (W_{reg} 	imes Regulatory\_Urgency) $$
+Dimana $W$ adalah bobot dinamis yang dapat dikonfigurasi oleh komite kepatuhan. Skor ini menentukan urutan remediasi dalam dashboard dan prioritas alokasi sumber daya IT.
+
+##### 6.9.5. Struktur Data Matriks (Schema)
+
+File `compliance_mapping_matrix.json` mengikuti skema berikut untuk memastikan interoperabilitas:
+
+```json
+{
+  "matrix_version": "1.0.4",
+  "last_updated": "2023-10-27T10:00:00Z",
+  "orchestration_core_id": "orch-001",
+  "entries": [
+    {
+      "mapping_id": "map-2023-001",
+      "audit_finding_id": "audit-fin-2023-45",
+      "regulation_reference": "OJK POJK 12/2023, Pasal 5",
+      "technical_control_id": "ctrl-api-auth-009",
+      "control_description": "Implementasi MFA pada endpoint API publik",
+      "risk_level": "CRITICAL",
+      "financial_exposure_estimate": 50000000,
+      "current_compliance_status": "NON_COMPLIANT",
+      "remediation_priority_score": 9.8,
+      "owner_department": "IT Security",
+      "assigned_owner": "John Doe",
+      "evidence_hash": "sha256:a1b2c3...",
+      "last_verified_timestamp": "2023-10-26T15:30:00Z"
+    }
+  ]
+}
+```
+
+**Keterangan Field Kunci:**
+*   `remediation_priority_score`: Nilai numerik 1-10 yang mendorong urutan kerja tim teknis.
+*   `evidence_hash`: Hash dari bukti teknis (misalnya, konfigurasi server atau log) yang diverifikasi oleh sistem *Policy Enforcer*. Hash ini mencegah manipulasi bukti setelah verifikasi.
+
+##### 6.9.6. Prosedur Pembaruan Event-Driven
+
+Matriks kepatuhan dirancang untuk diperbarui secara *event-driven*, bukan hanya melalui siklus bulanan manual. Sistem mendeteksi perubahan melalui tiga kanal utama:
+
+1.  **Regulatory Change Event:**
+    *   Ketika `compliance_regulatory_change_impact_analyzer.py` mendeteksi perubahan regulasi baru, ia memicu event `REGULATION_UPDATED`.
+    *   Orkestrasi Core merespons dengan memindai ulang semua kontrol yang berkaitan dengan regulasi tersebut, memperbarui `regulatory_urgency`, dan merekalibrasi `risk_level`.
+
+2.  **Infrastructure Drift Event:**
+    *   `compliance_policy_enforcer.py` memonitor konfigurasi infrastruktur secara real-time. Jika terjadi *drift* (penyimpangan) dari aturan kebijakan, event `CONTROL_VIOLATION` dipicu.
+    *   Matriks diperbarui secara instan untuk mengubah `current_compliance_status` menjadi `NON_COMPLIANT`, meningkatkan `financial_exposure_estimate`, dan menaikkan `remediation_priority_score` ke tingkat maksimal.
+
+3.  **Audit Closure Event:**
+    *   Ketika auditor mengonfirmasi remediasi melalui antarmuka, event `REMEDIATION_VERIFIED` dikirim.
+    *   Matriks memperbarui `current_compliance_status` menjadi `COMPLIANT`, mencatat timestamp verifikasi, dan memperbarui `evidence_hash` dengan bukti baru.
+
+Proses ini memastikan bahwa **Compliance Boardroom Dashboard** selalu menampilkan data yang paling mutakhir, memungkinkan dewan direksi dan regulator untuk melihat status kepatuhan yang akurat pada saat itu juga, tanpa keterlambatan pelaporan.
+
+##### 6.9.7. Troubleshooting Generasi Matriks
+
+| Masalah | Penyebab Potensial | Solusi |
+| :--- | :--- | :--- |
+| `SchemaValidationError` | Struktur data input tidak sesuai dengan skema yang diharapkan. | Verifikasi format JSON/YAML input menggunakan linter skema yang disediakan di `./schemas/`. |
+| `MissingDependencyError` | Salah satu modul predecessor tidak menghasilkan output. | Pastikan pipeline data dari modul audit, impact analysis, dan risk quantifier telah berjalan sukses sebelum menjalankan orkestrasi. |
+| `HighComputeLoadWarning` | Jumlah entri audit > 10,000 tanpa optimasi. | Gunakan flag `--batch-mode` untuk memproses data secara chunked, atau tingkatkan resource CPU/RAM pada node eksekusi. |
+| `HashMismatch` | Bukti teknis berubah setelah verifikasi awal. | Jalankan ulang skrip untuk merekalibrasi matriks; sistem akan mendeteksi perubahan hash dan memperbarui status secara otomatis. |
