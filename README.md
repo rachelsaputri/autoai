@@ -22770,3 +22770,136 @@ Laporan `litigation_feasibility_analysis.json` dirancang untuk pembacaan cepat o
 Sama seperti modul lainnya, analisis kelayakan litigasi disimpan dengan standar ketat:
 *   **Privilege Protection:** Dokumen yang berisikan strategi litigasi dan kalkulasi risiko hukum dapat ditandai sebagai *"Attorney-Client Privilege"* dalam metadata JSON, sehingga terjamin kerahasiaannya di bawah hukum privilege.
 *   **Audit Trail Perubahan:** Setiap kali parameter `litigation-cost-model` atau `precedent-db-uri` diperbarui, versi baru dari laporan dihasilkan dengan hash unik. Ini mencegah tuduhan manipulasi data untuk mendukung agenda tertentu di masa depan.
+
+
+# 6. Strategic Narrative Synthesis Engine (SNSE)
+
+Modul `compliance_boardroom_debate_synthesis_engine.py` bertindak sebagai jembatan kognitif antara analisis data teknis (yang dihasilkan oleh `compliance_litigation_cost_benefit_analyzer`) dan komunikasi strategis tingkat C-Level. Tujuan utamanya adalah menerjemahkan metrik kuantitatif menjadi narasi kualitatif yang persuasif, disesuaikan dengan profil psikologis dan preferensi risiko direktur, serta memastikan keselarasan dengan protokol ketahanan regulasi.
+
+## 6.1. Arsitektur dan Alur Kerja
+
+SNSE tidak hanya melakukan *copy-paste* dari laporan teknis, tetapi melakukan **Sintesis Naratif Berbasis Konteks**. Proses ini melibatkan tiga tahap utama:
+
+1.  **Pemetaan Risiko-Narasi (Risk-Narrative Mapping):** Mengubah output kategorikal (misalnya, `NEGOTIATE_SETTLEMENT`) menjadi argumen bisnis yang relevan.
+2.  **Personalisasi Gaya Eksekutif (Executive Persona Adaptation):** Menyesuaikan nada, kedalaman teknis, dan penekanan poin berdasarkan profil direktur (*Risk-Averse* vs. *Growth-Oriented*).
+3.  **Integrasi Kontinjensi Regulasi (Regulatory Contingency Integration):** Menambahkan skenario "What-If" berdasarkan peringatan dini dari modul *Early Warning*, sehingga direksi tidak hanya melihat solusi saat ini, tetapi juga perlindungan terhadap skenario terburuk.
+
+## 6.2. Panduan Penggunaan Baris Perintah (CLI)
+
+Skrip ini dirancang untuk otomatisasi dalam pipeline CI/CD atau eksekusi manual oleh Kepala Kepatuhan (Chief Compliance Officer).
+
+```bash
+python compliance_boardroom_debate_synthesis_engine.py \
+  --feasibility-input /data/reports/litigation_feasibility_v2.json \
+  --director-personas /config/personas/board_director_profiles.yaml \
+  --historical-resolutions /archive/resolutions_2023_2024.jsonl \
+  --output-resolution-brief /drafts/board_resolution_strategic_brief_v1.docx
+```
+
+### Parameter详解:
+
+| Parameter | Tipe | Deskripsi & Konfigurasi Wajib |
+| :--- | :--- | :--- |
+| `--feasibility-input` | `string` | **Path** ke file JSON hasil `compliance_litigation_cost_benefit_analyzer`. File ini harus menyertakan struktur `strategy_recommendation`, `leverage_score`, dan `break_even_analysis`. |
+| `--director-personas` | `string` | **Path** ke file YAML/JSON yang mendefinisikan profil direktur. Contoh struktur: <br>```yaml<br>directors:<br>  - id: DIR_001<br>    name: "John Doe"<br>    style: "RISK_AVERSE" # atau GROWTH_ORIENTED, BALANCED<br>    risk_threshold: 0.7<br>    preferred_metric: "REPUTATION" # atau FINANCIAL<br>``` |
+| `--historical-resolutions` | `string` | **Path** ke koleksi file resolusi masa lalu (format JSONL/Parquet). Mod ini menggunakan *Few-Shot Learning* untuk meniru nada, struktur kalimat, dan kedalaman detail yang konsisten dengan precedents perusahaan sebelumnya. |
+| `--output-resolution-brief` | `string` | **Path** output file Microsoft Word (`.docx`) yang telah diformat sesuai standar korporat, siap untuk dicetak atau dibagikan melalui portal keamanan internal. |
+
+## 6.3. Metodologi: Persuasive Risk Translation (PRT)
+
+Salah satu tantangan terbesar dalam kepatuhan regulasi adalah "Dissonance of Translation"—kesenjangan antara bahasa teknisi data dan bahasa bisnis eksekutif. SNSE menerapkan metodologi **Persuasive Risk Translation** yang terdiri dari tiga lapisan:
+
+### Lapisan 1: Abstraksi Metrik
+Data mentah (misalnya, `expected_litigation_cost: 3500000`) tidak ditampilkan secara langsung tanpa konteks. Data diubah menjadi proporsi relatif terhadap pendapatan atau ekuitas perusahaan.
+*   *Teknis:* "Biaya litigasi diperkirakan 3,5 miliar."
+*   *PRT:* "Risiko finansial litigasi mewakili 12% dari arus kas bebas tahunan, jauh di atas ambang batas toleransi dewan."
+
+### Lapisan 2: Framing Berdasarkan Persona
+Argumen yang sama dipadankan dengan nilai prioritas direktur:
+*   **Untuk *Risk-Averse Director*:** Fokus pada **Mitigasi Kerugian** (*Loss Aversion*). Narasi menekankan pada stabilitas, perlindungan aset, dan menghindari precedents hukum yang merugikan.
+    *   *Contoh Kalimat:* "Menyetujui negosiasi settlement saat ini melindungi ekuitas pemegang saham dari volatilitas pasar akibat publisitas negatif selama persidangan."
+*   **Untuk *Aggressive Growth-Oriented Director*:** Fokus pada **Peluang Strategis** dan **Kecepatan**. Narasi menekankan pada efisiensi waktu, kelancaran operasional, dan alokasi ulang sumber daya ke inisiatif pertumbuhan.
+    *   *Contoh Kalimat:* "Negosiasi settlement memungkinkan kami membebaskan tim R&D dari distorsi hukum selama 6 bulan, mempercepat peluncuran produk Q3 sebesar 15%."
+
+### Lapisan 3: Integrasi Skenario Kontinjensi
+SNSE membaca output dari `compliance_regulatory_early_warning_and_response_playbook_generator.py` untuk menyisipkan bab "Mitigasi Skenario Terburuk" (Worst-Case Mitigation).
+*   Jika peringatan dini menunjukkan risiko audit berulang di masa depan, draf resolusi akan menyertakan klausul mandator untuk implementasi *remediation plan* jangka pendek, bahkan jika litigasi saat ini diselesaikan. Ini menunjukkan bahwa dewan tidak hanya menyelesaikan masalah saat ini, tetapi juga memperbaiki sistem akar penyebabnya.
+
+## 6.4. Executive Communication & Narrative Governance
+
+Bagian ini mendefinisikan standar ketat mengenai bagaimana narasi strategis harus dibangun, diaudit, dan disimpan untuk memenuhi kewajiban fidusia dan regulasi Sarbanes-Oxley.
+
+### 6.4.1. Sarbanes-Oxley Section 404 Disclosure Integrity
+
+Sistem ini dirancang untuk memastikan bahwa setiap rekomendasi yang disajikan ke dewan direksi memenuhi standar integritas laporan internal control atas pelaporan keuangan (SOX Section 404).
+
+1.  **Traceability (Jejak Audit Internal):**
+    Setiap pernyataan fakta dalam `board_resolution_brief.docx` yang menyatakan risiko atau estimasi biaya harus memiliki *hyperlink metadata* (tidak terlihat di cetak, tetapi ada di struktur XML dokumen) yang menunjuk langsung ke sel data sumber di `feasibility-input`.
+    *   *Tujuan:* Memungkinkan auditor eksternal untuk memverifikasi bahwa narasi "Biaya Litigasi Tinggi" didukung oleh data kalkulasi aktuaria yang valid, bukan spekulasi.
+
+2.  **Materiality Thresholding:**
+    SNSE secara otomatis menyaring temuan yang di bawah ambang batas *materialitas* perusahaan (misalnya, < 1% dari aset total) kecuali temuan tersebut bersifat kualitatif-kritis (seperti risiko reputasi atau hukum pidana). Ini mencegah *information overload* bagi dewan dan memastikan hanya isu material yang diangkat untuk diskusi formal.
+
+3.  **Non-Admission Linguistic Guardrails:**
+    Sesuai dengan catatan `integrity_risk_note` dari analisis kelayakan, SNSE secara otomatis menerapkan *lexical constraints* pada draf resolusi. Kata-kata seperti "guilty", "failed", atau "violated" diganti dengan frasa netral seperti "non-compliance incident", "operational gap", atau "regulatory divergence". Ini melindungi posisi hukum perusahaan tanpa mengurangi keparahan peringatan risiko kepada dewan.
+
+### 6.4.2. Decision Rationale Audit (DRA) Ledger
+
+Untuk melindungi fidusiari direktur di masa depan (misalnya, dalam gugatan pemegang saham), sistem tidak hanya menyimpan *apa* yang diputuskan, tetapi *mengapa* itu diputuskan.
+
+**Prosedur Otomatis DRA:**
+Setelah eksekusi skrip, SNSE menghasilkan file log tambahan (format `.json` atau terintegrasi ke blockchain ledger internal) yang mencatat:
+
+1.  **Input State:** Hash dari file JSON input dan konfigurasi persona direktur pada timestamp tertentu.
+2.  **Logic Path:** Rangkaian keputusan logika yang diambil oleh engine (misalnya: *"Karena leverage_score < 0.7 dan reputational_impact = HIGH, maka strategi default diubah dari LITIGATE ke NEGOTIATE"*).
+3.  **Persona Influence Score:** Metrik yang menunjukkan seberapa besar profil direktur memengaruhi perubahan nada dari netral menjadi persuasif.
+4.  **Timestamp & Sign-off:** Identifikasi pengguna yang menjalankan skrip dan timestamp unik.
+
+**Manfaat Perlindungan Fidusia:**
+Dalam situasi di mana keputusan dewan ditantang di pengadilan, laporan DRA ini menyediakan bukti objektif bahwa keputusan tersebut didasarkan pada:
+*   Analisis data yang lengkap dan tidak dimanipulasi.
+*   Pertimbangan eksplisit terhadap profil risiko dewan.
+*   Ketaatan terhadap protokol ketahanan regulasi.
+
+Hal ini menggeser beban pembuktian dari "apakah keputusan itu baik?" menjadi "apakah proses pengambilan keputusannya rasional dan terdokumentasi?", yang merupakan standar hukum yang lebih mudah dibuktikan dalam konteks korporat modern.
+
+## 6.5. Contoh Output Draf Resolusi (Struktur)
+
+Berikut adalah bagaimana struktur `board_resolution_strategic_brief_v1.docx` yang dihasilkan akan terlihat, yang secara dinamis disesuaikan berdasarkan input:
+
+```markdown
+# BOARD RESOLUTION STRATEGIC BRIEF
+**Case ID:** REG-2024-X99
+**Date:** [Auto-generated Timestamp]
+**Prepared For:** The Board of Directors, [Company Name]
+
+## 1. Executive Summary
+[Bagian ini menggunakan "Persuasive Risk Translation". 
+Jika direktur RISK_AVERSE: "Risiko kontinuitas bisnis dipertahankan melalui settlement dini."]
+[Jika direktur GROWTH_ORIENTED: "Alokasi modal dipertahankan untuk ekspansi regional."]
+
+## 2. Data-Driven Strategic Recommendation
+*   **Recommended Strategy:** NEGOTIATE_SETTLEMENT
+*   **Financial Impact:** Net cost saving of IDR 1.2B compared to full litigation.
+*   **Leverage Justification:** High leverage score (0.65) due to disproportionate fine structure.
+
+## 3. Regulatory Contingency & Remediation
+*(Dihasilkan dari integrasi Early Warning Playbook)*
+*   **Identified Weakness:** Data privacy logs retention period < 5 years.
+*   **Mandatory Action:** IT Security to implement log retention extension within 30 days post-settlement.
+*   **Audit Trail:** Linked to Control ID: SEC-PRIV-04.
+
+## 4. Discussion Points for Direksi
+*   **For Risk Committee:** Assess reputational residual risk after settlement.
+*   **For Audit Committee:** Review proposed remediation timeline.
+
+## 5. Decision Rationale Audit (Internal Reference Only)
+*   *Log Hash:* 0x7f8a9b...
+*   *Logic Path:* Cost > Benefit AND Reputation Risk = HIGH -> Negotiate.
+```
+
+## 6.6. Pertimbangan Keamanan & Enkripsi
+
+Dokumen yang dihasilkan mengandung informasi sensitif yang dilindungi oleh privilege attorney-client.
+*   **Encrypted Metadata:** Seluruh bagian `metadata` dalam file `.docx` dienkripsi menggunakan kunci AES-256 yang dikelola oleh *Key Management Service* perusahaan. Hanya direktur dengan klaim hak akses tertentu yang dapat mendekripsi dan membaca bagian "Decision Rationale Audit".
+*   **Watermarking:** Setiap salinan dokumen yang diunduh atau dicetak secara otomatis dilapisi dengan *digital watermark* yang menyertakan nama pengguna dan timestamp, untuk mencegah kebocoran data jika dokumen jatuh ke tangan pihak eksternal.
