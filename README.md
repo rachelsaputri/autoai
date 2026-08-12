@@ -22431,3 +22431,105 @@ Keluaran dari modul RIA ini disediakan dalam format ringkasan eksekutif yang mem
 
 > **Catatan Keamanan Lanjutan:**
 > Data sensitif yang ditemukan dalam draf regulasi atau laporan RIA yang diklasifikasikan sebagai "Confidential" harus dienkripsi menggunakan standar AES-256 saat disimpan (*at-rest*) dan ditransmisikan (*in-transit*). Akses ke data mentah laporan perubahan regulasi dibatasi oleh kebijakan IAM berbasis peran (*Role-Based Access Control*), dengan hak baca hanya diberikan kepada *Chief Legal Officer*, *Chief Ethics Officer*, dan *AI Governance Lead*.
+
+
+### 3. Financial Risk Quantification & Strategic Planning (QRRM)
+
+Modul `compliance_risk_financial_impact_simulator.py` merupakan inti dari kerangka kerja **Quantitative Regulatory Risk Modeling (QRRM)**. Modul ini mengonversi output kualitatif dari deteksi perubahan regulasi menjadi metrik finansial kuantitatif (Expected Loss), memungkinkan organisasi untuk memprioritaskan alokasi anggaran kepatuhan berdasarkan dampak ekonomi nyata, bukan hanya tingkat kepatuhan legal nominal.
+
+Sistem ini mengintegrasikan prinsip-prinsip standar global **Basel III Operational Risk Capital Requirements** (khususnya Advanced Measurement Approach - AMA) ke dalam konteks kepatuhan digital. Dengan memodelkan risiko operasional sebagai distribusi probabilitas kerugian, sistem ini membantu Dewan Direksi menentukan jumlah modal cadangan (Capital Buffer) yang diperlukan untuk menyerapan guncangan finansial mendadak tanpa mengganggu likuiditas operasional.
+
+#### Metodologi Penghitungan Kerugian (Expected Loss Calculation)
+
+Sistem menghitung **Expected Loss (EL)** menggunakan rumus fundamental manajemen risiko operasional:
+
+$$ EL = PD 	imes LGD 	imes EAD $$
+
+Di mana:
+*   **PD (Probability of Default/Detection Failure):** Probabilitas pelanggaran terjadi atau terdeteksi terlambat, dihitung berdasarkan `semantic_delta` dan `risk_level` dari laporan deteksi perubahan.
+*   **LGD (Loss Given Default):** Persentase kerugian relatif terhadap Exposure at Default, mencakup denda, litigasi, dan kerusakan reputasi.
+*   **EAD (Exposure at Default):** Total eksposur finansial perusahaan terhadap regulasi yang berubah (misalnya, total aset yang diatur, volume transaksi, atau pendapatan tahunan terkait).
+
+Selain EL dasar, simulator menjalankan **Monte Carlo Simulation** untuk memproyeksikan distribusi kerugian dalam horizon waktu 0-12 bulan, mempertimbangkan volatilitas pasar dan indeks sentimen.
+
+#### Fitur Utama Simulasi Finansial
+
+1.  **Proyeksi Denda Regulasi Dinamis:**
+    Mengintegrasikan tarif denda spesifik regulator (seperti Pasal 48 UU Perbankan OJK atau ketentuan SEC Rule 10b-5) yang dapat dikonfigurasi melalui parameter `--financial-model`. Sistem memperbarui estimasi denda secara real-time saat ada perubahan skenario.
+
+2.  **Korelasi Sentimen Pasar & Kerusakan Reputasi:**
+    Menggunakan data dari `--market-sentiment-data` (biasanya indeks NLP dari berita keuangan, Twitter/X, dan forum investor), simulator menghitung **Reputational Multiplier**. Jika sentimen pasar negatif terhadap pelanggaran kepatuhan, model akan meningkatkan estimasi kerugian dengan mengaitkan penurunan harga saham (Market Cap Loss) dengan volatilitas pasar saat itu.
+
+3.  **Biaya Litigasi & Operasional Tersembunyi:**
+    Menghitung biaya tersembunyi seperti jam kerja tim hukum, biaya konsultan eksternal, dan downtime sistem akibat audit regulator. Biaya ini dikaitkan dengan `change_type` dan `risk_level` untuk akurasi yang lebih tinggi.
+
+4.  **Capital Adequacy Stress Test:**
+    Fitur kritis untuk Dewan Direksi yang menghitung apakah modal cadangan saat ini cukup untuk menanggung kerugian maksimum yang diproyeksikan (Value at Risk - VaR) dalam skenario terburuk (99.9% confidence level). Hasilnya memberikan indikator **"Capital Stress Level"** (Adequate, At Risk, Critical).
+
+#### Argumentasi CLI dan Integrasi Data
+
+Simulator ini dirancang untuk berjalan dalam pipeline CI/CD setelah deteksi perubahan. Berikut adalah definisi argumen dan struktur data input/output:
+
+**Argumen Command Line:**
+
+```bash
+python compliance_risk_financial_impact_simulator.py \
+    --financial-model ./config/risk_params_baseline_v3.json \
+    --scenario-output ./reports/2024_Q3_regulatory_changes.json \
+    --market-sentiment-data ./data/market_sentiment_2024_q3.csv \
+    --output-financial-forecast ./reports/financial_impact_forecast.json
+```
+
+| Argumen | Deskripsi | Tipe Data | Contoh Path |
+| :--- | :--- | :--- | :--- |
+| `--financial-model` | Path ke file JSON berisi parameter model dampak finansial. Harus mencakup tarif denda regulator (OJK/SEC), multiplier reputasi berdasarkan industri, dan faktor diskonto. | `string` (Path) | `./config/risk_params.json` |
+| `--scenario-output` | Path ke laporan deteksi perubahan regulasi terbaru yang dihasilkan oleh `compliance_automated_regulatory_literature_review_and_change_detection.py`. | `string` (Path) | `./reports/latest_changes.json` |
+| `--market-sentiment-data` | Path ke file data indeks sentimen pasar (CSV/JSON) yang memuat skor sentimen harian/mingguan dan volatilitas pasar. | `string` (Path) | `./data/sentiment_index.csv` |
+| `--output-financial-forecast` | Path output untuk laporan proyeksi kerugian dalam format JSON terstruktur. | `string` (Path) | `./reports/financial_impact_forecast.json` |
+
+**Struktur Input (`financial_model`):**
+```json
+{
+  "deterrence_fees": {
+    "ojk_max_penalty_percent": 0.05,
+    "sec_penalty_per_violation": 100000,
+    "reputation_multiplier_default": 1.5
+  },
+  "litigation_costs": {
+    "avg_legal_hour_rate": 500,
+    "avg_litigation_months": 18
+  },
+  "revenue_impact": {
+    "license_suspension_loss_factor": 0.8,
+    "customer_churn_rate_increase": 0.05
+  }
+}
+```
+
+#### Panduan Eksekutif: Membaca Laporan Proyeksi (`financial_impact_forecast.json`)
+
+Laporan output dirancang untuk langsung dapat dibaca oleh dashboard keuangan dan sistem peringatan dini (Early Warning System). Struktur utamanya mencakup:
+
+*   `total_expected_loss_12m`: Total kerugian yang diharapkan dalam 12 bulan ke depan.
+*   `risk_breakdown`: Rincian kerugian berdasarkan kategori:
+    *   `regulatory_fines`: Denda langsung dari regulator.
+    *   `litigation_and_legal`: Biaya hukum dan penyelesaian sengketa.
+    *   `reputational_damage`: Estimasi penurunan valuasi pasar dan churn pelanggan.
+    *   `operational_disruption`: Biaya operasional akibat pembaruan sistem dan pelatihan ulang.
+*   `capital_adequacy_status`: Status kecukupan modal (e.g., "SURPLUS", "ADEQUATE", "DEFICIT") berdasarkan perbandingan `total_expected_loss` dengan `current_liquidity_buffer`.
+*   `stress_test_results`: Hasil simulasi stres, termasuk skenario terburuk (Worst-Case Scenario) dan probabilitas kejadian tersebut.
+*   `recommended_actions`: Rekomendasi strategis berbasis data, seperti "Tingkatkan cadangan kas sebesar $X" atau "Prioritaskan penyesuaian klausul Y untuk mengurangi PD sebesar Z%".
+
+> **Catatan untuk Dewan Direksi:**
+> Hasil dari `financial_impact_forecast.json` bukan sekadar prediksi, melainkan alat perencanaan strategis. Jika `capital_adequacy_status` menunjukkan "DEFICIT", direksi wajib mengevaluasi peningkatan modal inti atau pengurangan risiko eksposur sebelum pelanggaran terjadi. Ini mengubah kepatuhan dari biaya tetap (fixed cost) menjadi investasi dinamis yang terukur dampaknya terhadap nilai pemegang saham.
+
+#### Prosedur Capital Adequacy Stress Test (CAST)
+
+Untuk memastikan ketahanan finansial, sistem ini menjalankan prosedur CAST secara otomatis:
+
+1.  **Identifikasi Stressors:** Menentukan skenario guncangan ekstrem berdasarkan `risk_level` tertinggi dalam daftar perubahan regulasi.
+2.  **Penghitungan Shock Absorption:** Menghitung kemampuan likuiditas perusahaan untuk menyerap kerugian tanpa melakukan pemotongan dividen atau likuidasi aset paksa.
+3.  **Gap Analysis:** Membandingkan kebutuhan modal stres dengan modal regulasi saat ini.
+4.  **Laporan Rekomendasi:** Jika gap ditemukan, sistem memberikan rekomendasi eksplisit mengenai jumlah tambahan modal yang diperlukan atau langkah mitigasi risiko jangka pendek (contoh: penundaan ekspansi pasar, peningkatan premi asuransi D&O).
+
+Integrasi modul ini memastikan bahwa setiap keputusan strategis memiliki dasar kalkulasi risiko yang kuat, mematuhi standar transparansi finansial global, dan melindungi kepentingan pemegang saham dari guncangan eksternal yang tidak terduga.
