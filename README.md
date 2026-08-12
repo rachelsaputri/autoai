@@ -22148,3 +22148,100 @@ Sistem ini mengadopsi prinsip-prinsip dari *OECD Principles of Corporate Governa
 *   **Pencegahan Dini**: Dengan memberikan *feedback loop* instan jika seorang eksekutif mendekati batas wewenang atau menunjukkan pola risiko loyalitas, sistem membantu mencegah pelanggaran sebelum terjadi di dunia nyata.
 
 > **Peringatan Hukum**: Output dari `compliance_executive_responsibility_liability_tracker.py` bersifat *forensik-assistive*. Meskipun dirancang untuk ketepatan tinggi, output ini harus ditinjau oleh penasihat hukum eksternal sebelum digunakan sebagai dasar aksi hukum formal, mengingat kompleksitas yurisdiksi dan interpretasi pengadilan yang dapat bervariasi.
+
+
+Berikut adalah konten lanjutan untuk dokumentasi README.md, dirancang untuk melengkapi bagian 14.x sebelumnya. Dokumen ini mencakup spesifikasi teknis untuk skrip manajemen siklus hidup risiko dan penjelasan metodologis mendalam mengenai tata kelola risiko hukum tertutup (*Closed-Loop*).
+
+Silakan salin dan tempelkan bagian berikut setelah bagian **14.4. Corporate Governance Code for Digital Boards** dalam file `README.md` Anda.
+
+***
+
+### 14.5. Risk Lifecycle Management & Continuous Improvement
+
+Bagian ini mendefinisikan arsitektur pusat komando untuk manajemen risiko hukum organisasi, yang diimplementasikan melalui skrip `compliance_legal_risk_lifecycle_manager.py`. Modul ini tidak hanya merekam insiden, tetapi menerapkan prinsip **Closed-Loop Legal Risk Governance**, di mana setiap kegagalan, mitigasi, atau insiden di masa lalu secara otomatis digunakan untuk memperbarui model prediktif risiko di masa depan.
+
+#### 14.5.1. Skrip Manajemen Siklus Hidup Risiko (`compliance_legal_risk_lifecycle_manager.py`)
+
+Skrip ini berfungsi sebagai *hub* orkestrasi yang mengintegrasikan tiga komponen kritis yang disebutkan sebelumnya:
+1.  Generator Dokumen Hukum Otomatis (`compliance_autonomous_legal_document_gen.py`).
+2.  Penyiap Bukti yang Dapat Disidangkan (`compliance_evidentiary_admissibility_preparer.py`).
+3.  Pelacak Tanggung Jawab dan Liabilitas Eksekutif (`compliance_executive_responsibility_liability_tracker.py`).
+
+Tujuan utamanya adalah melacak risiko dari fase **Identifikasi** $ightarrow$ **Mitigasi** $ightarrow$ **Implementasi** $ightarrow$ **Evaluasi Pasca-Insiden** $ightarrow$ **Pembelajaran Sistemik**.
+
+##### Struktur Eksekusi dan Argumen
+
+Skrip ini dirancang untuk dijalankan sebagai bagian dari pipeline CI/CD atau sebagai agen background daemon yang memantau register risiko.
+
+```bash
+python compliance_legal_risk_lifecycle_manager.py \
+    --risk-register ./data/initial_risk_register.json \
+    --mitigation-artifacts ./output/legal_docs_archive \
+    --post-incident-logs ./logs/incident_evaluations.json \
+    --output-risk-lifecycle-state ./state/legal_risk_lifecycle_state.json
+```
+
+**Detail Argumen:**
+
+| Argumen | Tipe | Deskripsi |
+| :--- | :--- | :--- |
+| `--risk-register` | `string` | Path ke file JSON berisi register risiko awal. Format ini harus memuat ID risiko, kategori (misal: *Contractual, Regulatory, IP*), level keparahan, dan pemilik risiko. |
+| `--mitigation-artifacts` | `string` | Path ke direktori atau file JSON yang berisi hasil output dari generator dokumen hukum. Sistem akan membaca arsip ini untuk memverifikasi apakah mitigasi yang direncanakan telah diimplementasikan secara teknis (dokumen telah dibuat/disunting). |
+| `--post-incident-logs` | `string` | Path ke log evaluasi pasca-insiden. Ini biasanya merupakan output dari simulator interogasi atau pelacak liabilitas. Input ini berisi data kualitatif dan kuantitatif tentang efektivitas respons terhadap insiden nyata. |
+| `--output-risk-lifecycle-state` | `string` | Path keluaran untuk file status siklus hidup risiko (`legal_risk_lifecycle_state.json`). File ini menjadi *source of truth* yang memperbarui skor risiko global dan memicu peringatan jika terdapat celah dalam mitigasi. |
+
+##### Alur Pemrosesan Data (Data Flow)
+
+1.  **Inisialisasi Konteks:** Membaca `--risk-register` untuk memuat daftar risiko aktif.
+2.  **Pengecekan Mitigasi:** Memindai direktori `--mitigation-artifacts` untuk memverifikasi ketersediaan dokumen legal yang relevan dengan risiko tertentu (misalnya, NDA baru untuk risiko kebocoran data).
+3.  **Analisis Umpan Balik Pasca-Insiden:** Membaca `--post-incident-logs` untuk mengevaluasi apakah mitigasi sebelumnya efektif. Jika log menunjukkan bahwa "Klausul Force Majeure" gagal melindungi perusahaan saat pandemi, flag `mitigation_effectiveness` akan diturunkan.
+4.  **Pembaruan State:** Menghitung ulang skor risiko dinamis berdasarkan efektivitas mitigasi terkini.
+5.  **Ekspor State:** Menulis `--output-risk-lifecycle-state`. File ini menyimpan metadata versi model risiko, sehingga setiap perubahan regulasi atau pola kesalahan dapat dilacak versinya.
+
+#### 14.5.2. Metodologi: Closed-Loop Legal Risk Governance
+
+Sistem ini mengadopsi kerangka kerja **Closed-Loop Governance** yang mengintegrasikan tiga elemen utama: *Monitor, Act, Learn*.
+
+1.  **Continuous Monitoring (Monitoring):**
+    Sistem memantau secara real-time tidak hanya kepatuhan aktif, tetapi juga *shadow risks*—risiko yang muncul dari perubahan perilaku eksekutif atau pola transaksi yang anomali. Data dari `liability_tracker` mengalir langsung ke engine ini.
+
+2.  **Automated Response (Act):**
+    Ketika risiko terdeteksi melebihi *threshold*, sistem secara otomatis memanggil `legal_document_gen` untuk menyiapkan draf kontrak revisi, klausul indemnifikasi, atau surat peringatan. Ini mengurangi waktu respons hukum dari minggu menjadi menit.
+
+3.  **Systemic Learning (Learn):**
+    Ini adalah inti dari "Continuous Improvement". Setiap insiden yang terjadi, terlepas dari apakah itu menyebabkan kerugian finansial atau tidak, diproses melalui `post-incident-logs`. Sistem melakukan *retrospective analysis* untuk menjawab:
+    *   Apakah klausul kontrak yang ada gagal mencegah insiden ini?
+    *   Apakah simulasi interogasi menunjukkan kesenjangan dalam pemahaman komite direksi?
+    *   Data ini digunakan untuk memperbarui bobot algoritma risiko, memastikan bahwa risiko jenis yang sama memiliki probabilitas dan dampak yang lebih akurat di prediksi masa depan.
+
+#### 14.5.3. Kepatuhan terhadap ISO 31000:2018
+
+Implementasi ini secara spesifik memenuhi persyaratan **ISO 31000:2018** mengenai *Risk Treatment* dan *Monitoring & Review*:
+
+*   **Clause 6.4 (Risk Treatment):**
+    Sistem mendokumentasikan secara eksplisit rencana penanggulangan risiko (mitigasi) dalam arsip `mitigation-artifacts`. Setiap tindakan mitigasi (misalnya, penandatanganan ulang kontrak vendor) dicatat dengan timestamp dan owner yang jelas, memenuhi syarat auditabilitas standar internasional.
+
+*   **Clause 9.2 (Monitoring and Measurement):**
+    `legal_risk_lifecycle_state.json` berfungsi sebagai metrik kinerja utama (KPI) untuk tata kelola risiko. Indikator kunci seperti *Mean Time to Mitigate* (MTTM) dan *Recurrence Rate of Legal Incidents* dihitung secara otomatis dari data historis.
+
+*   **Clause 10.1 (Improvement):**
+    Sistem mendukung peningkatan berkelanjutan dengan mencatat "Lessons Learned" dalam log. Jika frekuensi pelanggaran *compliance* turun setelah implementasi pelatihan tertentu, sistem mencatat korelasi positif ini sebagai validasi efektivitas intervensi manajemen.
+
+#### 14.5.4. Prosedur: Automated Risk Retrospective
+
+Untuk memastikan kerangka hukum organisasi tetap relevan, sistem ini mencakup prosedur **Automated Risk Retrospective** yang dapat dijadwalkan (misalnya, bulanan atau triwulanan). Prosedur ini melakukan tiga langkah kritis:
+
+1.  **Audit Efektivitas Klausul Kontrak:**
+    Sistem menganalisis dokumen hukum yang dibuat selama periode tertentu. Dengan membandingkan teks kontrak dengan log insiden (`post-incident-logs`), sistem dapat mengidentifikasi klausul yang "gagal" (tidak pernah memicu perlindungan karena celah wording) atau klausul yang "terlalu restriktif" (menghambat bisnis tanpa menambah keamanan signifikan).
+
+2.  **Revisi Strategi Mitigasi:**
+    Berdasarkan temuan di atas, sistem menghasilkan *Recommendation Report* yang menyarankan:
+    *   Penghapusan klausul redundan.
+    *   Penambahan klausul spesifik untuk risiko baru yang muncul dari data tren.
+    *   Pembaruan definisi "Duty of Care" untuk peran eksekutif tertentu berdasarkan pola keputusan aktual di lapangan.
+
+3.  **Pembaruan Model Prediktif:**
+    Data dari retrospective ini digunakan untuk melatih ulang parameter model risiko. Misalnya, jika data menunjukkan bahwa risiko *Data Privacy* meningkat tajam setiap kali ada peluncuran produk baru, sistem akan meningkatkan bobot (*weight*) risiko ini untuk fase *Pre-Launch* secara otomatis di siklus berikutnya.
+
+> **Catatan Implementasi:**
+> Untuk mengaktifkan *Automated Risk Retrospective*, pastikan konfigurasi cron job atau scheduler internal menyertakan flag `--run-retrospective` dalam eksekusi skrip utama. Output rekomendasi revisi akan disimpan dalam direktori `./output/recommendations/` untuk review akhir oleh DPA (*Data Protection Officer*) atau Komisaris Hukum sebelum diterapkan ke register risiko inti.
