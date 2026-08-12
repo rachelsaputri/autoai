@@ -21422,3 +21422,139 @@ Dengan adanya framework ini, perusahaan memenuhi beberapa standar tata kelola pe
 3.  **Tanggung Jawab Direksi (Duty of Care & Loyalty)**: Membuktikan bahwa Direksi telah menjalankan tugasnya dengan penuh kehati-hatian dan tidak melakukan konflik kepentingan melalui manipulasi data simulasi.
 
 > **Catatan Penting**: Skrip auditor ini bersifat *read-only* terhadap sumber data kriptografi. Hasil audit bersifat final dan tidak dapat diubah oleh pengguna dashboard, termasuk admin tingkat tertinggi, kecuali melalui proses pembekuan sistem (*system freeze*) dan pemulihan dari backup offline yang disegel secara multi-sig.
+
+
+Berikut adalah konten lanjutan untuk `README.md` yang mencakup dokumentasi teknis mendalam mengenai metodologi simulasi, kepatuhan regulasi, serta spesifikasi implementasi skrip Python `compliance_boardroom_simulator_dashboard.py`.
+
+---
+
+## 6. Executive Simulation & Decision Support
+
+Bagian ini menjelaskan fondasi teknis dan metodologis dari *Strategic Simulation Interface* yang memungkinkan eksekutif mengambil keputusan berbasis data tanpa mengancam integritas sistem produksi.
+
+### 6.1. Metodologi: Isolated Strategic Sandbox Environments
+
+Sistem ini mengadopsi arsitektur **"Isolated Strategic Sandbox"** yang memisahkan secara fisik dan logis lingkungan simulasi dari lingkungan produksi (Production Data). Prinsip kerjanya adalah sebagai berikut:
+
+1.  **Pemisahan Kontainerisasi (Containerization)**:
+    Setiap sesi simulasi dijalankan dalam kontainer ephemeral yang diisolasi menggunakan namespace kernel Linux. Data sensitif tidak disalin ke memori kontainer simulasi; yang dipindahkan hanyalah *metadata* terenkripsi atau salinan anonim (anonymized snapshot) yang telah melalui proses pembersihan PII (Personally Identifiable Information) ketat.
+
+2.  **Isolasi State Management**:
+    Tidak ada operasi *write* yang diizinkan pada database inti (Core Ledger) selama sesi simulasi berlangsung. Semua perubahan parameter (suku bunga, volatilitas pasar, beban operasional) hanya memodifikasi objek memori sementara dalam sandbox. Jika sesi dihentikan, seluruh state hilang tanpa jejak di infrastruktur utama.
+
+3.  **Manajemen Sumber Daya Terkontrol**:
+    Sandbox membatasi penggunaan CPU dan RAM untuk mencegah *Denial of Service* (DoS) tidak sengaja akibat skenario simulasi yang terlalu kompleks. Sumber daya dialokasikan secara dinamis berdasarkan prioritas eksekutif yang login.
+
+### 6.2. Kepatuhan Regulasi: SEC Rule 10b-5 Safe Harbor
+
+Dalam konteks pasar modal global dan perlindungan investor, sistem ini dirancang untuk mematuhi prinsip **Safe Harbor for Forward-Looking Statements** di bawah *SEC Rule 10b-5* (dan regulasi setara seperti OJK di Indonesia).
+
+*   **Pembedaan Jelas antara Fakta dan Proyeksi**: Dashboard secara eksplisit menandai setiap output simulasi sebagai "Proyeksi Hipotetis" dan bukan pernyataan fakta atau janji kinerja.
+*   **Auditabilitas Keputusan (Decision Traceability)**:
+    Setiap perubahan parameter dalam sandbox dicatat secara kronologis. Ini memungkinkan perusahaan untuk membuktikan bahwa keputusan strategis didasarkan pada analisis risiko yang mendalam dan hati-hati (*due diligence*), bukan spekulasi atau manipulasi data.
+*   **Mitigasi Rasa Percaya Diri yang Berlebihan (Overconfidence Bias)**:
+    Sistem secara otomatis menyertakan "Disclaimer Risiko" yang muncul secara modal ketika skenario yang dipilih memiliki deviasi standar tinggi atau probabilitas kegagalan di atas batas ambang tertentu, mendorong eksekutif untuk mempertimbangkan variabel risiko tambahan.
+
+### 6.3. Prosedur: Real-Time Anomaly Signaling
+
+Untuk memastikan keputusan strategis dibuat dalam kondisi sadar akan kepatuhan, dashboard mengintegrasikan *Real-Time Anomaly Signaling*. Fitur ini bertindak sebagai penghalang proaktif sebelum sebuah skenario dieksekusi penuh.
+
+#### Mekanisme Kerja:
+1.  **Integrasi Audit Trail**: Dashboard melakukan polling terhadap `compliance_boardroom_simulation_audit_trail_analyzer.py` setiap kali parameter kunci (misalnya: rasio utang/ekuitas, eksposur mata uang) dimodifikasi.
+2.  **Evaluasi Ambang Batas Dinamis**:
+    Jika parameter baru mendekati atau melewati nilai historis yang ditandai sebagai `FLAGGED` (seperti pada contoh `ANOMALY_DETECTED` di Bagian 5), sistem memicu sinyal visual.
+3.  **Indikator Visual**:
+    *   **Hijau**: Parameter dalam zona aman historis.
+    *   **Kuning (Warning)**: Parameter mendekati batas kritis. Sistem menampilkan tooltip berisi referensi ke entri audit sebelumnya yang serupa.
+    *   **Merah (Block/Flag)**: Parameter melanggar aturan kepatuhan dasar atau memicu skenario `EXTREME_SCENARIO_REITERATION`. Eksekusi skenario ini memerlukan persetujuan tambahan (multi-signature) dari Komisaris Utama sebelum diteruskan ke analisis mendalam.
+
+> **Catatan Teknis**: Sinyal anomali ini tidak menghentikan simulasi secara total, tetapi memberikan "friction" yang disengaja untuk memastikan eksekutif mengakui potensi risiko sebelum melanjutkan.
+
+---
+
+## 7. Implementasi Teknis: Dashboard Simulator
+
+Di bawah ini adalah spesifikasi dan dokumentasi teknis untuk skrip antarmuka utama yang menjalankan simulasi.
+
+### 7.1. Profil Skenario
+
+| Metadata | Detail |
+| :--- | :--- |
+| **Nama File** | `compliance_boardroom_simulator_dashboard.py` |
+| **Versi** | 1.0.0 |
+| **Bahasa** | Python 3.9+ |
+| **Fungsi Utama** | Antarmuka web/dashboard untuk variasi parameter risiko makroekonomi & operasional dalam lingkungan sandbox terisolasi. |
+| **Integrasi** | Berinteraksi dengan `compliance_boardroom_simulation_audit_trail_analyzer.py` untuk validasi real-time. |
+
+### 7.2. Argumen Baris Perintah (CLI Arguments)
+
+Skril ini dirancang untuk dideploy sebagai layanan microservice. Gunakan argumen berikut untuk konfigurasi awal:
+
+| Argumen | Tipe | Wajib | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `--config-params` | `string` | Ya | Path ke file JSON berisi parameter default simulasi awal (misal: `default_risk_profile.json`). |
+| `--output-log` | `string` | Ya | Path output untuk file log interaksi dalam format JSONL. Contoh: `/var/log/simulation_interactions.jsonl`. |
+| `--encrypt-key` | `string` | Ya | Path ke file kunci enkripsi (私钥/Secret Key) yang digunakan untuk menandatangani dan mengenkripsi payload log sebelum ditulis ke disk, menjamin integritas *audit trail*. |
+| `--start-server` | `int` | Ya | Port TCP tempat dashboard akan diluncurkan (HTTP/HTTPS). Contoh: `8080`. |
+
+#### Contoh Eksekusi:
+```bash
+python compliance_boardroom_simulator_dashboard.py \
+    --config-params "./configs/boardroom_default.json" \
+    --output-log "./logs/interactions.jsonl" \
+    --encrypt-key "./keys/simulation_signing_key.pem" \
+    --start-server 9090
+```
+
+### 7.3. Struktur Log Interaksi (Output)
+
+Setiap aksi pengguna di dashboard (perubahan slider, pemilihan skenario, klik "Jalankan Simulasi") akan direkam dalam format `JSONL` (JSON Lines). Entri log ini dirancang untuk konsumsi langsung oleh `compliance_boardroom_simulation_audit_trail_analyzer.py`.
+
+**Contoh Entri Log:**
+
+```json
+{
+  "timestamp": "2023-10-27T14:30:00Z",
+  "user_id": "DIR_001",
+  "session_id": "SES-992837",
+  "action": "PARAMETER_MODIFY",
+  "data": {
+    "parameter": "interest_rate_shock",
+    "old_value": 5.5,
+    "new_value": 8.2,
+    "sandbox_id": "SBX-ALPHA-01"
+  },
+  "hash_signature": "sha256:a1b2c3d4...", 
+  "anomaly_flag": null 
+}
+```
+
+*   `hash_signature`: Hash kriptografic yang memastikan log tidak dapat diubah (*tamper-proof*).
+*   `anomaly_flag`: Nilai `null` jika aman, atau objek anomaly detail jika sistem mendeteksi risiko saat input.
+
+### 7.4. Alur Kerja Integrasi Audit
+
+1.  **Input**: User mengubah parameter risiko di Dashboard.
+2.  **Validasi Real-Time**: Dashboard mengirim *snapshot* parameter saat ini ke modul analisis anomali (melalui API lokal atau queue pesan).
+3.  **Feedback Loop**: Jika `risk_level` >= `HIGH`, Dashboard mengunci slider atau menampilkan modal peringatan.
+4.  **Pencatatan**: Setelah user mengonfirmasi atau parameter disetujui, interaksi direkam ke `--output-log` dengan enkripsi menggunakan `--encrypt-key`.
+5.  **Auditing**: Auditor eksternal atau sistem otomatis membaca file log ini untuk membangun jejak audit yang kohesif dengan data transaksi produksi.
+
+### 7.5. Pertimbangan Keamanan & Deployment
+
+*   **Environment Variable**: Kunci enkripsi (`--encrypt-key`) **tidak boleh** disimpan dalam kode sumber atau repository. Gunakan sistem manajemen secrets (seperti HashiCorp Vault atau AWS Secrets Manager).
+*   **Network Isolation**: Dashboard harus dijalankan di jaringan internal (VPC Private Subnet) dan tidak boleh terpapar ke internet publik untuk mencegah akses tidak sah ke data simulasi.
+*   **Resource Limits**: Disarankan untuk menggunakan *cgroup* pada sistem operasi host untuk membatasi penggunaan memori proses simulator, mencegah kebocoran memori (*memory leak*) pada skenario yang tidak terbatas.
+
+---
+
+## 8. Troubleshooting & FAQ
+
+**Q: Bagaimana jika simulator mengalami *crash* saat sesi simulasi berjalan?**
+**A:** Karena menggunakan arsitektur *stateless* pada level database inti, crash simulator tidak mengganggu data produksi. Namun, log interaksi terakhir akan tersimpan parsial di buffer. Sistem akan melakukan *checkpointing* otomatis setiap 5 detik. Auditor dapat merekonstruksi status terakhir berdasarkan log terakhir yang valid.
+
+**Q: Apakah data simulasi bisa dibagikan ke pihak ketiga?**
+**A:** Data simulasi bersifat *hypothetical* dan tidak mengandung PII. Namun, jika data tersebut mencakup strategi bisnis sensitif, enkrpsi end-to-end dapat diaktifkan. Pastikan untuk mematuhi kebijakan kerahasiaan perusahaan (NDA) sebelum membagikan hasil simulasi.
+
+**Q: Bagaimana cara meningkatkan sensitivitas deteksi anomali?**
+**A:** Sensitivitas dikontrol oleh model statistik di `compliance_boardroom_simulation_audit_trail_analyzer.py`. Anda dapat menyesuaikan parameter `threshold_sigma` (deviasi standar) pada file konfigurasi analyzer. Penurunan nilai ini akan membuat sistem lebih sensitif terhadap fluktuasi kecil.
