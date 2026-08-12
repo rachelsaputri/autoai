@@ -11949,3 +11949,153 @@ Ketika `--apply-pii-masking` diaktifkan, output akan terlihat seperti berikut:
 1.  **Pembersihan Memori:** Setelah eksekusi selesai, skrip secara otomatis mencoba menghapus variabel memori besar. Namun, operator sistem bertanggung jawab untuk memastikan tidak ada *core dump* yang tersisa di disk.
 2.  **Isolasi Jaringan:** Mesin ini sebaiknya dijalankan pada jaringan yang terisolasi (*air-gapped* atau VLAN terpisah) dari internet publik untuk mencegah kebocoran indeks vektor yang mungkin merekonstruksi informasi sensitif jika diretas.
 3.  **Verifikasi Integritas Pra-Pencarian:** Sebelum menjalankan pencarian, sistem akan memverifikasi checksum dari file indeks. Jika checksum tidak cocok (misalnya karena penyimpanan korup atau manipulasi), pencarian akan ditolak dan error `INTEGRITY_CHECK_FAILED` akan dilempar.
+
+
+#### 10.6 Verifikasi Final dan Penandatanganan Hukum (`compliance_final_legal_signer.py`)
+
+Sebelum dokumen hukum diserahkan kepada dewan direksi atau regulator, sistem harus melewati "Gerbang Keamanan Terakhir" (*Final Gate*). Modul ini bertugas melakukan verifikasi silang akhir (final cross-check) terhadap integritas kriptografi konten, validitas rantai custodi bukti, dan konsistensi data pemetaan kepatuhan, sebelum melakukan penandatanganan elektronik berstandar tinggi.
+
+**Fitur Utama:**
+*   **Triple-Verification Check:** Memverifikasi hash `SHA-256` dari dokumen narasi, validasi tanda tangan digital pada *chain of custody*, dan konsistensi logika dalam *compliance mapping*.
+*   **HSM Integration:** Menggunakan protokol PKCS#11 untuk mengakses kunci kriptografi dari Hardware Security Module (HSM) virtual atau fisik, memastikan kunci tidak pernah meninggalkan domain aman perangkat keras.
+*   **Qualified Electronic Signature (QES):** Menghasilkan tanda tangan yang memenuhi standar eIDAS Regulation untuk kekuatan pembuktian hukum penuh.
+
+**Instalasi dan Persyaratan Sistem:**
+Pastikan lingkungan Python memiliki dependensi berikut:
+```bash
+pip install python-pkcs11 cryptography jsonschema
+```
+
+**Sintaksis Penggunaan:**
+
+```bash
+python compliance_final_legal_signer.py \
+    --narrative-doc "path/to/legal_narrative_archive.docx" \
+    --evidence-chain "path/to/evidence_chain_of_custody.json" \
+    --hsm-key-id "key_id_12345" \
+    --compliance-matrix "path/to/compliance_mapping_matrix.json" \
+    --dry-run \
+    --output-signed "path/to/signed_document.pdf"
+```
+
+**Argumen Detail:**
+
+1.  `--narrative-doc` (**Wajib**): Path absolut ke file dokumen narasi hukum utama (`legal_narrative_archive.docx`). Skrip akan menghitung hash kriptografi dari konten biner dokumen ini sebelum dan sesudah proses signing untuk memastikan tidak ada modifikasi.
+2.  `--evidence-chain` (**Wajib**): Path ke file JSON yang berisi rantai custodi (`evidence_chain_of_custody.json`). Skrip memverifikasi bahwa tanda tangan digital pada file ini belum kedaluwarsa dan issuernya tepercaya.
+3.  `--hsm-key-id` (**Wajib**): Identifier unik dari kunci private di HSM yang akan digunakan untuk proses penandatanganan. Kunci ini *tidak* diekspor ke memori sistem; operasi signing dilakukan langsung di dalam chip HSM.
+4.  `--compliance-matrix` (**Opsional**): Path ke `compliance_mapping_matrix.json`. Jika disertakan, skrip melakukan validasi schema JSON dan konsistensi logika (misalnya: memastikan setiap temuan PII memiliki mitigasi yang relevan).
+5.  `--dry-run`: Mode simulasi. Skrip akan menjalankan seluruh proses verifikasi dan kalkulasi hash, tetapi **tidak** akan mengirimkan perintah signing ke HSM dan **tidak** menulis file keluaran. Berguna untuk audit log tanpa risiko operasi.
+6.  `--output-signed` (**Opsional**): Path untuk menyimpan dokumen akhir yang telah ditandatangani secara digital. Default: `legal_narrative_archive_signed.pdf` (konversi otomatis dari .docx untuk preservasi tanda tangan).
+
+**Logika Eksekusi dan Alur Kerja:**
+
+1.  **Fase 1: Inisialisasi Koneksi HSM**
+    Sistem memuat token PKCS#11 dan membuka sesi yang dienkripsi untuk akses ke `--hsm-key-id`. Jika token tidak valid atau kunci tidak ditemukan, eksekusi dihentikan dengan error `HSM_ACCESS_DENIED`.
+
+2.  **Fase 2: Verifikasi Integritas Narasi**
+    *   Menghitung hash `SHA-256` dari `--narrative-doc`.
+    *   Membandingkan dengan hash referensi yang tersimpan di metadata dokumen (jika ada) atau menandai sebagai "First Sign" jika tidak ada riwayat sebelumnya.
+    *   Memvalidasi format file DOCX (memastikan bukan file XML biasa yang diubah ekstensi).
+
+3.  **Fase 3: Validasi Rantai Custodi (`evidence-chain`)**
+    *   Membaca file JSON dan memverifikasi struktur data.
+    *   Mengecek tanda tangan digital di header/footer JSON.
+    *   Memverifikasi sertifikat issuer terhadap *Trust Anchor* lokal.
+    *   Jika tanda tangan tidak valid, skrip melempar error `EVIDENCE_CHAIN_INVALID` dan menolak proses lebih lanjut.
+
+4.  **Fase 4: Konsistensi Matiks Kepatuhan**
+    *   (Jika `--compliance-matrix` disediakan) Memuat file dan memvalidasi terhadap *schema* JSON yang ditentukan.
+    *   Memastikan tidak ada tumpang tindih konflik antara temuan PII dan klaim mitigasi.
+
+5.  **Fase 5: Penandatanganan (Signing)**
+    *   Dokumen (atau hash digest-nya, tergantung konfigurasi HSM) dikirim ke HSM.
+    *   HSM menggunakan kunci private untuk membuat tanda tangan menggunakan algoritma ECDSA (P-256 curve) atau RSA-4096.
+    *   Tanda tangan beserta sertifikat X.509 QES disertakan dalam dokumen output.
+
+6.  **Fase 6: Audit Log & Output**
+    *   Menulis log transaksi penandatanganan ke database audit terpisah (immutable).
+    *   Menyimpan file output yang telah ditandatangani.
+
+**Contoh Output Sukses:**
+
+```json
+{
+  "status": "SUCCESS",
+  "signing_timestamp": "2023-10-27T10:00:00Z",
+  "hash_narrative": "sha256:a1b2c3d4...",
+  "hsm_session_id": "hsm_sess_998877",
+  "signature_algorithm": "ECDSA-P256",
+  "certificate_subject": "CN=Legal Officer, OU=Compliance, O=Corp Inc",
+  "qes_validated": true,
+  "output_file": "legal_narrative_archive_signed.pdf"
+}
+```
+
+**Contoh Error Gagal (Dry Run):**
+
+```json
+{
+  "status": "FAILURE",
+  "error_code": "EVIDENCE_CHAIN_INVALID",
+  "message": "Tanda tangan digital pada evidence_chain_of_custody.json tidak diverifikasi oleh Trust Anchor lokal.",
+  "details": {
+    "issuer_mismatch": true,
+    "revocation_status": "UNKNOWN"
+  }
+}
+```
+
+---
+
+### Lampiran Hukum & Kepatuhan: Standar Non-Repudiation Evidence
+
+Bagian ini menguraikan dasar hukum dan teknis yang menopang kekuatan pembuktian dokumen yang ditandatangani menggunakan skrip di atas, sesuai dengan regulasi **eIDAS Regulation (EU) No 910/2014** dan standar internasional terkait keabsahan tanda tangan elektronik.
+
+#### 1. Prinsip Non-Repudiation (Penyangkalan)
+Dalam konteks forensik digital dan hukum, *Non-Repudiation* memastikan bahwa pihak yang menandatangani dokumen tidak dapat menolak keaslian penandatanganan tersebut di kemudian hari. Skrip `compliance_final_legal_signer.py` mencapai ini melalui tiga mekanisme kriptografi:
+
+1.  **Authenticity (Keaslian):** Hanya pemegang kunci private HSM yang dapat menghasilkan tanda tangan yang valid. Karena kunci disimpan di HSM, akses fisik atau logis tanpa otorisasi biometrik/pin multi-faktor ke HSM dimungkinkan, menciptakan jejak audit kuat bahwa hanya individu tertentu yang memiliki akses.
+2.  **Integrity (Integritas):** Setiap perubahan pada dokumen setelah penandatanganan akan mengubah hash dokumen, sehingga tanda tangan menjadi invalid secara otomatis. Ini menjamin bahwa konten yang dilihat dewan direksi adalah konten yang sama yang telah disetujui.
+3.  **Uniqueness (Keunikan):** Tautan kriptografi unik antara tanda tangan, dokumen, dan identitas penandatangan.
+
+#### 2. Standarisasi Tanda Tangan Elektronik (eIDAS Regulation)
+
+Sistem ini dirancang untuk memenuhi standar **Qualified Electronic Signature (QES)**, yang memiliki nilai hukum setara dengan tanda tangan tulisan tangan (handwritten signature) di seluruh Uni Eropa dan negara-negara yang mengadopsi standar ini.
+
+**Karakteristik QES yang Diimplementasikan:**
+
+*   **Dibuat menggunakan Alat Pembuatan Tanda Tangan yang Dipercaya:** Penggunaan HSM memenuhi persyaratan ini karena HSM adalah lingkungan kriptografi yang tersertifikasi (biasanya level Common Criteria EAL4+).
+*   **Tertaut Secara Unik dengan Penandatangan:** Sertifikat X.509 yang dikaitkan dengan tanda tangan diidentifikasi secara unik dengan penandatangan fisik melalui proses pendaftaran QES (CSP - Qualified Certificate Service Provider).
+*   **Dirancang untuk Menghubungkan Penandatangan dengan Data yang Ditanda tangani:** Algoritma penandatanganan (ECDSA/RSA) secara teknis menggabungkan data dokumen dengan kunci pribadi.
+*   **Berbasis pada Sertifikat Kualifikasi:** Proses signing menggunakan sertifikat digital yang diterbitkan oleh Penyedia Jasa Kepercayaan Kualifikasi (QTSP) yang terdaftar di European Trust List.
+*   **Dibuat dengan Cara Memberikan Penandatangan Kontrol yang Andal atas Data yang Digunakan untuk Pembuatannya:** Integrasi HSM memastikan bahwa kunci private tidak dapat diekstraksi atau dimanipulasi oleh perangkat lunak aplikasi.
+
+#### 3. Prosedur Penyimpanan Bukti Penandatanganan (Evidence Preservation)
+
+Untuk memastikan dokumen memiliki kekuatan pembuktian di pengadilan, bukti penandatanganan harus disimpan dengan prosedur berikut:
+
+1.  **Arsip JSE (Long-Term Validation):**
+    *   Tidak cukup hanya menyimpan file PDF yang ditandatangani. Sistem harus menghasilkan arsip JSE (Signature Encryption) atau format LTV (Long-Term Validation) yang menyertakan status validitas sertifikat (CRL/OCSP) pada saat penandatanganan.
+    *   Ini memastikan bahwa tanda tangan tetap dapat diverifikasi di masa depan, bahkan jika sertifikat telah kedaluwarsa atau CA tertentu bangkrut.
+
+2.  **Immutable Audit Log:**
+    *   Setiap event penandatanganan (sukses/gagal) dicatat dalam log yang ditulis sekali-read-many (WORM - Write Once Read Many).
+    *   Data log harus mencakup: Timestamp NTP terverifikasi, Hash dokumen input, ID Sesi HSM, ID Operator, dan Status Validasi QES.
+
+3.  **Chain of Custody Digital:**
+    *   File `evidence_chain_of_custody.json` yang diverifikasi di Fase 2 harus diarsipkan secara paralel dengan dokumen yang ditandatangani. Ini membentuk rantai bukti yang tak terputus dari pembuatan, pemeriksaan, hingga penandatanganan akhir.
+
+4.  **Retensi Data:**
+    *   Simpan dokumen asli, dokumen signed, sertifikat, dan log audit selama periode retensi hukum yang berlaku (misalnya, 7-10 tahun untuk laporan keuangan atau audit eksternal).
+
+#### 4. Checklist Legal Sebelum Submit ke Direksi
+
+Sebelum menjalankan `compliance_final_legal_signer.py` dalam mode produksi, pastikan hal berikut telah dipenuhi oleh tim hukum dan IT Security:
+
+*   [ ] Sertifikat QES yang terhubung dengan `--hsm-key-id` belum kedaluwarsa.
+*   [ ] HSM telah melewati pembaruan firmware keamanan terbaru.
+*   [ ] Kunci HSM telah diatur dengan kebijakan "Never Export".
+*   [ ] Operator telah memiliki otorisasi multi-factor untuk mengakses antarmuka HSM jika diperlukan.
+*   [ ] Salinan cadangan dari `compliance_mapping_matrix.json` telah disimpan di media terpisah.
+
+Dengan mengikuti standar ini, organisasi tidak hanya mematuhi regulasi teknis, tetapi juga membangun pertahanan hukum yang kuat terhadap sengketa kepemilikan atau manipulasi dokumen di kemudian hari.
