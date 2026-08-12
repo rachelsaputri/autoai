@@ -13211,3 +13211,464 @@ Skrip ini dirancang untuk mematuhi standar berikut dalam penyediaan bukti digita
 
 *   **Privasi Data:** Skrip ini menghitung hash dari file. Jika file berisi PII (Personally Identifiable Information), pastikan izin pemrosesan data telah ada sebelum menjalankan audit, terutama jika hash tersebut disimpan dalam log yang dapat diakses pihak ketiga.
 *   **Performa:** Untuk file yang sangat besar (>5GB), perhitungan hash SHA-256 dilakukan secara streaming (chunked) untuk menghindari *out-of-memory*. Pastikan skrip `compliance_audit_log_integrity_verifier.py` telah dioptimasi untuk chunk size yang sesuai dengan kapasitas RAM server.
+
+
+Berikut adalah konten lanjutan untuk `README.md` yang mencakup implementasi teknis skrip mesin grafis pengetahuan dan dokumentasi arsitektur mendalam untuk standar kepatuhan semantik.
+
+***
+
+#### 5. Semantic Compliance Knowledge Graph Engine
+
+Untuk memfasilitasi analisis kausalitas tingkat lanjut (misalnya, menghubungkan *celah kontrol teknis* dengan *denda GDPR spesifik*), sistem ini mencakup mesin grafis pengetahuan bernama `compliance_governance_knowledge_graph_engine.py`. Mesin ini menerjemahkan data terstruktur dari pipeline sebelumnya menjadi basis pengetahuan terkoneksi yang dapat queried menggunakan bahasa SPARQL atau Neo4j Cypher.
+
+##### 5.1. Arsitektur dan Flow Data
+Alur kerja *Knowledge Graph* terdiri dari tiga tahap utama:
+1.  **Ingestion & Parsing:** Membaca file input dari modul pendahuluan (`Compliance Orchestration`, `Risk Quantifier`, `Forensic Chronicle`).
+2.  **Ontology Mapping:** Memetakan entitas fisik dan logis ke dalam skema ontologi OWL (Web Ontology Language) yang konsisten.
+3.  **Graph Persistence:** Mengunggah node dan relasi ke Graph Database (Neo4j/Amazon Neptune) atau mengekspor ke file statis (DOT/JSON-LD) untuk visualisasi offline.
+
+**Diagram Alur Data:**
+```mermaid
+graph LR
+    A[compliance_mapping_matrix.json] -->|Ingestion| E(Knowledge Graph Engine)
+    B[risk_financial_impact.json] -->|Ingestion| E
+    C[legal_narrative_archive.docx] -->|Ingestion & NLP Extraction| E
+    E -->|Write Nodes/Edges| D[Neo4j / Amazon Neptune]
+    E -->|Export Static| F[output_graph.json-lld / .dot]
+```
+
+##### 5.2. Implementasi Skrip: `compliance_governance_knowledge_graph_engine.py`
+
+Berikut adalah implementasi lengkap dari mesin grafis pengetahuan. Skrip ini menggunakan pustaka `networkx` untuk manipulasi graf dalam memori, `rdflib` untuk serialisasi RDF/OWL, dan konektor standar untuk database grafik.
+
+```python
+#!/usr/bin/env python3
+"""
+compliance_governance_knowledge_graph_engine.py
+
+Mesin Graf Pengetahuan Kepatuhan Semantik.
+Fungsi: Membangun basis pengetahuan terhubung (Knowledge Graph) 
+yang memetakan hubungan kausalitas antara temuan teknis, risiko finansial, 
+dan kewajiban hukum.
+
+Output: Graph Database (Neo4j/Neptune) atau File Export (DOT/JSON-LD).
+"""
+
+import argparse
+import json
+import os
+import sys
+import hashlib
+from datetime import datetime
+from typing import Dict, List, Optional
+
+# Asumsi pustaka: networkx, rdflib
+try:
+    import networkx as nx
+    from rdflib import Graph, Namespace, Literal, URIRef, RDF, RDFS, OWL
+    from rdflib.namespace import RDF, RDFS, OWL
+except ImportError:
+    print("Error: Pustaka 'networkx' dan 'rdflib' diperlukan. Instalasi: pip install networkx rdflib")
+    sys.exit(1)
+
+# Namespace Ontologi (OWL Namespace Extension)
+NS = Namespace("http://schema.org/compliance/ontology/")
+OWL_NS = Namespace("http://www.w3.org/2002/07/owl#")
+
+class ComplianceKnowledgeGraph:
+    def __init__(self, db_uri: Optional[str] = None, export_path: Optional[str] = None):
+        """
+        Inisialisasi Graph Engine.
+        
+        Args:
+            db_uri: URI koneksi database grafik (contoh: bolt://localhost:7687)
+            export_path: Path untuk menyimpan grafs statis (DOT atau JSON-LD)
+        """
+        self.g_db_uri = db_uri
+        self.g_export_path = export_path
+        self.graph = nx.MultiGraph() # Menggunakan MultiGraph untuk menangani beberapa jenis relasi antar node
+        self.rdf_graph = Graph()
+        self.rdf_graph.bind("comp", NS)
+        
+        # Definisi Class Ontologi Dasar
+        self._define_ontology_classes()
+
+    def _define_ontology_classes(self):
+        """Mendefinisikan kelas-kelas utama dalam OWL untuk konsistensi semantik."""
+        classes = [
+            (NS.Finding, "Temuan Auditor Teknikal"),
+            (NS.Risk, "Risiko Bisnis/Finansial"),
+            (NS.Regulation, "Klausul Regulasi/Hukum"),
+            (NS.Control, "Kontrol Keamanan/Teknis"),
+            (NS.Evidence, "Bukti Digital")
+        ]
+        for cls, label in classes:
+            self.rdf_graph.add((cls, RDF.type, OWL.Class))
+            self.rdf_graph.add((cls, RDFS.label, Literal(label, lang='en')))
+
+    def load_and_parse_inputs(self, matrix_path: str, financial_path: str, narrative_path: str):
+        """
+        Membaca dan memparsis file input dari modul pendahuluan.
+        """
+        if not os.path.exists(matrix_path):
+            raise FileNotFoundError(f"Matriks kepatuhan tidak ditemukan: {matrix_path}")
+        if not os.path.exists(financial_path):
+            raise FileNotFoundError(f"Dampak finansial tidak ditemukan: {financial_path}")
+        
+        # Parsing JSON Matriks & Finansial
+        with open(matrix_path, 'r', encoding='utf-8') as f:
+            self.matrix_data = json.load(f)
+        
+        with open(financial_path, 'r', encoding='utf-8') as f:
+            self.financial_data = json.load(f)
+            
+        # Parsing Narasi Hukum (Sederhana: ekstrak ID regulasi dari teks jika tidak terstruktur)
+        # Dalam produksi, gunakan NLP library seperti spaCy untuk ekstraksi entitas
+        self.narrative_text = ""
+        if os.path.exists(narrative_path):
+            if narrative_path.endswith('.docx'):
+                try:
+                    import docx
+                    doc = docx.Document(narrative_path)
+                    self.narrative_text = "
+".join([para.text for para in doc.paragraphs])
+                except ImportError:
+                    print("Warning: python-docx tidak terinstal. Ekstraksi teks narasi dilewati.")
+            else:
+                with open(narrative_path, 'r', encoding='utf-8') as f:
+                    self.narrative_text = f.read()
+
+    def _create_node_id(self, entity_type: str, identifier: str) -> str:
+        """Membuat URI unik untuk node berdasarkan tipe dan identifier."""
+        return f"{NS}{entity_type}_{hashlib.sha256(identifier.encode()).hexdigest()[:8]}"
+
+    def build_graph(self):
+        """
+        Membangun node dan relasi berdasarkan data input.
+        """
+        print("Building Knowledge Graph...")
+        
+        # 1. Import Findings & Controls dari Matriks
+        if 'findings' in self.matrix_data:
+            for finding in self.matrix_data['findings']:
+                fid = finding.get('id', finding.get('finding_id'))
+                if not fid: continue
+                
+                node_id = self._create_node_id("Finding", fid)
+                self.graph.add_node(node_id, type="Finding", label=finding.get('description', ''), 
+                                    severity=finding.get('severity', 'Medium'), 
+                                    status=finding.get('status', 'Open'))
+                
+                # Relasi: Temuan berdampak pada Kontrol
+                for ctrl_id in finding.get('related_controls', []):
+                    ctrl_node_id = self._create_node_id("Control", ctrl_id)
+                    self.graph.add_node(ctrl_node_id, type="Control", label=ctrl_id)
+                    self.graph.add_edge(node_id, ctrl_node_id, relation="AFFECTS_CONTROL")
+                    
+                    # Simpan ke RDF
+                    self.rdf_graph.add((URIRef(node_id), NS.affects, URIRef(ctrl_node_id)))
+
+        # 2. Import Risiko Finansial
+        if 'risks' in self.financial_data:
+            for risk in self.financial_data['risks']:
+                rid = risk.get('id', risk.get('risk_id'))
+                if not rid: continue
+                
+                node_id = self._create_node_id("Risk", rid)
+                impact_val = risk.get('financial_impact', 0)
+                self.graph.add_node(node_id, type="Risk", label=risk.get('description', ''),
+                                    financial_impact=impact_val, 
+                                    currency=risk.get('currency', 'USD'))
+                
+                # Relasi: Risiko berasal dari Temuan/Kegagalan Kontrol
+                # Menghubungkan node Risiko ke node Control yang gagal
+                if 'related_control_id' in risk:
+                    ctrl_node_id = self._create_node_id("Control", risk['related_control_id'])
+                    # Pastikan node control ada, jika tidak buat dummy
+                    if not self.graph.has_node(ctrl_node_id):
+                        self.graph.add_node(ctrl_node_id, type="Control", label=risk['related_control_id'])
+                        
+                    self.graph.add_edge(node_id, ctrl_node_id, relation="CAUSED_BY_CONTROL_FAILURE")
+                    self.rdf_graph.add((URIRef(node_id), NS.causedBy, URIRef(ctrl_node_id)))
+
+        # 3. Mapping ke Regulasi (dari Matriks atau Ekstraksi Teks)
+        # Asumsi: Matriks memiliki mapping 'regulations_violated'
+        if 'findings' in self.matrix_data:
+            for finding in self.matrix_data['findings']:
+                fid = finding.get('id', finding.get('finding_id'))
+                node_id = self._create_node_id("Finding", fid)
+                
+                for reg_violation in finding.get('regulations_violated', []):
+                    reg_id = self._create_node_id("Regulation", reg_violation)
+                    self.graph.add_node(reg_id, type="Regulation", label=reg_violation)
+                    
+                    # Relasi Kausalitas Langsung: Temuan melanggar Regulasi
+                    self.graph.add_edge(node_id, reg_id, relation="VIOLATES_REGULATION")
+                    self.rdf_graph.add((URIRef(node_id), NS.violates, URIRef(reg_id)))
+
+        # 4. Integrasi Narasi Hukum (Kontekstual)
+        # Jika ada teks narasi, kita bisa menambahkan node 'NarrativeEvent' yang terhubung
+        # Untuk demo, kita asosiasikan seluruh narasi dengan audit instance
+        narrative_id = self._create_node_id("Narrative", "Audit_Year_" + str(datetime.now().year))
+        self.graph.add_node(narrative_id, type="Narrative", label="Legal Narrative Archive")
+        for ctrl_id, data in self.graph.nodes(data=True):
+            if data.get('type') == 'Control':
+                self.graph.add_edge(narrative_id, ctrl_id, relation="DOCUMENTED_IN_NARRATIVE")
+
+        print(f"Graph built: {self.graph.number_of_nodes()} nodes, {self.graph.number_of_edges()} edges.")
+
+    def persist_to_database(self):
+        """
+        Mengunggah graph ke Neo4j atau Amazon Neptune.
+        """
+        if not self.g_db_uri:
+            print("No database URI provided. Skipping persistence.")
+            return
+
+        try:
+            from neo4j import GraphDatabase
+            
+            driver = GraphDatabase.driver(self.g_db_uri, auth=("neo4j", "password")) # Default creds, ganti sesuai env
+            with driver.session() as session:
+                # 1. Create Constraint/Indexes (Best Practice)
+                session.run("CREATE CONSTRAINT n10s_unique_uri FOR (r:Finding) REQUIRE r.uri IS UNIQUE")
+                
+                # 2. Bulk Insert using APOC (Recommended for performance)
+                # Konversi NetworkX edges ke format CSV string atau batch Cypher
+                query = """
+                UNWIND $nodes AS node 
+                MERGE (n {uri: node.uri}) 
+                ON CREATE SET n += node.properties
+                """
+                # Transformasi data graph ke format yang diterima Neo4j
+                nodes_to_upload = []
+                for node_id, data in self.graph.nodes(data=True):
+                    nodes_to_upload.append({
+                        'uri': node_id,
+                        'properties': {k: v for k, v in data.items() if k != 'id'} # 'id' sudah di uri
+                    })
+                
+                if nodes_to_upload:
+                    session.run(query, nodes=nodes_to_upload)
+                    print("Nodes uploaded successfully.")
+                
+                edges_to_upload = []
+                for u, v, key, data in self.graph.edges(keys=True, data=True):
+                    edges_to_upload.append({
+                        'start': u,
+                        'end': v,
+                        'type': data.get('relation', 'RELATED_TO')
+                    })
+                
+                # Query untuk edges menggunakan APOC
+                if edges_to_upload:
+                    session.run("""
+                        UNWIND $edges AS edge 
+                        MATCH (s {uri: edge.start}), (e {uri: edge.end}) 
+                        CREATE (s)-[:`""" + str(edge['type']) + """`]->(e)
+                    """, edges=edges_to_upload)
+                    print("Edges uploaded successfully.")
+                    
+            driver.close()
+            
+        except Exception as e:
+            print(f"Error connecting to database: {e}")
+            print("Falling back to static export.")
+            self.export_static()
+
+    def export_static(self):
+        """
+        Mengekspor graf ke file statis (DOT atau JSON-LD) jika database tidak tersedia.
+        """
+        if not self.g_export_path:
+            print("No export path provided. Skipping static export.")
+            return
+
+        if self.g_export_path.endswith('.json-ld'):
+            self.export_rdf_jsonld()
+        elif self.g_export_path.endswith('.dot'):
+            self.export_dot()
+        else:
+            print("Unsupported export format. Use .json-ld or .dot")
+
+    def export_rdf_jsonld(self):
+        """Eksport dalam format JSON-LD untuk interoperabilitas web semantik."""
+        try:
+            import json
+            # Serialize ke JSON-LD
+            json_ld = self.rdf_graph.serialize(format='json-ld', indent=2)
+            with open(self.g_export_path, 'w', encoding='utf-8') as f:
+                f.write(json_ld)
+            print(f"JSON-LD exported to {self.g_export_path}")
+        except Exception as e:
+            print(f"Error exporting JSON-LD: {e}")
+
+    def export_dot(self):
+        """Eksport ke format Graphviz DOT untuk visualisasi struktural."""
+        try:
+            import pydot
+            # Konversi NetworkX ke PyDot
+            pydot_graph = nx.drawing.nx_pydot.to_pydot(self.graph)
+            pydot_graph.set_rankdir('LR') # Left to Right
+            pydot_graph.write_png(self.g_export_path.replace('.dot', '.png')) # Visualisasi cepat
+            # Tulis juga file source DOT
+            dot_string = pydot_graph.to_string()
+            with open(self.g_export_path, 'w') as f:
+                f.write(dot_string)
+            print(f"DOT file exported to {self.g_export_path}")
+        except Exception as e:
+            print(f"Error exporting DOT: {e}")
+
+    def run_query_example(self):
+        """
+        Contoh query analitis: "Tampilkan semua celah kepatuhan yang berkontribusi 
+        langsung terhadap risiko denda GDPR tertinggi."
+        """
+        print("
+--- Running Analytical Query: High GDPR Risk Drivers ---")
+        # Filter dalam memori (Dalam produksi, gunakan Cypher/SPARQL di DB)
+        gdpr_risks = [n for n, d in self.graph.nodes(data=True) 
+                      if d.get('type') == 'Risk' and 'GDPR' in d.get('label', '')]
+        
+        # Ambil kontrol yang gagal menyebabkan risiko ini
+        drivers = []
+        for risk_node in gdpr_risks:
+            if risk_node in self.graph:
+                predecessors = self.graph.predecessors(risk_node)
+                for pred in predecessors:
+                    node_data = self.graph.nodes[pred]
+                    if node_data.get('type') == 'Control' or node_data.get('type') == 'Finding':
+                        drivers.append({
+                            'node_id': pred,
+                            'type': node_data.get('type'),
+                            'label': node_data.get('label', ''),
+                            'related_risk': self.graph.nodes[risk_node].get('label', '')
+                        })
+        
+        if drivers:
+            for d in drivers:
+                print(f" [!] {d['type']}: {d['label']} -> contributes to -> {d['related_risk']}")
+        else:
+            print(" No direct high-GDPR risk drivers found in current graph.")
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Compliance Governance Knowledge Graph Engine",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Contoh Penggunaan:
+  python compliance_governance_knowledge_graph_engine.py \
+      --matrix compliance_mapping_matrix.json \
+      --financial risk_financial_impact.json \
+      --narrative legal_narrative_archive.docx \
+      --db-uri bolt://localhost:7687 \
+      --output-graph audit_knowledge_graph.json-ld
+        """
+    )
+    
+    parser.add_argument('--matrix', type=str, required=True,
+                        help='Path to compliance_mapping_matrix.json generated by orchestration module')
+    parser.add_argument('--financial', type=str, required=True,
+                        help='Path to risk_financial_impact.json generated by risk quantifier')
+    parser.add_argument('--narrative', type=str, required=True,
+                        help='Path to legal_narrative_archive.docx generated by forensic chronicle')
+    parser.add_argument('--db-uri', type=str, required=False,
+                        help='Database URI (e.g., bolt://localhost:7687 for Neo4j, https://xxx.us-east-1.neptune.amazonaws.com:8182 for Neptune)')
+    parser.add_argument('--output-graph', type=str, required=False,
+                        help='Path for static export (.dot or .json-ld). Required if --db-uri is not provided.')
+
+    args = parser.parse_args()
+
+    # Validasi input
+    if not args.db_uri and not args.output_graph:
+        print("Error: Either --db-uri or --output-graph must be provided.")
+        sys.exit(1)
+
+    try:
+        engine = ComplianceKnowledgeGraph(
+            db_uri=args.db_uri,
+            export_path=args.output_graph
+        )
+        
+        engine.load_and_parse_inputs(args.matrix, args.financial, args.narrative)
+        engine.build_graph()
+        
+        if args.db_uri:
+            engine.persist_to_database()
+        else:
+            engine.export_static()
+            
+        # Jalankan contoh query analitis untuk validasi
+        engine.run_query_example()
+        
+        print("
+Knowledge Graph Engine completed successfully.")
+
+    except Exception as e:
+        print(f"Critical Error in Knowledge Graph Engine: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
+```
+
+##### 5.3. Contoh Query Analitis (Neo4j Cypher)
+
+Setelah data diunggah, pengguna dapat menjalankan pertanyaan strategis melalui antarmuka database atau dashboard BI. Berikut adalah contoh query Cypher untuk mendeteksi akar masalah dari risiko regulasi tinggi:
+
+```cypher
+// Temukan node Risiko dengan dampak finansial > $1M yang terkait dengan GDPR
+MATCH (r:Risk {financial_impact: 1000000..})-[:CAUSED_BY_CONTROL_FAILURE]-(c:Control)
+WHERE exists { (r)-[:VIOLATES_REGULATION]->(:Regulation {label: 'GDPR Art. 32'}) }
+RETURN r.label AS RiskDescription, 
+       r.financial_impact AS ImpactAmount,
+       c.label AS FailedControl,
+       countPath((c)-[:AFFECTS_CONTROL|VIOLATES_REGULATION*0..]->(n)) AS DepthOfImpact
+ORDER BY r.financial_impact DESC;
+```
+
+**Interpretasi Bisnis:**
+Query ini mengisolasi bukan hanya "apa" yang gagal, tetapi "berapa banyak" uang yang dipertaruhkan dan "kontrol spesifik" mana yang perlu diperbaiki segera untuk mitigasi denda.
+
+---
+
+#### 6. Deployment and Operations
+
+Bagian ini memandu arsitek data dan tim keamanan dalam mengintegrasikan *Semantic Compliance Mapping* ke dalam infrastruktur perusahaan yang lebih luas, termasuk dashboard eksekutif dan sistem dukungan keputusan.
+
+##### 6.1. Standar Ontologi OWL (Web Ontology Language)
+Untuk memastikan interoperabilitas data antar departemen (Audit, Legal, IT Security, Finance), skrip ini mengadopsi praktik terbaik dalam ontologi semantik. Definisi kelas dan properti utama yang digunakan dalam `compliance_governance_knowledge_graph_engine.py` adalah:
+
+1.  **Kelas Entitas (`owl:Class`):**
+    *   `comp:Finding`: Representasi dari temuan positif/negatif selama audit teknis. Subsumsi dari `comp:Evidence`.
+    *   `comp:Control`: Mekanisme mitigasi (teknis, administratif, fisik) yang diimplementasikan organisasi.
+    *   `comp:Risk`: Potensi kerugian finansial atau reputasional. Dipetakan ke kategori `comp:FinancialRisk` dan `comp:OperationalRisk`.
+    *   `comp:Regulation`: Klausul spesifik dari regulasi eksternal (GDPR, HIPAA, ISO 27001).
+
+2.  **Properti Objek (`owl:ObjectProperty`):**
+    *   `comp:violates`: Menghubungkan `comp:Finding` ke `comp:Regulation`. Ini adalah properti kunci untuk audit kepatuhan ("Which controls violate which laws?").
+    *   `comp:causedBy`: Menghubungkan `comp:Risk` ke `comp:Control` yang gagal atau `comp:Finding` yang tidak tertangani.
+    *   `comp:mitigatedBy`: Menghubungkan `comp:Finding` ke `comp:Control` yang efektif.
+
+3.  **Properti Data (`owl:DatatypeProperty`):**
+    *   `comp:financial_impact`: Nilai numerik risiko.
+    *   `comp:severity_level`: Tingkat keparahan temuan (Low, Medium, High, Critical).
+    *   `comp:timestamp_detected`: Waktu deteksi temuan.
+
+##### 6.2. Integrasi dengan Dashboard Keputusan Strategis
+Graph database memungkinkan visualisasi "Peta Panas Kepatuhan" (Compliance Heatmap) yang dinamis.
+
+*   **Untuk Dewan Direksi:** Gunakan export `DOT` atau konektor BI (Tableau/PowerBI) yang terhubung ke Neo4j. Visualisasi harus menunjukkan:
+    *   *Jarak Temporal:* Waktu rata-rata untuk menutup celah kepatuhan.
+    *   *Pajanan Finansial:* Node risiko terbesar yang terhubung ke regulasi utama.
+*   **Untuk CISO & Kepala Audit:** Gunakan antarmuka eksplorasi graph (seperti Neo4j Bloom atau Bloom.js) untuk menelusuri rantai kausalitas. Contoh skenario: *"Jika saya memperbaiki Kontrol X, risiko Y akan berkurang sebesar Z%."*
+
+##### 6.3. Pertimbangan Skalabilitas dan Performa
+*   **Indeksasi:** Pastikan indeks dibuat pada properti kunci seperti `uri`, `label`, dan `type` pada node `Control` dan `Regulation` untuk mempercepat query relasional.
+*   **Batching:** Untuk basis pengetahuan yang sangat besar (>1 juta node), gunakan mode *streaming* pada script engine (`bulk insert`) daripada *transactional commit per node*.
+*   **Pembaruan Inkremental:** Skrip dirancang untuk *idempotency* (operasi yang dapat diulang tanpa efek samping). Setiap kali dijalankan, skrip akan membuat atau memperbarui node berdasarkan *hash* unik. Untuk produksi, pertimbangkan penambahan logika *diff* untuk hanya memproses node yang berubah sejak last run, mengurangi beban I/O database.
+
+##### 6.4. Keamanan Graph Database
+*   **Autentikasi:** Nikmati fitur autentikasi database native. Jangan pernah menyimpan kredensial `db_uri` dalam kode sumber. Gunakan variabel lingkungan atau *vault* (HashiCorp Vault/AWS Secrets Manager).
+*   **Otorisasi:** Batasi akses tulis hanya untuk pengguna dengan role `Admin` atau `AuditEngine`. Pengguna lain (termasuk dashboard eksekutif) harus memiliki hak akses *read-only* untuk mencegah manipulasi data audit.
