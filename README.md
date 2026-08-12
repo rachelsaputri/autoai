@@ -19137,3 +19137,51 @@ python compliance_legal_risk_lifecycle_manager.py \
 
 ---
 *Dokumen ini merupakan bagian dari Arsitektur Kepatuhan Digital Terintegrasi. Verifikasi versi terakhir dengan repository pusat.*
+
+
+## 6. Kompilasi Matriks Risiko Cross-Functional
+
+Modul ini (`compliance_cross_functional_compliance_matrix_compiler.py`) bertindak sebagai agregator inti yang menyatukan temuan dari domain teknis, hukum, dan audit menjadi satu entitas risiko terpadu. Tujuannya adalah memberikan perspektif holistik bagi para pemimpin eksekutif dan komite kepatuhan, sehingga keputusan mitigasi tidak diambil berdasarkan silo informasi yang terfragmentasi.
+
+### Argumen Baris Perintah (CLI)
+
+Sistem ini memerlukan parameter konfigurasi berikut untuk menginisiasi proses agregasi dan perhitungan skor gabungan:
+
+| Argumen | Tipe | Deskripsi | Wajib? |
+| :--- | :--- | :--- | :--- |
+| `--technical-risks` | `str` | Path ke file `ai_attack_surface_report.json` yang dihasilkan oleh `compliance_malicious_ai_attack_simulator.py`. | Ya |
+| `--legal-lifecycle` | `str` | Path ke file `legal_risk_lifecycle_state.json` yang dihasilkan oleh `compliance_legal_risk_lifecycle_manager.py`. | Ya |
+| `--audit-readiness` | `str` | Path ke file `audit_readiness_report.json` yang dihasilkan oleh `compliance_audit_readiness_assessor.py`. | Ya |
+| `--correlation-weighting` | `str` | Path ke file JSON/YAML yang mendefinisikan bobot prioritas antar domain risiko (misal: Hukum > Audit > Teknis dalam konteks regulasi OJK). | Ya |
+| `--output-compiled-matrix` | `str` | Path output untuk file `cross_functional_risk_matrix.json` yang berisi matriks risiko komposit akhir. | Tidak (Default: `./output/cross_functional_risk_matrix.json`) |
+
+### Contoh Eksekusi
+
+```bash
+python compliance_cross_functional_compliance_matrix_compiler.py \
+    --technical-risks ./data/ai_attack_surface_report.json \
+    --legal-lifecycle ./output/legal_risk_lifecycle_state.json \
+    --audit-readiness ./data/audit_readiness_report.json \
+    --correlation-weighting ./config/weights/risk_domain_priority.yaml \
+    --output-compiled-matrix ./output/cross_functional_risk_matrix.json
+```
+
+---
+
+## 7. Dokumentasi Teknis Lanjutan
+
+Bagian ini menjelaskan metodologi inti di balik agregasi risiko, standar kepatuhan yang diikuti, dan prosedur validasi konsistensi logis.
+
+### 7.1 Metodologi: Multi-Dimensional Risk Correlation (MDRC)
+
+Sistem ini tidak sekadar menjumlahkan skor risiko secara linear. Sebaliknya, ia menerapkan **Multi-Dimensional Risk Correlation (MDRC)** untuk mendeteksi interdependensi antar domain.
+
+#### Prinsip Dasar
+1.  **Deteksi Silo-Breaking:**
+    Celah keamanan teknis (seperti *Prompt Injection* atau *Model Hallucination*) bukan hanya masalah IT. Dalam konteks ini, celah tersebut secara otomatis memicu penilaian ulang terhadap risiko hukum (misalnya: pelanggaran GDPR jika data sensitif bocor akibat injeksi) dan risiko operasional (gagal memenuhi SLA).
+    
+2.  **Amplifikasi Dinamis:**
+    Jika modul teknis melaporkan kerentanan kritis (Skor Teknis: Tinggi) DAN modul hukum mencatat status mitigasi yang belum lengkap (Status Hukum: *Open*), maka skor risiko gabungan tidak hanya menjadi rata-rata, melainkan mengalami **amplifikasi**.
+    
+    Rumus amplifikasi sederhana:
+    $$ R_{composite} = (W_{tech} 
