@@ -19191,3 +19191,121 @@ Berikut adalah konten lanjutan yang komprehensif, terstruktur, dan siap ditempel
 ---
 
 $$ R_{composite} = (W_{tech} 	imes S_{tech}) + (W_{legal} 	imes S_{legal}) + lpha 
+
+Berikut adalah konten lanjutan yang komprehensif dan terstruktur untuk ditambahkan ke file `README.md`. Bagian ini melanjutkan pembahasan metodologi inti, memperkenalkan arsitektur pemeliharaan dokumentasi otonom, dan mendetailkan standar kepatuhan teknis tingkat lanjut.
+
+---
+
+### 7.1 Metodologi: Multi-Dimensional Risk Correlation (MDRC) *(Lanjutan)*
+
+*(...Rumus amplifikasi sebelumnya...)*
+
+$$ R_{composite} = (W_{tech} 	imes S_{tech}) + (W_{legal} 	imes S_{legal}) + lpha $$
+
+Di mana $lpha$ adalah koefisien amplifikasi dinamis yang dihitung berdasarkan entropi ketidakpastian antar domain. Jika $lpha > 0.15$, sistem menandai risiko tersebut sebagai **"Critical Cross-Domain Spike"** yang memerlukan peninjauan manual segera.
+
+### 7.2 Arsitektur Pemeliharaan Dokumentasi Otonom
+
+Untuk memastikan bahwa dokumentasi teknis tetap sinkron dengan evolusi kode dan regulasi, sistem ini mengintegrasikan **Agent Pemelihara Dokumentasi Otonom** (`compliance_documentation_governance_ai_manager.py`). Agen ini berfungsi sebagai jembatan antara layer kode, layer regulasi, dan layer dokumentasi pengguna akhir.
+
+#### 7.2.1 Komponen Utama Agen
+
+Agen ini beroperasi dalam siklus *watch-verify-apply* menggunakan komponen berikut:
+
+1.  **Source Code Diff Scanner:** Memindai perubahan pada logika bisnis inti, terutama pada modul enkripsi, penanganan data pribadi (PII), dan validasi input model.
+2.  **Regulatory Taxononmy Parser:** Membaca perubahan semantik pada `regulatory_taxonomy.json` untuk mendeteksi pergeseran definisi kepatuhan (misalnya, perubahan definisi "Data Sensitif" di bawah GDPR atau UU PDP).
+3.  **Legal Narrative Generator:** Menggunakan LLM yang dibatasi oleh *context window* ketat untuk menghasilkan narasi pembaruan dokumentasi yang mempertahankan nada teknis dan legal yang konsisten.
+
+#### 7.2.2 Eksekusi dan Argumen CLI
+
+Agen ini didesain untuk berjalan secara non-destruktif. Berikut adalah tata cara penggunaannya:
+
+```bash
+python compliance_documentation_governance_ai_manager.py \
+    --repo-root ./path/to/project \
+    --base-commit HEAD~1 \
+    --legal-update-stream ./data/regulatory_updates/stream_q3_2024.json \
+    --dry-run
+```
+
+**Penjelasan Argumen:**
+*   `--repo-root` (Opsional, Default: `.`): Path ke direktori root repository proyek.
+*   `--base-commit` (Opsional, Default: `HEAD~1`): Commit referensi dasar untuk menghitung *diff*. Penting untuk memastikan bahwa hanya perubahan yang relevan dengan siklus release saat ini yang diproses.
+*   `--legal-update-stream` (Opsional): Path ke file JSON yang berisi perubahan regulasi eksternal. Jika tidak ditentukan, agen akan memeriksa versi lokal di `./config/regulations/latest.json`.
+*   `--dry-run`: Mode simulasi. Agen akan menampilkan laporan perubahan yang *akan* dibuat tanpa menulis ke disk atau membuat commit. Sangat disarankan untuk dijalankan sebelum integrasi CI/CD.
+
+### 7.3 Metodologi Lanjutan: Semantic Diffing for Documentation Integrity
+
+Standar pemeliharaan dokumentasi tradisional sering kali gagal mendeteksi *drift* semantik—ketika dokumentasi secara sintaksis benar, tetapi kehilangan makna legal atau teknis yang subtil akibat refaktor kode. Sistem ini menerapkan **Semantic Diffing** untuk mengatasi masalah ini.
+
+#### 7.3.1 Prinsip Grounding Berbasis RDF Triples
+
+Setiap klaim eksplanabilitas, pernyataan kerentanan, atau prosedur mitigasi dalam dokumentasi tidak disimpan sebagai teks mentah, melainkan di-*grounding* ke dalam struktur **RDF (Resource Description Framework)** triples yang terstruktur.
+
+*   **Subject:** Entitas sistem (misal: `Model_V2_Inference_Engine`).
+*   **Predicate:** Hubungan kepatuhan atau teknis (misal: `complies_with`, `mitigates`, `exposes_risk`).
+*   **Object:** Referensi regulasi atau status teknis (misal: `GDPR_Article_32`, `Severity_High`).
+
+Saat *diff* kode terdeteksi, agen tidak hanya membandingkan string teks. Ia membandingk *triple* RDF lama dan baru. Jika terjadi perubahan pada predikat atau objek yang mempengaruhi klaim kepatuhan, dokumentasi otomatis ditandai untuk tinjauan ulang.
+
+**Contoh Transformasi Semantik:**
+*   *Sebelum:* `[Model_V2] --(exposes_risk)--> [PII_Breach]`
+*   *Setelah Refaktor:* `[Model_V2] --(exposes_risk:Mitigated)--> [PII_Breach]`
+
+Perubahan ini memicu generasi catatan: *"Dokumentasi risiko kebocoran PII perlu diperbarui karena status mitigasi telah berubah dari 'Berisiko' menjadi 'Dimitigasi' berdasarkan perubahan pada modul sanitasi data."*
+
+#### 7.3.2 Mencegah Drift Dokumentasi-Legal
+
+Dengan pendekatan RDF, sistem memastikan:
+1.  **Verifikasi Otomatis:** Setiap perubahan pada `README.md` diverifikasi terhadap basis pengetahuan RDF. Jika ada klaim dalam dokumentasi yang tidak memiliki *triple* RDF yang valid atau bertentangan dengan status kode, build akan gagal.
+2.  **Jejak Audit yang Dapat Dipertanggungjawabkan:** Setiap kata dalam dokumentasi kepatuhan dapat dilacak kembali ke baris kode spesifik (via commit hash) dan aturan regulasi spesifik (via ID regulasi).
+
+### 7.4 Standar Version-Controlled Legal Narrative
+
+Dokumentasi hukum dan teknis tidak lagi dianggap sebagai aset statis. Di bawah standar **Version-Controlled Legal Narrative**, setiap perubahan pada narasi kepatuhan dicatat sebagai entitas yang dapat diaudit.
+
+#### 7.4.1 Metrik Konsistensi
+Sistem melacak metrik berikut secara real-time:
+*   **Narrative Drift Score:** Persentase kesenjangan antara klaim dalam dokumentasi dan perilaku aktual sistem (diukur melalui tes unit kepatuhan).
+*   **Regulatory Latency:** Waktu antara penerapan perubahan regulasi eksternal dan pembaruan dokumentasi internal. Target SLA adalah < 48 jam untuk perubahan regulasi kritis.
+
+### 7.5 Prosedur: Automated PR Generation with Legal Review
+
+Untuk menjamin bahwa dokumentasi selalu menjadi representasi akurat dan sah secara hukum dari perilaku sistem kepatuhan saat ini, sistem ini mengotomatisasi alur kerja *pull request* (PR) khusus untuk tim hukum.
+
+#### 7.5.1 Alur Kerja Otomatis
+
+1.  **Deteksi Perubahan Kritis:**
+    Saat `compliance_documentation_governance_ai_manager.py` mendeteksi perubahan semantik yang mempengaruhi klaim kepatuhan (melalui analisis RDF), agen menandai perubahan tersebut sebagai `requires-legal-review`.
+
+2.  **Generasi PR Spesifik:**
+    Agen secara otomatis membuat Pull Request baru dengan label `legal/auto-update`. PR ini mencakup:
+    *   **Diff Dokumentasi:** Perubahan pada bagian `## Compliance & Legal` di `README.md`.
+    *   **Contextual Justification:** LLM menghasilkan ringkasan mengapa perubahan diperlukan, mengutip perubahan kode spesifik (`diff`) dan regulasi relevan (`regulatory_taxonomy`).
+    *   **RDF Validation Report:** Bukti bahwa klaim baru terhubung dengan valid secara teknis.
+
+3.  **Peninjauan Hukum (Human-in-the-Loop):**
+    Tim hukum ditugaskan untuk meninjau PR. Mereka memiliki dua opsi:
+    *   *Approve:* Menyetujui perubahan narasi.
+    *   *Request Adjustment:* Meminta penyesuaian wording untuk presisi legal yang lebih tinggi.
+
+4.  **Penggabungan (Merge) & Audit Trail:**
+    Setelah disetujui, PR digabungkan ke branch `main`. Sistem mencatat:
+    *   Commit hash perubahan kode pemicu.
+    *   Commit hash pembaruan dokumentasi.
+    *   ID pengguna legal reviewer.
+    *   Timestamp persetujuan.
+
+Ini memastikan bahwa **dokumentasi adalah "Single Source of Truth" yang sah secara hukum**, mengurangi risiko ketidaksesuaian antara apa yang dijanjikan kepada auditor/lembaga regulasi dan apa yang sebenarnya diimplementasikan dalam kode.
+
+---
+
+## 8. Kontribusi dan Panduan Pengembangan
+
+Jika Anda ingin berkontribusi pada ekosistem kepatuhan ini, harap ikuti panduan berikut:
+
+1.  **Uji Semantik:** Sebelum mengirimkan PR dokumentasi, jalankan `python scripts/validate_semantics.py` untuk memastikan tidak ada *drift* RDF.
+2.  **Uji Dry-Run:** Selalu jalankan agen pemelihara dokumentasi dengan flag `--dry-run` untuk melihat dampak perubahan sebelum commit.
+3.  **Hormati Batasan Legal:** Jangan memodifikasi bagian `## Compliance & Legal` secara manual tanpa melalui alur PR otomatis, kecuali untuk perbaikan tipografi minor yang tidak mempengaruhi makna hukum.
+
+Untuk pertanyaan lebih lanjut tentang metodologi MDRC atau konfigurasi RDF, silakan hubungi tim arsitektur kepatuhan di `compliance-arch@yourdomain.com`.
