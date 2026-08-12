@@ -24785,3 +24785,143 @@ python compliance_malicious_discovery_deflection_analyzer.py \
 
 4.  **Kepatuhan Yurisdiksi**:
     Konfigurasi `--privilege-rules-engine` harus disesuaikan secara ketat dengan hukum yurisdiksi tempat litigasi berlangsung. Penggunaan aturan `us_fed_rules_2024` untuk kasus di Indonesia dapat mengakibatkan kesalahan klasifikasi legal yang serius.
+
+
+Berikut adalah draf konten lanjutan untuk file `README.md` Anda. Bagian ini dirancang untuk melengkapi dokumentasi teknis sebelumnya, dengan fokus mendalam pada aspek lintas yurisdiksi, harmonisasi hukum, dan implementasi teknis dari skrip `compliance_cross_jurisdictional_privilege_and_evidentiary_matrix_generator.py`.
+
+---
+
+## Cross-Border Evidentiary Compliance & Privilege Shielding
+
+Bagian ini mendefinisikan arsitektur logis dan metodologi yang digunakan oleh agen harmonisasi bukti lintas yurisdiksi (*Cross-Jurisdictional Privilege & Evidentiary Harmonization Agent*). Modul ini merupakan lapisan pertahanan kritis yang mencegah kegagalan klaim privilegi (privilege waiver) akibat perbedaan doktrin hukum antara *Common Law* (AS/UK) dan *Civil Law* (Indonesia/Eropa Kontinental), serta memastikan kepatuhan terhadap konvensi internasional seperti *Hague Evidence Convention*.
+
+### 1. Metodologi "Jurisdictional Privilege Conflict Resolution"
+
+Sistem ini tidak hanya menerjemahkan istilah hukum, tetapi melakukan pemetaan semantik terhadap klaim privilegi yang telah diidentifikasi oleh mesin NLP ke dalam kerangka hukum lokal masing-masing yurisdiksi. Proses ini melibatkan tiga tahap utama:
+
+#### A. Pemetaan Semantik Privilege (Semantic Privilege Mapping)
+Mesin NLP mengidentifikasi klaim seperti `Work Product Doctrine` atau `Attorney-Client Privilege`. Sistem kemudian memverifikasi kesetaraan fungsionalnya dengan yurisdiksi lawan:
+
+| Klaim Asli (AS/UK) | Ekivalen Fungsional (Indonesia) | Dasar Hukum Referensi | Status Harmonisasi |
+| :--- | :--- | :--- | :--- |
+| **Attorney-Client Privilege** | **Rahasia Profesional Advokat** | UU No. 18 Tahun 2003 ttg Advokat & KUHAP Pasal 26 | *High Confidence* |
+| **Work Product Doctrine** | **Kerahasiaan Hukum & Dokumen Persiapan Litigasi** | UU No. 11 Tahun 2020 (Cipta Kerja) - Penjelasan Umum & Prinsip Keadilan Procedural | *Medium Confidence* (Perlu Verifikasi Kontekstual) |
+| **Litigation Privilege** | **Kerahasiaan Proses Peradilan** | UU No. 8 Tahun 1981 (KUHAP) & PP No. 28 Tahun 2000 | *Context Dependent* |
+
+**Pencegahan "Privilege Waiver by Translation":**
+Kesalahan umum dalam sengketa lintas batas adalah menerjemahkan dokumen internal yang dilindungi *Work Product Doctrine* secara harfiah tanpa memperhatikan nuansa "persiapan litigasi aktif" di yurisdiksi tujuan. Sistem ini mendeteksi metadata linguistik yang menunjukkan apakah dokumen tersebut bersifat strategis (dilindungi) atau faktual (dapat disingkap), sehingga mencegah pengungkapan tidak sengaja saat diterjemahkan untuk pengadilan asing.
+
+#### B. Analisis Konflik Doktrin Common Law vs. Civil Law
+*   **Common Law (AS/UK):** Berfokus pada perlindungan komunikasi antara klien dan pengacara serta strategi pertahanan.
+*   **Civil Law (Indonesia):** Lebih menekankan pada keaslian dokumen (*keabsahan alat bukti*) dan kewajiban kooperatif dalam discovery (*pertanyaan terstruktur*), namun tetap melindungi kerahasiaan profesi advokat.
+
+Sistem ini menghasilkan flag `DOCTRINE_MISMATCH` jika dokumen yang diklaim privileged di AS tidak memiliki dasar perlindungan yang sama kuat di Indonesia, atau sebaliknya. Hal ini memungkinkan tim legal untuk menyusun strategi "Partial Disclosure" atau "Redacted Production" yang tetap mematuhi standar bukti terkuat di kedua yurisdiksi.
+
+### 2. Standar Interoperabilitas: Hague Evidence Convention & ISO 30136-2
+
+Agar matriks kesesuaian bukti dapat diterima secara prosedural oleh pengadilan asing, sistem ini mengadopsi dua standar teknis utama:
+
+#### A. Hague Evidence Convention Article 11 (Objections)
+Sistem mensinkronisasi tag metadata bukti dengan klaim keberatan (*objections*) yang diakui oleh Konvensi Den Haag. Setiap entri dalam `global_evidentiary_admissibility_matrix.json` akan menyertakan field `hague_art_11_compliant_reason` yang menjelaskan secara eksplisit mengapa bukti tersebut ditolak atau dibatasi, menggunakan bahasa hukum yang dapat dipahami oleh hakim asing tanpa membuka pintu bagi *waiver* implisit.
+
+#### B. ISO 30136-2: Legal Metadata Interoperability
+Untuk memastikan audit trail yang dapat dipercaya (*verifiable audit trail*), setiap keputusan pemrosesan bukti mengikuti standar metadata ISO 30136-2:
+*   **Provenance:** Melacak asal-usul data dari `compliance_malicious_discovery_deflection_analyzer.py`.
+*   **Integrity:** Menggunakan hash SHA-256 yang diverifikasi oleh `compliance_disputed_artifact_chain_of_custody_integrity_verifier.py`.
+*   **Context:** Menyertakan konteks yurisdiksi (`target_jurisdiction`) dan aturan privasi yang berlaku (`privacy_regulation_version`).
+
+### 3. Prosedur "Privilege Waiver Risk Scoring"
+
+Sistem menghitung skor risiko kebocoran informasi sensitif jika bukti tersebut harus diajukan dalam forum hukum dengan standar privasi yang lebih rendah. Algoritma ini menggunakan model加权 skor (weighted scoring) berdasarkan faktor berikut:
+
+1.  **Sensitivitas Konten (Content Sensitivity):** Ditentukan oleh model NLP (nilai 0-1). Nilai tinggi untuk dokumen yang mengandung rahasia dagang, data pribadi pelanggan, atau strategi meringankan pidana.
+2.  **Perbedaan Standar Privasi (Privacy Delta):** Selisih antara standar perlindungan di yurisdiksi asal (misalnya, GDPR/AS Privacy Act) dan yurisdiksi tujuan (misalnya, Indonesia UUPDP). Semakin besar kesenjangan, semakin tinggi risiko *waiver*.
+3.  **Keterkaitan dengan Klaim (Relevance to Claim):** Dokumen yang relevan langsung dengan klaim utama memiliki risiko *waiver by inference* lebih tinggi jika disingkap secara tidak lengkap.
+
+**Rumus Perhitungan Risiko:**
+$$
+RiskScore = (Sensitivity 	imes W_1) + (PrivacyDelta 	imes W_2) + (Relevance 	imes W_3)
+$$
+*(Dimana $W$ adalah bobot dinamis yang disesuaikan berdasarkan yurisdiksi spesifik)*
+
+Jika `RiskScore > Threshold` (misalnya: 0.75), sistem akan secara otomatis mengubah status dokumen menjadi `BLOCKED_FROM_EXTERNAL_ACCESS` dan memicu notifikasi kepada *General Counsel* untuk review *man-in-the-loop*.
+
+### 4. Implementasi Teknis: Skrip Generator Matriks
+
+Skrip Python berikut berfungsi sebagai agen inti yang mengintegrasikan semua lapisan keamanan di atas.
+
+**Nama File:** `compliance_cross_jurisdictional_privilege_and_evidentiary_matrix_generator.py`
+
+**Deskripsi Fungsi:**
+Agen ini membaca output dari analyzer defleksi dan verifier integritas, lalu memproduksii "Global Evidentiary Admissibility Matrix". Matriks ini berisi rekomendasi tindakan (Produksi, Redaksi, atau Penolakan) untuk setiap dokumen berdasarkan yurisdiksi lawan.
+
+#### Argumen Baris Perintah (CLI Arguments)
+
+```bash
+python compliance_cross_jurisdictional_privilege_and_evidentiary_matrix_generator.py \
+    --privilege-log-input ./logs/deflection_privilege_analysis.json \
+    --jurisdictional-legal-codes ./legal_codes \
+    --cross_border-dispute-config ./configs/us_vs_indonesia_dispute.yaml \
+    --output-admissibility-matrix ./outputs/global_evidentiary_admissibility_matrix.json
+```
+
+| Argumen | Tipe | Deskripsi Wajib |
+| :--- | :--- | :--- |
+| `--privilege-log-input` | `Path` | Path ke file JSON hasil log privilegi dari `compliance_malicious_discovery_deflection_analyzer.py`. Harus berisi klaim privilege dan skor relevansi. |
+| `--jurisdictional-legal-codes` | `Directory` | Direktori berisi file hukum/target yurisdiksi (misal: `us_fed_rules/`, `indonesia_kuhperdata_kuhpidana/`). Sistem akan memuat aturan dari file ini untuk pemetaan semantik. |
+| `--cross_border-dispute-config` | `Path` | Konfigurasi YAML/JSON yang mendefinisikan skenario sengketa (misal: `plaintiff_jurisdiction`, `defendant_jurisdiction`, `applicable_treaties`). |
+| `--output-admissibility-matrix` | `Path` | Output JSON yang berisi matriks kesesuaian bukti lengkap dengan rekomendasi tindakan dan skor risiko. |
+
+#### Struktur Output JSON (Contoh `global_evidentiary_admissibility_matrix.json`)
+
+```json
+{
+  "matrix_metadata": {
+    "generated_at": "2023-10-27T14:30:00Z",
+    "source_dispute": "US_Plaintiff_vs_ID_Divisional",
+    "applicable_conventions": ["Hague Evidence Convention"],
+    "risk_model_version": "v2.1"
+  },
+  "documents": [
+    {
+      "doc_id": "doc-9982",
+      "filename": "brainstorming_notes.pptx",
+      "original_privilege_claim": "Work Product Doctrine",
+      "mapping_result": {
+        "target_jurisdiction": "Indonesia",
+        "local_equivalent": "Kerahasiaan Hukum & Dokumen Persiapan Litigasi",
+        "is_protected_locally": true,
+        "protection_basis": "Prinsip Keadilan Procedural & Praktik Advokat"
+      },
+      "waiver_risk_score": 0.12,
+      "hague_objection_basis": "Art. 11 - Protection of confidential business secrets",
+      "recommended_action": "PRODUCTION_WITH_REDACTION",
+      "redaction_scope": "Highlight strategic legal theories; disclose factual data only.",
+      "chain_of_custody_integrity": "VERIFIED"
+    }
+  ],
+  "aggregate_risk_analysis": {
+    "total_documents": 150,
+    "high_risk_count": 12,
+    "estimated_production_cost_savings_usd": 125000,
+    "critical_waiver_risks": [
+      "doc-9985: Translation of 'Litigation Strategy' memo may inadvertently waive privilege in Civil Law forum if not contextualized properly."
+    ]
+  }
+}
+```
+
+### 5. Panduan Integrasi & Verifikasi
+
+1.  **Persiapan Lingkungan Hukum:**
+    Pastikan direktori `--jurisdictional-legal-codes` diperbarui secara berkala dengan kodifikasi hukum terbaru. Sistem bergantung pada data ini untuk melakukan pemetaan semantik yang akurat.
+
+2.  **Validasi Output:**
+    Setelah menjalankan skrip, tim legal harus meninjau field `recommended_action` pada dokumen dengan `waiver_risk_score > 0.5`. Keputusan akhir untuk melakukan *waiver* atau *redaksi* tetap berada di tangan manusia (*Human-in-the-Loop*).
+
+3.  **Audit Trail:**
+    Simpan file output `global_evidentiary_admissibility_matrix.json` bersama dengan log hash SHA-256 dari input. Ini akan menjadi dasar bukti integritas jika tantangan mengenai kepatuhan discovery diajukan di pengadilan.
+
+---
+
+*Catatan: Implementasi ini bersifat teknis dan pendukung keputusan. Konsultasi dengan pengacara berlisensi di yurisdiksi masing-masing tetap wajib dilakukan sebelum menyerahkan bukti fisik.*
