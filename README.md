@@ -18648,3 +18648,104 @@ Log-log ini harus diintegrasikan ke dalam SIEM pusat perusahaan untuk pemantauan
 ---
 
 *Laporan ini adalah dokumen rahasia perusahaan. Dilarang mendistribusikan ke pihak luar tanpa persetujuan tertulis dari Dewan Direksi dan CCO.*
+
+
+Berikut adalah konten lanjutan yang komprehensif untuk bagian dokumentasi teknis, dirancang untuk ditempel langsung ke `README.md` setelah bagian "7.5. Panduan Audit Integrasi".
+
+---
+
+### 7.6. Antarmuka Eksekutif Terintegrasi (Executive Dashboard Integration)
+
+Modul `compliance_executive_dashboard_integration_suite.py` berfungsi sebagai lapisan agregasi frontend yang menyatukan output visual dari *Knowledge Graph Visualizer* dengan data simulasi dari *Boardroom Simulator*. Modul ini dirancang khusus untuk memenuhi kebutuhan Dewan Direksi akan visibilitas holistik ("Single Pane of Glass") sambil mempertahankan keamanan tingkat tinggi melalui enkripsi *Format-Preserving* (FPE).
+
+#### 7.6.1. Arsitektur Keamanan Data (FPE Implementation)
+
+Sistem ini menerapkan **Format-Preserving Encryption (FPE)** pada seluruh payload JSON yang dikirim ke antarmuka React. Berbeda dengan enkripsi standar yang mengubah struktur data secara signifikan (menyebabkan *render error* pada UI yang mengandaskan tipe data spesifik), FPE memastikan bahwa:
+1.  Panjang string dan format tipe data (angka, tanggal, string alfanumerik) tetap identik sebelum dan sesudah enkripsi.
+2.  Struktur hierarki JSON tetap utuh, memungkinkan React melakukan *mapping* data secara native.
+3.  Kunci dekripsi hanya tersedia di sisi server (backend) atau di sesi browser yang terotentikasi dengan ketat, memastikan data sensitif tidak pernah terlihat dalam bentuk plaintext dalam source code atau cache browser.
+
+#### 7.6.2. Parameter Eksekusi
+
+Berikut adalah contoh penggunaan skrip untuk meluncurkan dashboard terintegrasi:
+
+```bash
+python compliance_executive_dashboard_integration_suite.py \
+    --dashboard-config ./configs/ui_exec_board.json \
+    --auth-jwt-secret "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+    --cache-strategy hybrid-lfu \
+    --output-docs ./docs/technical_integration_spec_v2.pdf
+```
+
+**Deskripsi Argumen:**
+
+| Argumen | Tipe | Deskripsi |
+| :--- | :--- | :--- |
+| `--dashboard-config` | `str` | Path ke file konfigurasi UI yang mendefinisikan layout panel, widget visualisasi, dan skema pemetaan data untuk setiap peran pengguna (Direksi vs Komisaris). |
+| `--auth-jwt-secret` | `str` | Kunci rahasia untuk menandatangani dan memvalidasi JWT (JSON Web Token). Wajib menggunakan kunci dengan panjang minimal 256-bit untuk RBAC (Role-Based Access Control). |
+| `--cache-strategy` | `str` | Strategi caching data real-time. Opsi yang didukung: `memory` (cepat, tidak persisten), `redis-cluster` (skalabel, untuk produksi), atau `hybrid-lfu` (kombinasi memori lokal dan Redis untuk mengurangi latensi baca). |
+| `--output-docs` | `str` | Path output untuk file dokumentasi teknis otomatis yang dihasilkan selama proses inisialisasi, mencakup skema FPE yang digunakan dan logika RBAC. |
+
+#### 7.6.3. Konfigurasi RBAC dan Isolasi Data
+
+Sistem ini mengimplementasikan *Attribute-Based Access Control* (ABAC) yang diperkuat oleh JWT. Sebelum payload FPE dikirim ke klien:
+1.  Server memindai klaim JWT pengguna untuk menentukan `role` (misal: `EXECUTIVE_DIRECTOR`, `INDEPENDENT_COMMISSIONER`).
+2.  Data yang tidak relevan atau sensitif sesuai dengan prinsip *Need-to-Know* difilter secara agresif.
+3.  Sisa data yang diizinkan dienkripsi menggunakan FPE dengan algoritma `FF1` atau `FF3-1` (berdasarkan NIST SP 800-38G) menggunakan kunci yang dipegang secara terpisah (HSM/KMS).
+
+### 7.7. Prinsip Kepatuhan dan Hukum (Compliance & Legal)
+
+Bagian ini mendefinisikan kerangka kerja filosofis dan teknis yang menyeimbangkan transparansi eksekutif dengan kerahasiaan data.
+
+#### 7.7.1. Transparensi Eksekutif vs. Keseimbangan Kerahasiaan Data
+
+Tantangan utama dalam tata kelola perusahaan modern adalah memberikan kepada Dewan Direksi wawasan mendalam tentang risiko tanpa mengekspos data mentah pelanggan atau detail operasional yang rentan terhadap kebocoran. Sistem ini mengadopsi prinsip **"Insight Without Exposure"**:
+
+*   **Prinsip Need-to-Know:** Hanya atribut data yang secara eksplisit diperlukan untuk pengambilan keputusan strategis yang diteruskan ke dashboard. Detail transaksi individu (PII) selalu di-hash atau dienkripsi sebelum mencapai lapisan presentasi.
+*   **De-identifikasi Agregatif:** Visualisasi risiko menggunakan agregasi statistik (rata-rata, median, persentil) yang dihasilkan dari data yang telah di-de-identifikasi. Direksi dapat melihat tren risiko ("Portofolio A memiliki volatilitas tinggi 15%") tanpa melihat identifikasi unik entitas risiko tersebut.
+*   **Audit Trail Enkriptik:** Setiap kali seorang eksekutif mengakses data yang didekripsi melalui dashboard, peristiwa tersebut dicatat dalam log blockchain internal atau ledger immutable, mencantumkan *timestamp*, *ID sesi*, dan *hash dari payload yang dilihat* (tanpa konten aslinya), memastikan akuntabilitas tanpa melanggar privasi.
+
+#### 7.7.2. Standard Komputasi Multi-Parti Aman (Secure Multi-Party Computation - SMPC)
+
+Untuk analisis risiko yang melibatkan data dari berbagai entitas legal (misalnya, data gabungan dari anak perusahaan yang tunduk pada yurisdiksi berbeda), sistem ini mengimplementasikan protokol **SMPC**.
+
+*   **Cara Kerja:** SMPC memungkinkan beberapa pihak (misalnya, Divisi Keuangan, Divisi Risiko, dan Auditor Internal) untuk melakukan komputasi bersama pada data mereka yang terpisah tanpa mengungkap data mentah satu sama lain.
+*   **Penerapan dalam Sistem:**
+    1.  Data sensitif dipecah menjadi *shards* (potongan) menggunakan *Secret Sharing Scheme* (misalnya, Shamir's Secret Sharing).
+    2.  Potongan ini didistribusikan ke node komputasi yang terisolasi.
+    3.  Simulasi risiko dijalankan secara terdistribusi. Hanya *hasil akhir* (skor risiko agregat) yang dikombinasikan dan dikembalikan ke dashboard eksekutif.
+    4.  Tidak ada satu pun node atau pengguna tunggal yang pernah melihat data lengkap dalam bentuk plaintext. Ini memastikan kepatuhan terhadap GDPR, PDP (UU Perlindungan Data Pribadi), dan regulasi sektor perbankan yang ketat.
+
+### 7.8. Prosedur Verifikasi Integritas Visual (Visual Integrity Verification)
+
+Kredibilitas laporan risiko sangat bergantung pada kejujuran visualisasi. Untuk mencegah manipulasi algoritmik (seperti pengubahan skala sumbu Y untuk mempersempit tampak dampak risiko) yang dapat menyembunyikan eksposur nyata dari Komisaris Independen, sistem ini menerapkan prosedur **Visual Integrity Verification (VIV)**.
+
+#### 7.8.1. Mekanisme Hashing Visual
+
+Setiap frame visualisasi (graf knowledge graph, grafik simulasi) yang disajikan kepada Dewan Direksi melalui `compliance_governance_knowledge_graph_visualizer.py` dan `compliance_boardroom_simulator_dashboard.py` harus melalui proses berikut sebelum dikirim:
+
+1.  **Normalisasi Data Awal:** Data mentah yang akan divisualisasikan di-hash menggunakan SHA-256. Hash ini bertindak sebagai "sidik jari" data.
+2.  **Transformasi Visual Terenkripsi:** Koordinat node, ukuran, dan warna dalam graf diubah berdasarkan parameter konfigurasi. Perubahan ini dicatat dalam log terenkripsi.
+3.  **Generasi Token Integritas:** Sebuah token HMAC (Hash-based Message Authentication Code) dihasilkan dari kombinasi `Hash_Data_Awal` dan `Konfigurasi_Visual`. Token ini disertakan dalam payload FPE.
+4.  **Verifikasi Sisi Klien (Opsional tapi Disarankan):** Alat pemeriksaan komprehensif di sisi klien (disediakan sebagai extension browser internal) memvalidasi HMAC. Jika ada perubahan algoritmik pada data dasar (misalnya, data risiko diperbarui secara diam-diam tanpa pembaruan konfigurasi visual), token akan tidak valid, dan dashboard akan menampilkan peringatan keamanan berwarna merah sebelum menampilkan visualisasi.
+
+#### 7.8.2. Prosedur Audit Pascarilisasi
+
+Untuk tujuan audit eksternal, tim kepatuhan harus menjalankan skrip verifikasi berikut secara berkala (minimalkan bulanan) untuk memastikan tidak ada penyimpangan antara data sumber dan representasi visual:
+
+```bash
+# Memverifikasi integritas graf pengetahuan terakhir
+python compliance_executive_dashboard_integration_suite.py \
+    --verify-visual-integrity \
+    --snapshot-id "LATEST" \
+    --expect-hash "sha256:abc123..." \
+    --report-output ./audit/viv_report_current_quarter.pdf
+```
+
+**Interpretasi Laporan VIV:**
+*   **PASS:** Visualisasi sesuai dengan data sumber dan konfigurasi yang disetujui.
+*   **FAIL:** Ada diskrepansi. Sistem harus otomatis membekukan akses dashboard dan mengaktifkan protokol insiden keamanan data.
+
+---
+
+*Laporan ini adalah dokumen rahasia perusahaan. Dilarang mendistribusikan ke pihak luar tanpa persetujuan tertulis dari Dewan Direksi dan CCO.*
