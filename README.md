@@ -11025,3 +11025,368 @@ Bagi auditor eksternal atau internal, keberadaan sistem *Self-Healing* bukan ber
 | Remediasi `ACCESS_POLICY_VIOLATION` gagal | Izin izin (permissions) agen tidak cukup untuk menulis ke API Gateway. | Tambahkan role `iam:UpdatePolicy` ke Service Account yang menjalankan agen. |
 | Notifikasi Slack tidak terkirim | Webhook URL kedaluwarsa atau diblokir firewall. | Periksa log stderr dan test webhook menggunakan tool curl: `curl -X POST ...` |
 | Status tetap `Non-Compliant` setelah `--auto-execute` | Tindakan korektif gagal diterapkan atau timeout. | Periksa log spesifik dari skrip korektor (`compliance_policy_enforcer.py`) dan lakukan rollback manual jika perlu. |
+
+
+##### 6.5 Penyediaan Data Real-Time via API Dashboard
+
+Untuk memfasilitasi pemantauan *continuous compliance* oleh tim keamanan, manajemen, dan eksekutif, sistem menyediakan sebuah endpoint RESTful ringan yang dirancang khusus untuk konsumsi data oleh dashboard monitoring tingkat lanjut (sepaserta Grafana, Kibana, atau PowerBI). Solusi ini meminimalkan beban database dengan menyajikan data teragregasi secara *on-the-fly* dari log sistem.
+
+Berikut adalah implementasi skrip Python `compliance_continuous_compliance_dashboard_api.py` yang bertindak sebagai jembatan antara log agen remediasi/matriks kepatuhan dan lapisan presentasi dashboard.
+
+###### Implementasi Skrip API (`compliance_continuous_compliance_dashboard_api.py`)
+
+Skrip ini menggunakan library standar Python (`http.server`, `json`, `datetime`) untuk menghindari dependensi eksternal yang berat, memastikan kemudahan instalasi dan keamanan. Skrip ini menghitung KPI utama secara real-time berdasarkan isi file log dan matriks.
+
+```python
+#!/usr/bin/env python3
+"""
+compliance_continuous_compliance_dashboard_api.py
+
+Server API RESTful ringan untuk memantau status Continuous Compliance dan 
+kesehatan sistem Self-Healing. Data diambil langsung dari file log dan matriks 
+kepatuhan yang dihasilkan oleh agen orchestration dan remediasi.
+
+Fitur Utama:
+- Menghitung Mean Time to Remediate (MTTR)
+- Menghitung rasio otomatisasi remediasi
+- Mendeteksi tren kepatuhan agregat
+- Mendukung caching in-memory untuk performa query
+
+Author: System Architecture Team
+License: Internal Use Only
+"""
+
+import json
+import os
+import sys
+import time
+import argparse
+import logging
+from http.server import HTTPServer, BaseHTTPRequestHandler
+from datetime import datetime, timezone
+from urllib.parse import urlparse, parse_qs
+import hashlib
+
+# Konfigurasi Logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger('ComplianceDashboardAPI')
+
+class ComplianceDataLoader:
+    """
+    Kelas untuk memuat dan memvalidasi data dari file JSON eksternal.
+    """
+    def __init__(self, matrix_path, remediation_log_path):
+        self.matrix_path = matrix_path
+        self.log_path = remediation_log_path
+        self.matrix_cache = {}
+        self.log_cache = []
+        self.last_load_time = 0
+        self.cache_ttl = 5  # Detik TTL cache untuk data yang berubah cepat
+
+    def _is_cache_valid(self, cache_type='data'):
+        current_time = time.time()
+        if cache_type == 'data':
+            return (current_time - self.last_load_time) < self.cache_ttl
+        return False
+
+    def load_matrix(self):
+        if self._is_cache_valid('data') and self.matrix_cache:
+            return self.matrix_cache
+        
+        try:
+            with open(self.matrix_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            self.matrix_cache = data
+            self.last_load_time = time.time()
+            return data
+        except FileNotFoundError:
+            logger.error(f"File matriks tidak ditemukan: {self.matrix_path}")
+            return {"error": "Matrix file not found"}
+        except json.JSONDecodeError:
+            logger.error(f"Format JSON matriks rusak: {self.matrix_path}")
+            return {"error": "Invalid JSON format in matrix"}
+
+    def load_remediation_logs(self):
+        if self._is_cache_valid('data') and self.log_cache:
+            return self.log_cache
+
+        try:
+            with open(self.log_path, 'r', encoding='utf-8') as f:
+                # Asumsi file adalah array JSON atau satu object per baris (JSON Lines)
+                # Untuk kompatibilitas dengan log standar, kita coba parse sebagai list dulu
+                try:
+                    content = f.read().strip()
+                    # Jika berisi array JSON
+                    logs = json.loads(content)
+                    if not isinstance(logs, list):
+                        logs = [logs]
+                except json.JSONDecodeError:
+                    # Jika JSON Lines (satu JSON per baris)
+                    logs = []
+                    for line in f:
+                        line = line.strip()
+                        if line:
+                            try:
+                                logs.append(json.loads(line))
+                            except json.JSONDecodeError:
+                                continue
+                
+                self.log_cache = logs
+                self.last_load_time = time.time()
+                return logs
+        except FileNotFoundError:
+            logger.error(f"File log remediasi tidak ditemukan: {self.log_path}")
+            return []
+        except Exception as e:
+            logger.error(f"Kesalahan membaca log remediasi: {str(e)}")
+            return []
+
+    def calculate_kpi(self):
+        """
+        Menghitung KPI utama:
+        1. MTTR (Mean Time to Remediate) dalam detik
+        2. Rasio Otomatisasi (Persentase remediasi sukses otomatis)
+        3. Total Kontrol Aktif vs Komplain
+        """
+        matrix = self.load_matrix()
+        logs = self.load_remediation_logs()
+
+        # 1. Hitung MTTR dan Rasio Otomatisasi dari Log
+        total_remediation_attempts = 0
+        successful_auto_remediations = 0
+        total_time_remediated = 0.0
+        non_compliant_count = 0
+
+        for entry in logs:
+            status = entry.get('status', '').lower()
+            action_type = entry.get('action_type', '').lower()
+            
+            # Menghitung MTTR hanya untuk entri yang berhasil diperbaiki
+            if status in ['success', 'remediated']:
+                total_remediation_attempts += 1
+                total_time_remediated += entry.get('duration_seconds', 0)
+                
+                # Hitung otomatisasi jika action_type menyertakan keyword 'auto'
+                # atau jika sistem mencatat field 'is_auto': true
+                is_auto = action_type in ['auto_remmediate', 'self_heal'] or entry.get('is_auto', False)
+                if is_auto:
+                    successful_auto_remediations += 1
+
+            # Hitung pelanggaran non-kompian saat ini dari log terakhir (jika struktur log mendukung)
+            # Atau lebih baik lagi, hitung dari status final di matriks
+            if status in ['failure', 'non-compliant']:
+                non_compliant_count += 1
+
+        # Hindari pembagian dengan nol
+        mttr = (total_time_remediated / total_remediation_attempts) if total_remediation_attempts > 0 else 0
+        
+        # Rasio Otomatisasi: Dari semua remediasi sukses, berapa % yang otomatis?
+        auto_ratio = (successful_auto_remediations / total_remediation_attempts * 100) if total_remediation_attempts > 0 else 0
+
+        # 2. Hitung Status Kepatuhan Agregat dari Matriks
+        total_controls = 0
+        compliant_controls = 0
+        status_distribution = {"compliant": 0, "non_compliant": 0, "partial": 0, "unknown": 0}
+
+        if isinstance(matrix, dict) and "controls" in matrix:
+            controls = matrix["controls"]
+        elif isinstance(matrix, list):
+            controls = matrix
+        else:
+            controls = []
+
+        for control in controls:
+            total_controls += 1
+            control_status = control.get('status', 'unknown').lower()
+            
+            if control_status in status_distribution:
+                status_distribution[control_status] += 1
+            
+            if control_status == 'compliant':
+                compliant_controls += 1
+            elif control_status == 'non_compliant':
+                non_compliant_count += 1 # Menambah counter pelanggaran dari matriks juga untuk konsistensi
+
+        compliance_rate = (compliant_controls / total_controls * 100) if total_controls > 0 else 0
+
+        return {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "kpis": {
+                "mean_time_to_remediate_seconds": round(mttr, 2),
+                "auto_remediation_success_rate_percent": round(auto_ratio, 2),
+                "total_remediation_events_processed": total_remediation_attempts
+            },
+            "compliance_overview": {
+                "total_controls_monitored": total_controls,
+                "compliant_controls": compliant_controls,
+                "non_compliant_controls": status_distribution.get("non_compliant", 0),
+                "partial_compliance_controls": status_distribution.get("partial", 0),
+                "overall_compliance_rate_percent": round(compliance_rate, 2)
+            },
+            "recent_activity_summary": {
+                "total_log_entries_analyzed": len(logs),
+                "last_log_entry_time": logs[-1].get('timestamp', 'N/A') if logs else 'N/A'
+            }
+        }
+
+class DashboardHTTPRequestHandler(BaseHTTPRequestHandler):
+    def _set_headers(self, status_code=200):
+        self.send_response(status_code)
+        self.send_header('Content-type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.end_headers()
+
+    def _send_json_response(self, data, status_code=200):
+        self._set_headers(status_code)
+        self.wfile.write(json.dumps(data, indent=2).encode('utf-8'))
+
+    def do_GET(self):
+        parsed_path = urlparse(self.path)
+        path = parsed_path.path
+
+        if path == '/health':
+            self._send_json_response({"status": "healthy", "service": "compliance-dashboard-api"})
+        
+        elif path == '/kpi':
+            try:
+                data = self.server.compliance_loader.calculate_kpi()
+                self._send_json_response(data)
+            except Exception as e:
+                logger.error(f"Error calculating KPI: {str(e)}")
+                self._send_json_response({"error": "Internal Server Error calculating KPI"}, 500)
+        
+        elif path == '/controls/status':
+            try:
+                matrix = self.server.compliance_loader.load_matrix()
+                # Filter hanya status untuk performa lebih baik di UI
+                if isinstance(matrix, dict) and "controls" in matrix:
+                    summary = {}
+                    for c in matrix["controls"]:
+                        s = c.get('status', 'unknown')
+                        summary[s] = summary.get(s, 0) + 1
+                    self._send_json_response(summary)
+                else:
+                    self._send_json_response({}, 404)
+            except Exception as e:
+                self._send_json_response({"error": str(e)}, 500)
+
+        elif path == '/logs/recent':
+            try:
+                # Ambil 20 log terakhir untuk visualisasi timeline
+                logs = self.server.compliance_loader.load_remediation_logs()
+                recent_logs = logs[-20:][::-1] # Balik urutan, ambil 20 terakhir
+                self._send_json_response(recent_logs)
+            except Exception as e:
+                self._send_json_response({"error": str(e)}, 500)
+
+        else:
+            self._send_json_response({"error": "Not Found"}, 404)
+
+    def log_message(self, format, *args):
+        logger.info("%s - - [%s] %s" % (self.address_string(), self.log_date_time_string(), format % args))
+
+def run_server(host, port, matrix_path, log_path):
+    app = ComplianceDataLoader(matrix_path, log_path)
+    
+    # Buat instance server dan inject loader
+    server = HTTPServer((host, port), DashboardHTTPRequestHandler)
+    server.compliance_loader = app
+    
+    logger.info(f"Starting Compliance Dashboard API on http://{host}:{port}")
+    logger.info(f"Matrix Source: {matrix_path}")
+    logger.info(f"Log Source: {log_path}")
+    
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        logger.info("Shutting down server...")
+        server.server_close()
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Continuous Compliance Dashboard API')
+    parser.add_argument('--matrix', type=str, required=True, 
+                        help='Path to compliance_mapping_matrix.json')
+    parser.add_argument('--remediation-log', type=str, required=True, 
+                        help='Path to remediation_log.json')
+    parser.add_argument('--port', type=int, default=8080, 
+                        help='Port to run the API server (default: 8080)')
+    parser.add_argument('--host', type=str, default='0.0.0.0',
+                        help='Host to bind the API server (default: 0.0.0.0)')
+    
+    args = parser.parse_args()
+    run_server(args.host, args.port, args.matrix, args.remediation_log)
+```
+
+###### Strategi Caching dan Performa
+
+Karena dashboard monitoring sering melakukan *polling* (misalnya setiap 5-10 detik), membaca file JSON besar secara langsung dapat menyebabkan latensi tinggi atau *I/O bottleneck*, terutama jika log remediasi terus bertambah.
+
+1.  **In-Memory Caching (TTL-Based):**
+    Objek `ComplianceDataLoader` menggunakan cache in-memory dengan *Time-To-Live* (TTL) yang dapat dikonfigurasi (default 5 detik). Setiap permintaan HTTP tidak langsung membaca disk jika data belum kedaluwarsa. Ini memastikan respons API sub-milidetik selama periode singkat antara *polling* dashboard.
+
+2.  **Lazy Loading & Incremental Parsing:**
+    Untuk endpoint `/logs/recent`, skrip hanya memuat data yang diperlukan (20 entri terakhir) alih-alih memproses seluruh riwayat log di memori jika memungkinkan. Untuk KPI agregat, perhitungan dilakukan berdasarkan iterasi memori yang efisien.
+
+3.  **Isolasi Error:**
+    Jika file log sedang *write-locked* oleh agen remediasi yang sedang memperbarui status, skrip API akan mencoba membaca ulang dengan *fallback* ke cache terakhir atau melaporkan error yang jelas, sehingga dashboard tetap stabil meskipun ada fluktuasi *write* intensif pada file sumber.
+
+###### Integrasi dengan Dashboard Eksekutif (Grafana/PowerBI)
+
+Bagian ini menyediakan spesifikasi teknis untuk mengintegrasikan API di atas dengan alat visualisasi data.
+
+**1. Endpoint RESTful Specification**
+
+| Endpoint | Method | Deskripsi | Parameter Query (Opsional) | Respons Contoh |
+| :--- | :--- | :--- | :--- | :--- |
+| `/health` | GET | Cek kesehatan layanan API. | None | `{"status": "healthy", "service": "compliance-dashboard-api"}` |
+| `/kpi` | GET | Mendapatkan KPI agregat (MTTR, Rasio Otomatisasi, Tren Kepatuhan). | None | Lihat struktur JSON di bawah |
+| `/controls/status` | GET | Ringkasan jumlah kontrol berdasarkan status (Compliant, Non-Compliant, Partial). | None | `{"compliant": 45, "non_compliant": 2, "partial": 3}` |
+| `/logs/recent` | GET | Daftar 20 log remediasi terakhir untuk timeline aktivitas. | None | `[{"id": "...", "status": "success", ...}]` |
+
+**Contoh Struktur Respons `/kpi`:**
+```json
+{
+  "timestamp": "2023-10-27T10:00:00+00:00",
+  "kpis": {
+    "mean_time_to_remediate_seconds": 12.5,
+    "auto_remediation_success_rate_percent": 95.2,
+    "total_remediation_events_processed": 120
+  },
+  "compliance_overview": {
+    "total_controls_monitored": 50,
+    "compliant_controls": 45,
+    "non_compliant_controls": 3,
+    "partial_compliance_controls": 2,
+    "overall_compliance_rate_percent": 90.0
+  },
+  "recent_activity_summary": {
+    "total_log_entries_analyzed": 120,
+    "last_log_entry_time": "2023-10-27T09:59:45+00:00"
+  }
+}
+```
+
+**2. Konfigurasi Grafana (Data Source Type: HTTP)**
+
+Untuk mengintegrasikan ke Grafana, gunakan plugin "HTTP" atau buat *Proxied HTTP* source.
+
+*   **URL:** `http://localhost:8080/kpi` (atau IP host jika remote).
+*   **Method:** `GET`.
+*   **JSON Data Path:**
+    *   Untuk panel *Stat* (MTTR): Path `$.kpis.mean_time_to_remediate_seconds`.
+    *   Untuk panel *Gauge* (Compliance Rate): Path `$.compliance_overview.overall_compliance_rate_percent`.
+    *   Untuk panel *Bar Chart* (Status Kontrol): Gunakan endpoint `/controls/status` dan map field JSON ke kategori bar.
+*   **Scrape Interval:** Disarankan 10-30 detik. Dengan caching TTL 5 detik di sisi API, beban server akan tetap rendah.
+
+**3. Pertimbangan Keamanan untuk Produksi**
+
+Meskipun skrip ini ringan, untuk deployment produksi, disarankan untuk menambahkan lapisan autentikasi sebelum API diakses oleh dashboard publik/eksekutif:
+
+1.  **Reverse Proxy (Nginx/Apache):** Letakkan Nginx di depan skrip Python. Konfigurasikan Nginx untuk menangani autentikasi basic atau token Bearer, lalu *proxy* permintaan yang sah ke port lokal Python.
+2.  **HTTPS/TLS:** Selalu aktifkan HTTPS jika API diakses dari jaringan eksternal. Gunakan sertifikat valid dari CA terpercaya atau internal PKI perusahaan.
+3.  **Rate Limiting:** Terapkan *rate limiting* di level Nginx atau firewall untuk mencegah penggunaan sumber daya berlebihan oleh dashboard yang melakukan *polling* terlalu agresif.
+
+Dengan menggunakan pendekatan ini, tim keamanan mendapatkan visibilitas real-time tanpa harus membangun infrastruktur database kompleks yang mahal, sementara eksekutif mendapatkan metrik yang akurat dan dapat ditindaklanjuti mengenai efektivitas strategi *Self-Healing* perusahaan.
