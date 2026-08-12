@@ -15097,3 +15097,112 @@ Banjir notifikasi (*alert fatigue*) adalah risiko utama dari monitoring *real-ti
 
 4.  **Post-Incident Review (PIR) Loop:**
     *   Secara berkala (mingguan), tinjau rasio *True Positive* vs *False Positive*. Jika aturan tertentu menghasilkan >20% *false positive*, turunkan sev-eritasnya atau perbarui logika evaluasinya di `compliance_policy_enforcer.py`.
+
+
+Berikut adalah materi lanjutan untuk bagian **Deployment and Operations** pada `README.md`. Konten ini dirancang agar dapat langsung disalin dan ditempelkan ke dalam dokumen dokumentasi Anda.
+
+---
+
+#### 8.5 Proactive Regulatory Horizon Scanning & Semantic Drift Detection
+
+Bagian ini mendeskripsikan implementasi **Regulatory Horizon Scanning Agent** (`compliance_regulatory_feed_monitor.py`). Berbeda dengan monitoring internal yang reaktif terhadap perubahan konfigurasi, agen ini bersifat *proaktif*: ia memonitor perubahan eksternal (hukum/regulasi) dan mengukur dampaknya terhadap kepatuhan internal organisasi menggunakan teknik *Natural Language Processing* (NLP) tingkat lanjut.
+
+##### 8.5.1 Arsitektur Deteksi Semantic Drift
+
+Sistem tidak mengandalkan pencocokan string (*string matching*) sederhana, karena bahasa hukum sering kali bersifat ambigu, sinonim, dan kontekstual. Sebaliknya, sistem menggunakan **Semantic Drift Detection** untuk mengukur perubahan makna substantif.
+
+**Metodologi:**
+1.  **Ingestion:** Agen melakukan polling berkala (default: setiap 60 menit) terhadap feed resmi otoritas regulasi (misal: JPCL di Indonesia, EDPS di Eropa, ICO di UK).
+2.  **Vectorization:** Teks regulasi baru (draft atau final) dan aturan kebijakan internal yang sudah ada di-*encode* menjadi vektor numerik menggunakan model *Embedding* (misal: `all-MiniLM-L6-v2` atau model korporat yang lebih besar).
+3.  **Drift Calculation:** Sistem menghitung *Cosine Similarity* antara vektor aturan internal dan teks regulasi baru.
+    *   Jika Similarity $\geq$ `--drift-threshold` (Default: 0.85): Dianggap sesuai (Compliant).
+    *   Jika Similarity $<$ `--drift-threshold`: Terdeteksi adanya *Semantic Drift* (Perubahan Makna).
+4.  **Impact Analysis:** Jika *drift* terdeteksi, agen mengekstrak entitas hukum baru (misal: batasan penyimpanan data baru, kewajiban notifikasi breach yang lebih ketat) dan memetakannya ke dalam matrix risiko.
+5.  **Alerting:** Mengirimkan `Impact Alert` ke `compliance_continuous_compliance_monitoring_agent.py` untuk memicu remediasi.
+
+**Keunggulan Metode Ini:**
+*   Mendeteksi perubahan nuansa hukum yang tidak terdeteksi keyword search (misal: perubahan dari "wajib menyimpan" menjadi "harus menyimpan selama minimal X tahun").
+*   Mengurangi *False Negatives* dalam kepatuhan regulasi.
+
+##### 8.5.2 Instalasi dan Konfigurasi Agen Monitoring
+
+Agen ini memerlukan dependensi NLP yang cukup berat. Pastikan environment Python telah terinstall dengan benar.
+
+**Prasyarat:**
+```bash
+pip install requests beautifulsoup4 transformers torch semantic-search pydantic
+```
+
+**Cara Penggunaan:**
+
+Jalankan agen dengan argumen berikut untuk memonitor feed regulasi dan membandingkannya dengan aturan internal:
+
+```bash
+python compliance_regulatory_feed_monitor.py \
+    --feed-urls "https://jpcl.go.id/feed/rss, https://ico.org.uk/global/rss/feed/" \
+    --internal-rules-path ./config/internal_policies.json \
+    --embedding-model "sentence-transformers/all-MiniLM-L6-v2" \
+    --drift-threshold 0.85 \
+    --interval-seconds 3600
+```
+
+**Penjelasan Argumen:**
+
+| Argumen | Tipe | Deskripsi | Default |
+| :--- | :--- | :--- | :--- |
+| `--feed-urls` | `list[str]` | Daftar URL RSS/JSON dari otoritas regulasi yang dimonitor. Bisa berupa beberapa URL dipisahkan koma. | *None (Required)* |
+| `--internal-rules-path` | `str` | Path ke file JSON yang menyimpan struktur aturan kebijakan internal saat ini. | *None (Required)* |
+| `--embedding-model` | `str` | Nama model HuggingFace atau path lokal model untuk vectorization. | `all-MiniLM-L6-v2` |
+| `--drift-threshold` | `float` | Ambang batas kesamaan semantik. Nilai < 0.85 memicu alert. Semakin rendah threshold, semakin sensitif deteksinya. | `0.85` |
+| `--interval-seconds` | `int` | Jeda waktu (dalam detik) antara setiap polling feed. | `3600` (1 jam) |
+| `--log-level` | `str` | Tingkat logging (`DEBUG`, `INFO`, `WARNING`). | `INFO` |
+
+##### 8.5.3 Protokol Otomatisasi: Emergency Approval Workflow
+
+Jika agen mendeteksi *Semantic Drift* yang mengindikasikan perubahan regulasi **Kritis (P1)** terhadap kelangsungan bisnis, sistem tidak hanya mencatat log, tetapi memicu **Emergency Approval Workflow**.
+
+**Alur Kerja Otomatisasi:**
+
+1.  **Deteksi Kritis:** Agen menghitung skor dampak. Jika perubahan regulasi memengaruhi domain data sensitif (PII/PHI) atau melanggar batas waktu kepatuhan hukum yang sempit, status alert ditetapkan sebagai `CRITICAL`.
+2.  **Pembuatan Tiket Darurat:** Sistem secara otomatis membuat tiket di Jira/ServiceNow dengan label `#regulatory-emergency` dan menautkan temuan *drift* spesifik.
+3.  **Notifikasi Multi-Saluran:**
+    *   *Slack/Teams:* Pesan kepada channel `#legal-compliance-emergency` dengan ringkasan dampak.
+    *   *Email:* Mengirimkan laporan PDF berisi analisis *semantic gap* kepada DPO dan Chief Legal Officer.
+4.  **Pending Approval:** Status tiket diatur ke `PENDING_APPROVAL`. Sistem mencegah auto-remediasi sampai ada persetujuan tertulis dari stakeholder hukum, karena interpretasi *drift* bisa memerlukan penyesuaian bisnis yang non-teknis.
+5.  **Audit Trail:** Semua tindakan approval, penolakan, dan perubahan kebijakan terkait disimpan dalam ledger immutable untuk tujuan audit eksternal.
+
+##### 8.5.4 Panduan DPO: Compliance Stress Testing & Future-Proofing
+
+Sebagai Data Protection Officer (DPO), Anda dapat menggunakan kemampuan `compliance_regulatory_feed_monitor.py` untuk melakukan **Compliance Stress Testing** terhadap regulasi yang belum berlaku (*draft regulations*). Ini adalah strategi *future-proofing*.
+
+**Langkah-Langkah Stress Testing:**
+
+1.  **Identifikasi Draft Regulasi:** Kumpulkan dokumen draft regulasi yang sedang dibahas di parlemen atau otoritas regulator (misal: revisi UU PDP di Indonesia atau GDPR amendments di UE).
+2.  **Simulasi Feed Lokal:** Buat file JSON/Text dummy yang berisi teks draft regulasi tersebut.
+3.  **Jalankan Deteksi Drift:**
+    ```bash
+    python compliance_regulatory_feed_monitor.py \
+        --feed-urls "./simulations/draft_regulations_2025.json" \
+        --internal-rules-path ./config/internal_policies.json \
+        --drift-threshold 0.90 \
+        --dry-run
+    ```
+4.  **Analisis Temuan:**
+    *   Tinjau bagian-bagian aturan internal yang mengalami *drift* tinggi.
+    *   Evaluasi apakah arsitektur data saat ini dapat mendukung kewajiban baru tersebut (misal: hak dihapus data vs kewajiban retensi data).
+5.  **Penyusunan Roadmap Remediasi:** Hasil tes ini menjadi dasar untuk roadmap perbaikan compliance 6-12 bulan ke depan, sebelum regulasi resmi berlaku.
+
+**Tips Tambahan untuk DPO:**
+*   Gunakan `--drift-threshold 0.90` saat stress testing untuk mengurangi *false positive* dari draft yang masih ambigu.
+*   Integrasikan hasil `semantic drift` ke dalam *Risk Register* perusahaan sebagai "Risiko Kepatuhan Masa Depan".
+*   Lakukan review bulanan terhadap feed regulator utama, bahkan jika tidak ada *drift* signifikan, untuk memastikan tidak ada perubahan minor yang terlewat.
+
+##### 8.5.5 Troubleshooting Umum
+
+*   **Error: `Model download failed`**
+    *   Pastikan koneksi internet stabil untuk mendownload model HuggingFace. Jika bekerja di lingkungan *air-gapped*, unduh model secara manual dan gunakan flag `--embedding-model ./local-model-path`.
+*   **Error: `High Memory Usage`**
+    *   Model embedding yang besar membutuhkan RAM signifikan. Kurangi batch size atau gunakan model yang lebih ringan (misal: `all-MiniLM-L6-v2` daripada `all-mpnet-base-v2`).
+*   **Tidak Ada Alert Terdeteksi Padahal Ada Perubahan**
+    *   Periksa apakah format JSON/RSS feed regulator berubah. Gunakan mode `--log-level DEBUG` untuk melihat respons mentah dari feed URL.
+    *   Verifikasi bahwa `internal-rules-path` memuat aturan yang relevan dengan domain regulasi yang dimonitor.
