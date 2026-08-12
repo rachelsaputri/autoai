@@ -22363,3 +22363,71 @@ Paket ini terstruktur untuk dapat langsung diunduh oleh regulator atau sistem au
 ```
 
 > **Catatan Keamanan:** File `regulatory-ethics-code` bersifat rahasia dan harus disimpan dengan enkripsi at-rest. Akses ke flag `--regulatory-ethics-code` hanya boleh diberikan kepada role *Chief Ethics Officer* atau *AI Governance Lead*.
+
+
+Berikut adalah konten lanjutan untuk file `README.md`. Bagian ini dirancang untuk ditempatkan setelah bagian "Standard Compliance" dan sebelum "Appendix" atau "License". Struktur ini menekankan pada transisi dari kepatuhan pasif ke inteligensi regulasi proaktif, lengkap dengan dokumentasi teknis untuk skrip baru.
+
+***
+
+# Proactive Regulatory Intelligence
+
+Bagian ini mendokumentasikan arsitektur *Predictive Regulatory Change Management* yang menggeser paradigma kepatuhan dari reaktif menjadi proaktif. Sistem ini tidak hanya memastikan apakah model saat ini sesuai dengan hukum yang berlaku, tetapi juga memprediksi dan mengukur dampak regulasi masa depan sebelum menjadi hukum yang mengikat.
+
+## Metodologi: Predictive Regulatory Change Management
+
+Sesuai dengan prinsip **ISO 37301:2021 Compliance Management Systems - Clause 8.1.2 Monitoring and Measurement**, sistem ini menerapkan siklus umpan balik berkelanjutan untuk mengidentifikasi perubahan eksternal yang mempengaruhi lingkungan kepatuhan organisasi.
+
+### 1. Autonomous Regulatory Literature Review Agent
+Untuk melengkapi ekologi kepatuhan, kami memperkenalkan agen pemantauan otonom yang bekerja secara paralel dengan `compliance_regulatory_nlp_taxonomy_builder.py`. Agen ini berfungsi sebagai "Regulatory Early Warning System" yang mendeteksi perubahan draf regulasi, rambu-rambu pelaksanaan (*guidance*), dan opini hukum resmi dari yurisdiksi operasional (OJK, SEC, FCA, EU Commission, dll.) jauh sebelum tanggal efektifnya berlaku.
+
+#### Fitur Utama:
+*   **Multi-Yurisdiksi:** Memindai portal resmi regulator dan jurnal hukum internasional secara berkala.
+*   **Semantic Diffing:** Menggunakan teknik *Natural Language Processing* (NLP) tingkat lanjut untuk membandingkan draf regulasi baru dengan baseline kepatuhan saat ini. Teknik ini mampu menangkap nuansa perubahan klausul (misalnya, pergeseran makna dari "harus" menjadi "seharusnya" atau penambahan pengecualian implisit) yang sering terlewat oleh ekstraksi entitas standar berbasis kata kunci.
+*   **Integrasi Paralel:** Bekerja sama dengan pembangun taksonomi regulasi untuk memperbarui taxonomies secara *real-time* saat perubahan terdeteksi.
+
+#### Dokumentasi Teknis: `compliance_automated_regulatory_literature_review_and_change_detection.py`
+
+Skrip ini adalah inti dari deteksi perubahan regulasi. Ia melakukan pemindaian, pembandingan semantik, dan pelaporan otomatis.
+
+**Argumen Baris Perintah (CLI):**
+
+| Argumen | Tipe | Deskripsi | Default |
+| :--- | :--- | :--- | :--- |
+| `--regulatory-portals` | `List[str]` | Daftar URL atau endpoint API sumber regulasi untuk dipindai. | *Konfigurasi internal default* |
+| `--compliance-baseline` | `Path` | Path ke file JSON baseline kepatuhan saat ini (`compliance_baseline.json`). | *Required* |
+| `--semantic-threshold` | `float` | Ambang batas kesamaan teks (cosine similarity) di bawah mana perubahan dianggap signifikan. Nilai lebih rendah berarti lebih sensitif. | `0.85` |
+| `--output-change-detection-report` | `Path` | Path untuk menyimpan laporan deteksi perubahan. | `regulatory_change_detection_report.json` |
+
+**Contoh Penggunaan:**
+
+```bash
+python compliance_automated_regulatory_literature_review_and_change_detection.py \
+    --regulatory-portals "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&filenum=&type=&dateb=&owner=include&count=40&search_text=&action=getcompany" \
+    --regulatory-portals "https://www.ojk.go.id/id/ruang-publicasi/berita-dan-kegiatan/siaran-pers/Pages/" \
+    --compliance-baseline ./data/compliance_baseline_v2.json \
+    --semantic-threshold 0.82 \
+    --output-change-detection-report ./reports/2024_Q3_regulatory_changes.json
+```
+
+**Struktur Output (`regulatory_change_detection_report.json`):**
+
+Laporan ini dihasilkan dalam format JSON yang dapat dibaca oleh sistem CI/CD atau dashboard eksekutif, mencakup:
+*   `regulation_id`: Identitas unik perubahan regulasi.
+*   `change_type`: Kategori perubahan (e.g., `added_clausule`, `modified_definition`, `removed_exemption`).
+*   `semantic_delta`: Skor kesemantisan yang menunjukkan seberapa besar pergeseran makna dari teks lama ke teks baru.
+*   `affected_compliance_clauses`: Daftar klausul kepatuhan internal yang terdampak.
+*   `risk_level`: Tingkat risiko yang diklasifikasikan (Low, Medium, High, Critical) berdasarkan dampak potensial.
+
+### 2. Regulatory Impact Assessment (RIA) Automation
+
+Setelah perubahan regulasi terdeteksi, sistem ini secara otomatis menjalankan prosedur **Regulatory Impact Assessment (RIA)** untuk menghitung dampak finansial dan operasional terhadap model bisnis perusahaan. Modul ini terhubung dengan sistem ERP dan manajemen risiko internal untuk mengevaluasi:
+
+*   **Dampak Operasional:** Apakah perubahan regulasi memerlukan pembaruan protokol kerja, pelatihan ulang staf, atau modifikasi arsitektur sistem AI?
+*   **Dampak Finansial:** Estimasi biaya kepatuhan baru, potensi denda jika tidak diadaptasi, dan peluang pendapatan dari penyesuaian layanan.
+*   **Kesiapan Organisasi:** Skoring kesiapan tim legal dan manajemen produk berdasarkan ketersediaan data dan kapasitas adaptasi saat ini.
+
+**Nilai Strategis untuk Dewan Direksi:**
+Keluaran dari modul RIA ini disediakan dalam format ringkasan eksekutif yang memberikan rekomendasi berbasis data. Hal ini memungkinkan Dewan Direksi untuk menerima informasi mengenai kesiapan adaptasi organisasi terhadap lanskap hukum yang terus berubah, sehingga keputusan investasi dalam kepatuhan dapat didasarkan pada analisis risiko-profil yang akurat, bukan hanya dugaan.
+
+> **Catatan Keamanan Lanjutan:**
+> Data sensitif yang ditemukan dalam draf regulasi atau laporan RIA yang diklasifikasikan sebagai "Confidential" harus dienkripsi menggunakan standar AES-256 saat disimpan (*at-rest*) dan ditransmisikan (*in-transit*). Akses ke data mentah laporan perubahan regulasi dibatasi oleh kebijakan IAM berbasis peran (*Role-Based Access Control*), dengan hak baca hanya diberikan kepada *Chief Legal Officer*, *Chief Ethics Officer*, dan *AI Governance Lead*.
