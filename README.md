@@ -24657,3 +24657,131 @@ Laporan yang dihasilkan mencakup metadata wajib untuk kepatuhan regulatoris:
 5.  **Persistence:** Laporan final disimpan ke path `--output-instant-report` dan hash-nya dicatat di ledger blockchain untuk bukti keabsahan waktu pelaporan.
 
 > **Catatan Penting untuk Pengembang:** Pastikan hak akses IAM untuk skrip ini memiliki izin minimal yang diperlukan untuk membaca log SIEM, menulis ke bucket S3/EBS (untuk snapshot), dan mengakses endpoint notifikasi legal. Jangan berikan akses root atau admin penuh kecuali diperlukan untuk isolasi jaringan tingkat kernel, yang harus selalu di-log secara terpisah.
+
+
+### Proactive Discovery Management & Privilege Protection
+
+Modul `compliance_malicious_discovery_deflection_analyzer.py` dirancang khusus untuk menangani tantangan kompleks dalam litigasi digital, khususnya fenomena **"Discovery Dump"** atau *"fishing expedition"*. Dalam skenario ini, pihak lawan hukum mengajukan permintaan dokumentasi yang sangat luas, berlebihan, dan tidak proporsional dengan isu sengketa, dengan tujuan membanjiri tim legal internal (disruption tactic), memicu *inadvertent waiver* (kekhilangan hak privilege akibat kesalahan manusia), dan meningkatkan biaya operasional secara tidak perlu.
+
+Sistem ini menerapkan lapisan pertahanan antisipatif melalui **Algorithmic Privilege Screening**, yang menggabungkan pemrosesan bahasa alami (NLP), klasifikasi risiko berbasis entitas, dan aturan logika hukum yang terkonfigurasi untuk memilah dokumen secara otomatis sebelum manusia terlibat dalam tinjauan akhir.
+
+#### Metodologi: Algorithmic Privilege Screening
+
+Proses inti dari modul ini adalah pipeline analisis tiga lapis yang bekerja secara paralel dan bertingkat:
+
+1.  **Ingest & Normalization Layer**:
+    *   Sistem menerima payload permintaan discovery (`--discovery-request-payload`) dan arsip dokumen internal (`--internal-document-archive`).
+    *   Semua dokumen (PDF, DOCX, EML, TXT) dinormalisasi ke format teks standar. Metadata ekstraktif (tanggal, pengirim, penerima, subjek) dipetakan ke kerangka referensi hukum yang ditentukan oleh `--privilege-rules-engine`.
+
+2.  **Semantic Relevance & Risk Classification (NLP Engine)**:
+    *   Menggunakan model embedding semantik untuk menghitung kesesuaian kumulatif antara istilah dalam *Request for Production of Documents* dan konten dokumen internal.
+    *   Dokumen yang tidak relevan secara semantik terhadap isu litigasi utama ditandai sebagai `NON-MATERIAL`.
+    *   Dokumen yang relevan secara semantik tetapi mengandung kata kunci sensitif (misal: "attorney", "privilege", "confidential", "strategy", "settlement") diberi skor risiko tinggi.
+
+3.  **Privilege Assertion & Deflection Logic**:
+    *   Sistem mengevaluasi dokumen berisiko tinggi terhadap aturan dalam `--privilege-rules-engine`.
+    *   Jika dokumen memenuhi kriteria *Attorney-Client Privilege* atau *Work Product Doctrine*, sistem secara otomatis:
+        1.  Menghapus/mask informasi sensitif dari versi yang dapat diakses oleh pihak luar.
+        2.  Menambahkan dokumen tersebut ke dalam **Privilege Log** otomatis.
+        3.  Memblokir akses manusia (human-in-the-loop) ke dokumen tersebut sampai tinjauan final oleh *General Counsel* diberikan, mencegah *inadvertent waiver* yang sering terjadi karena kelelahan analisis manusia.
+
+#### Standar Kepatuhan & Interoperabilitas
+
+Sistem ini dibangun untuk mematuhi dan memfasilitasi interoperabilitas dengan standar industri berikut:
+
+*   **FRCP Rule 26(b)(5)(B) Waiver Prevention**:
+    Sesuai Aturan Prosedur Perdata Federal AS (dan prinsip serupa di yurisdiksi lain), sistem ini memungkinkan organisasi untuk menahan dokumen yang dilindungi privilege setelah pengungkapan tidak sengaja. Alur kerja otomatis ini memastikan bahwa *privilege log* yang dihasilkan memiliki struktur metadata yang lengkap (deskripsi dokumen, tanggal, pengirim/penerima, alasan privilege) sehingga dapat disajikan langsung ke pengadilan untuk melawan klaim waiver.
+
+*   **ISO 30136-1 E-Discovery Interoperability**:
+    Output laporan (`--output-deflection-report`) diformat untuk kompatibel dengan ekosistem e-Discovery standar industri. Hash kriptografi dari setiap dokumen yang di-deflect dicatat untuk memastikan integritas bukti dan memfasilitasi audit trail yang dapat dipercaya di depan hakim.
+
+#### Stress-Testing Discovery Requests: Proporsionalitas dan Strategi
+
+Selain analisis konten, modul ini menyediakan alat evaluasi strategis bagi Dewan Direksi dan Tim Legal melalui fitur **Stress-Testing**.
+
+1.  **Evaluasi Proporsionalitas**:
+    Sistem menghitung rasio antara *Volume Dokumen yang Diminta* vs. *Relevansi Hukum yang Terbukti*. Jika rasio noise-to-signal melebihi ambang batas konfigurasi (default: 80% noise), sistem menandai permintaan tersebut sebagai **"Likely Undue Burden"**.
+
+2.  **Simulasi Dampak Biaya**:
+    Berdasarkan estimasi jam kerja hukum yang dibutuhkan untuk meninjau volume yang tidak relevan, sistem menghasilkan proyeksi biaya operasional. Data ini digunakan untuk mendukung argumen hukum dalam mengajukan *Motion to Limit Discovery* atau *Motion for Protective Order*.
+
+3.  **Keputusan Strategis**:
+    Laporan akhir tidak hanya berisi daftar dokumen, tetapi juga rekomendasi strategis:
+    *   **Challenge in Court**: Jika permintaan jelas tidak proporsional.
+    *   **Partial Approval**: Jika hanya bagian kecil yang relevan dan aman untuk diungkapkan.
+    *   **Negotiation Leverage**: Menggunakan data "noise" yang terdeteksi sebagai dasar tawar-menawar untuk menyempitkan cakupan discovery.
+
+#### Panduan Penggunaan: `compliance_malicious_discovery_deflection_analyzer.py`
+
+Skrip ini dapat dijalankan di terminal dengan argumen berikut:
+
+```bash
+python compliance_malicious_discovery_deflection_analyzer.py \
+    --discovery-request-payload ./legal/opponent_request_v3.json \
+    --internal-document-archive ./data/scanned_evidence/ \
+    --privilege-rules-engine ./config/us_fed_rules_2024.yaml \
+    --output-deflection-report ./reports/deflection_analysis.json \
+    --verbose \
+    --stress-test-mode
+```
+
+**Penjelasan Argumen:**
+*   `--discovery-request-payload`: (Wajib) Path ke file JSON atau XML yang berisi detail permintaan discovery dari lawan hukum.
+*   `--internal-document-archive`: (Wajib) Direktori berisi dokumen internal yang telah di-scan (OCR jika perlu).
+*   `--privilege-rules-engine`: (Wajib) Path ke file YAML/JSON konfigurasi aturan privilege. Contoh nama file: `us_fed_rules_2024`, `indonesia_kUHPerdata`, `eu_gdpr_privilege`.
+*   `--output-deflection-report`: (Wajib) Path output untuk laporan analisis akhir dalam format JSON.
+*   `--verbose`: Tampilkan log proses analisis NLP di terminal.
+*   `--stress-test-mode`: Aktifkan evaluasi proporsionalitas dan simulasi biaya.
+
+#### Contoh Struktur Output (`malicious_discovery_deflection_analysis.json`)
+
+```json
+{
+  "analysis_timestamp": "2023-10-30T15:00:00Z",
+  "summary": {
+    "total_documents_scanned": 1540,
+    "relevant_documents": 12,
+    "privileged_documents": 5,
+    "non_material_noise": 1523,
+    "estimated_human_hours_saved": 480
+  },
+  "privilege_log": [
+    {
+      "doc_id": "doc-9981",
+      "filename": "attorney_email_draft_01.msg",
+      "privilege_assertion": "Attorney-Client Privilege",
+      "reasoning": "Communication between in-house counsel and CEO regarding litigation strategy.",
+      "hash_sha256": "a1b2c3d4...",
+      "status": "BLOCKED_FROM_EXTERNAL_ACCESS"
+    },
+    {
+      "doc_id": "doc-9982",
+      "filename": "brainstorming_notes.pptx",
+      "privilege_assertion": "Work Product Doctrine",
+      "reasoning": "Mental impressions and legal theories developed by counsel in anticipation of litigation.",
+      "hash_sha256": "e5f6g7h8...",
+      "status": "BLOCKED_FROM_EXTERNAL_ACCESS"
+    }
+  ],
+  "stress_test_results": {
+    "proportionality_score": 0.12, 
+    "recommendation": "CHALLENGE_IN_COURT",
+    "rationale": "99.2% of requested documents are irrelevant to the core dispute. Responding in full constitutes undue burden under FRCP 26(b)(1).",
+    "estimated_cost_savings_usd": 125000
+  }
+}
+```
+
+#### Pertimbangan Keamanan & Etika
+
+1.  **Bias Model NLP**:
+    Model NLP yang digunakan harus divalidasi secara berkala terhadap set data hukum yang beragam untuk mencegah bias yang mungkin mengakibatkan pengabaian dokumen yang sebenarnya relevan atau pengungkapan dokumen yang sebenarnya privileged.
+
+2.  **Audit Trail yang Terpisah**:
+    Semua tindakan penekanan (deflection) dan pemblokan akses harus dicatat dalam ledger audit terpisah yang tidak dapat dimodifikasi oleh tim legal operasional, namun dapat diakses oleh internal audit dan pengadilan jika diperlukan.
+
+3.  **Human-in-the-Loop Final**:
+    Meskipun sistem secara otomatis melindungi dokumen berisiko tinggi, keputusan akhir untuk *assert privilege* atau *waive privilege* harus selalu disetujui oleh *General Counsel* atau pengacara eksternal yang ditunjuk. Sistem ini adalah alat bantu keputusan (*decision support system*), bukan pengganti pertimbangan hukum profesional.
+
+4.  **Kepatuhan Yurisdiksi**:
+    Konfigurasi `--privilege-rules-engine` harus disesuaikan secara ketat dengan hukum yurisdiksi tempat litigasi berlangsung. Penggunaan aturan `us_fed_rules_2024` untuk kasus di Indonesia dapat mengakibatkan kesalahan klasifikasi legal yang serius.
