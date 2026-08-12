@@ -11503,3 +11503,112 @@ Playbook yang dihasilkan oleh skrip ini selaras dengan empat fase utama dalam st
 | **4. Post-Incident Activity (Aktivitas Pasca-Insiden)** | - Dokumentasi pelajaran yang dipelajari (*Lessons Learned*).<br>- Update *compliance_mapping_matrix* jika ada celah baru.<br>- Audit kepatuhan pasca-insiden. | - *Close Ticket* dengan temuan root cause.<br>- Generate *Report* untuk manajemen dan regulator. |
 
 Dengan mengintegrasikan pendekatan ini, organisasi tidak hanya memenuhi kewajiban kepatuhan reguler, tetapi juga membangun ketahanan operasional yang dapat diukur dan diaudit, mengurangi risiko denda dan kerusakan reputasi di masa depan.
+
+
+Berikut adalah konten lanjutan untuk file `README.md` Anda. Bagian ini dirancang untuk ditempatkan setelah bagian **"#### F. Kerangka Kerja 'Incident Response Lifecycle'"**, melanjutkan narasi dari integrasi teknis ke aspek legal-teknis (Legal-Tech) dan governance.
+
+---
+
+##### 4. Antarmuka Hukum NLP & Otomatisasi Pelaporan Legal (`compliance_lawyer_nlp_interface.py`)
+
+Untuk menjembatani kesenjangan antara logika teknis insiden dan kepatuhan hukum, sistem ini menyertakan modul `compliance_lawyer_nlp_interface.py`. Modul ini berfungsi sebagai **Decision Support System (DSS)** berbasis NLP yang menerjemahkan data teknis mentah menjadi draf laporan hukum formal yang koheren, sesuai dengan yurisdiksi yang dituju (UU PDP Indonesia atau GDPR UE).
+
+Modul ini tidak menghasilkan keputusan hukum, melainkan menyediakan draf awal yang meminimalkan beban administratif tim hukum, memungkinkan penasihat hukum fokus pada analisis strategis dan peninjauan risiko.
+
+###### A. Argumen Baris Perintah (CLI)
+
+Jalankan skrip berikut dari direktori root proyek untuk menghasilkan laporan hukum:
+
+```bash
+python compliance_lawyer_nlp_interface.py \
+    --matrix path/to/compliance_mapping_matrix.json \
+    --playbook path/to/incident_playbook_v1.md \
+    --legal-jurisdiction id | eu \
+    --output path/to/legal_draft_report.docx \
+    --review-mode
+```
+
+**Deskripsi Parameter:**
+
+| Parameter | Tipe | Wajib | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `--matrix` | String | Ya | Path absolut atau relatif ke file JSON `compliance_mapping_matrix.json` yang berisi pemetaan risiko ke pasal regulasi. |
+| `--playbook` | String | Ya | Path ke file Markdown `incident_playbook_v1.md` yang berisi kronologi insiden, tindakan teknis, dan bukti forensik. |
+| `--legal-jurisdiction` | Enum | Tidak | Yurisdiksi target untuk pemilihan kerangka hukum. <br>• `id`: UU PDP (Indonesia).<br>• `eu`: GDPR (Unions Eropa).<br>• *Default*: `id`. |
+| `--output` | String | Ya | Path keluaran untuk file Microsoft Word (`.docx`) berisi draf laporan hukum. |
+| `--review-mode` | Flag | Tidak | Mengaktifkan fitur penyorisan (highlighting). Area yang memerlukan tinjauan manual advokat akan ditandai dengan warna kuning dan catatan margin di Word. |
+
+###### B. Metodologi "Legal-NLP Mapping"
+
+Modul ini menggunakan arsitektur *Transformer-based NLP* yang telah melakukan *fine-tuning* pada corpus hukum spesifik (pasal-pasal UU PDP dan GDPR) untuk memahami konteks hukum dari entitas teknis.
+
+1.  **Ekstraksi Entitas Hukum (Legal Entity Extraction):**
+    Skrip menganalisis `compliance_mapping_matrix.json` untuk mengidentifikasi jenis data pribadi yang terpengaruh (PII), jumlah subjek data, dan potensi dampak finansial. Data ini dipetakan ke definisi hukum "Pelanggaran Data Pribadi" (*Personal Data Breach*).
+2.  **Penyelarasan Kausalitas (Causal Alignment):**
+    Menggunakan *Named Entity Recognition* (NER) pada `incident_playbook_v1.md`, skrip menghubungkan tindakan teknis (misal: "isolasi server", "restorasi backup") dengan tahapan respons insiden yang diakui secara hukum sebagai bukti upaya mitigasi kerugian (*mitigation of damages*).
+3.  **Generasi Draf Kontekstual:**
+    Model NLP menyusun narasi kronologis yang menekankan aspek kepatuhan, seperti:
+    *   Waktu penemuan vs. waktu notifikasi regulator.
+    *   Langkah-langkah teknis yang diambil untuk melindungi hak data subjek (DSAR readiness).
+    *   Referensi spesifik ke pasal regulasi yang relevan (misal: Pasal 20 UU PDP atau Pasal 33 GDPR).
+
+###### C. Standar "Human-in-the-Loop for Legal Review"
+
+Otomatisasi AI dalam konteks hukum tunduk pada prinsip **Human-in-the-Loop (HITL)**. Dokumen yang dihasilkan oleh `compliance_lawyer_nlp_interface.py` bersifat **DRAF ONLY** dan tidak memiliki kekuatan hukum valid hingga ditinjau dan ditandatangani oleh penasihat hukum bersertifikat.
+
+**Protokol Tinjauan Manual:**
+
+1.  **Aktivasi `--review-mode`:**
+    Selalu gunakan flag ini sebelum mengirimkan draf ke dewan direksi atau regulator. Fitur ini akan:
+    *   Menyoroti klaim risiko tinggi yang memerlukan validasi ahli.
+    *   Menambahkan komentar margin yang menanyakan kepastian sumber data klaim tertentu.
+    *   Menandai bagian yang bersifat "estimasi" (karena data forensik mungkin belum lengkap).
+2.  **Validasi Advokat:**
+    Penasihat hukum wajib melakukan *sanity check* pada:
+    *   Akurasi referensi pasal hukum (tidak ada perubahan regulasi terbaru).
+    *   Konsistensi narasi dengan bukti fisik yang tersimpan di `Attachment Evidence`.
+    *   Penetapan strategi mitigasi yang sesuai dengan konsensus legal perusahaan.
+
+###### D. Protokol Penanganan Klaim Palsu (Hallucination Mitigation)
+
+Model NLP memiliki risiko "hallusinasi" (menghasilkan fakta hukum atau fakta insiden yang tidak ada dalam input). Untuk menjaga integritas audit dan melindungi perusahaan dari tuntutan hukum akibat laporan yang salah, sistem menerapkan protokol berikut:
+
+1.  **Grounding Constraint:**
+    Skrip hanya mengizinkan generasi kalimat jika ada referensi langsung (*citation*) ke entitas dalam `--matrix` atau `--playbook`. Jika model mencoba menyimpulkan implikasi hukum tanpa dasar teknis dalam input, sistem akan melewatkan bagian tersebut dan menandai area tersebut sebagai `[NEEDS_HUMAN_VERIFICATION]`.
+2.  **Confidence Thresholding:**
+    Setiap klaim hukum diberi skor kepercayaan (*confidence score*). Klaim dengan skor di bawah ambang batas (default: 0.85) otomatis diblokir dari draf akhir dan ditempatkan dalam lampiran "Aspek yang Perlu Klarifikasi".
+3.  **Log Audit AI:**
+    Semua proses generasi draf dicatat dalam log internal (`nlp_trace.log`) yang mencakup input prompt, model versi, dan alasan penghapusan/salasi klaim. Log ini dapat diaudit untuk membuktikan bahwa tidak ada manipulasi bias yang disengaja oleh sistem AI.
+
+###### E. Contoh Output Struktur Dokumen (`.docx`)
+
+Ketika dijalankan, skrip akan menghasilkan dokumen dengan struktur berikut:
+
+```markdown
+# LAPORAN INSIDEN KEPATUAN DATA PRIBADI
+**Tanggal Pembuatan:** [Auto-generated Timestamp]
+**Yurisdiksi:** [UU PDP / GDPR]
+
+## 1. Ringkasan Eksekutif
+[Narasi otomatis mengenai jenis insiden, jumlah korban, dan status mitigasi saat ini, dikutip dari data JSON.]
+
+## 2. Kronologi Teknis dan Respons
+[Daftar langkah teknis dari Playbook yang diterjemahkan ke dalam bahasa formal hukum, menekankan upaya mitigasi.]
+
+## 3. Analisis Dampak Hukum
+- **Jenis Data Terpapar:** [Diambil dari Matrix]
+- **Pasal yang Relevan:** [Pasal X UU PDP]
+- **Wajib Notifikasi:** [Ya/Tidak berdasarkan 72 jam atau ketentuan lokal]
+
+## 4. Lampiran Tinjauan Manual (Hanya Jika --review-mode diaktifkan)
+- ⚠️ *Klaim risiko finansial ini bersifat estimasi dan memerlukan validasi tim keuangan.*
+- ❓ *Keputusan isolasi server dikonfirmasi oleh CISO, verifikasi tanda tangan diperlukan.*
+```
+
+###### F. Integrasi dengan Alur Kerja ITSM
+
+Setelah draf hukum selesai ditinjau, file `.docx` hasil akhir dapat diunggah kembali ke sistem ITSM (ServiceNow/Jira) sebagai attachment final pada tiket insiden. Ini memastikan jejak audit lengkap dari deteksi teknis hingga laporan hukum final, memenuhi prinsip *Chain of Custody* yang dijelaskan pada Bagian 2.
+
+---
+
+*Catatan Arsitektur: Penggunaan `compliance_lawyer_nlp_interface.py` tidak menggantikan tanggung jawab hukum personel hukum. Perusahaan tetap bertanggung jawab penuh atas akurasi dan kelengkapan laporan yang dikirimkan kepada regulator.*
