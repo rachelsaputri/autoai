@@ -22903,3 +22903,179 @@ Jika direktur RISK_AVERSE: "Risiko kontinuitas bisnis dipertahankan melalui sett
 Dokumen yang dihasilkan mengandung informasi sensitif yang dilindungi oleh privilege attorney-client.
 *   **Encrypted Metadata:** Seluruh bagian `metadata` dalam file `.docx` dienkripsi menggunakan kunci AES-256 yang dikelola oleh *Key Management Service* perusahaan. Hanya direktur dengan klaim hak akses tertentu yang dapat mendekripsi dan membaca bagian "Decision Rationale Audit".
 *   **Watermarking:** Setiap salinan dokumen yang diunduh atau dicetak secara otomatis dilapisi dengan *digital watermark* yang menyertakan nama pengguna dan timestamp, untuk mencegah kebocoran data jika dokumen jatuh ke tangan pihak eksternal.
+
+
+Berikut adalah draf lanjutan untuk file `README.md`. Bagian ini dirancang untuk melengkapi dokumentasi teknis yang ada, memberikan panduan implementasi skrip Python, dan mendalami kerangka tata kelola naratif serta kepatuhan regulatoris.
+
+***
+
+## 6.7. Strategic Narrative Synthesis Module (SNSM) Implementation
+
+Modul ini bertindak sebagai jembatan kognitif antara analisis data teknis (backend) dan komunikasi eksekutif (frontend). Tugas utamanya adalah mengubah output mentah `compliance_litigation_cost_benefit_analyzer` menjadi draf resolusi dewan (`board_resolution_strategic_brief_v1.docx`) yang disesuaikan dengan profil psikologis dan preferensi risiko para direktur.
+
+### 6.7.1. Arsitektur Eksekusi Skrip
+
+Skrip `compliance_boardroom_debate_synthesis_engine.py` menggunakan alur kerja berikut:
+
+1.  **Ingestion**: Membaca hasil analisis biaya-manfaat litigasi (`--feasibility-input`).
+2.  **Persona Mapping**: Memuat profil gaya pengambilan keputusan (`--director-personas`) untuk menentukan *framing effect* (cara pembingkaian) argumen.
+3.  **Contextual Integration**: Mengintegrasikan temuan risiko regulasi dari `compliance_regulatory_early_warning_and_response_playbook_generator` ke dalam bagian kontingensi.
+4.  **Tone Calibration**: Menyesuaikan nada penulisan berdasarkan koleksi resolusi masa lalu (`--historical-resolutions`) agar koheren dengan budaya perusahaan.
+5.  **Audit Logging**: Mencatat jejak logika (*decision rationale*) ke dalam ledger lokal untuk kepatuhan SOX Section 404.
+
+### 6.7.2. Cara Penggunaan (Usage Guide)
+
+Pastikan lingkungan virtual Python telah menginstal dependensi `python-docx`, `json`, dan `cryptography`. Jalankan skrip dengan parameter berikut:
+
+```bash
+python compliance_boardroom_debate_synthesis_engine.py \
+    --feasibility-input ./data/litigation_cost_benefit_analysis.json \
+    --director-personas ./config/director_profiles.json \
+    --historical-resolutions ./archive/board_resolutions_history.json \
+    --output-resolution-brief ./output/board_resolution_strategic_brief_v1.docx
+```
+
+**Penjelasan Parameter:**
+
+| Parameter | Tipe | Deskripsi | Contoh Nilai |
+| :--- | :--- | :--- | :--- |
+| `--feasibility-input` | `Path` | Lokasi file JSON berisi output dari *Litigation Cost-Benefit Analyzer*. Memuat angka net present value, probabilitas menang, dan estimasi biaya hukum. | `./data/analysis_q3_2023.json` |
+| `--director-personas` | `Path` | Konfigurasi JSON yang mendefinisikan preferensi gaya kepemimpinan setiap direktur. Sistem akan menghasilkan beberapa versi narasi atau menggabungkannya. | `./config/personas.json` |
+| `--historical-resolutions` | `Path` | Kumpulan resolusi dewan sebelumnya. Digunakan oleh model NLP internal untuk meniru struktur kalimat, tingkat keformalan, dan kata kunci yang sudah disetujui. | `./archive/resolutions_2020_2022.json` |
+| `--output-resolution-brief` | `Path` | Lokasi file output akhir dalam format `.docx`. File ini akan dikunci secara otomatis setelah generasi selesai. | `./output/brief_v1.docx` |
+
+### 6.7.3. Struktur Input: Director Personas (`director_profiles.json`)
+
+File konfigurasi ini menentukan bagaimana data diterjemahkan menjadi narasi persuasif. Contoh struktur:
+
+```json
+{
+  "directors": [
+    {
+      "id": "DIR_001",
+      "name": "Budi Santoso",
+      "style": "RISK_AVERSE",
+      "narrative_priority": ["business_continuity", "reputational_protection", "compliance_certainty"],
+      "risk_threshold": "LOW"
+    },
+    {
+      "id": "DIR_002",
+      "name": "Sarah Wijaya",
+      "style": "GROWTH_ORIENTED",
+      "narrative_priority": ["capital_allocation_efficiency", "market_share_expansion", "aggressive_negotiation"],
+      "risk_threshold": "HIGH"
+    }
+  ]
+}
+```
+
+#### Mekanisme "Persuasive Risk Translation"
+
+Sistem ini tidak hanya menerjemahkan bahasa; ia melakukan *reframing* strategi berdasarkan prioritas direktur:
+
+*   **Untuk Profil `RISK_AVERSE`:**
+    *   *Input Data:* Settlement early = Hemat biaya hukum IDR 1.2B.
+    *   *Narasi Hasil:* "Risiko kontinuitas bisnis dipertahankan melalui settlement dini, memastikan stabilitas operasional jangka panjang."
+    *   *Fokus:* Minimisasi varians hasil, jaminan kepastian regulasi, dan perlindungan reputasi.
+
+*   **Untuk Profil `GROWTH_ORIENTED`:**
+    *   *Input Data:* Settlement early = Hemat biaya hukum IDR 1.2B.
+    *   *Narasi Hasil:* "Alokasi modal dipertahankan untuk ekspansi regional, menghindari penyaluran sumber daya ke litigasi defensif."
+    *   *Fokus:* Efisiensi penggunaan modal, peluang pasar yang tidak diambil, dan kecepatan eksekusi strategis.
+
+### 6.7.4. Integrasi Kontingensi Regulasi
+
+Output dari `compliance_regulatory_early_warning_and_response_playbook_generator` disuntikkan ke dalam bab **"Regulatory Contingency & Remediation"** draf resolusi. Sistem secara otomatis mengaitkan:
+1.  **Temuan** (e.g., Retensi log < 5 tahun).
+2.  **Aksi Mandatory** (e.g., Ekstensi retensi IT Security dalam 30 hari).
+3.  **Audit Trail ID** (e.g., SEC-PRIV-04).
+
+Hal ini memastikan bahwa setiap resolusi strategis tidak hanya menjawab pertanyaan finansial saat ini, tetapi juga mengikat komitmen perbaikan tata kelola masa depan, sehingga mengurangi *liability* direksi di masa depan jika terjadi insiden keamanan.
+
+---
+
+## 7. Executive Communication & Narrative Governance
+
+Bagian ini mendefinisikan standar tata kelola komunikasi yang diterapkan oleh sistem, memastikan bahwa terjemahan dari data teknis ke narasi eksekutif tidak hanya persuasif, tetapi juga etis, akurat, dan dapat diaudit.
+
+### 7.1. Metodologi "Persuasive Risk Translation"
+
+Persuasive Risk Translation (PRT) adalah kerangka kerja yang digunakan sistem untuk menghindari *bias framing* yang berbahaya sambil memaksimalkan kejelasan bagi pengambil keputusan. PRT didasarkan pada tiga pilar:
+
+1.  **Factual Integrity First:**
+    Semua angka (Net Saving, Probability Score, Leverage Score) harus tetap sesuai dengan sumber data mentah. PRT hanya mengubah *contextual wrapper* (bungkus konteks), bukan *core values* (nilai inti).
+    *   *Contoh Prohibited:* Mengubah estimasi biaya hukum dari 2 Miliar menjadi 1.5 Miliar agar terlihat lebih hemat.
+    *   *Example Prohibited:* Mengubah estimasi biaya hukum dari 2 Miliar menjadi 1.5 Miliar agar terlihat lebih hemat.
+    *   *Example Permitted:* Menyajikan angka 2 Miliar sebagai "Biaya Terhindar" bagi direktur Risk-Averse, atau "Likuiditas Tervering" bagi direktur Growth-Oriented.
+
+2.  **Audience-Centric Framing:**
+    Sistem mendeteksi persona direktur dan memilih *keywords* yang sesuai:
+    *   *Risk-Averse Keywords:* Mitigasi, Perlindungan, Kepastian, Keberlanjutan, Kontrol.
+    *   *Growth-Oriented Keywords:* Optimalisasi, Ekspansi, Leverage, Efisiensi, Agility.
+
+3.  **Transparency of Trade-offs:**
+    Setiap narasi harus secara eksplisit menyebutkan apa yang *dikorbankan* untuk memilih strategi tersebut.
+    *   *Jika Negosiasi dipilih:* Narasi harus menyebutkan potensi kerugian reputasi jangka pendek atau pengecualian preseden hukum.
+    *   *Jika Litigasi dipilih:* Narasi harus menyebutkan biaya kesempatan (*opportunity cost*) dan ketidakpastian hasil pengadilan.
+
+### 7.2. Standar Sarbanes-Oxley Section 404 Disclosure Integrity
+
+Dalam konteks kepatuhan SOX Section 404, yang mensyaratkan evaluasi ketat atas pengendalian internal perusahaan dan pengungkapan materialitas kesalahan penyajian, sistem ini menerapkan prinsip berikut:
+
+1.  **Materiality Threshold Adherence:**
+    Setiap perubahan narasi atau penekanan strategi harus melewati *materiality filter*. Jika perbedaan finansial antara opsi Negosiasi dan Litigasi di bawah ambang batas materialitas (misalnya < 1% dari total aset), sistem akan menyarankan penggunaan bahasa yang netral ("Economic Indifference") alih-alih persuasif ekstrem, untuk menghindari kesan manipulatif dalam laporan publik.
+
+2.  **Internal Control over Financial Reporting (ICFR) Alignment:**
+    Output resolusi harus selaras dengan dokumentasi ICFR. Jika *Decision Rationale Audit* (Bagian 5) mencatat bahwa keputusan didasarkan pada "High Leverage Score", maka catatan ini harus merujuk pada kontrol spesifik (misalnya, Kontrol ID: FIN-COMP-09) yang memvalidasi skor tersebut. Ini menciptakan jejak audit satu arah dari narasi eksekutif kembali ke bukti data teknis.
+
+3.  **Management Assessment Disclosure:**
+    Draf resolusi yang dihasilkan tidak boleh menyembunyikan *known weaknesses*. Jika modul peringatan dini mendeteksi kelemahan dalam log privasi (seperti pada contoh di atas), hal ini harus ditampilkan dengan prioritas tinggi dalam draf, terlepas dari preferensi persona direktur. Kepatuhan regulasi bersifat *non-negotiable* dan menimpa preferensi gaya kepemimpinan.
+
+---
+
+## 8. Decision Rationale Audit (DRA) & Fiduciary Protection
+
+Untuk melindungi direksi dari tuntutan fidusia di masa depan dan memastikan transparansi keputusan strategis, setiap eksekusi sistem ini secara otomatis menghasilkan **Decision Rationale Audit Log**.
+
+### 8.1. Apa itu DRA Log?
+
+DRA Log adalah catatan kriptografis yang merekam *mengapa* sebuah rekomendasi tertentu dipilih. Ini bukan sekadar "siapa yang memilih", tetapi "berdasarkan data dan logika apa keputusan itu diambil".
+
+**Struktur Log (Internal Reference):**
+
+```json
+{
+  "log_id": "audit_20231027_001",
+  "timestamp": "2023-10-27T14:30:00Z",
+  "decision_type": "SETTLEMENT_VS_LITIGATION",
+  "primary_rationale": "Cost > Benefit",
+  "secondary_factors": [
+    "Reputation Risk = HIGH",
+    "Regulatory Compliance Gap Detected (SEC-PRIV-04)"
+  ],
+  "data_hash": "0x7f8a9b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a",
+  "model_version": "synthesis_engine_v1.2",
+  "directors_notified": ["DIR_001", "DIR_002"],
+  "ledger_signature": "ECDSA_SHA256_SIGNATURE_PLACEHOLDER"
+}
+```
+
+### 8.2. Proses Pencatatan Otomatis
+
+1.  **Pre-Decision Snapshot:** Sebelum narasi akhir digenerate, sistem mengambil *snapshot* dari semua data input (JSON analyzer, persona config, playbook results) dan menghitung *hash* kriptografi dari data tersebut.
+2.  **Logic Path Mapping:** Sistem merekam jalur logika yang diambil (misal: `IF cost_saving > threshold AND reputation_risk > critical THEN recommend_negotiation`).
+3.  **Immutable Ledger Entry:** Hash data input dan logika keputusan dicatat ke dalam ledger internal (atau database yang di-hash untuk mencegah perubahan). Ini memastikan bahwa tidak ada pihak yang dapat mengubah data historis setelah keputusan diambil untuk memutarbalikkan fakta ("post-hoc rationalization").
+4.  **Linkage to Document:** Hash unik ini disertakan dalam metadata tersembunyi dari file `.docx` output, memungkinkan auditor eksternal untuk memverifikasi bahwa dokumen yang dipresentasikan sesuai dengan data mentah saat pengambilan keputusan.
+
+### 8.3. Manfaat Fidusia
+
+*   **Bukti Due Diligence:** Membuktikan bahwa direksi telah meninjau analisis data yang komprehensif sebelum membuat keputusan.
+*   **Pertanggungjawaban:** Menetapkan tanggung jawab jelas atas basis keputusan, mengurangi risiko tuduhan pelanggaran fidusia karena kelalaian.
+*   **Akuntabilitas Jangka Panjang:** Memungkinkan direksi keluar (ex-directors) untuk membuktikan bahwa keputusan mereka diambil berdasarkan informasi terbaik yang tersedia pada waktu tersebut, meskipun hasil akhirnya tidak sesuai harapan.
+
+### 8.4. Keamanan & Enkripsi Lanjutan
+
+Dokumen yang dihasilkan mengandung informasi sensitif yang dilindungi oleh privilege attorney-client.
+
+*   **Encrypted Metadata:** Seluruh bagian `metadata` dalam file `.docx` dienkripsi menggunakan kunci AES-256 yang dikelola oleh *Key Management Service* perusahaan. Hanya direktur dengan klaim hak akses tertentu (misalnya, Ketua Komite Audit atau Sekretaris Perusahaan) yang dapat mendekripsi dan membaca bagian "Decision Rationale Audit" dan data mentah yang mendasarinya.
+*   **Watermarking:** Setiap salinan dokumen yang diunduh atau dicetak secara otomatis dilapisi dengan *digital watermark* yang menyertakan nama pengguna, role, dan timestamp, untuk mencegah kebocoran data jika dokumen jatuh ke tangan pihak eksternal. Watermark ini juga mencakup hash logika keputusan, sehingga jika dokumen bocor, jejak asal-usul dan validitas keputusannya dapat dilacak.
