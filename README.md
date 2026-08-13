@@ -50807,3 +50807,170 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+
+
+Berikut adalah konten lanjutan yang komprehensif, terstruktur, dan siap ditempel ke dalam file `README.md`. Materi ini mencakup spesifikasi teknis skrip orkestrator baru, argumen baris perintah, serta dokumentasi mendalam mengenai metodologi akuntansi materialitas ganda dan kepatuhan standar global.
+
+***
+
+# Integrated Value Accounting & Double Materiality Orchestrator
+
+Bagian ini mendokumentasikan komponen inti ekosistem: `compliance_governance_autonomous_regenerative_impact_financial_reporting_and_double_materiality_disclosure_orchestrator.py`. Skrip ini berfungsi sebagai jembatan kognitif dan finansial yang mengubah output operasional, ekologis, dan finansial dari agen-agen subsystem menjadi laporan keuangan terintegrasi yang siap publikasi.
+
+Sistem ini tidak hanya mengumpulkan data, tetapi secara aktif menerapkan prinsip **Double Materiality** (Materialitas Ganda), memastikan bahwa laporan mencerminkan baik dampak perusahaan terhadap alam (*Outside-In*) maupun dampak kondisi alam terhadap nilai ekonomi perusahaan (*Inside-Out*).
+
+## 1. Spesifikasi Skrip Utama
+
+**Nama File:** `compliance_governance_autonomous_regenerative_impact_financial_reporting_and_double_materiality_disclosure_orchestrator.py`
+
+**Fungsi:**
+Mengagregasi data dari tiga agen sumber utama:
+1.  **Ecological Treasury Management Agent:** Memasok nilai modal alam (Natural Capital Valuation).
+2.  **Regenerative Value Creative Agent:** Memasok aliran pendapatan regeneratif dan dampak sosial.
+3.  **Ecological Liability Provision Engine:** Memasok liabilitas ekologis, cadangan risiko entropi, dan provisi restorasi.
+
+Hasil akhirnya adalah paket laporan terintegrasi (`integrated_annual_report_v1.json`) yang mematuhi standar GRI, ESRS (CSRD), dan ISSB (IFRS S1/S2), serta siap untuk diaudit berdasarkan standar ISAE 3000/3410.
+
+### 1.1 Argumen Baris Perintah (CLI)
+
+Skrip ini menuntut konfigurasi presisi untuk memastikan kepatuhan regulasi dan kemampuan audit. Berikut adalah daftar argumen yang didukung:
+
+| Argumen | Tipe | Deskripsi |
+| :--- | :--- | :--- |
+| `--ifrs_s1_s2_mapping_registry` | `str` | **Wajib.** Path ke direktori berisi skema pemetaan data teknis (JSON Schema) yang menghubungkan metrik IoT dan ledger ke standar IFRS S1 (Sustainability General) dan S2 (Climate). |
+| `--gri_disclosure_index_config` | `str` | **Wajib.** Path ke file konfigurasi indeks pelaporan GRI 2021. File ini menentukan kategori pelaporan (Ekonomi, Lingkungan, Sosial) dan kode disklosur spesifik (misal: GRI 303-3, GRI 201-1). |
+| `--assurance_readiness_checker` | `str` | **Wajib.** Path ke validator kepatuhan audit independen berdasarkan standar **ISAE 3000** (Assurance Engagements Other than Audits or Reviews of Historical Financial Information) dan **ISAE 3410** (Greenhouse Gas Emissions). |
+| `--output_integrated_annual_report` | `str` | Path output untuk menyimpan paket laporan tahunan terintegrasi. File hasil akan bernama `integrated_annual_report_v1.json` dan mencakup narasi, lampiran data terverifikasi, dan metrik materialitas ganda. |
+| `--llm_facts_binding_threshold` | `float` | (Opsional, default: 0.95) Ambang batas kepercayaan untuk validasi fakta sebelum LLM digunakan untuk generasi narasi. Menjamin bebas *hallucination*. |
+| `--double_materiality_mode` | `str` | (Opsional, default: `comprehensive`) Mode kalkulasi. `comprehensive` menghitung impact & financial materiality secara penuh. `simplified` hanya untuk pelaporan internal awal. |
+
+### 1.2 Contoh Eksekusi
+
+```bash
+python compliance_governance_autonomous_regenerative_impact_financial_reporting_and_double_materiality_disclosure_orchestrator.py \
+    --ifrs_s1_s2_mapping_registry ./schemas/ifrs_s1_s2_mapping.json \
+    --gri_disclosure_index_config ./configs/gri_2021_index.yaml \
+    --assurance_readiness_checker ./validators/isae_3000_checker.py \
+    --output_integrated_annual_report ./reports/integrated_annual_report_v1.json \
+    --llm_facts_binding_threshold 0.98
+```
+
+### 1.3 Alur Pemrosesan Data (Data Flow)
+
+1.  **Ingest & Normalize:** Mengambil payload dari tiga agen sumber dan menstandarisasi format timestamp, satuan, dan metadata sumber (proof of origin).
+2.  **Double Materiality Calculation:**
+    *   *Impact Materiality:* Mengkuantifikasi dampak terhadap lingkungan (misal: ton CO2e, liter air used) menggunakan model ekologis.
+    *   *Financial Materiality:* Menghitung implikasi finansial dari dampak tersebut (misal: biaya karbon, risiko aset fisik, akses modal hijau) menggunakan model risiko keuangan.
+3.  **Standard Mapping:** Memetakan metrik yang telah dihitung ke dalam kode disklosur GRI dan ESRS/IFRS S1/S2 menggunakan registry yang disediakan.
+4.  **Assurance Validation:** Menjalankan validator ISAE 3000 untuk memastikan jejak data (*lineage*) lengkap dan dapat diverifikasi.
+5.  **Narrative Generation:** Menggunakan LLM terikat fakta (*fact-bound*) untuk menghasilkan narasi tahunan yang koheren berdasarkan data yang telah divalidasi.
+6.  **Output Generation:** Mengompilasi semua elemen menjadi `integrated_annual_report_v1.json`.
+
+---
+
+# Double Materiality Accounting & Integrated Disclosures
+
+Bagian ini menjelaskan fondasi metodologis dari sistem orkestrator. Dalam konteks regulasi modern (terutama CSRD Eropa), materialitas tidak lagi bersifat tunggal (hanya dampak finansial), melainkan ganda.
+
+## 2. Metodologi: Double Materiality Assessment Algorithm for AI-Driven Reporting
+
+Sistem ini mengimplementasikan algoritma penilaian materialitas ganda yang dinamis, yang secara otomatis menghitung dua vektor materialitas utama. Algoritma ini memastikan bahwa keputusan pelaporan berbasis pada data empiris, bukan estimasi subjektif.
+
+### 2.1 Vektor 1: Impact Materiality (Outside-In)
+*Definisi:* Seberapa besar perusahaan mempengaruhi lingkungan dan masyarakat.
+*Komputasi AI:*
+Sistem menggunakan model **Ecological Footprint Aggregation** yang membaca data langsung dari agen *Ecological Treasury*. Metrik kunci meliputi:
+*   **Greenhouse Gas Emissions:** Scope 1, 2, dan 3 (dihitung ulang secara real-time dengan faktor emisi terbaru dari database IPCC).
+*   **Biodiversity & Land Use:** Pengukuran degradasi/restorasi lahan melalui integrasi data satelit (NDVI) dan ledger IoT.
+*   **Water & Waste:** Kuantifikasi tekanan air dan sirkularitas material.
+
+*Output Disklosur:* Dipetakan ke **ESRS E1-E5** (Environment) dan **GRI 300 Series** (Environmental).
+
+### 2.2 Vektor 2: Financial Materiality (Inside-Out)
+*Definisi:* Seberapa besar isu lingkungan/sosial mempengaruhi nilai perusahaan.
+*Komputasi AI:*
+Sistem menggunakan model **Risk-Adjusted Financial Impact Forecasting** yang membaca data dari agen *Regenerative Value Creative* dan *Liability Provision*. Metrik kunci meliputi:
+*   **Cost of Capital Adjustment:** Penilaian dampak peringkat ESG terhadap biaya utang dan ekuitas.
+*   **Asset Stranding Risk:** Probabilitas aset menjadi tidak bernilai akibat transisi energi atau regulasi karbon.
+*   **Reputational & Litigation Risk:** Estimasi potensi denda, biaya restorasi, dan kehilangan pendapatan akibat konflik sosial/ekologis.
+
+*Output Disklosur:* Dipetakan ke **IFRS S1** (General Requirements) dan **S2** (Climate-related Disclosures).
+
+### 2.3 Matriks Materialitas Otomatis
+Sistem secara otomatis menempatkan setiap metrik ke dalam matriks 2x2:
+1.  **Material (Dua-duanya):** Harus didiskusikan secara mendalam dalam narasi utama.
+2.  **Impact Only:** Disajikan sebagai lampiran data operasional.
+3.  **Financial Only:** Disajikan sebagai analisis risiko strategis.
+4.  **Immaterial:** Disingkirkan dari laporan utama untuk menghindari *disclosure fatigue*.
+
+---
+
+# Standard Compliance Frameworks
+
+Sistem ini dirancang untuk *out-of-the-box* compliant dengan kerangka kerja pelaporan keberlanjutan global terkemuka.
+
+## 3. EFRAG ESRS (European Sustainability Reporting Standards)
+*Aligned with CSRD (Corporate Sustainability Reporting Directive)*
+
+Sistem mematuhi prinsip **Universal Standards (ESRS 1 & 2)** dan **Topical Standards (ESRS E1-E5, S1, G1, I1)**.
+
+*   **Double Materiality Approach:** ESRS mewajibkan pengungkapan ganda. Sistem ini mengotomatisasi pengumpulan data untuk kedua perspektif.
+*   **Value Chain Data:** Sistem secara aktif menarik data dari hulu (pemasok) dan hilir (pelanggan) melalui integrasi API dengan agen rantai pasok, memenuhi persyaratan ESRS 1 mengenai data rantai nilai.
+*   **Transition Plans:** Menghasilkan narasi tentang rencana transisi menuju keberlanjutan berdasarkan target SBTi (Science Based Targets) yang diikat ke dalam ledger.
+
+## 4. IFRS S1/S2 & TNFD Recommendations
+*Aligned with ISSB (International Sustainability Standards Board)*
+
+*   **IFRS S1 (General Requirements):** Sistem memastikan pengungkapan informasi sustainability-related financial risks dan opportunities yang relevan bagi pengguna laporan keuangan.
+*   **IFRS S2 (Climate-related):** Khusus menangani data iklim. Sistem mengonversi data fisik (suhu, curah hujan, emisi) ke dalam metrik keuangan (VaR iklim, biaya karbon internal).
+*   **TNFD (Taskforce on Nature-related Financial Disclosures):** Untuk aspek biodiversitas, sistem menggunakan kerangka kerja **LEAP** (Locate, Evaluate, Assess, Prepare) yang diotomatisasi. Data dari *Ecological Treasury* langsung mengisi modul "Evaluate" dan "Assess" untuk menentukan ketergantungan dan dampak terhadap alam.
+
+---
+
+# Assurance & Data Integrity
+
+Kepercayaan publik dibangun di atas bukti, bukan janji. Sistem ini mengimplementasikan prinsip "Data Lineage for Assurance" dan "Automated Narrative Generation".
+
+## 5. Data Lineage for Assurance (Audit Trail)
+
+Untuk memenuhi standar **ISAE 3000** (Assurance Engagements) dan **ISAE 3410**, setiap angka dalam `integrated_annual_report_v1.json` harus dapat ditelusuri kembali ke sumber data mentah.
+
+### 5.1 Mekanisme Jejak Data
+1.  **Immutable Source Tagging:** Setiap titik data (IoT, ledger, oracle) diberi tag metadata unik `source_hash` dan `timestamp_utc` saat dikumpulkan.
+2.  **Cryptographic Hashing:** Saat data diproses oleh agen, hash kriptografi dari input dan output dicatat dalam log yang dapat diaudit.
+3.  **Verification Path:** Auditor independen dapat menggunakan tool `assurance_readiness_checker` untuk:
+    *   Memasukkan angka laporan akhir.
+    *   Mendapatkan path JSON yang menunjukkan setiap transformasi data.
+    *   Memverifikasi hash terhadap sumber data mentah (misal, log sensor IoT atau blockchain transaction).
+4.  **Real-time Verification:** Sistem menyediakan endpoint API `GET /verify/{metric_id}` yang mengembalikan status validasi audit saat ini (Pass/Fail/Needs_Review).
+
+> **Catatan Teknis:** Ini menghilangkan kebutuhan untuk rekonsiliasi manual bulanan. Audit menjadi proses *continuous assurance* di mana data selalu "siap diaudit".
+
+## 6. Automated Narrative Generation for Stakeholder Communication
+
+Pelaporan keberlanjutan tradisional sering kali berisi narasi yang bersifat *copy-paste*, generik, dan rentan terhadap *greenwashing*. Sistem ini mengubah pendekatan tersebut menggunakan LLM (Large Language Models) yang terikat pada fakta terverifikasi.
+
+### 6.1 Prinsip "Fact-Bound LLM"
+Sistem tidak mengizinkan LLM untuk "mengarang" data. Alurnya adalah:
+1.  **Data Injection:** Data metrik yang telah diverifikasi oleh *Assurance Readiness Checker* diinjeksikan ke dalam konteks prompt.
+2.  **Constraint Enforcement:** Prompt LLM dibatasi secara ketat dengan aturan:
+    *   *"Hanya gunakan data yang disediakan dalam variabel `verified_metrics`."*
+    *   *"Jangan buat klaim kualitatif tanpa dukungan kuantitatif dari `verified_metrics`."*
+    *   *"Identifikasikan secara eksplisit jika data belum terverifikasi penuh."*
+3.  **Greenwashing Detection Layer:** Sebelum narasi diterbitkan, sistem menjalankan lapisan deteksi *greenwashing* yang membandingkan klaim naratif dengan tren data historis. Jika ada inkonsistensi (misal, klaim "peningkatan efisiensi 20%" padahal data menunjukkan penurunan 5%), narasi akan ditolak atau ditandai untuk review manusia.
+
+### 6.2 Output Narasi
+Laporan yang dihasilkan mencakup:
+*   **Executive Summary:** Ringkasan kinerja keberlanjutan berbasis data.
+*   **Narrative on Double Materiality:** Penjelasan mendalam tentang bagaimana isu lingkungan mempengaruhi keuangan, dan sebaliknya.
+*   **Forward-Looking Statements:** Proyeksi berbasis AI yang ditandai dengan tingkat ketidakpastian (confidence interval), sehingga transparan tentang batas prediktif.
+
+## 7. Kesimpulan: Kepatuhan sebagai Hasil Samping Sistemik
+
+Dengan mengintegrasikan orkestrator ini, organisasi beralih dari model "Kepatuhan Reaktif" (mengumpulkan data setelah tahun fiskal berakhir) ke model "Kepatuhan Proaktif & Otomatis".
+
+*   **Transparansi Total:** Setiap angka dapat diverifikasi secara kriptografis.
+*   **Akurasi Tinggi:** Minimisasi kesalahan manusia melalui otomatisasi agregasi dan validasi.
+*   **Kepercayaan Publik:** Narasi yang dihasilkan berdasarkan bukti empiris yang tidak dapat diubah, membangun legitimasi jangka panjang dengan pemangku kepentingan.
+
+Sistem ini bukan sekadar alat pelaporan, melainkan infrastruktur kepercayaan digital untuk ekonomi regeneratif.
