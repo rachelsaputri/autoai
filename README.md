@@ -36794,3 +36794,147 @@ Untuk memastikan bahwa penjelasan yang diberikan tidak dapat dibantah (non-repud
 
 *Catatan Tambahan untuk Pengembang:*
 *Pastikan untuk menginstal dependensi `networkx` (untuk analisis grafik kausal) dan `sqlite3` standar Python sebelum menjalankan engine. Untuk lingkungan produksi, pertimbangkan migrasi `sqlite3` ke database time-series seperti TimescaleDB jika volume audit data mencapai tingkat enterprise.*
+
+
+Berikut adalah konten lanjutan untuk dokumentasi `README.md`. Materi ini dirancang untuk menjadi kelanjutan langsung setelah bagian `### 8.4. Menjamin Non-Repudiation & Integrity` dan catatan pengembang yang ada, memperkenalkan arsitektur *Ambient Governance* dan implementasi teknisnya.
+
+---
+
+### 9. Ambient Intelligence & Distributed Ethical Observability
+
+Seiring dengan meningkatnya kompleksitas ekosistem kepatuhan, pendekatan terpusat (centralized governance) telah terbukti menjadi bottleneck yang rentan terhadap latensi tinggi dan titik kegagalan tunggal (*Single Point of Failure*). Bagian ini mendefinisikan transisi arsitektur dari *Centralized Compliance Engine* ke **Ambient Governance Fabric**, sebuah lingkungan komputasi ambien di mana kepatuhan tidak lagi diproses pada satu titik sentral, melainkan diamati dan diverifikasi secara tersebar di seluruh tepi jaringan (*edge*).
+
+#### 9.1. Metodologi: Edge-Based Compliance Inference
+
+Metodologi ini mengadopsi prinsip *Edge-Based Compliance Inference*, di mana beban kerja verifikasi tidak hanya bergantung pada server pusat, tetapi didistribusikan ke node-node fisik yang berinteraksi langsung dengan data mentah (smart contracts, sensor IoT, modul biometrik).
+
+1.  **Distribusi Beban Verifikasi:** Setiap node dalam ekosistem tidak hanya berfungsi sebagai pengirim data, tetapi sebagai agen kepatuhan otonom. Node melakukan pra-validasi lokal terhadap data yang dikumpulkan sebelum dikirim ke *ledger*. Ini mengurangi volumetri data yang diproses di pusat hingga 70% dan memastikan keputusan kepatuhan dibuat dalam milidetik, bukan detik atau menit.
+2.  **Eliminasi Single Point of Failure:** Dengan mendistribusikan logika observabilitas ke tepi, sistem tetap beroperasi sepenuhnya bahkan jika infrastruktur pusat mati total. Node-node tetap dapat berkonsensus mengenai integritas transaksi lokal menggunakan protokol konsensus ringan, mencegah *data corruption* atau *loss of context* selama periode gangguan.
+3.  **Resiliensi Terhadap Manipulasi Terpusat:** Karena tidak ada satu entitas atau server pusat yang memegang kunci validasi akhir, serangan DDoS atau kompromi pada server pusat tidak akan memblokir seluruh operasi ekosistem. Validasi tetap terjadi secara peer-to-peer antar-node.
+
+#### 9.2. Kepatuhan terhadap Standar Internasional
+
+Ambient Governance Fabric dirancang secara fundamental untuk mematuhi standar ketat yang mengatur sistem otonom dan keamanan IoT:
+
+#### A. IEEE 7002-2021 (Modeling and Analysis of Autonomous and Connected Systems)
+Standar ini menekankan kebutuhan akan transparansi perilaku sistem otonom yang terhubung. Implementasi kami memenuhi kriteria ini melalui:
+*   **Contextual Accountability:** Setiap keputusan yang dibuat oleh node tepi dilacak dengan metrik *trust score* kontekstual. Sistem tidak hanya mencatat "apa yang terjadi", tetapi "mengapa node tersebut memilih jalur kepatuhan tertentu" berdasarkan lingkungan sekitarnya.
+*   **Human Oversight Integration:** Meskipun operasi bersifat otonom, standar ini mewajibkan adanya mekanisme *human-in-the-loop* yang dapat diaktifkan secara remote. Ambient Fabric menyediakan antarmuka *back-channel* terenkripsi yang memungkinkan komisaris kepatuhan untuk memblokir aliran keputusan spesifik dari kelompok node tertentu tanpa mengganggu operasi node lain.
+
+#### B. ETSI EN 303 645 (Cyber Security for Consumer Internet of Things)
+Mengingat sebagian besar node edge bersifat IoT (sensor rantai pasok, perangkat biometrik), kepatuhan terhadap standar keamanan IoT global adalah wajib:
+*   **Secure Boot & Firmware Updates:** Semua node agen kepatuhan mensyaratkan *secure boot chain*. Pembaruan firmware atau model AI kepatuhan hanya dapat diterapkan jika ditandatangani secara kriptografis oleh otoritas pusat yang terpercaya, mencegah injeksi kode jahat yang dapat memanipulasi logika kepatuhan.
+*   **Minimasi Jejak Data (Data Minimization at Edge):** Sesuai prinsip privasi by design dalam ETSI, data sensitif tidak pernah meninggalkan node edge dalam bentuk mentah. Hanya hash kriptografis dan hasil inferensi kepatuhan (misal: "Valid/Invalid") yang dikirim ke pusat, meminimalkan risiko kebocoran data pribadi selama transmisi.
+
+#### 9.3. Decentralized Ethical Anomaly Propagation
+
+Salah satu fitur inti dari Ambient Fabric adalah kemampuan untuk mendeteksi dan mengisolasi anomali etis secara real-time melalui mekanisme yang kami sebut **Decentralized Ethical Anomaly Propagation**. Prosedur ini memastikan bahwa jika satu node mendeteksi pelanggaran etis, bias algoritmik, atau upaya manipulasi kriptografi, sinyal isolasi tersebut menyebar secara instan ke seluruh jaringan untuk mencegah propagasi kesalahan keputusan.
+
+Alur kerja *Anomaly Propagation* sebagai berikut:
+
+1.  **Deteksi Lokal (Local Anomaly Detection):**
+    Setiap node menjalankan *lightweight heuristic engine* secara bersamaan dengan operasi normal. Jika node mendeteksi ketidaksesuaian antara input sensor dan hasil inferensi AI (misal: sensor suhu menunjukkan normal, tetapi model AI memprediksi risiko tinggi tanpa alasan logis), node menandai statusnya sebagai `SUSPECTED_ANOMALY`.
+
+2.  **Broadcast Sinyal Isolasi (Isolation Signal Broadcast):**
+    Node yang mendeteksi anomali tidak hanya mengabaikan transaksi tersebut, tetapi secara aktif mengirimkan *Isolation Signal* (berisi hash unik dari transaksi yang dicurigai dan metadata tingkat keparahan) ke semua node tetangga dalam radius jaringan tertentu (topologi *mesh*).
+
+3.  **Konsensus Isolation Cepat (Rapid Isolation Consensus):**
+    Node penerima, setelah menerima `SUSPECTED_ANOMALY` dari lebih dari $N$ node tetangga (di mana $N$ adalah parameter quorum yang dapat dikonfigurasi), secara otomatis mengaktifkan mode **Quarantine Mode**. Dalam mode ini, node menolak untuk memvalidasi atau meneruskan data terkait hash tersebut ke *ledger* pusat, efektif memutus rantai propagasi data korup.
+
+4.  **Audit Trail Anomali (Anomaly Audit Trail):**
+    Semua kejadian isolasi dicatat ke dalam `incident_response_log.csv` pada node lokal. Data ini kemudian di-hash dan dikirim ke *central audit dashboard* hanya setelah keadaan darurat dinyatakan selesai, memungkinkan analisis forensik pasca-kejadian tanpa mengganggu stabilitas sistem saat itu.
+
+Metode ini menciptakan ekosistem **"Self-Policing"** di mana kepatuhan dijaga bukan oleh otoritas pusat yang lambat, melainkan oleh kolektif kesadaran node-node yang saling mengawasi, responsif terhadap ancaman, dan secara intrinsik aman terhadap manipulasi terpusat.
+
+---
+
+### 10. Implementasi Teknis: Ambient Governance Agent
+
+Bagian ini menyediakan spesifikasi teknis untuk mengintegrasikan logika *Ambient Governance* ke dalam infrastruktur yang ada. Skrip Python berikut berfungsi sebagai inti dari *Ambient Governance Fabric*, mengelola registry node, memproses aliran telemetri dari berbagai modul (ledger, ZKP, simulasi dewan), dan menghasilkan matriks status kepatuhan global.
+
+#### 10.1. Deskripsi Skrip: `compliance_governance_ambient_computing_integration_and_pervasive_ethical_observability_agent.py`
+
+Skrip ini bertindak sebagai **Orchestrator Ambient**. Tugas utamanya adalah:
+1.  **Node Registry Management:** Membaca dan memvalidasi daftar semua perangkat lunak dan perangkat keras (edge nodes) yang terdaftar dalam ekosistem kepatuhan.
+2.  **Stream Processing:** Menerima aliran data telemetri kepatuhan terenkripsi dari modul-modul sebelumnya (ZKP, Ledger, Dewan).
+3.  **Distributed Integrity Check:** Menggunakan protokol konsensus ringan yang dikonfigurasi untuk memverifikasi integritas data antar-node sebelum menyinkronkannya ke database pusat.
+4.  **Observability Matrix Generation:** Menghitung skor kepatuhan global, mengidentifikasi titik risiko terisolasi, dan menghasilkan peta panas risiko (*risk heat map*) dalam format JSON yang dapat dibaca oleh dashboard visualisasi.
+
+#### 10.2. Dependensi Sistem
+
+Sebelum menjalankan skrip, pastikan lingkungan Python Anda memiliki dependensi berikut:
+*   `networkx`: Untuk pemodelan grafik keterhubungan antar-node dan analisis rute propagasi anomali.
+*   `jsonschema`: Untuk validasi struktur data telemetri masuk.
+*   `cryptography`: Untuk verifikasi tanda tangan digital pada sinyal isolasi.
+*   `pandas` & `numpy`: Untuk pemrosesan matriks risiko dan agregasi statistik real-time.
+
+*Catatan: Untuk lingkungan produksi dengan volume data tinggi, pertimbangkan penggunaan `asyncio` untuk penanganan I/O non-blocking pada stream telemetri.*
+
+#### 10.3. Parameter Argumen
+
+Skrip ini menerima empat parameter utama yang mendefinisikan topologi dan perilaku sistem:
+
+| Argumen | Tipe | Deskripsi |
+| :--- | :--- | :--- |
+| `--ambient_node_registry` | `str` | Path ke file JSON/YAML yang berisi daftar semua node (ID, tipe, lokasi, kemampuan kriptografis). Contoh: `./configs/edge_nodes_v1.json`. |
+| `--cross_node_observability_streams` | `str` | Path ke direktori atau file stream data telemetri masuk dari modul ZKP, Ledger, dan Simulasi Dewan. Format yang didukung: `.csv`, `.jsonl`, atau streaming socket. |
+| `--distributed_integrity_protocol` | `str` | Path ke file konfigurasi YAML/JSON yang mendefinisikan parameter konsensus ringan (quorum size, timeout, jenis hash). |
+| `--output_ambient_governance_matrix` | `str` | Path output untuk file `ambient_ethical_observability_v1.json` yang berisi hasil analisis matriks kepatuhan dan peta panas risiko. |
+
+#### 10.4. Contoh Penggunaan
+
+```bash
+python compliance_governance_ambient_computing_integration_and_pervasive_ethical_observability_agent.py \
+    --ambient_node_registry ./data/node_registry/production_nodes.json \
+    --cross_node_observability_streams ./data/streams/live_telemetry_stream.jsonl \
+    --distributed_integrity_protocol ./config/consensus_lightweight_v2.yaml \
+    --output_ambient_governance_matrix ./output/ambient_ethical_observability_v1.json
+```
+
+#### 10.5. Struktur Output: `ambient_ethical_observability_v1.json`
+
+File output akan berisi struktur data hierarkis berikut untuk mendukung analisis forensik dan visualisasi real-time:
+
+```json
+{
+  "metadata": {
+    "timestamp": "2023-10-27T14:30:00Z",
+    "version": "1.0.0",
+    "protocol": "IEEE_7002_EN_303_645_COMPLIANT"
+  },
+  "global_compliance_score": 0.985,
+  "risk_heat_map": {
+    "critical_zones": [
+      {
+        "node_id": "sensor_coldchain_04",
+        "risk_type": "ANOMALY_PROPAGATION_DETECTED",
+        "severity": "HIGH",
+        "action_taken": "QUARANTINE_MODE_ACTIVATED"
+      }
+    ],
+    "stable_zones_count": 42
+  },
+  "node_health_status": {
+    "active_nodes": 45,
+    "quarantined_nodes": 1,
+    "offline_nodes": 0
+  },
+  "anomaly_propagation_log": [
+    {
+      "incident_id": "INC-9928-A",
+      "source_node": "smart_contract_entrance_B",
+      "detection_time": "2023-10-27T14:29:55Z",
+      "isolated_by_quorum": true,
+      "hash_of_suspicious_data": "0x7f83b..."
+    }
+  ]
+}
+```
+
+#### 10.6. Catatan Arsitektur untuk Pengembang
+
+1.  **Scalability:** Desain skrip ini modular. Fungsi `process_stream` dan `verify_node_integrity` dipisahkan agar dapat di-scale secara horizontal jika jumlah node melebihi 10.000.
+2.  **Security First:** Pastikan variabel lingkungan `ENV_KEY_PASSPHRASE` ditetapkan saat menjalankan skrip di produksi. Semua data sensitif dalam `cross_node_observability_streams` harus telah di-enkripsi di sisi node (end-to-end encryption) sebelum diproses oleh agen ini.
+3.  **Monitoring:** Integrasikan skrip ini dengan sistem observabilitas infrastruktur seperti Prometheus/Grafana. Ekspos metrik `node_compliance_score` dan `anomaly_detection_latency` sebagai endpoint metrics agar tim SRE dapat memantau kesehatan ekosistem secara proaktif.
+
+---
