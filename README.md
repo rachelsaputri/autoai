@@ -49003,3 +49003,33 @@ Kami memperluas paradigma *Reinforcement Learning from Human Feedback* (RLHF) de
 *   **Konsep**: Dalam RLHF standar, agen belajar dari preferensi manusia. Dalam VRLC-HF, kita menambahkan lapisan *Constitutional Prior* yang menetapkan wilayah terlarang (*forbidden state space*) dalam ruang keputusan.
 *   **Implementasi**: FungsiReward didefinisikan sebagai:
     $$ R_{total} = R_{task} - \lambda 
+
+Berikut adalah konten lanjutan untuk `README.md`. Materi ini dirancang untuk dipasang langsung setelah bagian 4 ("Metodologi Teknis dan Standar Kepatuhan") yang ada sebelumnya. Konten ini memperdalam aspek teknis, arsitektur pasar, dan standar kepatuhan spesifik untuk modul *Natural Capital Market Clearing*.
+
+***
+
+##### 5. Arsitektur Pasar Modal Alam Otonom (Autonomous Natural Capital Market)
+
+Untuk menerjemahkan batasan biophysikal menjadi sinyal ekonomi yang executable, sistem mengimplementasikan **"Compliance Governance Autonomous Biophysical Market Clearing and Ecological Liquidity Router"**. Modul ini berfungsi sebagai *Automated Clearing House* (ACH) internal yang memfasilitasi perdagangan real-time aset modal alam, memastikan bahwa setiap token yang diperdagangkan mewakili stok fisik nyata yang terverifikasi, dan melindungi perusahaan dari risiko regulasi serta eksposur fisik akibat perubahan iklim.
+
+###### A. Integrasi Data dan Validasi Fisik (Proof-of-Physical-Reserve)
+
+Kritikalitas utama dari sistem ini adalah menjembatani kesenjangan antara representasi digital (token) dan realitas biophysikal. Sistem menolak mekanisme *backed-by-promises* dan hanya menerima aset yang didukung oleh **Proof-of-Physical-Reserve (PoPR)**.
+
+1.  **Sumber Orakel Biophysikal (`--biophysical_pricing_oracles`)**:
+    Sistem terhubung secara *low-latency* ke jaringan data satelit (misal: Sentinel, Landsat) dan sensor *ground-truth* IoT. Orakel ini menyediakan data waktu nyata mengenai:
+    *   Biomassa hutan (*Above-ground biomass*).
+    *   Kualitas air dan debit sungai.
+    *   Indeks vegetasi (NDVI/EVI) untuk kesehatan ekosistem.
+    Data ini dinormalisasi menjadi *Shadow Price* dasar sebelum masuk ke buku pesanan.
+
+2.  **Mekanisme Penjaminan Aset (Tokenization Standard)**:
+    Setiap aset alam yang masuk ke pasar internal di-tokenisasi menggunakan standar yang mirip dengan *Real World Assets (RWA)*, tetapi dengan lapisan verifikasi ketat:
+    *   **Verifikasi Awal**: Konfirmasi bahwa stok karbon/biodiversitas ada, legal, dan tidak didouble-counting melalui integrasi dengan database publik (misal: Verra/Gold Standard jika relevan) atau audit blockchain pribadi.
+    *   **Verifikasi Berkelanjutan**: Orakel memantau perubahan stok secara berkala. Jika terjadi degradasi ekosistem (misal: deforestasi terdeteksi), nilai token aset terkait akan disesuaikan secara otomatis (*depreciation*) atau dibekukan (*freeze*) hingga audit ulang dilakukan.
+
+###### B. Mekanisme Bersih Pasar Biophysikal & *Price Discovery* Dinamis
+
+Sistem ini tidak hanya memindahkan kepemilikan, tetapi secara aktif menstabilkan pasar terhadap guncangan ekologis. Integrasi antara `compliance_governance_autonomous_global_impact_compliance_and_ecological_treasury_management_agent.py` (untuk valuasi) dan `compliance_governance_autonomous_planetary_boundary_stress_test_and_systemic_resilience_engine.py` (untuk batas daya dukung) menciptakan algoritma pembentuk harga yang unik:
+
+$$ P_{market} = P_{fundamental} + lpha 
