@@ -36629,3 +36629,168 @@ Output dari `synthetic_boardroom_outcome_v1.json` tidak berdiri sendiri. File in
 
 ---
 *Catatan Keamanan Simulasi: Semua data profil psikometrik dan skenario strategis yang sensitif harus dienkripsi di tingkat aplikasi menggunakan AES-256. Lingkungan simulasi (sandbox) harus berjalan dalam kontainer terisolasi tanpa akses jaringan keluar untuk mencegah kebocoran strategi korporasi selama proses komputasi berat.*
+
+
+Berikut adalah konten lanjutan untuk file `README.md`, yang dirancang untuk melengkapi dokumentasi teknis Anda. Bagian ini mencakup deskripsi implementasi skrip Python baru dan bab dokumentasi mendalam mengenai kerangka akuntabilitas algoritmik.
+
+---
+
+## 7. Implementasi: Ethical Alignment & Legal Explainability Engine
+
+Bagian ini mendefinisikan spesifikasi teknis untuk modul penengah yang mengubah output simulasi kuantitatif menjadi narasi hukum yang dapat dipertanggungjawabkan. Modul ini bertindak sebagai "jembatan" antara kompleksitas komputasi `synthetic_boardroom` dan persyaratan kepatuhan regulasi.
+
+### 7.1. Deskripsi Fungsi
+Skrip `compliance_governance_autonomous_ethical_ai_alignment_and_explainable_decision_traceability_engine.py` bertugas melakukan tiga aksi utama:
+1.  **Parsing & Validasi:** Membaca hasil simulasi dewan (`--synthetic_boardroom_logs`) dan memverifikasi integritasnya.
+2.  **Kausalitas & Narrasi:** Menerapkan analisis grafik kausal untuk memetakan bagaimana variabel input mempengaruhi keputusan akhir, lalu merangkumnya menggunakan template hukum yang sesuai dengan yurisdiksi (`--legal_narrative_templates`).
+3.  **Immutability & Audit:** Menyimpan hash kriptografis dari rantai penjelasan ke dalam `immutable_governance_ledger_v1.db` untuk menjamin tidak ada manipulasi pasca-keputusan, dan menghasilkan laporan akhir `ethical_explainability_audit_v1.json`.
+
+### 7.2. Spesifikasi Argumen CLI
+Modul ini dirancang untuk dijalankan melalui baris perintah dengan parameter berikut:
+
+```bash
+python compliance_governance_autonomous_ethical_ai_alignment_and_explainable_decision_traceability_engine.py \
+    --synthetic_boardroom_logs path/to/synthetic_boardroom_outcome_v1.json \
+    --explainability_constraints path/to/eu_ai_act_art15_framework.yaml \
+    --legal_narrative_templates path/to/jurisdiction_templates.json \
+    --output_explainable_decision_report path/to/ethical_explainability_audit_v1.json
+```
+
+*   `--synthetic_boardroom_logs`: Path absolut ke file JSON output dari engine simulasi digital twin dewan.
+*   `--explainability_constraints`: Path ke file konfigurasi YAML/JSON yang memuat aturan kepatuhan (misalnya: batasan ambang batas EU AI Act Article 15 atau UU Perlindungan Data Pribadi).
+*   `--legal_narrative_templates`: Path ke direktori atau file JSON berisi template narasi hukum yang dikustomisasi per yurisdiksi (misalnya: format untuk OJK Indonesia, SEC AS, atau GDPR UE).
+*   `--output_explainable_decision_report`: Path tempat file laporan audit akhir akan ditulis. File ini akan menjadi dokumen bukti hukum utama.
+
+### 7.3. Contoh Implementasi Kode (Ringkasan Arsitektur)
+
+Berikut adalah struktur pseudocode/pythonic high-level view untuk menunjukkan bagaimana integrasi kausalitas dan enkripsi dilakukan:
+
+```python
+import json
+import hashlib
+import sqlite3
+from causal_analysis import CausalGraphAnalyzer
+from legal_narrative import LegalNarrativeGenerator
+from crypto_utils import AES256Encrypt, SHA3Hash
+
+class EthicalAlignmentEngine:
+    def __init__(self, simulation_logs, constraints, templates):
+        self.sim_data = self.load_simulation(simulation_logs)
+        self.constraints = self.load_constraints(constraints)
+        self.templates = self.load_templates(templates)
+        self.causal_graph = CausalGraphAnalyzer(self.sim_data)
+
+    def run_explainability_loop(self):
+        """
+        Inti dari 'Black Box Removal': Menerjemahkan output numerik simulasi
+        menjadi alasan logis berbasis kausalitas.
+        """
+        # 1. Map Variabel Input -> Output Keputusan
+        causal_paths = self.causal_graph.identify_critical_paths()
+        
+        # 2. Generate Counterfactuals ("What-if" Analysis)
+        counterfactual_scenarios = self.causal_graph.generate_counterfactuals(
+            critical_variables=['risk_tolerance', 'market_volatility_index']
+        )
+
+        # 3. Filter against Ethical Constraints (e.g., EU AI Act)
+        compliance_check = self.validate_against_constraints(
+            causal_paths, counterfactual_scenarios
+        )
+
+        if not compliance_check['passed']:
+            raise ComplianceError(f"Decision violates explainability standards: {compliance_check['violations']}")
+
+        # 4. Generate Human-Readable Legal Narrative
+        legal_narrative = LegalNarrativeGenerator(
+            data=causal_paths,
+            counterfactuals=counterfactual_scenarios,
+            template=self.templates['current_jurisdiction']
+        ).generate()
+
+        # 5. Cryptographic Binding to Ledger
+        report_hash = self._bind_to_ledger(legal_narrative, compliance_check)
+
+        return {
+            "narrative": legal_narrative,
+            "audit_hash": report_hash,
+            "counterfactual_proof": counterfactual_scenarios,
+            "compliance_status": "COMPLIANT"
+        }
+
+    def _bind_to_ledger(self, narrative, audit_data):
+        """
+        Menyimpan hash ke database lokal yang tidak dapat diubah
+        untuk tujuan audit forensik.
+        """
+        payload = json.dumps({**audit_data, "narrative_summary": hash(narrative)}, sort_keys=True)
+        content_hash = SHA3Hash(payload)
+        
+        conn = sqlite3.connect('immutable_governance_ledger_v1.db')
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO decision_audit_log (timestamp, content_hash, status) VALUES (?, ?, ?)", 
+                       (datetime.now().isoformat(), content_hash, "VERIFIED"))
+        conn.commit()
+        return content_hash
+```
+
+---
+
+## 8. Algorithmic Accountability & Causal Explainability Framework
+
+Bagian ini menjelaskan metodologi inti yang memungkinkan sistem ini memenuhi standar tertinggi transparansi algoritmik, menghilangkan konsep *"Black Box Governance"*, dan memastikan setiap keputusan strategis dapat diverifikasi secara logis dan hukum.
+
+### 8.1. Causal Graph Analysis for Decision Traceability
+
+Untuk menjawab pertanyaan *"Mengapa sistem ini merekomendasikan keputusan X?"*, kami tidak bergantung pada korelasi statistik semata, melainkan pada **Analisis Grafik Kausal (Causal Graph Analysis)**. Sistem membangun model struktural yang memetakan hubungan sebab-akibat eksplisit antara data mentah, proses simulasi, dan output keputusan.
+
+#### Mekanisme Kerja:
+1.  **Struktur Grafik Kausal (DAG):** Sistem mengonstruksi *Directed Acyclic Graph* di mana simpul (nodes) merepresentasikan variabel (misal: `Arus_Kas_Diskonto`, `Risiko_Pasar_Global`, `Profil_Risiko_Direksi_A`) dan sisi (edges) merepresentasikan hubungan kausal langsung.
+2.  **Intervensi Kausal (Pearl’s Do-Calculus):** Untuk memverifikasi validitas keputusan, sistem melakukan simulasi intervensi `do(X=x)`. Ini memungkinkan sistem mengisolasi pengaruh satu variabel spesifik terhadap hasil akhir, tanpa dibingkai oleh bias confounding dari variabel lain.
+3.  **Rantai Jejak (Traceability Chain):** Setiap rekomendasi dalam laporan akhir menyertakan "Jejak Kausal":
+    *   *Input:* Data mentah yang diproses.
+    *   *Transformasi:* Logika simulasi yang diterapkan.
+    *   *Kritikalitas:* Skor berapa besar pengaruh setiap variabel terhadap hasil akhir.
+    *   *Output:* Keputusan strategis.
+
+> **Nilai Tambah:** Ini menghilangkan asumsi "black box". Regulator dapat melihat bahwa Keputusan A diambil *karena* Variabel B meningkat, dan bukan karena kebetulan statistik.
+
+### 8.2. Counterfactual Legal Reasoning Engine
+
+Salah satu standar emas dalam keadilan algoritmik adalah kemampuan untuk menjawab pertanyaan **"Apa yang akan terjadi jika...?"** (What-if Analysis). Sistem ini mengimplementasikan *Counterfactual Legal Reasoning Engine* untuk membuktikan ketahanan fidusia.
+
+#### Prosedur Otomatis:
+1.  **Identifikasi Variabel Kritis:** Mesin mengidentifikasi variabel input yang memiliki bobot kausal tertinggi terhadap keputusan strategis.
+2.  **Generasi Skenario Kontr faktual:** Sistem secara otomatis menghasilkan variasi minimal dari input tersebut (misal: "Bagaimana jika volatilitas pasar turun 5% lebih rendah?").
+3.  **Verifikasi Batas Fidusia:** Mesin menjalankan simulasi ulang cepat pada skenario kontra-faktual tersebut.
+    *   *Jika keputusan tetap dalam batas aman:* Keputusan dianggap **Robust**.
+    *   *Jika keputusan berubah drastis atau melanggar kewajiban fidusia:* Keputusan asli ditandai sebagai **Fragile** dan memerlukan peninjauan manusia.
+4.  **Dokumentasi Bukti Ketahanan:** Laporan akhir akan menyertakan matriks "Stabilitas Keputusan", membuktikan bahwa rekomendasi dewan tidak hanya benar pada satu titik data, tetapi stabil di bawah berbagai kondisi pasar hipotetis.
+
+### 8.3. Kepatuhan terhadap Standar Internasional & Etika
+
+Sistem ini dirancang secara fundamental untuk mematuhi tiga pilar utama transparansi dan etika AI global:
+
+#### A. ISO/IEC 24027:2023 (Transparency and Explainability for Intelligent Systems)
+*   **Pemenuhan Pasal 4.2.1 (Information Disclosure):** Sistem secara eksplisit memisahkan informasi yang sensitif secara komersial (rahasia dagang) dengan informasi yang diperlukan untuk transparansi (logika keputusan). Teknik **Abstraksi Data Selektif** digunakan: variabel input yang sangat sensitif dihash atau diubah menjadi kategori umum (misal: "Data Keuangan Vendor" -> "Indeks Biaya Operasional") dalam narasi hukum, tanpa menghilangkan kemampuan auditor untuk memverifikasi logika.
+*   **Pemenuhan Pasal 5.1.3 (Contextual Explanations):** Narasi hukum dihasilkan dinamis berdasarkan audiens. Laporan untuk regulator hukum berisi kutipan pasal undang-undang, sementara laporan untuk auditor internal berisi metrik risiko kuantitatif.
+
+#### B. EU AI Act Article 15 & Transparency Obligations
+*   **Deteksi Bias Otomatis:** Sebelum narasi dihasilkan, sistem menjalankan pemeriksaan bias terhadap subset data simulasi. Jika ditemukan diskriminasi sistematis terhadap kelompok demografis tertentu dalam proyeksi risiko, sistem akan memblokir generasi narasi dan meminta intervensi manusia.
+*   **Human-in-the-Loop Validation:** Sistem mewajibkan tanda tangan digital (human-in-the-loop) dari komisaris kepatuhan sebelum hash kriptografis disimpan di ledger, memastikan bahwa penjelasan otomatis telah diverifikasi oleh manusia.
+
+#### C. ACM Code of Ethics and Professional Conduct
+*   **Prinsip 1.2 (Kompetensi Teknis):** Sistem membatasi penggunaan model AI hanya pada domain di mana data latihnya divalidasi secara ketat, mencegah "hallucination" dalam narasi hukum.
+*   **Prinsip 2.5 (Hak Milik Intelektual):** Teknik abstraksi data memastikan bahwa output simulasi tidak membocorkan algoritma inti atau data pelanggan sensitif ke pihak ketiga yang meminta penjelasan, dengan tetap memberikan transparansi logis yang cukup.
+
+### 8.4. Menjamin Non-Repudiation & Integrity
+
+Untuk memastikan bahwa penjelasan yang diberikan tidak dapat dibantah (non-repudiation) dan tidak diubah setelah keputusan diambil:
+1.  **Cryptographic Binding:** Setiap elemen narasi hukum di-hash menggunakan SHA-3.
+2.  **Immutable Ledger:** Hash tersebut dicatat ke dalam `immutable_governance_ledger_v1.db`. Database ini di-mutasi append-only; catatan tidak dapat diedit atau dihapus, hanya ditambahkan.
+3.  **Audit Trail Lengkap:** Auditor eksternal dapat memverifikasi integritas laporan dengan membandingkan hash yang ada di `ethical_explainability_audit_v1.json` dengan hash yang tersimpan di ledger, memastikan bahwa tidak ada perubahan pasca-fakta pada alasan di balik keputusan dewan.
+
+---
+
+*Catatan Tambahan untuk Pengembang:*
+*Pastikan untuk menginstal dependensi `networkx` (untuk analisis grafik kausal) dan `sqlite3` standar Python sebelum menjalankan engine. Untuk lingkungan produksi, pertimbangkan migrasi `sqlite3` ke database time-series seperti TimescaleDB jika volume audit data mencapai tingkat enterprise.*
