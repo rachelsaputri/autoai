@@ -29951,3 +29951,128 @@ evidence_storytelling_assets_v1/
 #### Catatan Hukum & Etika
 
 Pengguna harus memahami bahwa **visualisasi adalah alat interpretasi**, meskipun dipandu oleh algoritma ketat. Meskipun sistem ini mencegah distorsi teknis otomatis, penafsiran makna di balik pola visual (misalnya, "apakah koneksi antara Entity A dan B membuktikan niat jahat?") tetap berada di domain ahli hukum. Modul ini menjamin bahwa **premis visualnya** akurat dan tidak menipu, sehingga debat hukum dapat difokuskan pada interpretasi fakta, bukan pada integritas penyajian data.
+
+
+Berikut adalah konten lanjutan yang komprehensif dan terstruktur untuk bagian README.md, sesuai dengan permintaan Anda. Bagian ini dirancang untuk menjelaskan utilitas simulator pengadilan, metodologi psikologis di baliknya, serta standar kepatuhan hukum yang diterapkan.
+
+***
+
+### Interactive Evidence Stress-Testing & Juror Cognitive Response Modeling
+
+Bagian ini mendokumentasikan utilitas simulasi pengadilan pra-persidangan (`compliance_litigation_evidence_visualization_interactive_courtroom_simulator.py`). Alat ini berfungsi sebagai *stress-test* terakhir sebelum visualisasi forensik dipresentasikan di pengadilan nyata. Sistem ini tidak hanya menguji validitas data, tetapi juga mengukur ketahanan narasi visual terhadap serangan adversarial dan persepsi kognitif juri.
+
+#### 1. Utilitas Simulasi: Pre-Trial Mock Courtroom
+
+Skrip ini membungkus paket visualisasi yang dihasilkan oleh *Synthesizer* dalam lingkungan simulasi dinamis. Ia mensimulasikan reaksi juri virtual yang dibangun berdasarkan profil psikologis historis dan menguji ketahanan bukti visual terhadap strategi serangan pengacara lawan.
+
+**Penjelasan Argumen:**
+
+| Argumen | Deskripsi | Contoh Input |
+| :--- | :--- | :--- |
+| `--visualization-package` | Path ke direktori paket visualisasi output dari engine sebelum (`evidence_storytelling_assets_v1/`). Ini adalah "bukti" yang akan diuji ketahanannya. | `./evidence_storytelling_assets_v1/` |
+| `--jury_psycho_profiles` | File JSON berisi distribusi profil psikologis juri simulasi. Setiap profil mencakup bias kognitif, tingkat literasi data, dan kecenderungan emosional (misal: *System 1* vs *System 2* thinking). | `./profiles/juror_cognitive_baseline_v2.json` |
+| `--opposing_counsel_strategies` | File JSON yang mendefinisikan taktik serangan pengacara lawan. Strategi dapat meliputi: *Misleading Zoom*, *Cherry-Picking Data Points*, atau *Color Bias Accusation*. | `./strategies/adversarial_tactics_v1.json` |
+| `--output_simulation_report` | Path untuk menyimpan laporan hasil simulasi dalam format JSON. Laporan mencakup skor persuasi, titik lemah deteksi, dan log interaksi juri-pengacara. | `./courtroom_simulation_feedback_v1.json` |
+
+**Eksekusi Contoh:**
+
+```bash
+python compliance_litigation_evidence_visualization_interactive_courtroom_simulator.py \
+    --visualization-package ./evidence_storytelling_assets_v1/ \
+    --jury_psycho_profiles ./profiles/juror_cognitive_baseline_v2.json \
+    --opposing_counsel_strategies ./strategies/adversarial_tactics_v1.json \
+    --output_simulation_report ./courtroom_simulation_feedback_v1.json
+```
+
+#### 2. Metodologi Simulasi
+
+Sistem ini menggunakan pendekatan hibrida antara *Data-Driven Simulation* dan *Cognitive Psychology Modeling*.
+
+##### A. Simulated Juror Bias Injection (Simulasi Injeksi Bias Juri)
+
+Untuk memastikan bahwa visualisasi Anda tahan terhadap skeptisisme yang wajar, sistem menyuntikkan bias kognitif ke dalam simulasi juri berdasarkan data historis psikologi hukum.
+
+*   **Profil Juri Virtual:** Setiap "juri virtual" dalam simulasi mewakili persona tertentu (misal: *The Skeptic*, *The Empath*, *The Detail-Oriented*). Profil ini memuat parameter:
+    *   **Attention Span:** Berapa lama elemen visual bertahan sebelum perhatian melandai.
+    *   **Numerical Literacy:** Kemampuan memproses grafik kompleks vs. preferensi narasi sederhana.
+    *   **Confirmation Bias Tendency:** Kecenderungan untuk mencari konfirmasi atas prékonsepsi awal.
+*   **Mekanisme Injeksi:** Selama simulasi, sistem mengamati apakah visualisasi tertentu memicu respons negatif pada profil spesifik. Jika grafik *Network Graph* memicu kebingungan pada 40% juri dengan *Numerical Literacy* rendah, sistem akan menandai elemen tersebut sebagai "High Friction Point".
+*   **Tujuan:** Mengidentifikasi elemen visual yang menyebabkan *cognitive load* berlebihan atau salah tafsir sebelum kesalahan tersebut terjadi di hadapan juri nyata.
+
+##### B. Standar Federal Rules of Evidence (FRE) 1006 & 702
+
+Simulator ini secara otomatis memvalidasi aset visual terhadap standar bukti federal yang relevan untuk alat bantu visual:
+
+*   **FRE 1006 (Summaries):**
+    *   *Penerapan:* Visualisasi (seperti timeline atau ringkasan grafik) diperbolehkan untuk meringkas dokumen yang terlalu rumit untuk disajikan secara langsung.
+    *   *Validasi Sistem:* Sistem memastikan bahwa setiap ringkasan visual memiliki "Source Hash Manifest" yang lengkap. Jika ada ketidaksesuaian antara data sumber asli dan representasi visual, simulasi akan menghasilkan *Alert: FRE 1006 Violation*.
+*   **FRE 702 (Expert Testimony):**
+    *   *Penerapan:* Penjelasan metodologi di balik visualisasi harus dapat dipahami dan dikonsolidasi oleh ahli yang kualifikasif.
+    *   *Validasi Sistem:* Sistem memeriksa dokumen `documentation/visualization_methodology.pdf`. Jika terminologi teknis dalam visualisasi tidak konsisten dengan penjelasan metodologi ahli, sistem memberikan skor rendah pada komponen *Admissibility Readiness*.
+
+#### 3. Prosedur Persuasion Efficacy Scoring
+
+Selain validitas hukum, efektivitas komunikasi adalah kunci kemenangan litigasi. Sistem menghitung **Persuasion Efficacy Score (PES)** menggunakan formula berbobot yang mencakup tiga dimensi utama:
+
+1.  **Clarity Score (Klaritas):**
+    *   Diukur berdasarkan kecepatan juri simulasi dalam mengidentifikasi fakta kunci dari visualisasi.
+    *   *Input:* Latensi respons juri virtual terhadap pertanyaan pemahaman visual.
+    *   *Bobot:* 40%
+
+2.  **Trustworthiness Index (Indeks Kepercayaan):**
+    *   Diukur dari ketahanan visual terhadap serangan strategi pengacara lawan.
+    *   *Input:* Berapa banyak serangan adversarial yang berhasil melemahkan argumen visual? Jika visualisasi "robust" (tahan banting), skor kepercayaan tinggi.
+    *   *Bobot:* 35%
+
+3.  **Emotional Resonance Alignment (Kecocokan Resonansi Emosional):**
+    *   Diukur dari kesesuaian antara palet warna/narasi visual dengan bias emosional juri yang sesuai dengan konteks kasus (misal: tidak menggunakan warna terlalu agresif untuk kasus keracunan lingkungan yang membutuhkan empati).
+    *   *Input:* Kesesuaian palet warna dari `visual-narrative-template` dengan profil emosional juri simulasi.
+    *   *Bobot:* 25%
+
+**Interpretasi Skor:**
+*   **PES > 85:** Visualisasi siap untuk presentasi pengadilan.
+*   **PES 70 - 84:** Diperlukan penyederhanaan elemen visual atau penambahan anotasi penjelas.
+*   **PES < 70:** Visualisasi berisiko tinggi. Disarankan untuk melakukan iterasi ulang pada *Synthesizer Engine* dengan template yang lebih konservatif.
+
+#### 4. Struktur Laporan Simulasi
+
+Laporan output (`courtroom_simulation_feedback_v1.json`) berisi struktur data mendalam yang memudahkan tim hukum dalam pengambilan keputusan:
+
+```json
+{
+  "simulation_id": "sim_20231027_v1",
+  "overall_persuasion_score": 82.5,
+  "status": "REVIEW_RECOMMENDED",
+  "juror_response_summary": {
+    "total_juris_simulated": 100,
+    "high_confusion_points": [
+      {
+        "element": "entity_relationship_graph.svg",
+        "issue": "Overlapping nodes obscuring causal links for non-technical jurors",
+        "affected_juri_percentage": 35
+      }
+    ],
+    "successful_narrative_hits": [
+      "Chronological timeline successfully established sequence of events with 98% accuracy"
+    ]
+  },
+  "adversarial_resistance": {
+    "strategies_attacked": 5,
+    "strategies_defeated": 4,
+    "critical_vulnerability": "Color contrast ratio in geospatial map failed accessibility check under 'Misleading Zoom' tactic"
+  },
+  "compliance_check": {
+    "fre_1006_compliant": true,
+    "fre_702_methodology_consistent": true,
+    "source_integrity_verified": true
+  },
+  "recommendations": [
+    "Increase node separation in relationship graph to reduce cognitive load.",
+    "Adjust color palette for geospatial map to improve contrast ratio under low-light courtroom conditions."
+  ]
+}
+```
+
+#### Catatan Penting untuk Tim Litigasi
+
+Hasil simulasi ini bersifat **prediktif**, bukan garantikemimpinan hukum. Psikologi juri nyata dapat dipengaruhi oleh faktor dinamis yang tidak dapat dimodelkan sepenuhnya oleh algoritma. Namun, skor `Persuasion Efficacy` dan identifikasi `Critical Vulnerability` memberikan data empiris yang kuat untuk memperkuat argumen ahli dan mempersiapkan counter-argument yang efektif sebelum sidang dimulai. Gunakan temuan ini untuk menyempurnakan narasi, bukan sebagai dasar untuk mengubah fakta substantif kasus.
