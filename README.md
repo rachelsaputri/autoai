@@ -32173,3 +32173,143 @@ if __name__ == "__main__":
 5.  **Liability Heatmap:** Fungsi `generate_heatmap_node` memberikan representasi visual (dalam bentuk data) tentang tingkat risiko hukum setiap keputusan, memungkinkan manajemen untuk memprioritaskan tinjauan dewan pada keputusan dengan risiko tertinggi.
 
 Script ini memastikan bahwa setiap keputusan strategis tidak hanya "aman secara finansial" seperti yang dihitung oleh modul kapital, tetapi juga "aman secara hukum" dan dapat dipertahankan dalam gugatan fidusia apa pun.
+
+
+Berikut adalah konten lanjutan yang komprehensif, terstruktur, dan siap disalin ke dalam file `README.md` Anda. Bagian ini dirancang untuk memperdalam aspek teknis dan legal-teknis dari sistem, sesuai dengan permintaan Anda.
+
+***
+
+## ⚙️ Autonomous Boardroom Decision Simulation & Fiduciary Liability Tracker
+
+Bagian ini mendokumentasikan implementasi teknis dari **Fiduciary Integrity Simulator** (`compliance_autonomous_boardroom_decision_simulation_and_fiduciary_liability_tracker.py`). Modul ini berfungsi sebagai *safety rail* hukum yang memvalidasi keputusan strategis yang dihasilkan oleh agen alokasi modal, memastikan bahwa setiap tindakan strategis tidak hanya optimal secara finansial, tetapi juga defensif secara hukum terhadap potensi gugatan fidusia (*fiduciary lawsuits*).
+
+### 📜 Penggunaan (Usage)
+
+Untuk menjalankan simulasi kepatuhan fidusia dan pemetaan risiko liability, gunakan perintah berikut di terminal:
+
+```bash
+python compliance_autonomous_boardroom_decision_simulation_and_fiduciary_liability_tracker.py \
+    --strategic-decision-scenarios ./data/scenarios/executive_decisions_v2.json \
+    --fiduciary_legal_framework ./data/legal/delaware_cgcl_intl_standards.json \
+    --director_conflict_of_interest_register ./data/governance/director_coi_db.csv \
+    --output-fiduciary-compliance-report ./reports/fiduciary_liability_assessment_v1.json
+```
+
+#### Penjelasan Argumen
+| Argumen | Tipe | Deskripsi |
+| :--- | :--- | :--- |
+| `--strategic-decision-scenarios` | `Path` | Lokasi file JSON yang berisi daftar skenario keputusan eksekutif (misal: M&A, divestasi, perubahan tolerance risk). |
+| `--fiduciary_legal_framework` | `Path` | Database JSON yang berisi aturan baku dari yurisdiksi operasional (misal: *Delaware General Corporation Law*, *UU PT Indonesia*, atau prinsip *OECD*). |
+| `--director_conflict_of_interest_register` | `Path` | Data CSV/JSON yang memetakan kepemilikan saham, afiliasi bisnis, atau hubungan keluarga para direktur untuk deteksi *Duty of Loyalty* breach. |
+| `--output-fiduciary-compliance-report` | `Path` | Output akhir berupa laporan terstruktur berisi skor kepatuhan, flag risiko, dan rekomendasi mitigasi legal. |
+
+---
+
+## 🛡️ Algorithmic Fiduciary Governance & Legal Risk Shielding
+
+Bagian ini menjelaskan metodologi inti di balik simulator. Sistem ini tidak hanya memeriksa kepatuhan prosedural, tetapi secara aktif membangun "perisai hukum" (*legal risk shield*) bagi dewan direksi dengan membuktikan adanya proses deliberatif yang kompeten dan bebas konflik.
+
+### 1. Computational Duty of Care Assessment
+
+Penyelenggaraan *Duty of Care* (Kewajiban Ketelitian) merupakan fondasi utama dari *Business Judgment Rule*. Simulator ini mengimplementasikan algoritma kuantitatif untuk mengukur tingkat *due diligence* sebelum sebuah keputusan disahkan.
+
+**Metodologi Evaluasi:**
+Simulator memecah *Duty of Care* menjadi tiga metrik terukur yang diintegrasikan ke dalam skor kepatuhan (`care_score`):
+
+1.  **Information Sufficiency Index (ISI):**
+    *   Mengevaluasi kelengkapan data yang mendasari keputusan.
+    *   *Algoritma:* Membandingkan jumlah variabel risiko yang dianalisis versus jumlah variabel risiko yang diidentifikasi oleh modul *Strategic Risk Tolerance Agent*.
+    *   *Batas Kritis:* Jika <80% variabel risiko kritis telah dianalisis, keputusan dianggap *procedurally defective*.
+
+2.  **Deliberation Duration & Depth Metric:**
+    *   Mengukur durasi dan kedalaman diskusi dewan.
+    *   *Implementasi:* Menggunakan metadata timestamp dari notulen Rapat Dewan Direksi (RDD).
+    *   *Logic:* `if (meeting_duration < min_threshold_for_transaction_size) return FLAG_HIGH_RISK`.
+    *   Tujuannya adalah mencegah *rubber-stamp governance* di mana keputusan disahkan tanpa diskusi substantif.
+
+3.  **Expert Consultation Verification:**
+    *   Memverifikasi apakah advice dari penasihat hukum, akuntan, atau penasihat finansial independen telah dipertimbangkan.
+    *   *Output:* Flag `advisor_included: true/false` yang menjadi syarat mutlak untuk perlindungan BJR di banyak yurisdiksi.
+
+**Proteksi Hukum:**
+Dengan mendokumentasikan metrik di atas secara otomatis, sistem ini menyediakan bukti audit (*audit trail*) yang kuat bahwa direksi telah bertindak secara **terinformasi (*informed*)** dan **tercakup (*careful*)**, yang merupakan dua pilar utama untuk menolak gugatan *gross negligence*.
+
+### 2. Model Business Corporation Act (MBCA) & Business Judgment Rule (BJR)
+
+Sistem ini mengadopsi standar *Business Judgment Rule* (BJR) yang lazim dianut dalam hukum korporasi AS (diinspirasi oleh *MBCA*) dan prinsip serupa dalam hukum internasional. BJR adalah doktrin yang melindungi direksi dari tanggung jawab pribadi atas keputusan bisnis yang gagal, **asalkan** keputusan tersebut dibuat:
+1.  Secara *informed* (terinformasi).
+2.  Secara *disinterested* (bebas konflik kepentingan).
+3.  Secara *good faith* (itikad baik).
+4.  Secara *rational* (masuk akal/bukan waste of corporate assets).
+
+**Mekanisme Automasi BJR Shielding:**
+Simulator berfungsi sebagai gatekeeper otomatis sebelum sebuah keputusan strategis dipublikasikan atau diimplementasikan:
+
+*   **Layer 1: Loyalty Check (Disinterestedness):**
+    Mengcross-reference `director_conflict_of_interest_register` dengan narasi skenario keputusan. Jika ada direktur yang memiliki kepentingan material dalam transaksi (misal: menjual aset ke entitas afiliasi), sistem akan **memblokir** perlindungan BJR untuk keputusan tersebut atau mensyaratkan persetujuan dewan komisaris/independent committee.
+*   **Layer 2: Care Check (Informed Process):**
+    Memastikan *Computational Duty of Care Assessment* memenuhi threshold minimum.
+*   **Layer 3: Rationality Check (Good Faith & Rational Basis):**
+    Mengevaluasi apakah skenario keputusan memiliki dasar logis yang didukung oleh data pasar (dari modul kapital). Jika keputusan menghasilkan kerugian yang tidak masuk akal (*waste*) tanpa strategi mitigasi yang jelas, sistem akan menandai ini sebagai potensi pelanggaran *good faith*.
+
+**Diferensiasi: Business Risk vs. Negligence**
+Sistem ini secara krusial membedakan antara:
+*   **Business Risk (Dilindungi BJR):** Keputusan yang diambil dengan proses yang baik, namun hasilnya buruk karena faktor eksternal atau ketidakpastian pasar. Simulator akan memberi status `COMPLIANT_PROTECTED`.
+*   **Negligence/Breach (Tidak Dilindungi):** Keputusan yang diambil dengan proses yang buruk, tertutup, atau konflik kepentingan. Simulator akan memberi status `NON_COMPLIANT_RISK` dan merekomendasikan pembatalan atau revisi keputusan sebelum eksekusi.
+
+### 3. Alignment with OECD Principles of Corporate Governance
+
+Untuk perusahaan multinasional, simulator juga memvalidasi kepatuhan terhadap **OECD Principles**, khususnya:
+*   **Prinsip 3: Role of the Board:** Memastikan transparansi dan akuntabilitas.
+*   **Prinsip 6: Disclosure:** Memastikan bahwa potensi konflik kepentingan (dari *Coi Register*) telah diumumkan secara publik dalam laporan tahunan.
+
+Integrasi ini memastikan bahwa keputusan strategis tidak hanya sah secara lokal (misal: menurut UU PT Indonesia), tetapi juga memenuhi standar tata kelola global untuk menarik investor institusional.
+
+---
+
+## 🗺️ Liability Heatmap Generation Procedure
+
+Salah satu fitur unggulan dari simulator adalah kemampuan menghasilkan **Liability Heatmap**. Visualisasi ini menerjemahkan data abstrak menjadi peta risiko spasial, membantu Komite Audit dan Dewan Direksi memprioritaskan tinjauan hukum.
+
+### Cara Kerja Heatmap
+Data output dari simulasi dipetakan ke dalam grid risiko dua dimensi:
+*   **Sumbu X: Financial Impact Magnitude** (Diambil dari output modul *Capital Allocation Agent*).
+*   **Sumbu Y: Legal Fiduciary Risk Score** (Dihasilkan oleh modul *Fiduciary Integrity Simulator*, skala 0-100).
+
+### Klasifikasi Zona Risiko
+Simulator mengklasifikasikan setiap titik keputusan ke dalam tiga zona warna:
+
+1.  🟢 **Green Zone (Low Legal Risk, High/Med Financial Return):**
+    *   Keputusan memiliki *care_score* tinggi dan `coi_detected: false`.
+    *   *Tindakan:* Persetujuan default. Perlindungan BJR sangat kuat.
+
+2.  🟡 **Yellow Zone (Moderate Legal Risk, High Financial Return):**
+    *   Ada kekurangan dokumen pendukung (*information gap*) atau konflik kepentingan minor yang perlu di化管理 (*managed*).
+    *   *Tindakan:* Menambahkan klausul *indemnification* tambahan atau mensyaratkan persetujuan komite independen.
+
+3.  🔴 **Red Zone (High Legal Risk, High Financial Return):**
+    *   Ini adalah titik kritis. Seringkali, keputusan dengan *return* finansial tertinggi memiliki risiko fidusia tertinggi (misal: *related-party transaction* besar).
+    *   *Deteksi:* Sistem mendeteksi pelanggaran *Duty of Loyalty* atau kelalaian proses (*gross procedural failure*).
+    *   *Tindakan:* **STOP.** Keputusan tidak boleh dieksekusi tanpa revisi signifikan. Sistem akan menghasilkan `mitigation_plan` spesifik (misal: "Obtain unanimous independent board approval" atau "Commission third-party fairness opinion").
+
+### Contoh Output Heatmap Data (JSON Snippet)
+```json
+{
+  "heatmap_analysis": {
+    "decision_id": "STRAT-2024-09-A",
+    "x_axis_financial_impact": 85,
+    "y_axis_legal_risk_score": 92,
+    "zone_classification": "RED_CRITICAL",
+    "primary_violation": "Duty_of_Loyalty_Breach_Unknown_Affiliation",
+    "bji_protection_status": "DENIED",
+    "recommended_mitigation": [
+      "Disclose potential conflict to audit committee",
+      "Appoint special independent counsel",
+      "Re-run financial model with arm's length assumptions"
+    ]
+  }
+}
+```
+
+### Kesimpulan Integratif
+Dengan menggabungkan presisi alokasi modal dari agen strategis dengan pertahanan hukum dari simulator fidusia, perusahaan menciptakan siklus tata kelola yang **resilien**. Setiap keputusan strategis divalidasi dua kali: sekali oleh logika bisnis (profitabilitas) dan sekali oleh logika hukum (kelangsungan hidup dari gugatan). Ini memastikan bahwa pertumbuhan perusahaan tidak dikorbankan pada altar risiko litigasi yang dapat dicegah.
