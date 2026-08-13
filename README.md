@@ -48945,3 +48945,61 @@ Dengan mengintegrasikan *Model-Based Testing*, *Model Checking* formal, dan *Cou
 3.  **Auditability by Design:** Sertifikat verifikasi yang dihasilkan adalah aset audit yang dapat diverifikasi oleh regulator tanpa perlu melihat kode sumber tertutup, hanya logika formalnya.
 
 Ini bukan lagi sekadar "sistem yang aman", melainkan "sistem yang telah dibuktikan aman secara formal terhadap batasan nilai yang telah didefinisikan".
+
+
+Berikut adalah konten lanjutan yang komprehensif dan terstruktur untuk `README.md`, yang dirancang untuk langsung menyambung dengan bagian sebelumnya dan mendokumentasikan arsitektur inti baru.
+
+***
+
+#### H. Constitutional AI Core & Rights-Enforcement Engine
+
+Sistem ini memperkenalkan lapisan otonom tertinggi yang berfungsi sebagai "Constitutional AI Core & Rights-Enforcement Engine". Lapisan ini tidak hanya memantau kepatuhan, tetapi secara aktif menegakkan kedaulatan etis dengan mengintegrasikan dua sumber daya kritis:
+1.  **Output dari `compliance_governance_autonomous_cognitive_safety_guardrail_and_value_alignment_prover.py`**: Hasil verifikasi formal nilai-nilai abstrak.
+2.  **Output dari `compliance_governance_autonomous_neural_interface_executive_synthesis_and_cognitive_load_manager.py`**: Data konteks eksekusi dan beban kognitif sistem.
+
+Tujuan utama dari inti ini adalah menerjemahkan prinsip etika yang abstrak menjadi **aturan penolakan (*rejection rules*)** yang dapat dieksekusi secara *real-time* pada setiap layer interaksi data. Sistem didesain untuk mendeteksi "Ethical Creep"—fenomena di mana tujuan efisiensi bisnis secara perlahan mengikis privasi atau keadilan—dan mengaktifkan mekanisme **"Rights-First Override"** yang secara otomatis memblokir transaksi atau keputusan yang melanggar prinsip kedaulatan data individu.
+
+##### 1. Arsitektur dan Integrasi Logis
+
+Inti kepatuhan konstitusional bekerja sebagai filter paralel yang memvalidasi setiap *inference call* atau keputusan bisnis terhadap kerangka kerja hukum dan moral yang telah dikodekan. Alur data beroperasi sebagai berikut:
+
+1.  **Ingest**: Menerima output verifikasi formal dan status konteks eksekusi.
+2.  **Contextual Mapping**: Memetakan variabel operasional ke parameter dalam Konstitusi Etis (misalnya, tingkat noise dalam data terkait dengan `privacy_budget`).
+3.  **Constraint Solving**: Menjalankan solver logika untuk memverifikasi apakah aksi yang diusulkan melanggar batasan *hard constraints* (hak asasi) atau *soft constraints* (preferensi bisnis).
+4.  **Enforcement**: Jika terjadi pelanggaran, sistem menghasilkan sinyal veto dan mencatat insiden ke dalam laporan kedaulatan etis.
+
+##### 2. Deteksi "Ethical Creep" dan Mekanisme Override
+
+Sistem menggunakan pendekatan berbasis **Budget Tracking** dan **Threshold Anomaly Detection** untuk mencegah degradasi etis yang gradual.
+
+*   **Proaktif Mendeteksi "Ethical Creep"**:
+    Sistem memantau metrik seperti rasio penggunaan data pribadi terhadap nilai bisnis yang dihasilkan. Jika tren menunjukkan bahwa privasi pengguna dikorbankan untuk margin keuntungan yang meningkat (>X% dalam waktu Y hari), sistem menandai ini sebagai *Ethical Creep* sebelum batas pelanggaran formal tercapai.
+    
+*   **Mekanisme "Rights-First Override"**:
+    Setiap keputusan bisnis memiliki bobot prioritas. Prioritas Hak Asasi Manusia (HAM) digital dan Kedaulatan Data ditetapkan pada level `MAX_PRIORITY`. Jika konflik terjadi antara optimasi profitabilitas dan pelanggaran hak privasi, mekanisme *override* akan:
+    1.  Memblokir eksekusi transaksi/keputusan secara instan.
+    2.  Mengirimkan notifikasi darurat ke dewan etika otonom.
+    3.  Mengubah parameter *reward function* dalam model pembelajaran reinforcement agar aksi tersebut tidak pernah dipelajari lagi sebagai strategi optimal.
+
+##### 3. Parameter Konfigurasi dan Argumen Command Line
+
+Untuk menginisialisasi inti konstitusional, administrator sistem harus menyediakan file konfigurasi yang mendefinisikan batasan hukum dan metrik keadilan. Berikut adalah spesifikasi argumen input yang diperlukan:
+
+| Argumen | Deskripsi |
+| :--- | :--- |
+| `--constitutional_rights_framework` | Path absolut ke file JSON/YAML yang mendefinisikan Konstitusi Etis Perusahaan. Dokumen ini mengkodekan prinsip-prinsip dari *Universal Declaration of Human Rights* (UDHR) dan *EU AI Act* ke dalam predikat logika yang dapat diperiksa oleh mesin (misal: `NoDiscrimination(Agent, Attribute) == True`). Ini adalah sumber kebenaran tunggal untuk hak digital. |
+| `--privacy_budget_tracker` | Path ke file konfigurasi *Differential Privacy*. Menentukan batas epsilon ($psilon$) dan delta ($\delta$) per pengguna atau segmen populasi. Sistem ini secara kontinyu melacak jumlah kueri terhadap data sensitif dan akan menolak kueri baru jika anggaran privasi (*privacy budget*) telah habis, memastikan kepatuhan terhadap prinsip minimisasi data. |
+| `--algorithmic_fairness_metrics` | Path ke file JSON berisi parameter metrik keadilan. Mendukung pemantauan kontinyu untuk *Demographic Parity* (kesetaraan hasil), *Equalized Odds* (kesetaraan laju kesalahan), dan *Predictive Parity*. Sistem akan memicu peringatan jika deviasi metrik melebihi toleransi yang ditetapkan (misal: < 0.05). |
+| `--output_ethical_sovereignty_report` | Path output untuk `ethical_sovereignty_v1.json`. File ini berisi laporan komprehensif tentang insiden veto, tren "Ethical Creep", status anggaran privasi, dan verifikasi keadilan algoritma. File ini bersifat append-only dan dapat di-hash untuk integritas audit forensik. |
+
+##### 4. Metodologi Teknis dan Standar Kepatuhan
+
+Inti sistem ini dibangun di atas tiga pilar metodologi teknis yang saling memperkuat, membedakan antara "inefisiensi bisnis" dan "pelanggaran hak asasi sistemik".
+
+###### A. Value-Aligned Reinforcement Learning with Human Feedback extended to Constitutional Rules (VRLC-HF)
+
+Kami memperluas paradigma *Reinforcement Learning from Human Feedback* (RLHF) dengan mengintegrasikan aturan konstitusional sebagai **Penalty Function** yang tak terbatas (*infinite penalty*).
+
+*   **Konsep**: Dalam RLHF standar, agen belajar dari preferensi manusia. Dalam VRLC-HF, kita menambahkan lapisan *Constitutional Prior* yang menetapkan wilayah terlarang (*forbidden state space*) dalam ruang keputusan.
+*   **Implementasi**: FungsiReward didefinisikan sebagai:
+    $$ R_{total} = R_{task} - \lambda 
