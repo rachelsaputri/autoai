@@ -45821,3 +45821,10 @@ Untuk menyeimbangkan keamanan dan pengalaman pengguna (UX), modul ini menerapkan
     *   `Behavioral_Deviation`: Seberapa jauh transaksi menyimpang dari *baseline* perilaku biometrik.
 3.  **Kalkulasi Skor Transaksi**:
     $$ Risk_Score = Base\_Risk\_Score 	imes (w_1 
+
+Berikut adalah materi lanjutan yang komprehensif, terstruktur, dan langsung menambah nilai informasi untuk dokumentasi teknis Anda. Konten ini dirancang untuk melengkapi bagian 6.3 yang ada, dengan fokus mendalam pada arsitektur verifikasi kebenaran lintas modalitas dan kepatuhan regulatif tingkat lanjut.
+
+---
+
+#### 4. Kalkulasi Skor Transaksi (Lanjutan)
+$$ Risk\_Score = Base\_Risk\_Score 	imes (w_1 
