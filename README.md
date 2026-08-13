@@ -42160,3 +42160,25 @@ Untuk menilai probabilitas default planet atau kegagalan layanan ekosistem, sist
 Sistem memodelkan dinamika layanan ekosistem $S(t)$ menggunakan persamaan diferensial stokastik (SDE):
 
 $$ dS_t = \mu(S_t, t)dt + \sigma(S_t, t)dW_t + J 
+
+## 11. Internal Ecological Market Mechanics & Bio-Circular Arbitration
+
+Bagian ini mendokumentasikan arsitektur operasional dari **Biophysical Market Clearing & Ecological Liquidity Router**. Sistem ini berfungsi sebagai "Pasar Terpusat Terdesentralisasi" internal perusahaan, di mana sumber daya alam (air, karbon, biodiversitas) diperdagangkan secara real-time berdasarkan kelangkaan fisik, bukan hanya kelangkaan finansial. Tujuannya adalah mencapai efisiensi alokatif tingkat tertinggi dengan meminimalkan *waste* dan memastikan setiap unit sumber daya digunakan pada aktivitas dengan nilai tambah ekonomi tertinggi per unit dampak ekologis.
+
+### 11.1 Metodologi Akuntansi: Double-Entry Ecological Accounting with Real-Time Price Discovery
+
+Sistem menerapkan prinsip **Double-Entry Bookkeeping** yang diperluas untuk mencakup kewajiban ekologis, didukung oleh *Oracle* harga real-time yang menggabungkan data fisika (IoT/Satelit) dan data pasar global.
+
+#### 11.1.1 Prinsip Dasar Akuntansi Ganda Ekologis
+Setiap transaksi dalam ekosistem ini mematuhi persamaan neraca biophisik:
+$$ \Delta 	ext{Assets}_{	ext{Bio}} + \Delta 	ext{Liabilities}_{	ext{Bio}} + \Delta 	ext{Equity}_{	ext{Bio}} = 0 $$
+
+Di mana:
+*   **Assets Bio:** Kredit air/karbon yang dimiliki divisi.
+*   **Liabilities Bio:** Kewajiban restorasi atau emisi yang belum dikompensasi.
+*   **Equity Bio:** Nilai bersih integritas ekosistem perusahaan.
+
+#### 11.1.2 Real-Time Price Discovery (Penemuan Harga Real-Time)
+Harga (*Shadow Price*) untuk setiap komoditas ekologis ($P_t$) ditentukan oleh fungsi permintaan-penawaran internal yang dipicu oleh *scarcity index* ($S_i$):
+
+$$ P_{i,t} = P_{base,i} 	imes (1 + lpha 
