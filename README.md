@@ -45828,3 +45828,367 @@ Berikut adalah materi lanjutan yang komprehensif, terstruktur, dan langsung mena
 
 #### 4. Kalkulasi Skor Transaksi (Lanjutan)
 $$ Risk\_Score = Base\_Risk\_Score 	imes (w_1 
+
+Berikut adalah konten lanjutan yang komprehensif, terstruktur, dan siap untuk ditambahkan ke dalam file `README.md` Anda. Bagian ini mencakup spesifikasi teknis mendalam mengenai **Multi-Modal Epistemic Alignment** dan implementasi kode Python untuk **Cross-Modal Consensus Engine**.
+
+---
+
+### 6.4. Multi-Modal Epistemic Alignment & Cross-System Truth Verification
+
+Dalam ekosistem kepatuhan otonom, integritas data tidak hanya bergantung pada akurasi satu sumber, melainkan pada konsensus silang yang ketat antar modalitas data (IoT, tekstual, audio, visual). Modul ini menerapkan arsitektur **"Cross-Modal Consensus Engine & Hallucination Quarantine Unit"** yang berfungsi sebagai jembatan verifikasi kebenaran faktual antara modul agen keuangan, ekologis, hukum, dan keamanan siber.
+
+#### Metodologi: Triangulation of Heterogeneous Data Streams via Probabilistic Graphical Models
+
+Sistem ini mencegah **"Context Collapse"** (ketika konteks data dari satu domain salah ditafsirkan oleh domain lain) menggunakan teknik *Triangulation of Heterogeneous Data Streams*. Pendekatan ini memanfaatkan **Probabilistic Graphical Models (PGM)** untuk memodelkan ketergantungan stokastik antar variabel dari sumber yang berbeda.
+
+1.  **Pemetaan Semantik Lintas Domain**:
+    Sistem menggunakan *Ontology Mapping* berbasis **W3C PROV-O (Provenance Ontology)** untuk melacak asal-usul (*provenance*) setiap data point. Setiap klaim (misalnya, "Efisiensi Energi Meningkat 10%") dipetakan ke graf pengetahuan, menghubungkan entitas fisik (sensor), entitas logis (laporan keuangan), dan konteks temporal.
+2.  **Deteksi Epistemic Divergence**:
+    PGM secara real-time menghitung probabilitas konsistensi antara stream data yang berbeda. Jika agen keuangan melaporkan *cost savings* yang signifikan, namun stream IoT menunjukkan peningkatan konsumsi energi yang anomali, sistem mendeteksi **Epistemic Divergence**. Divergensi ini bukan sekadar "error", melainkan sinyal risiko potensial (fraud, pencatatan ganda, atau sensor rusak) yang harus diinvestigasi sebelum masuk ke dashboard eksekutif.
+3.  **Standar Kepatuhan & Risiko AI**:
+    Implementasi ini mematuhi standar internasional untuk manajemen risiko AI:
+    *   **ISO/IEC 23894 (Artificial Intelligence — Guidance on risk management)**: Sistem secara proaktif mengidentifikasi risiko epistemik (kekeliruan pengetahuan) sebagai risiko operasional utama, menerapkan kontrol mitigasi berbasis probabilistik.
+    *   **W3C PROV-O**: Memastikan setiap keputusan algoritmik dapat dilacak kembali ke sumber data asli, mendukung auditabilitas penuh oleh regulator eksternal.
+
+#### Prosedur: Automated Discrepancy Escalation & Human-in-the-Loop Arbitration
+
+Ketika sistem mendeteksi ketegangan faktual yang tidak dapat diselesaikan secara otomatis (konsensus < *threshold*), prosedur **Automated Discrepancy Escalation** diaktifkan:
+
+1.  **Isolasi & Kwarantinan**: Data yang tidak konsisten dipisahkan dari aliran utama dan dimasukkan ke dalam "Sandbox Anomali" untuk mencegah polusi basis pengetahuan.
+2.  **Generasi Bukti Kausal**: Sistem membangun grafik sebab-akibat (*causal graph*) yang menunjukkan divergensi antara sumber A (misal: Laporan Keuangan) dan sumber B (misal: Data Meteran Pintar).
+3.  **Escalation ke Portal Arbitrasi Manusia**:
+    *   Tiket arbitrasi otomatis dibuat dan diunggah ke portal **Human-in-the-Loop (HITL)**.
+    *   Auditor manusia disajikan dengan antarmuka visual yang menyandingkan klaim data, logika penolakan sistem, dan bukti mentah (timestamp, koordinat GPS sensor, hash transaksi).
+    *   Keputusan manusia (validasi/koreksi) digunakan untuk *fine-tuning* ulang model PGM, menciptakan siklus pembelajaran berkelanjutan (*continuous learning loop*).
+
+---
+
+### 6.5. Implementasi Teknis: Cross-Modal Consensus Engine
+
+Modul inti yang mengimplementasikan logika di atas adalah `compliance_governance_autonomous_epistemic_fusion_and_multi_modal_truth_verification_orchestrator.py`. Script ini bertindak sebagai *Orchestrator* yang menyinkronkan kebenaran dari berbagai agen.
+
+#### Deskripsi Fungsional
+Engine ini menerima output terstruktur dari `governance_orchestration` (status sistem) dan `semantic_cognitive_core` (graf pengetahuan), lalu melakukan validasi multi-modale terhadap sumber data heterogen.
+
+#### Struktur Argumen CLI
+
+| Argumen | Deskripsi | Tipe Data |
+| :--- | :--- | :--- |
+| `--multi_modal_data_fusion_pipeline` | Path ke konfigurasi aliran data sumber (Video, Audio, Teks, IoT). Mendefinisikan timestamp sinkronisasi dan preprocessing pipeline. | `str` |
+| `--cross_agency_consistency_checker` | Path ke file definisi aturan logika (YAML/JSON) untuk membandingkan output antar modul agen (Finan, Ekologi, Hukum, Cyber). | `str` |
+| `--hallucination_detection_scorer` | Path ke parameter model deteksi anomali statistik dalam ruang embedding. Menggunakan metrik seperti Mahalanobis Distance atau Isolation Score untuk mengidentifikasi ketidakcocokan fakta. | `str` |
+| `--output_epistemic_consistency_report` | Path output untuk laporan JSON hasil konsistensi pengetahuan (`epistemic_fusion_consistency_v1.json`). Berisi skor kepercayaan, flag divergensi, dan saran arbitrasi. | `str` |
+
+#### Contoh Penggunaan
+
+```bash
+python compliance_governance_autonomous_epistemic_fusion_and_multi_modal_truth_verification_orchestrator.py \
+    --multi_modal_data_fusion_pipeline ./config/pipelines/iot_nlp_video_stream.yaml \
+    --cross_agency_consistency_checker ./rules/agency_logic_rules.json \
+    --hallucination_detection_scorer ./models/emb_anomaly_detector_params.pkl \
+    --output_epistemic_consistency_report ./reports/epistemic_fusion_consistency_v1.json
+```
+
+#### Implementasi Kode: `compliance_governance_autonomous_epistemic_fusion_and_multi_modal_truth_verification_orchestrator.py`
+
+```python
+#!/usr/bin/env python3
+"""
+Cross-Modal Consensus Engine & Hallucination Quarantine Unit
+============================================================
+Fungsi: Menyinkronkan kebenaran faktual di antara modul agen (Keuangan, Ekologis, Hukum, Keamanan Siber)
+Metodologi: Triangulasi Data Heterogen melalui Probabilistic Graphical Models (PGM)
+Standar: ISO/IEC 23894, W3C PROV-O
+
+Bagian ini mengimplementasikan logika inti untuk mendeteksi 'Epistemic Divergence'
+dan mencegah 'Context Collapse' antar domain data.
+"""
+
+import argparse
+import json
+import logging
+import sys
+from datetime import datetime
+from pathlib import Path
+from typing import Dict, List, Optional, Any
+
+# Asumsi: Library validasi eksternal tersedia (misal: networkx, numpy, pandas)
+# import networkx as nx
+# import numpy as np
+
+# Konfigurasi Logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger("EpistemicFusionEngine")
+
+class EpistemicFusionEngine:
+    """
+    Engine utama untuk fusi data multi-modal dan verifikasi kebenaran.
+    Menggabungkan output dari Governance Orchestrator dan Semantic Cognitive Core.
+    """
+    
+    def __init__(self, fusion_config_path: str, consistency_rules_path: str, anomaly_params_path: str):
+        self.logger = logger
+        self.fusion_config = self._load_json(fusion_config_path)
+        self.consistency_rules = self._load_json(consistency_rules_path)
+        self.anomaly_params = self._load_json(anomaly_params_path)
+        
+        # Inisialisasi model PGM sederhana (stub untuk integrasi library nyata)
+        self.pgm_model = None 
+        self.provenance_graph = None
+        
+        self.logger.info("Epistemic Fusion Engine inisialisasi. Konfigurasi dimuat.")
+
+    def _load_json(self, path: str) -> Dict:
+        """Helper method untuk memuat file konfigurasi."""
+        try:
+            with open(path, 'r') as f:
+                return json.load(f)
+        except FileNotFoundError:
+            self.logger.error(f"File tidak ditemukan: {path}")
+            sys.exit(1)
+        except json.JSONDecodeError:
+            self.logger.error(f"Format JSON tidak valid: {path}")
+            sys.exit(1)
+
+    def align_streams(self, system_status: Dict, knowledge_graph: Dict) -> Dict:
+        """
+        Menyelaraskan aliran data dari status sistem dan graf pengetahuan.
+        Melakukan validasi awal terhadap struktur data sebelum fusi mendalam.
+        """
+        self.logger.info("Memulai penyelarasan aliran data lintas modalitas...")
+        
+        # 1. Extract Contextual Entities from Knowledge Graph
+        entities = knowledge_graph.get('entities', [])
+        relations = knowledge_graph.get('relations', [])
+        
+        # 2. Cross-Reference with System Status (IoT/Financial Streams)
+        aligned_data = {}
+        divergence_flags = []
+        
+        for entity in entities:
+            entity_id = entity.get('id')
+            
+            # Cek konsistensi antara klaim logis (KG) dan data sensor/keuangan (Status)
+            expected_state = entity.get('expected_state')
+            actual_state = self._retrieve_actual_state(entity_id, system_status)
+            
+            if not actual_state:
+                self.logger.warning(f"Data aktual tidak ditemukan untuk entitas: {entity_id}")
+                continue
+            
+            # 3. Check Consistency Rules
+            is_consistent = self._evaluate_consistency_rules(entity_id, expected_state, actual_state)
+            
+            if not is_consistent:
+                divergence_flags.append({
+                    "entity_id": entity_id,
+                    "expected": expected_state,
+                    "actual": actual_state,
+                    "reason": "Rule Violation",
+                    "severity": self._calculate_severity(expected_state, actual_state)
+                })
+            else:
+                aligned_data[entity_id] = {"status": "consistent", "timestamp": datetime.now().isoformat()}
+
+        return {
+            "aligned_entities": aligned_data,
+            "divergence_flags": divergence_flags,
+            "consensus_score": self._calculate_global_consensus(divergence_flags)
+        }
+
+    def _retrieve_actual_state(self, entity_id: str, system_status: Dict) -> Optional[Any]:
+        """
+        Mengambil data aktual dari stream yang berbeda (IoT, Keuangan, dll).
+        Implementasi stub: Mencari data berdasarkan ID dalam struktur status sistem.
+        """
+        # Di implementasi nyata, ini akan memanggil API ke modul agen terkait
+        streams = system_status.get('streams', {})
+        for stream_name, data_list in streams.items():
+            for item in data_list:
+                if item.get('id') == entity_id:
+                    return item.get('value')
+        return None
+
+    def _evaluate_consistency_rules(self, entity_id: str, expected: Any, actual: Any) -> bool:
+        """
+        Mengevaluasi apakah klaim expected dan actual memenuhi aturan logika
+        yang didefinisikan dalam cross_agency_consistency_checker.
+        """
+        # Cari aturan yang relevan untuk entity_id
+        # Contoh logika: Jika Klaim Keuangan = 'Efficient', Maka Data IoT Energi <= Threshold
+        
+        # Stub logic untuk demonstrasi
+        # Dalam produksi, gunakan engine rule seperti Drools atau evaluasi string JSON rules
+        if isinstance(expected, dict) and isinstance(actual, dict):
+            # Contoh: Cek apakah nilai numerik dalam range toleransi
+            exp_val = expected.get('numeric_value')
+            act_val = actual.get('numeric_value')
+            
+            if exp_val is not None and act_val is not None:
+                tolerance = self.anomaly_params.get('tolerance', 0.05)
+                deviation = abs(exp_val - act_val) / abs(exp_val) if exp_val != 0 else 0
+                return deviation <= tolerance
+        
+        return expected == actual
+
+    def _calculate_severity(self, expected: Any, actual: Any) -> str:
+        """Menghitung tingkat keparahan divergensi."""
+        # Logika dummy untuk contoh
+        return "HIGH" if isinstance(expected, (int, float)) else "MEDIUM"
+
+    def _calculate_global_consensus(self, divergence_flags: List[Dict]) -> float:
+        """
+        Menghitung skor konsensus global berdasarkan jumlah flag divergensi.
+        Skor 1.0 = Sempurna, 0.0 = Total Divergensi.
+        """
+        total_checks = len(divergence_flags) + 1 # Asumsi ada 1 baseline check
+        # Semakin banyak flag, semakin rendah skor
+        return max(0.0, 1.0 - (len(divergence_flags) * 0.1))
+
+    def generate_report(self, aligned_result: Dict, output_path: str) -> None:
+        """
+        Menghasilkan laporan konsistensi epistemik (JSON).
+        Termasuk detail divergensi dan anjuran arbitrasi.
+        """
+        report = {
+            "metadata": {
+                "generated_at": datetime.now().isoformat(),
+                "version": "v1.0",
+                "standard_compliance": ["ISO/IEC 23894", "W3C PROV-O"],
+                "status": "COMPLETED"
+            },
+            "global_consensus_score": aligned_result["consensus_score"],
+            "divergence_details": [],
+            "escalation_actions": []
+        }
+
+        for flag in aligned_result["divergence_flags"]:
+            detail = {
+                "entity_id": flag["entity_id"],
+                "divergence_type": "Epistemic Divergence",
+                "expected_state": flag["expected"],
+                "actual_state": flag["actual"],
+                "severity": flag["severity"],
+                "recommended_action": "ESCALATE_TO_HUMAN_ARBITRATOR" if flag["severity"] == "HIGH" else "FLAG_FOR_REVIEW"
+            }
+            report["divergence_details"].append(detail)
+            
+            if flag["severity"] == "HIGH":
+                report["escalation_actions"].append({
+                    "action": "CREATE_HITL_TICKET",
+                    "entity": flag["entity_id"],
+                    "reason": "Critical Fact Contradiction",
+                    "evidence_bundle": f"/data/evidence/{flag['entity_id']}_{datetime.now().timestamp()}"
+                })
+
+        # Tulis laporan ke file
+        try:
+            with open(output_path, 'w') as f:
+                json.dump(report, f, indent=4)
+            self.logger.info(f"Laporan konsistensi ditulis ke: {output_path}")
+        except IOError as e:
+            self.logger.error(f"Gagal menulis laporan: {e}")
+
+    def run(self, system_status: Dict, knowledge_graph: Dict, output_path: str):
+        """
+        Pipeline eksekusi utama:
+        1. Align Streams
+        2. Evaluate Consistency
+        3. Generate Report
+        """
+        self.logger.info("Memulai pipeline verifikasi kebenaran lintas modalitas...")
+        
+        # Step 1: Alignment & Consistency Check
+        aligned_result = self.align_streams(system_status, knowledge_graph)
+        
+        # Step 2: Check for Critical Divergence
+        if aligned_result["consensus_score"] < 0.5:
+            self.logger.warning("Skor konsensus global rendah. Aktivasi protokol Quarantine.")
+            # Di sini logika untuk mengisolasi data yang bermasalah
+        
+        # Step 3: Generate Final Report
+        self.generate_report(aligned_result, output_path)
+        
+        self.logger.info("Pipeline selesai. Verifikasi kebenaran lintas modalitas dituntaskan.")
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Cross-Modal Consensus Engine for Autonomous Compliance Governance",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Contoh Penggunaan:
+  python orchestrator.py \
+    --multi_modal_data_fusion_pipeline ./config/pipelines.yaml \
+    --cross_agency_consistency_checker ./rules/consistency_rules.json \
+    --hallucination_detection_scorer ./models/scorer.pkl \
+    --output_epistemic_consistency_report ./reports/consistency_v1.json
+        """
+    )
+    
+    parser.add_argument('--multi_modal_data_fusion_pipeline', type=str, required=True,
+                        help='Path ke konfigurasi aliran data multi-modal (IoT, Video, Audio, Teks).')
+    parser.add_argument('--cross_agency_consistency_checker', type=str, required=True,
+                        help='Path ke file definisi aturan logika konsistensi antar modul agen.')
+    parser.add_argument('--hallucination_detection_scorer', type=str, required=True,
+                        help='Path ke parameter deteksi anomali statistik dalam ruang embedding.')
+    parser.add_argument('--output_epistemic_consistency_report', type=str, required=True,
+                        help='Path untuk output laporan konsistensi (JSON).')
+
+    args = parser.parse_args()
+
+    # Inisialisasi Engine
+    engine = EpistemicFusionEngine(
+        fusion_config_path=args.multi_modal_data_fusion_pipeline,
+        consistency_rules_path=args.cross_agency_consistency_checker,
+        anomaly_params_path=args.hallucination_detection_scorer
+    )
+
+    # Simulasi Input Data (Dalam produksi, data ini berasal dari modul lain)
+    # Mock System Status (Data Keuangan & IoT)
+    mock_system_status = {
+        "streams": {
+            "financial": [
+                {"id": "ENT-001", "type": "cost_report", "value": {"numeric_value": 1000, "label": "High Efficiency"}}
+            ],
+            "iot_energy": [
+                {"id": "ENT-001", "type": "consumption_meter", "value": {"numeric_value": 9500, "label": "High Consumption"}} # Divergensi disini
+            ]
+        }
+    }
+
+    # Mock Knowledge Graph (Klaim Logis)
+    mock_knowledge_graph = {
+        "entities": [
+            {
+                "id": "ENT-001",
+                "type": "Factory_Asset",
+                "expected_state": {"numeric_value": 1000, "label": "High Efficiency"} # Klaim dari laporan keuangan
+            }
+        ],
+        "relations": []
+    }
+
+    # Jalankan Engine
+    engine.run(
+        system_status=mock_system_status,
+        knowledge_graph=mock_knowledge_graph,
+        output_path=args.output_epistemic_consistency_report
+    )
+
+if __name__ == "__main__":
+    main()
+```
+
+### 6.6. Integrasi Dashboard Eksekutif & Audit Trail
+
+Untuk memastikan transparansi penuh, output dari `epistemic_fusion_consistency_v1.json` diintegrasikan ke dalam Dashboard Eksekutif melalui endpoint REST API yang aman.
+
+1.  **Visualisasi Divergensi**: Dashboard menampilkan "Heatmap Konsistensi" di mana wilayah dengan skor konsensus rendah (merah) ditandai dengan tombol "Investigasi". Klik pada marker tersebut akan membuka modal detail yang menampilkan grafik sebab-akibat dari PGM.
+2.  **Audit Trail Immutable**: Setiap keputusan arbitrasi manusia (validasi/koreksi) dicatat ke dalam ledger internal sistem menggunakan hash kriptografik, memastikan bahwa sejarah kebenaran tidak dapat dimanipulasi setelah diverifikasi.
+3.  **Notifikasi Real-Time**: Menggunakan WebSocket, sistem mengirim notifikasi instan kepada petugas kepatuhan (Compliance Officer) saat `Epistemic Divergence` terdeteksi, mengurangi waktu respons dari hari menjadi menit.
+
+Dengan arsitektur ini, organisasi tidak hanya mematuhi regulasi, tetapi juga membangun "Basis Pengetahuan Tahan Banting" yang mampu membedakan antara noise operasional dan sinyal risiko strategis yang sebenarnya.
