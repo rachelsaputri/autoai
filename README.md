@@ -29301,3 +29301,110 @@ Untuk mengintegrasikan lapisan reputasi ini ke dalam pipeline agregasi dewan dir
 **Catatan Keamanan**:
 *   Simpan kredensial API media sosial dan konfigurasi baseline reputasi di dalam *environment variables* yang dienkripsi, jangan dalam plain text.
 *   Pastikan akses ke `real_time_reputation_impact_alert.json` dibatasi hanya untuk pengguna dengan peran `BOARD_MEMBER` atau `ADMIN`.
+
+
+### 7. Automated Production Logistics & Legal Pledge Compliance
+
+Bagian ini mendefinisikan spesifikasi teknis dan protokol kepatuhan hukum untuk modul `compliance_litigation_automated_e_discovery_response_generator.py`. Modul ini bertindak sebagai "Automated Discovery Production Agent" yang bertanggung jawab atas tahap akhir dari siklus e-discovery: transformasi dokumen yang telah diverifikasi menjadi paket produksi yang siap kirim, lengkap dengan nomor Bates yang unik, metadata standar industri, dan lapisan redaksi otomatis untuk melindungi hak-hak privasi dan kerahasiaan.
+
+#### 7.1. Integrasi Arsitektur dan Pipeline Alur Data
+
+Sistem ini tidak beroperasi secara terisolasi. Ia bergantung pada output validasi dari dua modul prekursor untuk memastikan integritas hukum sebelum produksi fisik dilakukan:
+
+1.  **Input dari `compliance_malicious_discovery_deflection_analyzer.py`**:
+    *   Modul ini menyediakan daftar dokumen yang telah disaring melalui analisis *privilege log* dan penolakan permintaan yang tidak wajar.
+    *   Output kritis yang digunakan: Flag `is_privileged` dan `deflection_reason` untuk setiap dokumen. Dokumen dengan flag `privileged=True` harus di-exclude dari set produksi akhir kecuali dinyatakan sebaliknya oleh *General Counsel*.
+
+2.  **Input dari `compliance_cross_jurisdictional_privilege_and_evidentiary_matrix_generator.py`**:
+    *   Modul ini memvalidasi apakah dokumen yang dimaksudkan untuk diproduksi melanggar hak kerahasiaan lintas yurisdiksi (misalnya, GDPR di UE atau undang-undang kerahasiaan negara tertentu).
+    *   Output kritis yang digunakan: `compliance_risk_score` dan `jurisdictional_blockers`. Jika skor risiko melebihi ambang batas atau terdapat blocker yurisdiksi, modul produksi akan menghentikan proses untuk dokumen tersebut dan mencatatnya dalam log kegagalan.
+
+#### 7.2. Argumen Baris Perintah (CLI)
+
+Skrip menerima parameter berikut untuk mengontrol perilaku produksi:
+
+```bash
+python compliance_litigation_automated_e_discovery_response_generator.py \
+    --final-approved-relevant-docs /data/production_ready/docs/ \
+    --privileged-artifact-logs /data/logs/privilege_logs.json \
+    --production-metadata-schema /config/schemas/tiff_native_schema_v1.json \
+    --output-discovery-pledge /output/pledges/e_discovery_pledge_and_production_log.json
+```
+
+*   `--final-approved-relevant-docs`: Direktori sumber yang berisi dokumen yang telah lolos filtrasi awal dan disetujui untuk diproduksi.
+*   `--privileged-artifact-logs`: Path ke file JSON berisi log detail dokumen yang diklaim sebagai dokumen yang dilindungi hak (privilege log). Skrip akan membandingkan hash dokumen di direktori sumber dengan log ini untuk mencegah kebocoran informasi yang dilindungi.
+*   `--production-metadata-schema`: Path ke file JSON yang mendefinisikan struktur metadata standar (misalnya, field seperti `BatesNumber`, `DateProduced`, `FileType`, `OCR_Text`, dll.) sesuai dengan standar TI/OCR atau Native JSON yang disepakati dengan lawan hukum.
+*   `--output-discovery-pledge`: Path keluaran untuk file `e_discovery_pledge_and_production_log.json`, yang berfungsi sebagai deklarasi formal kepatuhan dan log audit akhir.
+
+#### 7.3. Metodologi "Automated Bates Numbering & Metadata Extraction"
+
+Untuk memenuhi standar keandalan forensik digital dan mencegah klaim "produksi tidak lengkap" (*incomplete production*), sistem menerapkan metodologi berikut:
+
+**A. Generasi Nomor Bates yang Deterministik dan Unik**
+Sistem tidak menggunakan penomoran acak. Sebaliknya, ia menerapkan algoritma penomoran *Bates-based* yang deterministik:
+1.  **Prefiks Yurisdiksi/Kasus**: Diambil dari metadata kasus.
+2.  **Hierarki Dokumen**: Nomor diurutkan berdasarkan metadata `created_date`, lalu `author`, lalu `file_name`.
+3.  **Padding Numerik**: Setiap nomor di-padding hingga panjang tetap (misalnya, 8 digit: `CASE-00000001`) untuk memastikan pengurutan alfanumerik yang benar.
+4.  **Integritas Hash**: Setiap nomor Bates dikunci dengan hash SHA-256 dari konten dokumen asli. Jika ada perubahan byte pada file asli (karena corrupt atau perubahan pasca-produksi), hash tidak akan cocok, dan sistem akan menandai dokumen tersebut sebagai "Suspect Integrity" dalam log produksi.
+
+**B. Ekstraksi Metadata Standar FRCP 34(b)(1)(E)**
+Sesuai dengan *Federal Rules of Civil Procedure (FRCP) Rule 34(b)(1)(E)*, dokumen yang diproduksi harus disajikan dalam format yang dapat dibaca secara wajar atau sesuai dengan praktik biasa penyimpanan dokumen. Modul ini melakukan:
+1.  **Penerjemahan Format**: Mengonversi dokumen *native* (mis. `.docx`, `.eml`) ke format yang stabil seperti PDF/A atau TIFF berlapis OCR, kecuali ada instruksi khusus untuk tetap menggunakan format native.
+2.  **Ekstraksi Metadata Teknis**: Menambahkan metadata eksplisit ke dalam file output, termasuk:
+    *   `Author` dan `LastModifiedBy`
+    *   `CreationDate` dan `ModificationDate`
+    *   `Keywords` dan `Categories`
+    *   `HashValue` (MD5 & SHA256)
+3.  **Konformansi TI/OCR**: Jika skema yang diminta adalah TIFF/OCR, sistem menjalankan engine OCR (seperti Tesseract atau ABBYY) dengan tingkat akurasi minimum 99.5%. Hasil teks OCR disertakan dalam layer terpisah dari gambar agar dapat diindeks oleh lawan hukum tanpa mengubah visual asli dokumen.
+
+**C. Kepatuhan ISO 15489-1:2016**
+Seluruh proses produksi mengikuti prinsip *Records Management* ISO 15489-1:2016:
+*   **Authenticity**: Verifikasi bahwa dokumen yang diproduksi adalah representasi akurat dari dokumen asli.
+*   **Integrity**: Jaga keutuhan data selama transmisi.
+*   **Reliability**: Pastikan informasi dalam dokumen dapat diandalkan sebagai bukti.
+*   **Usability**: Format yang dihasilkan dapat diakses dan ditampilkan oleh perangkat lunak standar.
+
+#### 7.4. Prosedur "Redaction Automation & Preservation of Privilege"
+
+Salah satu risiko terbesar dalam e-discovery adalah *waiver* tidak sengaja (kehilangan hak kerahasiaan) karena kebocoran dokumen yang seharusnya dijaga kerahasiaannya. Modul ini menerapkan lapisan pertahanan terakhir:
+
+**A. Deteksi Anomali Pasca-Filter**
+Meskipun filter awal dari `malicious_discovery_deflection_analyzer.py` bekerja, ada kemungkinan dokumen sensitif (PII, trade secret, komunikasi *attorney-client*) lolos karena konteks yang kompleks. Modul produksi menjalankan *secondary scan* menggunakan model NLP khusus yang dilatih untuk mendeteksi:
+*   Nomor Kartu Kredit/Pajak/Identitas Nasional.
+*   Kata kunci hukum sensitif (mis. "privileged", "confidential", "legal advice").
+*   Pola komunikasi yang mengarah pada nasihat hukum.
+
+**B. Penerapan Redaksi Hitam (Black Boxing)**
+Ketika anomali terdeteksi:
+1.  **Penghapusan Konten**: Teks sensitif dihapus dari layer teks OCR dan layer visual.
+2.  **Overlay Hitam**: Kotak hitam permanen ditempelkan di atas area yang terpotong dalam versi gambar/PDF.
+3.  **Logging Redaksi**: Setiap aksi redaksi dicatat dalam `production_log` dengan detail:
+    *   `Original_Position`: Koordinat atau rentang karakter yang dihapus.
+    *   `Reason`: Kategori deteksi (mis. "PII_CREDIT_CARD").
+    *   `Confidence_Score`: Tingkat keyakinan model AI dalam mendeteksi sensitivitas.
+    *   `Human_Review_Required`: Jika skor keyakinan di bawah 95%, flag ini diatur ke `True`, dan dokumen tersebut tidak akan dimasukkan ke dalam paket produksi akhir tetapi disimpan dalam direktori `pending_human_review`.
+
+**C. Preservasi Hak Privilese**
+Sistem memastikan bahwa:
+*   Tidak ada dokumen yang memiliki flag `privileged` dari log awal yang termasuk dalam paket produksi.
+*   Jika ada tumpang tindih (overlapping content) antara dokumen yang diproduksi dan yang dilindungi, hanya bagian yang tidak dilindungi yang diproduksi, dengan redaksi yang tepat pada bagian yang dilindungi.
+
+#### 7.5. Output dan Audit Trail
+
+Modul ini menghasilkan dua output utama:
+
+1.  **Paket Produksi Fisik/Digital**:
+    *   Direktori berisi file-file yang telah diberi nomor Bates, dimetadata, dan diredak (jika diperlukan).
+    *   Struktur direktori mengikuti standar `ESI Metadata Schema` yang ditentukan.
+
+2.  **`e_discovery_pledge_and_production_log.json`**:
+    File ini adalah dokumen hukum yang menyertai produksi, berisi:
+    *   **Pernyataan Kepatuhan**: Deklarasi bahwa produksi dilakukan sesuai FRCP 34(b)(1)(E) dan standar yang disepakati.
+    *   **Ringkasan Statistik**: Jumlah total dokumen, jumlah halaman, jumlah dokumen yang diredak, dan jumlah dokumen yang ditolak karena privilege.
+    *   **Log Detail**: Daftar lengkap dokumen yang diproduksi, termasuk hash setiap file, nomor Bates, dan metadata teknis.
+    *   **Daftar Kecualian**: Dokumen yang tidak diproduksi beserta alasannya (mis. "Outside Scope", "Privileged").
+
+**Catatan Keamanan & Legal:**
+*   Semua file output harus dienkripsi menggunakan standar AES-256 sebelum dikirimkan melalui channel yang aman (SFTP/Secure Portal).
+*   Akses ke log produksi dan dokumen mentah dibatasi ketat. Hanya pengguna dengan peran `E_DISCOVERY_LEAD` dan `GENERAL_COUNSEL` yang dapat mengakses file `e_discovery_pledge_and_production_log.json`.
+*   Setiap perubahan pada skema metadata atau parameter redaksi harus mendapat persetujuan tertulis dari penasihat hukum sebelum dijalankan di lingkungan produksi litigasi.
