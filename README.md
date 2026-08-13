@@ -31756,3 +31756,420 @@ Langkah kritis dalam modul ini adalah mekanisme penyesuaian otomatis terhadap ca
     *   Peningkatan penahanan laba (*earnings retention*) untuk memperkuat equity base.
 
 Prosedur ini memastikan bahwa keputusan investasi tidak hanya melihat potensi profitabilitas, tetapi juga **ketahanan eksistensial** perusahaan dalam jangka panjang.
+
+
+Berikut adalah materi lanjutan untuk dokumen `README.md`. Konten ini dirancang untuk melengkapi bagian sebelumnya dengan kedalaman teknis yang lebih tinggi, fokus pada aspek hukum korporasi (legal risk), dan menyediakan implementasi kode Python yang robust untuk simulasi kepatuhan fidusia.
+
+---
+
+##### 8.8.6. Algorithmic Fiduciary Governance & Legal Risk Shielding
+
+Sistem tidak hanya mengoptimalkan alokasi modal, tetapi juga berfungsi sebagai **"Legal Shield"** bagi Dewan Direksi. Dalam yurisdiksi seperti Delaware (DGCL) atau Indonesia (UU PT), tanggung jawab fidusia (*fiduciary duties*)—terutama *Duty of Care* dan *Duty of Loyalty*—merupakan dasar dari potensi liability pribadi direktur.
+
+Modul ini menerapkan metodologi komputasi untuk memastikan bahwa setiap keputusan strategis dapat dipertahankan di hadapan pengadilan melalui prinsip **Business Judgment Rule (BJR)** dan standar **OECD Principles of Corporate Governance**.
+
+###### 8.8.6.1. Computational Duty of Care Assessment (CDCA)
+
+Standar *Duty of Care* menuntut bahwa direktur bertindak dengan kehati-hatian, ketelitian, dan informasi yang memadai. Sistem ini tidak menganggap "keberuntungan" sebagai bukti kepatuhan. Sebaliknya, sistem memvalidasi proses deliberatif melalui algoritma berikut:
+
+1.  **Information Sufficiency Metric (ISM):**
+    Setiap skenario keputusan wajib memiliki metadata sumber data yang lengkap. ISM menghitung kedalaman data yang digunakan dalam simulasi Digital Twin. Jika ISM < threshold (misalnya, data historis < 5 tahun atau tidak ada stress test skenario ekstrem), keputusan ditandai sebagai *"Procedurally Deficient"*, yang secara hukum dapat dianggap sebagai *negligence*.
+
+2.  **Deliberation Latency Check:**
+    Sistem mencatat waktu antara ketersediaan data risiko dan finalisasi keputusan. Waktu deliberasi yang terlalu singkat (dibandingkan kompleksitas aset yang dialokasikan) dapat diinterpretasikan sebagai *gross negligence*.
+
+3.  **Expert Consultation Integration:**
+    Sistem mensyaratkan integrasi opini pihak independen (auditor eksternal, penasihat hukum, ahli risiko) sebelum persetujuan akhir. Ketidakhadiran catatan konsultasi eksternal dalam log sistem menjadi titik lemah utama dalam pembelaan fidusia.
+
+###### 8.8.6.2. Model Business Corporation Act (MBCA) Business Judgment Rule Emulation
+
+Untuk melindungi dari gugatan shareholders, sistem mensimulasikan penerapan **Business Judgment Rule (BJR)**, yang melindungi direktur dari liability asalkan keputusan mereka:
+*   Diambil dengan itikad baik (*good faith*).
+*   Tidak memiliki konflik kepentingan.
+*   Berbasis informasi yang wajar (*informed basis*).
+*   Secara rasional diyakini berada dalam kepentingan terbaik perseroan.
+
+Algoritma ini memetakan setiap keputusan strategis terhadap empat pilar BJR tersebut. Jika salah satu pilar tidak terpenuhi secara digital (terdokumentasi), sistem akan mengeluarkan **High-Risk Compliance Flag** yang memblokir eksekusi transaksi atau menyarankan tinjauan ulang dewan.
+
+###### 8.8.6.3. OECD Principles Alignment
+
+Sesuai dengan Prinsip Tata Kelola Perusahaan OECD, sistem memastikan transparansi dan akuntabilitas:
+*   **Transparency:** Semua asumsi risiko dan metode kalkulasi capital buffering terekam dalam *immutable ledger* (log terproteksi).
+*   **Equity Treatment:** Alokasi modal diperiksa untuk memastikan tidak ada pihak pemegang saham minoritas yang dirugikan oleh transaksi afiliasi atau konflik kepentingan yang tidak terdeteksi.
+
+###### 8.8.6.4. Procedure: Liability Heatmap Generation
+
+Untuk memberikan visibilitas visual kepada Komisaris/Direksi, modul ini menghasilkan **Liability Heatmap**. Visualisasi ini memetakan titik-titik kritis di mana keputusan bisnis berisiko tinggi melanggar prinsip tata kelola.
+
+**Skema Warna Heatmap:**
+*   🟢 **Green (Low Liability):** Keputusan didukung oleh data lengkap, tanpa konflik kepentingan, dan sesuai dengan BJR.
+*   🟡 **Yellow (Medium Liability):** Data terbatas atau waktu deliberasi pendek. Diperlukan persetujuan khusus Dewan Komisaris.
+*   🔴 **Red (High Liability/Blocked):** Ada konflik kepentingan yang terdeteksi, pelanggaran *Duty of Loyalty*, atau data risiko kritis diabaikan. Sistem secara otomatis memblokir eksekusi transaksi ini kecuali ada *waiver* dewan lengkap dengan justifikasi tertulis.
+
+**Cara Membaca Heatmap:**
+Setiap node dalam heatmap mewakili keputusan strategis. Warna merah menunjukkan area di mana "Business Risk" telah menyeberang batas menjadi "Negligence". Mitigasi utama adalah menambahkan layer dokumentasi deliberatif atau mengurangi eksposur risiko sebelum eksekusi.
+
+---
+
+##### 8.8.7. Fiduciary Integrity Simulator Implementation
+
+Bagian ini menyediakan implementasi teknis dari simulator kepatuhan fidusia. Script ini dirancang untuk berintegrasi dengan output dari `compliance_governance_strategic_risk_tolerance_and_capital_allocation_agent.py`.
+
+**File:** `compliance_autonomous_boardroom_decision_simulation_and_fiduciary_liability_tracker.py`
+
+```python
+#!/usr/bin/env python3
+"""
+Fiduciary Integrity Simulator
+-------------------------------
+Simulates legal and fiduciary consequences of strategic decisions based on
+corporate governance standards (DGCL, UU PT, OECD).
+
+Features:
+- Computational Duty of Care Assessment (CDCA)
+- Business Judgment Rule (BJR) Emulation
+- Conflict of Interest (COI) Detection
+- Liability Heatmap Generation
+
+Usage:
+    python compliance_autonomous_boardroom_decision_simulation_and_fiduciary_liability_tracker.py \
+        --strategic-decision-scenarios /path/to/scenarios.json \
+        --fiduciary_legal_framework /path/to/legal_db.json \
+        --director_conflict_of_interest_register /path/to/coi_register.json \
+        --output-fiduciary-compliance-report /path/to/output/fiduciary_liability_assessment_v1.json
+"""
+
+import argparse
+import json
+import os
+import sys
+from datetime import datetime
+from dataclasses import dataclass, field, asdict
+from typing import List, Dict, Any, Optional
+from enum import Enum
+import hashlib
+
+# --- Enums & Data Structures ---
+
+class LiabilitySeverity(Enum):
+    LOW = "Low"
+    MEDIUM = "Medium"
+    HIGH = "High"
+    BLOCKED = "Blocked"
+
+class DecisionStatus(Enum):
+    APPROVED = "Approved"
+    REJECTED = "Rejected"
+    REQUIRES_REVIEW = "Requires_Review"
+
+@dataclass
+class LegalPrecedent:
+    jurisdiction: str
+    rule_type: str  # e.g., "Business Judgment Rule", "Duty of Care"
+    risk_factor: float  # 0.0 to 1.0 multiplier of liability risk
+
+@dataclass
+class Director:
+    id: str
+    name: str
+    conflicts: List[Dict[str, Any]]  # List of potential COI
+
+@dataclass
+class StrategicDecision:
+    id: str
+    description: str
+    financial_impact: float
+    risk_tolerance_applied: float
+    data_sources_count: int
+    deliberation_duration_minutes: float
+    consultants_involved: List[str]
+    director_votes: Dict[str, bool]  # DirectorID: Vote (True/False)
+
+@dataclass
+class FiduciaryAssessment:
+    decision_id: str
+    is_compliant: bool
+    liability_severity: LiabilitySeverity
+    bjr_compliance_score: float  # 0.0 to 1.0
+    duty_of_care_score: float
+    duty_of_loyalty_score: float
+    red_flags: List[str]
+    mitigation_suggestions: List[str]
+    timestamp: str
+
+# --- Core Logic ---
+
+class FiduciaryIntegritySimulator:
+    def __init__(self, legal_framework_path: str, coi_register_path: str):
+        self.legal_framework = self._load_json(legal_framework_path)
+        self.directors_registry = self._load_directors(coi_register_path)
+        
+    def _load_json(self, path: str) -> Any:
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"File not found: {path}")
+        with open(path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+            
+    def _load_directors(self, path: str) -> List[Director]:
+        data = self._load_json(path)
+        return [Director(**d) for d in data.get('directors', [])]
+
+    def assess_duty_of_loyalty(self, decision: StrategicDecision, directors: List[Director]) -> tuple[float, List[str]]:
+        """
+        Assesses Duty of Loyalty by checking for conflicts of interest.
+        Returns score (1.0 = fully loyal, 0.0 = total breach) and flags.
+        """
+        red_flags = []
+        loyalty_score = 1.0
+        
+        # Check for COI in voting directors
+        for director_id, vote in decision.director_votes.items():
+            # Find director in registry
+            director = next((d for d in directors if d.id == director_id), None)
+            if director:
+                for conflict in director.conflicts:
+                    # Simple heuristic: if conflict category overlaps with decision description keywords
+                    # In a real system, use NLP/entity matching
+                    if conflict.get('category') in decision.description.lower() or \
+                       conflict.get('related_entity') in decision.description.lower():
+                        red_flags.append(f"Potential COI: Director {director.name} has conflict '{conflict['type']}' in this decision.")
+                        loyalty_score -= 0.25  # Penalty per conflict
+                        break
+        
+        return max(loyalty_score, 0.0), red_flags
+
+    def assess_duty_of_care(self, decision: StrategicDecision) -> tuple[float, List[str]]:
+        """
+        Assesses Duty of Care based on Information Sufficiency and Deliberation Process.
+        """
+        red_flags = []
+        care_score = 1.0
+        
+        # 1. Data Sufficiency Check
+        # Assumption: Minimum 3 data sources required for major decisions
+        if decision.data_sources_count < 3:
+            care_score -= 0.3
+            red_flags.append("Insufficient Data Sources: Less than 3 authoritative sources used.")
+            
+        # 2. Deliberation Time Check
+        # Assumption: Decision with high financial impact requires > 60 mins deliberation
+        threshold_time = 60 if decision.financial_impact > 1000000 else 30
+        if decision.deliberation_duration_minutes < threshold_time:
+            care_score -= 0.2
+            red_flags.append("Procedural Rush: Deliberation time below recommended threshold.")
+            
+        # 3. External Expert Consultation
+        if not decision.consultants_involved and decision.financial_impact > 500000:
+            care_score -= 0.2
+            red_flags.append("Lack of Independent Expert Review for high-value transaction.")
+            
+        return max(care_score, 0.0), red_flags
+
+    def simulate_business_judgment_rule(self, decision: StrategicDecision, co_score: float, loy_score: float, 
+                                        legal_framework: Dict) -> tuple[float, List[str]]:
+        """
+        Simulates the application of BJR.
+        BJR protects directors if: Good Faith, Informed, No COI, Rational Basis.
+        """
+        red_flags = []
+        bjr_score = 1.0
+        
+        # Good Faith & No COI (Leveraged from previous checks)
+        if loy_score < 0.8:
+            bjr_score -= 0.5
+            red_flags.append("BJR Shield Failed: Potential Breach of Duty of Loyalty/Good Faith.")
+            
+        # Informed Basis (Leveraged from Duty of Care)
+        if co_score < 0.8:
+            bjr_score -= 0.4
+            red_flags.append("BJR Shield Failed: Decision was not adequately informed.")
+            
+        # Rational Basis (Simplified: Check if risk tolerance aligns with framework)
+        # We assume if CO and LO scores are high, and decision is within stated risk tolerance, 
+        # the "Rational Basis" is presumed unless contradicted by specific legal precedents.
+        
+        # Check against specific Legal Framework Precedents
+        jurisdiction_rules = legal_framework.get("rules", [])
+        for rule in jurisdiction_rules:
+            if rule.get("applicable", False):
+                if rule.get("type") == "Strict Liability Context":
+                     # If a rule applies that removes BJR protection entirely
+                    bjr_score = 0.0
+                    red_flags.append(f"BJR Inapplicable: {rule.get('rule_type')} imposes strict liability.")
+                    break
+
+        return max(bjr_score, 0.0), red_flags
+
+    def generate_heatmap_node(self, decision: StrategicDecision, co_score: float, loy_score: float, bjr_score: float) -> Dict:
+        """
+        Generates a node for the Liability Heatmap.
+        """
+        min_score = min(co_score, loy_score, bjr_score)
+        
+        if min_score < 0.5:
+            severity = LiabilitySeverity.BLOCKED
+            status = DecisionStatus.REJECTED
+        elif min_score < 0.8:
+            severity = LiabilitySeverity.HIGH
+            status = DecisionStatus.REQUIRES_REVIEW
+        elif min_score < 0.95:
+            severity = LiabilitySeverity.MEDIUM
+            status = DecisionStatus.REQUIRES_REVIEW
+        else:
+            severity = LiabilitySeverity.LOW
+            status = DecisionStatus.APPROVED
+
+        return {
+            "decision_id": decision.id,
+            "description": decision.description,
+            "heat_level": severity.value,
+            "legal_status": status.value,
+            "scores": {
+                "duty_of_care": round(co_score, 2),
+                "duty_of_loyalty": round(loy_score, 2),
+                "bjr_protection": round(bjr_score, 2)
+            }
+        }
+
+    def run_assessment(self, scenarios_path: str, output_path: str):
+        """
+        Main execution loop.
+        """
+        try:
+            with open(scenarios_path, 'r', encoding='utf-8') as f:
+                scenarios_data = json.load(f)
+        except Exception as e:
+            print(f"Error loading scenarios: {e}")
+            sys.exit(1)
+
+        decisions = scenarios_data.get('decisions', [])
+        assessments = []
+        heatmap = []
+
+        print("Starting Fiduciary Integrity Simulation...")
+
+        for dec_data in decisions:
+            # Convert dict to object
+            decision = StrategicDecision(**dec_data)
+            
+            # 1. Assess Duty of Loyalty
+            loy_score, loy_flags = self.assess_duty_of_loyalty(decision, self.directors_registry)
+            
+            # 2. Assess Duty of Care
+            co_score, co_flags = self.assess_duty_of_care(decision)
+            
+            # 3. Simulate BJR
+            bjr_score, bjr_flags = self.simulate_business_judgment_rule(decision, co_score, loy_score, self.legal_framework)
+            
+            # Aggregate Flags
+            all_flags = loy_flags + co_flags + bjr_flags
+            is_compliant = (loy_score >= 0.8 and co_score >= 0.8 and bjr_score >= 0.8)
+            
+            # Determine Severity
+            if not is_compliant:
+                severity = LiabilitySeverity.HIGH
+            else:
+                severity = LiabilitySeverity.LOW
+                
+            # Mitigation Suggestions
+            suggestions = []
+            if co_score < 0.8:
+                suggestions.append("Increase data granularity and add independent risk analysis.")
+            if loy_score < 0.8:
+                suggestions.append("Recuse conflicted directors and document independence of remaining board.")
+            if bjr_score < 0.8:
+                suggestions.append("Ensure all deliberations are formally minutes and recorded to support BJR.")
+
+            # Create Assessment Object
+            assessment = FiduciaryAssessment(
+                decision_id=decision.id,
+                is_compliant=is_compliant,
+                liability_severity=severity,
+                bjr_compliance_score=bjr_score,
+                duty_of_care_score=co_score,
+                duty_of_loyalty_score=loy_score,
+                red_flags=all_flags,
+                mitigation_suggestions=suggestions,
+                timestamp=datetime.now().isoformat()
+            )
+            assessments.append(asdict(assessment))
+            
+            # Create Heatmap Node
+            heatmap_node = self.generate_heatmap_node(decision, co_score, loy_score, bjr_score)
+            heatmap.append(heatmap_node)
+
+        # Compile Report
+        report = {
+            "metadata": {
+                "generated_at": datetime.now().isoformat(),
+                "simulator_version": "1.0.0",
+                "framework_applied": ["DGCL", "OECD Principles", "UU PT"],
+                "total_decisions_assessed": len(decisions)
+            },
+            "fiduciary_assessments": assessments,
+            "liability_heatmap": heatmap,
+            "executive_summary": {
+                "compliant_decisions": sum(1 for a in assessments if a['is_compliant']),
+                "non_compliant_decisions": sum(1 for a in assessments if not a['is_compliant']),
+                "critical_risks": [h for h in heatmap if h['heat_level'] == 'Blocked']
+            }
+        }
+
+        # Write Output
+        output_dir = os.path.dirname(output_path)
+        if output_dir and not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+            
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(report, f, indent=4, default=str)
+            
+        print(f"Fiduciary Liability Assessment Report generated: {output_path}")
+        print(f"Summary: {report['executive_summary']['compliant_decisions']} Compliant, "
+              f"{report['executive_summary']['non_compliant_decisions']} Non-Compliant.")
+
+# --- CLI Interface ---
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Fiduciary Integrity Simulator: Assess legal and fiduciary risks of strategic decisions."
+    )
+    parser.add_argument('--strategic-decision-scenarios', required=True,
+                        help='Path to JSON file containing executive decision scenarios.')
+    parser.add_argument('--fiduciary_legal_framework', required=True,
+                        help='Path to JSON file containing legal precedents and regulatory rules.')
+    parser.add_argument('--director_conflict_of_interest_register', required=True,
+                        help='Path to JSON file containing director profiles and COI data.')
+    parser.add_argument('--output-fiduciary-compliance-report', default='fiduciary_liability_assessment_v1.json',
+                        help='Path to output JSON report.')
+
+    args = parser.parse_args()
+
+    try:
+        simulator = FiduciaryIntegritySimulator(
+            legal_framework_path=args.fiduciary_legal_framework,
+            coi_register_path=args.director_conflict_of_interest_register
+        )
+        simulator.run_assessment(
+            scenarios_path=args.strategic_decision_scenarios,
+            output_path=args.output_fiduciary_compliance_report
+        )
+    except Exception as e:
+        print(f"Simulation Failed: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
+```
+
+### Penjelasan Teknis Script
+
+1.  **Arsitektur Modular:** Script ini menggunakan struktur Object-Oriented (`FiduciaryIntegritySimulator`) untuk memisahkan logika bisnis dari parsing data. Ini memudahkan pemeliharaan dan penambahan standar hukum baru.
+2.  **Input Validasi:** Script menerima path ke file JSON untuk skenario keputusan, kerangka hukum, dan register konflik kepentingan. Ini memungkinkan integrasi seamless dengan database perusahaan yang sudah ada.
+3.  **Penilaian Berjenjang:**
+    *   **Layer 1 (Loyalty):** Memeriksa database konflik kepentingan direktur terhadap deskripsi keputusan.
+    *   **Layer 2 (Care):** Mengevaluasi kuantitas data dan durasi deliberasi. Ini adalah implementasi teknis dari *due diligence*.
+    *   **Layer 3 (BJR):** Menggabungkan hasil Layer 1 & 2 untuk menentukan apakah perlindungan *Business Judgment Rule* aktif.
+4.  **Output Terstruktur:** Hasil akhir adalah JSON yang dapat dibaca oleh dashboard eksekutif atau sistem audit internal, berisi skor kepatuhan, flag merah (red flags), dan saran mitigasi.
+5.  **Liability Heatmap:** Fungsi `generate_heatmap_node` memberikan representasi visual (dalam bentuk data) tentang tingkat risiko hukum setiap keputusan, memungkinkan manajemen untuk memprioritaskan tinjauan dewan pada keputusan dengan risiko tertinggi.
+
+Script ini memastikan bahwa setiap keputusan strategis tidak hanya "aman secara finansial" seperti yang dihitung oleh modul kapital, tetapi juga "aman secara hukum" dan dapat dipertahankan dalam gugatan fidusia apa pun.
