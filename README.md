@@ -50280,3 +50280,43 @@ Untuk menjalankan simulasi ini, perusahaan perlu menyediakan file konfigurasi JS
 ```
 
 Dengan integrasi ini, perusahaan tidak hanya mematuhi regulasi seperti CSRD atau SEC, tetapi membangun **ketahanan eksistensial** yang dapat diukur, diuji, dan dioptimalkan secara empiris melalui simulasi digital sebelum risiko aktual terjadi.
+
+
+# Moral Dilemma Resolution & Multi-Stakeholder Value Optimization
+
+Bagian ini mendokumentasikan engine inti yang dirancang untuk menyelesaikan ketegangan etis (ethical trade-offs) antara efisiensi ekonomis, kepatuhan regulasi, dan keberlanjutan ekologis. Sistem ini tidak hanya mencari titik optimal matematis, melainkan mencari **Pareto-Ethical Optima**—kumpulan solusi di mana tidak ada pihak yang dirugikan tanpa mengorbankan pihak lain secara signifikan, sambil menjaga integritas moral perusahaan.
+
+## 1. Overview: The Ethical Optimization Engine
+
+`compliance_governance_autonomous_moral_dilemma_resolver_and_value_tradeoff_optimizer.py` berfungsi sebagai arbitrator nilai yang otonom. Engine ini menerima input dari dua subsistem utama:
+
+1.  **Strategi Adaptif:** Dari `...ecosystem_and_autonomous_evolutionary_strategy_engine.py`, yang menyediakan skenario perubahan lingkungan dan respons operasional.
+2.  **Batasan Nilai:** Dari `...cognitive_safety_guardrail_and_value_alignment_prover.py`, yang mendefinisikan "Red Lines" etis yang tidak dapat dinegosiasikan.
+
+Tujuan utama engine ini adalah memetakan ruang keputusan multi-objektif, mengidentifikasi **Moral Friction Points** (titik di mana keuntungan finansial berkorelasi negatif secara statistik dengan degradasi sosial/ekologis), dan menghasilkan rekomendasi kompromi strategis yang dapat dipertanggungjawabkan.
+
+## 2. Metodologi Dasar
+
+Sistem ini mengintegrasikan tiga kerangka teoritis utama untuk memastikan keputusan bisnis bersifat etis, adil, dan berkelanjutan:
+
+### A. Normative Multi-Criteria Decision Analysis (MCDM) for Corporate Ethics
+MCDM digunakan untuk mengevaluasi alternatif strategi berdasarkan kriteria yang saling bertentangan. Tidak seperti optimasi tunggal, MCDM memungkinkan pengorbanan terukur dalam satu domain (misalnya, margin laba) untuk mendapatkan peningkatan signifikan di domain lain (misalnya, dampak karbon), sesuai dengan bobot prioritas pemangku kepentingan yang telah ditetapkan.
+
+### B. OECD Guiding Principles on Responsible Business Conduct
+Sistem mematuhi prinsip *Due Diligence* OECD dengan secara proaktif mengidentifikasi risiko pelanggaran hak asasi manusia dan dampak lingkungan. Setiap output keputusan melalui filter "Human Rights Impact Assessment" dan "Environmental Risk Layering". Jika sebuah strategi melanggar prinsip OECD, ia ditandai sebagai *Invalid* sebelum masuk ke proses optimasi akhir.
+
+### C. Rawlsian Justice Theory applied to Algorithmic Resource Allocation
+Mengadopsi filosofi "Veil of Ignorance" dari John Rawls, engine ini mengoptimalkan alokasi sumber daya sehingga kondisi terburuk bagi pemangku kepentingan yang paling rentan (misalnya: komunitas lokal atau ekosistem yang terdampak) dimaksimalkan. Ini mencegah eksplorasi ekstrem yang menguntungkan investor tetapi merusak legitimasi sosial perusahaan.
+
+## 3. Kuantifikasi "Moral Cost"
+
+Salah satu inovasi sistem ini adalah kemampuan untuk mengkuantifikasi "Moral Cost" dalam unit yang sebanding dengan risiko finansial, memungkinkan perbandingan langsung antara nilai etis dan nilai ekonomi.
+
+### Konsep Unit Moral Currency (UMC)
+*   **Ecological Degradation Factor (EDF):** Dikalkulasi berdasarkan model GMM dari `twin_topology.json`. Penurunan kesehatan ekosistem dikonversi menjadi potensi liability masa depan (denda regulasi, loss of license to operate).
+*   **Social License Erosion (SLE):** Diukur melalui indeks reputasi dan risiko konflik sosial. SLE yang tinggi meningkatkan biaya modal (cost of capital) dan risiko boikot.
+*   **Human Rights Violation Index (HRVI):** Berdasarkan skenario simulasi. Pelanggaran minor diberi bobot rendah, namun pelanggaran sistematis (seperti pekerja anak atau perampasan tanah) menghasilkan penalitas eksponensial karena risiko reputasi jangka panjang yang katastrofik.
+
+**Rumus Pengoptimalan:**
+$$
+	ext{Maximize } Z = w_f 
