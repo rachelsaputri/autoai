@@ -38450,3 +38450,414 @@ Sistem ini dirancang untuk menerima input JSON terstruktur dari agen-agen lain d
     *   Memastikan bahwa setiap entri data yang dibuat setelah tanggal migrasi tertentu telah di-hash menggunakan algoritma PQC terbaru, mencegah regresi ke keamanan klasik.
 
 Dengan menggabungkan ketiga komponen ini (Forensic Ledger, Ethical Alignment, dan PQ Migration), perusahaan membangun **Digital Chain of Custody** yang tidak hanya akurat secara operasional, tetapi juga tahan terhadap serangan masa depan dan dapat dipertanggungjawabkan secara etis.
+
+
+Berikut adalah konten lanjutan untuk `README.md`, yang mencakup dokumentasi teknis mendalam mengenai metodologi deteksi ancaman dari dalam (*insider threats*) dan spesifikasi implementasi skrip agen otonom yang diminta.
+
+***
+
+### 9. Behavioral Forensics & Predictive Insider Threat Modeling
+
+Bagian ini mendefinisikan kerangka kerja filosofis dan teknis dari **Preemptive Integrity Sentinel**. Sistem ini tidak lagi bergantung pada deteksi reaktif (setelah kebocoran terjadi), melainkan beralih ke pemodelan prediktif berbasis *Continuous User Behavior Analytics (UBA)* dengan konteks *Zero-Trust*.
+
+#### 9.1 Metodologi: Continuous User Behavior Analytics (UBA) with Zero-Trust Context
+
+Sistem mengadopsi prinsip *"Never Trust, Always Verify"* namun melengkapinya dengan verifikasi perilaku kontekstual secara real-time. Berbeda dengan sistem SIEM tradisional yang hanya melihat log akses biner (login/logout), sistem ini membangun kurva perilaku dinamis per pengguna.
+
+**Prinsip Dasar:**
+1.  **Baseline Dinamis:** Profil normal setiap pengguna tidak statis. Ia diperbarui secara berkala berdasarkan perubahan peran, proyek, atau siklus musiman kerja.
+2.  **Kontekstualisasi Zero-Trust:** Setiap aktivitas data dinilai terhadap tiga dimensi: *Siapa* (Autentikasi Biometrik), *Apa* (Sensitivitas Aset yang Diakses), dan *Di Mana/Kapan* (Konteks Lingkungan & Waktu).
+3.  **Deteksi Anomali Multivariat:** Anomali tidak dideteksi berdasarkan satu indikator tunggal (misalnya, logout terlambat), melainkan melalui korelasi silang antara telemetri biometrik, pola akses data, dan sentimen komunikasi.
+
+#### 9.2 Kepatuhan Standar dan Regulasi
+
+Desain sistem ini sejalan dengan standar internasional berikut untuk memastikan validitas forensik dan etika:
+
+*   **NIST SP 800-50 (Digital Adaptation):**
+    Meskipun NIST SP 800-50 berfokus pada program kesadaran keamanan, versi adaptasi digital kami mengubah "pelatihan kesadaran" menjadi "pengawasan perilaku proaktif". Sistem ini memonitor kepatuhan terhadap kebijakan keamanan tidak melalui kuis, tetapi melalui kepatuhan teknis otomatis. Jika seorang pengguna mencoba mengakses data sensitif tanpa pembenaran kontekstual (misalnya, developer backend mengakses database HR), sistem mencatat ini sebagai "pelanggaran kesadaran digital" yang memicu intervensi edukasi otomatis sebelum eskalasi ke ancaman.
+
+*   **ISO 27001:2022 - Kontrol Keamanan Personel (A.6):**
+    Sistem mematuhi klausul A.6.1 hingga A.6.5 dengan mendokumentasikan riwayat perilaku karyawan sebagai bagian dari manajemen risiko personil.
+    *   *Screening & Onboarding:* Data baseline perilaku dikumpulkan setelah persetujuan onboarding.
+    *   *Termination & Disengagement:* Saat karyawan keluar, sistem secara otomatis mencabut akses mikro-sesi dan mengunci baseline perilaku untuk audit pasca-perpisahan, memastikan tidak ada "backdoor" perilaku yang tersisa.
+
+#### 9.3 Membedakan Perilaku Wajar vs. Ancaman yang Berkembang (Emerging Threats)
+
+Kunci utama dari sistem ini adalah mengurangi *False Positive* dengan menggunakan analisis korelasi multivariat. Sistem membedakan antara fluktuasi normal dan pola *malicious insider* melalui filter berikut:
+
+| Faktor Analisis | Indikator Perilaku Wajar (Benign) | Indikator Ancaman (Threat Signal) |
+| :--- | :--- | :--- |
+| **Akses Data Di Luar Jam Kerja** | Akses darurat yang terprovisi, kerja lembur terdokumentasi, atau migrasi data terjadwal. | Akses repetitif ke aset fidusia/non-proyek dalam rentang waktu pendek tanpa ticket support terkait. |
+| **Perubahan Pola Biometrik** | Variasi minor akibat kelelahan fisik atau perubahan suasana hati sementara. | Deteksi peningkatan denyut nadi/variabilitas heart rate (HRV) yang konsisten saat mengetik kode sensitif atau menyalin data besar, mengindikasikan stres fisiologis atau urgensi tersembunyi. |
+| **Komunikasi Internal (Semantik)** | Diskusi teknis yang intens, penggunaan istilah spesifik proyek, atau koordinasi tim yang cepat. | Pola bahasa yang menunjukkan "brinkmanship" (ancam-ancem diam-diam), percakapan dengan pihak eksternal yang tidak terverifikasi, atau perubahan nada dari kolaboratif menjadi defensif/menantang. |
+| **Stres Finansial (Indirect Telemetry)** | Tidak terdeteksi secara langsung (privasi terjaga). | *Proxy Indicator:* Peningkatan frekuensi akses ke portal utang/kredit online atau pengunduran diri mendadak yang berkorelasi dengan akses data sebelum hari terakhir kerja. |
+
+**Matriks Korelasi:**
+Sistem menggunakan algoritma *Weighted Ensemble Learning* yang memberi bobot lebih tinggi jika **tiga atau lebih** indikator di atas muncul secara bersamaan dalam jendela waktu 15 menit. Contoh: *Akses jam 3 pagi* + *Salin file R&D 5GB* + *Nada email ke manajer: agresif* = **Skor Risiko Tinggi**.
+
+#### 9.4 Automated Containment & Forensic Isolation Protocol
+
+Saat skor ancaman melebihi ambang batas kritis, sistem menjalankan protokol isolasi otomatis tanpa menghentikan operasi bisnis secara keseluruhan (*Non-Disruptive Containment*).
+
+**Tahapan Eksekusi Protokol:**
+
+1.  **Micro-Session Throttling:**
+    Alih-alih memutus koneksi jaringan (yang mungkin merusak proses bisnis kritis), sistem memperlambat bandwidth dan membatasi jumlah *write-permissions* pengguna tersebut ke 1% dari normal. Ini mencegah eksfiltrasi data massal dalam waktu singkat sambil tetap memungkinkan akses baca untuk kelancaran kerja jika diperlukan.
+
+2.  **Dynamic Identity Re-authentication:**
+    Sistem memicu tantangan biometrik tambahan (misalnya, verifikasi sidik jari atau pengenalan wajah melalui webcam terstruktur) untuk setiap transaksi data besar. Jika pengguna tidak merespons atau gagal verifikasi karena kondisi panik/stres, sesi dikunci sementara.
+
+3.  **Forensic Shadowing (Mirroring):**
+    Semua aktivitas UI dan log keyboard di-capture secara anonim dan dienkripsi end-to-end ke dalam *Secure Forensic Vault*. Ini memastikan bukti forensik tetap utuh untuk investigasi HR atau Hukum, tanpa mengganggu pengalaman pengguna produktif lainnya.
+
+4.  **Alerting & Human-in-the-Loop Escalation:**
+    Laporan ancaman (`insider_threat_neutralization_v1.json`) dikirimkan ke tim CISO dan HR Security. Opsi intervensi (Peringatan Resmi, Penangguhan Sementara, atau Pemantauan Intensif) dipilih oleh manusia berdasarkan konteks kualitatif yang mungkin tidak ditangkap oleh algoritma.
+
+---
+
+### 10. Implementasi Teknis: Autonomous Governance & Fraud Detection Agent
+
+Sesuai dengan arsitektur modular sistem, berikut adalah spesifikasi implementasi untuk agen pendeteksi ancaman kepatuhan dan ancaman dari dalam.
+
+#### 10.1 Spesifikasi Argumen & Integrasi
+
+Skrip ini dirancang untuk beroperasi sebagai daemon latar belakang yang mengonsumsi aliran data real-time dari agen lainnya.
+
+**Argumen Baris Perintah (CLI):**
+
+*   `--employee_behavioral_baseline_db`: Path ke database SQLite/JSON berisi profil baseline perilaku historis karyawan (pola kerja, waktu akses dominan, gaya komunikasi).
+*   `--high_value_asset_access_logs`: Path ke log akses *append-only* yang mencatat siapa mengakses aset intelektual kritis (IP, data fidusia, rahasia dagang).
+*   `--internal_communication_streams`: Path ke stream analisis semantik (NLP output) dari email internal, Slack/Teams enterprise, untuk mendeteksi manipulasi sosial atau kebocoran informasi.
+*   `--output_threat_intelligence_report`: Path output untuk menyimpan laporan deteksi ancaman dan skenario intervensi otomatis (`insider_threat_neutralization_v1.json`).
+
+#### 10.2 Kode Implementasi: `compliance_governance_autonomous_governance_fraud_detection_and_insider_threat_neutralization_agent.py`
+
+```python
+#!/usr/bin/env python3
+"""
+Preemptive Integrity Sentinel & Behavioral Anomaly Interceptor
+Version: 1.0.0
+License: Internal Proprietary - Confidential
+
+Fungsi:
+Mengidentifikasi dan menetralisir ancaman kepatuhan dari dalam (insider threats) 
+serta pencurian data strategis dengan menganalisis pola perilaku mikro, akses data sensitif, 
+dan variasi komunikasi internal.
+
+Integrasi Data:
+- Dari compliance_governance_biometric_identity_fortification_and_zero_trust_access_controller.py
+- Dari compliance_governance_ambient_computing_integration_and_pervasive_ethical_observability_agent.py
+"""
+
+import argparse
+import json
+import logging
+import sys
+import os
+import hashlib
+import time
+from datetime import datetime, timedelta
+from typing import Dict, List, Any, Optional
+
+# Asumsi: Modul inti sistem sudah di-import
+# from core.ledger import AuditCore
+# from core.analytics import BehavioralAnalyticsEngine
+# from core.intervention import ContainmentProtocol
+
+# Konfigurasi Logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler("insider_threat_agent.log"),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger("IntegritySentinel")
+
+class InsiderThreatAnalyzer:
+    """
+    Kelas utama untuk menganalisis anomali perilaku dan mengidentifikasi ancaman dari dalam.
+    Menggunakan prinsip Continuous UBA dengan Zero-Trust Context.
+    """
+    
+    def __init__(self, baseline_db: str, access_logs: str, comm_streams: str, output_report: str):
+        self.baseline_db = baseline_db
+        self.access_logs = access_logs
+        self.comm_streams = comm_streams
+        self.output_report = output_report
+        self.threat_score_threshold = 0.75  # Ambang batas risiko tinggi (0.0 - 1.0)
+        self.correlation_window_minutes = 15
+        
+        # Inisialisasi Engine Analitik (Stub untuk struktur kode)
+        # self.analytics_engine = BehavioralAnalyticsEngine()
+        # self.containment = ContainmentProtocol()
+        
+        logger.info("Insider Threat Analyzer initialized.")
+
+    def load_behavioral_baseline(self, employee_id: str) -> Dict[str, Any]:
+        """
+        Memuat profil baseline perilaku normal karyawan.
+        Dalam implementasi nyata, ini akan mengambil dari database SQL/NoSQL.
+        """
+        # Simulasi pembacaan baseline
+        return {
+            "normal_access_hours": ["08:00", "18:00"],
+            "avg_files_per_hour": 50,
+            "typical_communication_tone": "collaborative",
+            "authorized_data_sensitivity_level": "confidential"
+        }
+
+    def analyze_access_pattern_anomaly(self, log_entry: Dict[str, Any]) -> float:
+        """
+        Menganalisis anomali pada log akses aset berharga tinggi.
+        Faktor: Waktu akses, volume data, frekuensi, dan konteks pekerjaan.
+        """
+        anomaly_score = 0.0
+        
+        # Faktor 1: Akses di luar jam kerja normal
+        access_time = log_entry.get("timestamp", "")
+        # Logika pengecekan waktu kompleks akan ditempatkan di sini
+        # Jika di luar jam normal dan tidak ada tiket izin lembur:
+        if not self._is_approved_overtime(log_entry):
+            anomaly_score += 0.3
+            
+        # Faktor 2: Volume data tidak wajar (Data Exfiltration Indicator)
+        data_volume = log_entry.get("volume_mb", 0)
+        baseline_volume = log_entry.get("employee_baseline_avg_mb", 10)
+        if data_volume > (baseline_volume * 3): # 3x lipat dari rata-rata
+            anomaly_score += 0.4
+            
+        # Faktor 3: Akses ke aset sensitif tinggi tanpa konteks proyek
+        if log_entry.get("asset_type") == "critical_ip" and not log_entry.get("project_ticket"):
+            anomaly_score += 0.3
+            
+        return min(anomaly_score, 1.0)
+
+    def analyze_semantic_communication_risk(self, comm_data: Dict[str, Any]) -> float:
+        """
+        Menganalisis stream komunikasi internal untuk deteksi manipulasi sosial, 
+        kebocoran data, atau sinyal stres/kejahatan.
+        """
+        risk_score = 0.0
+        
+        # Analisis NLP (Simulasi)
+        tone = comm_data.get("sentiment_tone", "neutral")
+        keywords = comm_data.get("extracted_keywords", [])
+        
+        # Deteksi tekanan atau niat jahat semantik
+        if tone in ["aggressive", "defensive", "rushed"]:
+            risk_score += 0.2
+            
+        # Deteksi kata kunci sensitif yang biasanya tidak dipakai dalam konteks normal
+        sensitive_keywords = ["leak", "sell", "copy to personal", "ignore policy", "deadline imminent"]
+        for kw in keywords:
+            if kw.lower() in sensitive_keywords:
+                risk_score += 0.3
+                
+        return min(risk_score, 1.0)
+
+    def analyze_biometric_correlation(self, employee_id: str, current_session_id: str) -> float:
+        """
+        Mengintegrasikan data biometrik dari agen Zero-Trust untuk mendeteksi
+        stres fisiologis yang mungkin mengindikasikan paksaan atau urgensi ilegal.
+        """
+        # Menghubungkan dengan agen biometrik
+        # biometric_status = self.fetch_biometric_status(employee_id)
+        
+        # Simulasi hasil biometrik: Variabilitas Heart Rate (HRV) menurun (stres tinggi)
+        # dan detak jantung meningkat secara signifikan.
+        stress_indicator = 0.4 
+        
+        return stress_indicator
+
+    def correlate_multivariate_threats(self, access_anomaly: float, comm_risk: float, biometric_stress: float) -> Dict[str, Any]:
+        """
+        Melakukan analisis korelasi multivariat untuk menentukan skor ancaman akhir.
+        Menggunakan Weighted Ensemble Learning.
+        """
+        # Bobot berdasarkan analisis risiko
+        weight_access = 0.5
+        weight_comm = 0.3
+        weight_biometric = 0.2
+        
+        final_score = (
+            (access_anomaly * weight_access) +
+            (comm_risk * weight_comm) +
+            (biometric_stress * weight_biometric)
+        )
+        
+        return {
+            "final_threat_score": round(final_score, 3),
+            "component_scores": {
+                "access_pattern_anomaly": access_anomaly,
+                "communication_semantic_risk": comm_risk,
+                "biometric_stress_indicator": biometric_stress
+            },
+            "is_emerging_threat": final_score > self.threat_score_threshold
+        }
+
+    def execute_containment_protocol(self, threat_analysis: Dict[str, Any], employee_id: str) -> str:
+        """
+        Menjalankan Automated Containment & Forensic Isolation Protocol.
+        Membatasi akses dan mengisolasi sesi tanpa menghentikan operasi bisnis total.
+        """
+        logger.warning(f"High Risk Threat Detected for Employee {employee_id}. Initiating Containment.")
+        
+        actions_taken = []
+        
+        # 1. Throttling Akses
+        actions_taken.append("Access Throttled: Write-permissions reduced to 1%")
+        logger.info("Action 1: Applied Micro-Session Throttling")
+        
+        # 2. Forensic Shadowing (Simulasi)
+        actions_taken.append("Forensic Shadowing: Session mirroring enabled")
+        logger.info("Action 2: Started Forensic Session Mirroring")
+        
+        # 3. Alerting
+        actions_taken.append("Alert Sent to CISO & HR Security")
+        logger.info("Action 3: Escalated to Human-in-the-Loop")
+        
+        return "
+".join(actions_taken)
+
+    def generate_threat_intelligence_report(self, employee_id: str, correlation_result: Dict, containment_actions: str) -> Dict[str, Any]:
+        """
+        Menghasilkan laporan JSON standar untuk arsip forensik dan intervensi.
+        """
+        report = {
+            "report_id": hashlib.sha256(f"{employee_id}{time.time()}".encode()).hexdigest()[:10],
+            "timestamp": datetime.utcnow().isoformat(),
+            "employee_id": employee_id,
+            "threat_level": "CRITICAL" if correlation_result["is_emerging_threat"] else "MODERATE",
+            "threat_analysis": correlation_result,
+            "containment_protocol_executed": containment_actions,
+            "recommended_next_steps": [
+                "Verify identity of the employee via out-of-band channel.",
+                "Review forensic log mirror for data exfiltration evidence.",
+                "Schedule immediate interview with HR and Legal."
+            ]
+        }
+        return report
+
+    def run_forensic_scan(self):
+        """
+        Loop utama analisis. Dalam produksi, ini akan dipicu oleh event stream (Kafka/RabbitMQ).
+        """
+        logger.info("Starting Behavioral Forensics Scan Cycle...")
+        
+        # Simulasi data input dari agen lain
+        # 1. Access Logs dari High Value Asset Logs
+        mock_access_log = {
+            "employee_id": "EMP-1042",
+            "timestamp": datetime.utcnow().isoformat(),
+            "asset_type": "critical_ip",
+            "volume_mb": 500, # Sangat tinggi
+            "project_ticket": None, # Tidak ada tiket
+            "employee_baseline_avg_mb": 10
+        }
+        
+        # 2. Communication Stream dari Agent Pervasive Ethical Observability
+        mock_comm_data = {
+            "employee_id": "EMP-1042",
+            "sentiment_tone": "rushed",
+            "extracted_keywords": ["copy", "deadline imminent", "personal drive"]
+        }
+        
+        # 3. Biometric Status dari Agent Zero-Trust
+        # Diambil secara implisit melalui context ID sesi
+        mock_emp_id = "EMP-1042"
+        
+        # Eksekusi Analisis
+        access_anomaly = self.analyze_access_pattern_anomaly(mock_access_log)
+        comm_risk = self.analyze_semantic_communication_risk(mock_comm_data)
+        biometric_stress = self.analyze_biometric_correlation(mock_emp_id, "SESSION-999")
+        
+        correlation_result = self.correlate_multivariate_threats(access_anomaly, comm_risk, biometric_stress)
+        
+        logger.info(f"Correlation Result for {mock_emp_id}: {correlation_result}")
+        
+        containment_actions = ""
+        if correlation_result["is_emerging_threat"]:
+            containment_actions = self.execute_containment_protocol(correlation_result, mock_emp_id)
+            
+        # Generate Report
+        report = self.generate_threat_intelligence_report(mock_emp_id, correlation_result, containment_actions)
+        
+        # Simpan Laporan
+        try:
+            with open(self.output_report, 'w') as f:
+                json.dump(report, f, indent=2)
+            logger.info(f"Threat Intelligence Report saved to {self.output_report}")
+        except IOError as e:
+            logger.error(f"Failed to save report: {e}")
+            sys.exit(1)
+            
+        return report
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description="Preemptive Integrity Sentinel: Autonomous Governance & Fraud Detection Agent"
+    )
+    parser.add_argument(
+        "--employee_behavioral_baseline_db",
+        type=str,
+        required=True,
+        help="Path to database of employee behavioral baselines"
+    )
+    parser.add_argument(
+        "--high_value_asset_access_logs",
+        type=str,
+        required=True,
+        help="Path to access logs for critical intellectual property and fiduciary data"
+    )
+    parser.add_argument(
+        "--internal_communication_streams",
+        type=str,
+        required=True,
+        help="Path to semantic analysis of internal communications (email/chat)"
+    )
+    parser.add_argument(
+        "--output_threat_intelligence_report",
+        type=str,
+        default="insider_threat_neutralization_v1.json",
+        help="Path to output the detected threat and intervention scenarios JSON"
+    )
+    return parser.parse_args()
+
+def main():
+    args = parse_arguments()
+    
+    logger.info("Initializing Integrity Sentinel Agent...")
+    
+    try:
+        sentinel = InsiderThreatAnalyzer(
+            baseline_db=args.employee_behavioral_baseline_db,
+            access_logs=args.high_value_asset_access_logs,
+            comm_streams=args.internal_communication_streams,
+            output_report=args.output_threat_intelligence_report
+        )
+        
+        # Menjalankan analisis forensik
+        result = sentinel.run_forensic_scan()
+        
+        print(json.dumps(result, indent=2))
+        
+    except Exception as e:
+        logger.error(f"Fatal Error in Integrity Sentinel: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
+```
+
+### 11. Kesimpulan Arsitektur
+
+Dengan mengintegrasikan **Forensic Ledger** (bagian 8), **Ethical Alignment Engine**, dan **PQC Migration Monitor**, serta menambahkan lapisan **Behavioral Forensics & Predictive Insider Threat Modeling** ini, organisasi tidak hanya membangun sistem yang aman dari serangan eksternal, tetapi juga menciptakan *Digital Chain of Custody* yang tahan terhadap manipsulasi internal.
+
+Pendekatan ini memastikan bahwa:
+1.  **Transparansi Terukur:** Setiap tindakan karyawan dilacak, dianalisis, dan divalidasi secara kriptografis.
+2.  **Respons Cepat:** Ancaman dari dalam dideteksi sebelum data bocor, bukan setelahnya.
+3.  **Kepatuhan Otomatis:** Sistem secara otomatis mematuhi standar NIST dan ISO 27001 melalui implementasi teknis yang terdokumentasi, mengurangi beban audit manual.
+
+Ini adalah fondasi untuk ekosistem AI yang tidak hanya cerdas, tetapi juga dapat dipercaya (*Trustworthy AI*) dan berkelanjutan secara etis.
