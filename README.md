@@ -32650,3 +32650,189 @@ Laporan ini dirancang untuk dapat dibaca oleh sistem otomatis maupun manusia, me
 > *   Akses ke `--current-compliance-baseline` harus dibatasi ketat melalui RBAC, karena berisi data sensitif tentang kerentanan kepatuhan perusahaan.
 
 ---
+
+
+# Cryptographic Audit Assurance & Non-Repudiation Framework
+
+Bagian ini mendokumentasikan lapisan integritas kriptografis yang menjadi tulang punggung keandalan sistem. Modul `compliance_governance_autonomous_ethical_audit_trail_and_immutable_proof_system.py` tidak hanya mencatat kejadian, tetapi membuktikan keaslian, keutuhan, dan non-repudiasi (ketidakbisaan penyangkalan) dari setiap tindakan kepatuhan.
+
+## 1. Arsitektur Ledger Imutabel (WORM Architecture)
+
+Sistem menggunakan database kuantum-secure yang dirancang dengan prinsip **Write Once, Read Many (WORM)**. Setiap entri dalam ledger (`--output-immutable-audit-ledger`) mengandung hash kriptografik dari entri sebelumnya, membentuk rantai blok yang tidak dapat dipotong atau dimodifikasi tanpa merusak hash seluruh rantai selanjutnya.
+
+### Integrasi Data Ekosistem
+Ledger ini berfungsi sebagai agregator final dari seluruh sub-sistem:
+*   **Regulatory Horizon Scanning:** Menyimpan snapshot regulasi pada waktu tertentu (`regulatory-interpretation-logs`) untuk membuktikan bahwa keputusan diambil berdasarkan versi regulasi yang berlaku saat itu.
+*   **Forensic Evidence:** Mengaitkan hash akar dari bukti forensik (`--forensic-hash-roots`) ke dalam transaksi ledger, memastikan bukti tidak disanitasi atau diubah setelah pengumpulan.
+*   **Executive Decisions:** Mencatat setiap keputusan strategis beserta konteks risk-assessment yang mendasarinya (`--governance-decision-log`), menciptakan jejak audit yang lengkap dari data mentah hingga keputusan eksekutif.
+
+### Parameter Input Sistem
+Untuk menginisialisasi proses pengimputan data ke dalam ledger, sistem memerlukan argumen berikut:
+
+*   `--governance-decision-log <PATH>`: Path ke file JSON/CSV berisi riwayat keputusan eksekutif. Sistem akan memvalidasi struktur, menghitung hash SHA-256 untuk setiap keputusan, dan mengikatnya ke waktu temporal (timestamp) yang disinkronkan dengan NTP secure.
+*   `--forensic-hash-roots <PATH>`: Path ke root hash dari bukti forensik. Ini memastikan bahwa bukti digital yang disajikan kepada regulator adalah asli dan utuh sejak pengumpulan awal.
+*   `--regulatory-interpretation-logs <PATH>`: Path ke log interpretasi AI terhadap regulasi. Ini penting untuk demonstrasi "Due Diligence" kepada regulator, menunjukkan bahwa AI memahami konteks hukum, bukan hanya kata kunci.
+*   `--output-immutable-audit-ledger <PATH>`: Target path untuk database ledger terenkripsi (`immutable_governance_ledger_v1.db` atau `chain.json`). Sistem akan membuat file ini jika belum ada, atau memperbarui rantai hash jika file sudah ada.
+
+## 2. Metodologi Zero-Knowledge Proof (ZKP) untuk Verifikasi Kepatuhan
+
+Salah satu tantangan terbesar dalam kepatuhan modern adalah kewajiban untuk membuktikan kepatuhan **tanpa** membocorkan rahasia dagang atau data sensitif pelanggan. Sistem ini mengimplementasikan protokol **Zero-Knowledge Proof (ZKP)** tipe *Succinct Non-Interactive Argument of Knowledge (SNARK)*.
+
+### Bagaimana ZKP Bekerja dalam Skenario Ini?
+
+1.  **Claim (Klaim):** Perusahaan ingin membuktikan kepada regulator bahwa "Skor ESG kami di atas 85" atau "Kami tidak memiliki pelanggaran data dalam 12 bulan terakhir".
+2.  **Witness (Kesaksian Data Privasi):** Data mentah (misal: daftar karyawan, detail transaksi suplai, skor emisi spesifik) tetap tersimpan lokal dan terenkripsi di server perusahaan. Data ini tidak pernah meninggalkan lingkungan internal.
+3.  **Proof Generation:** Sistem secara komputasi menghasilkan "Bukti Kriptografik" yang membuktikan kebenaran klaim tanpa mengungkap input aslinya.
+4.  **Verification:** Regulator menjalankan skrip verifikasi publik yang ringan. Jika outputnya `True`, regulator yakin klaim tersebut benar, tanpa pernah melihat data sensitif perusahaan.
+
+> **Keunggulan Strategis:** Ini memungkinkan audit eksternal yang ketat tanpa risiko kebocoran data (Data Leakage) atau penyalahgunaan informasi oleh pihak ketiga.
+
+## 3. Standar Kepatuhan yang Diadopsi
+
+Sistem ini dirancang untuk memenuhi standar internasional tertinggi dalam keamanan informasi dan jejak audit:
+
+### NIST SP 800-207: Zero Trust Architecture (ZTA) dalam Audit Trails
+Sistem menerapkan prinsip **"Never Trust, Always Verify"** pada setiap lapisan audit:
+*   **Micro-segmentasi Ledger:** Setiap modul (Forensik, Keputusan, Regulasi) memiliki namespace kriptografis terpisah.
+*   **Verifikasi Kontinuitas:** Setiap kali ledger dibaca (oleh regulator atau auditor internal), sistem tidak hanya memeriksa hash akhir, tetapi melakukan verifikasi ulang terhadap seluruh rantai integritas (chain-of-integrity) secara real-time untuk mendeteksi potensi serangan retroaktif.
+*   **Least Privilege Access:** Akses ke `--output-immutable-audit-ledger` dibatasi ketat. Bahkan admin sistem tidak dapat menghapus entri; mereka hanya dapat menambahkan entri baru ("append-only").
+
+### ISO 27001:2022 Control A.8.15: Record Keeping
+Untuk memenuhi kontrol dokumentasi, sistem menjamin:
+*   **Asli dan Utuh:** Hash kriptografik menjamin bahwa catatan tidak diubah setelah pencatatan.
+*   **Terlindungi:** Data dalam ledger dienkripsi menggunakan algoritma AES-256-GCM dengan manajemen kunci berbasis HSM (Hardware Security Module) simulasi.
+*   **Terakses dengan Benar:** Log audit mencatat siapa yang mengakses atau memverifikasi ledger, kapan, dan dari mana alamat IP-nya, menciptakan jejak akses yang tak terbantahkan.
+
+## 4. Tamper-Evident Decision Mapping
+
+Untuk menjembatani kesenjangan antara data teknis (hash) dan konteks bisnis (keputusan), sistem mengimplementasikan **Tamper-Evident Decision Mapping**. Ini adalah struktur data hibrida yang menghubungkan:
+
+1.  **Input Data Mentah:** (Contoh: Data emisi Scope 3 dari Supplier Carbon API).
+2.  **Logika Aturan AI:** (Contoh: Model prediksi CSRD compliance v2.1).
+3.  **Output Keputusan:** (Contoh: "Prioritaskan upgrade data infrastruktur").
+
+### Visualisasi dan Verifikasi Hukum
+Setiap node dalam decision mapping disimpan sebagai transaksi unik dalam ledger. Struktur ini memungkinkan:
+
+*   **Reverse Engineering Audit:** Regulator dapat menelusuri dari "Keputusan Akhir" kembali ke "Data Awal" dan "Logika AI" yang digunakan, memastikan tidak ada manipulasi manusia di tengah jalan.
+*   **Bukti Hukum Tak Terbantahkan:** Dalam litigasi, sistem dapat menghasilkan sertifikat digital yang ditandatangani secara kriptografis, membuktikan bahwa keputusan diambil secara objektif berdasarkan data yang tersedia pada waktu tersebut, melindungi eksekutif dari tuduhan kelalaian (negligence) atau penipuan korporat (corporate fraud).
+
+---
+
+## Contoh Implementasi Kode (Pseudo-Code untuk Integrasi)
+
+Berikut adalah ilustrasi bagaimana modul ini mengintegrasikan data dari ekosistem sebelumnya ke dalam ledger imutabel:
+
+```python
+import hashlib
+import json
+import sqlite3
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import padding, utils
+import time
+
+class ImmutableAuditLedger:
+    def __init__(self, db_path="immutable_governance_ledger_v1.db"):
+        self.db_path = db_path
+        self.conn = sqlite3.connect(db_path)
+        self._init_db()
+        self.private_key = self._load_or_create_key()
+
+    def _init_db(self):
+        cursor = self.conn.cursor()
+        # Tabel dengan struktur WORM: Tidak ada DELETE atau UPDATE pada entri lama
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS audit_chain (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                previous_hash TEXT NOT NULL,
+                data_hash TEXT NOT NULL,
+                content_type TEXT NOT NULL, -- 'DECISION', 'FORENSIC', 'REGULATORY'
+                content_hash TEXT NOT NULL,
+                zkp_proof_blob BLOB, -- Penyimpanan bukti ZKP jika ada
+                signature TEXT NOT NULL -- TTD kriptografis
+            )
+        ''')
+        self.conn.commit()
+
+    def _get_last_hash(self):
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT previous_hash FROM audit_chain ORDER BY id DESC LIMIT 1")
+        row = cursor.fetchone()
+        return row[0] if row else "GENESIS_BLOCK_HASH_0000"
+
+    def _sign_data(self, data_bytes):
+        # Implementasi penandatanganan digital untuk Non-Repudiation
+        signature = self.private_key.sign(
+            data_bytes,
+            padding.PKCS1v15(),
+            hashes.SHA256()
+        )
+        return signature.hex()
+
+    def append_entry(self, content_type, data_path):
+        """
+        Membaca file input (keputusan, forensik, atau log regulasi),
+        menghitung hash, dan mengikatnya ke dalam rantai kriptografis.
+        """
+        # 1. Baca konten
+        with open(data_path, 'rb') as f:
+            content = f.read()
+        
+        # 2. Hitung hash konten (Integrity Check)
+        content_hash = hashlib.sha256(content).hexdigest()
+        
+        # 3. Dapatkan hash blok sebelumnya (Chain Integrity)
+        prev_hash = self._get_last_hash()
+        
+        # 4. Buat payload untuk penandatanganan
+        payload = f"{prev_hash}:{content_hash}:{content_type}:{time.time()}".encode('utf-8')
+        
+        # 5. Tanda tangani payload
+        signature = self._sign_data(payload)
+        
+        # 6. Masukkan ke DB (Append Only)
+        cursor = self.conn.cursor()
+        cursor.execute('''
+            INSERT INTO audit_chain 
+            (previous_hash, data_hash, content_type, content_hash, signature)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (prev_hash, content_hash, content_type, content_hash, signature))
+        
+        self.conn.commit()
+        print(f"[LEDGER] Entry added for {content_type} with hash: {content_hash[:16]}...")
+        
+        # Di sini, logika ZKP bisa diintegrasikan untuk menghasilkan 
+        # zkp_proof_blob jika diperlukan untuk verifikasi tanpa bocor data.
+
+    def verify_chain_integrity(self):
+        """
+        Verifikasi apakah rantai hash utuh. Jika ada satu entri yang diubah,
+        hash berikutnya akan tidak cocok.
+        """
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT id, previous_hash, content_hash, data_hash FROM audit_chain ORDER BY id")
+        rows = cursor.fetchall()
+        
+        current_hash_check = "GENESIS_BLOCK_HASH_0000"
+        is_valid = True
+        
+        for row in rows:
+            db_id, prev_hash, content_h, data_h = row
+            
+            # Cek link ke blok sebelumnya
+            if prev_hash != current_hash_check:
+                print(f"[ERROR] Chain broken at ID {db_id}")
+                is_valid = False
+                break
+                
+            # Hitung ulang hash untuk memastikan data tidak diubah
+            # (Dalam implementasi nyata, perlu baca data asli, bukan hanya hash di DB)
+            current_hash_check = hashlib.sha256(f"{prev_hash}:{content_h}".encode()).hexdigest()
+            
+        return is_valid
+```
+
+## Penutup
+
+Dengan mengintegrasikan `compliance_governance_autonomous_ethical_audit_trail_and_immutable_proof_system.py`, organisasi tidak hanya mencapai kepatuhan regulasi, tetapi membangun **aset kepercayaan digital**. Sistem ini memastikan bahwa setiap klaim kepatuhan didukung oleh bukti forensik yang kriptografis, transparan, dan tidak dapat dipalsukan, memberikan ketenangan pikiran di hadapan regulator, pemegang saham, dan mitra bisnis.
