@@ -36320,3 +36320,121 @@ Ketika pengguna memulai sesi untuk menandatangani laporan ESG atau keputusan dew
     *   Individu tersebut berada dalam keadaan kompeten saat akses diberikan (berdasarkan log CSV).
 
 Dengan demikian, sistem ini mengubah kepatuhan dari proses administratif menjadi **jaminan teknis yang tak terbantahkan**, di mana integritas hukum perusahaan dilindungi oleh validasi biologis real-time yang terintegrasi dengan infrastruktur kriptografi tahan kuantum.
+
+
+Berikut adalah konten lanjutan yang komprehensif, terstruktur, dan siap ditempel ke dalam file `README.md` Anda. Konten ini mencakup dokumentasi teknis untuk skrip inti baru serta perluasan mendalam pada bab "Scope 3 Emissions Verification & Eco-Financial Coupling".
+
+***
+
+#### 7.0. Eco-Financial Synchronization Core: Skrip Utama Orkestrasi
+
+Skrip berikut berfungsi sebagai otak penghubung antara kepatuhan lingkungan, optimasi likuiditas, dan integritas reputasi. Ia tidak hanya menghitung jejak karbon, tetapi mengonversinya menjadi jaminan kriptografis yang valid untuk transaksi keuangan.
+
+**Nama File:** `compliance_governance_automated_esg_supply_chain_orchestration_and_scope_3_carbon_accounting_engine.py`
+
+**Deskripsi Fungsional:**
+Modul ini melakukan sinkronisasi real-time antara data operasional rantai pasok (fisik) dan portofolio investasi hijau (finansial). Tujuannya adalah menghasilkan *Sustainable Value Integrity Certificate* (SVIC) yang membuktikan bahwa setiap dolar yang diinvestasikan secara etis mematuhi standar CSRD (EU) dan ISSB, sambil mendeteksi potensi *greenwashing* melalui triangulasi data IoT dan ledger.
+
+**Argumen Baris Perintah (CLI):**
+
+| Argumen | Tipe | Deskripsi Wajib |
+| :--- | :--- | :--- |
+| `--supply_chain_node_data` | `str` | Path ke direktori atau file JSON berisi metadata jejak karbon Tier-1 hingga Tier-N (data mentah dari sensor IoT, laporan pemasok, log logistik). |
+| `--green_investment_portfolio` | `str` | Path ke file JSON berisi alokasi aset hijau yang telah dioptimalkan oleh agen likuiditas (`compliance_governance_adaptive_fintech...`). |
+| `--carbon_credit_market_prices` | `str` | Path ke endpoint atau file CSV berisi harga kredit karbon real-time (misal: ICE, EU ETS) untuk konversi nilai moneter emisi. |
+| `--output_sustainability_integrity_report` | `str` | Path output akhir untuk `esg_supply_chain_integrity_v1.json`. Berisi sertifikat integritas dan hash kriptografis. |
+
+**Contoh Eksekusi:**
+
+```bash
+python compliance_governance_automated_esg_supply_chain_orchestration_and_scope_3_carbon_accounting_engine.py \
+    --supply_chain_node_data ./data/supply_chain_emissions_t1_t5.json \
+    --green_investment_portfolio ./config/green_portfolio_optimized.json \
+    --carbon_credit_market_prices ./market_data/carbon_credits_live.csv \
+    --output_sustainability_integrity_report ./reports/esg_supply_chain_integrity_v1.json
+```
+
+**Logika Inti (Pseudocode Algoritma):**
+
+1.  **Ingest & Sanitasi Data Fisik:** Membaca `--supply_chain_node_data`, memvalidasi struktur schema, dan membersihkan outlier sensor IoT.
+2.  **Kalkulasi Scope 3 Hierarkis:** Mengagregasi emisi dari *Upstream* (pembelian) dan *Downstream* (penggunaan produk) menggunakan faktor emisi standar GHG Protocol.
+3.  **Pencocokan Finansial-Ekologi:**
+    *   Mengambil aset dari `--green_investment_portfolio`.
+    *   Menghitung rasio "Ecological Coverage": Apakah aset hijau yang dimiliki cukup untuk "menetralkan" atau mendeteksi risiko emisi Scope 3 yang tidak terkelola?
+4.  **Deteksi Inkonsistensi (Greenwashing Interdiction):**
+    *   Membandingkan klaim "Net Zero" pemasok dengan data historis sensor IoT.
+    *   Jika deviasi > 5%, tandai sebagai `FLAG_HIGH_RISK_GREENWASHING`.
+5.  **Pembuatan Sertifikat Integritas:**
+    *   Membuat hash SHA-3 (tahan kuantum) dari agregat data + timestamp + kunci privat perusahaan.
+    *   Menulis laporan JSON ke `--output_sustainability_integrity_report`.
+
+---
+
+#### 7.1. Scope 3 Emissions Verification & Eco-Financial Coupling
+
+Bagian ini menjelaskan fondasi metodologis dari integrasi antara kepatuhan lingkungan dan keuangan. Sistem ini tidak menganggap data karbon sebagai entitas terpisah, melainkan sebagai *asset class* yang terderivasi secara matematis dari aktivitas operasional.
+
+##### 7.1.1. Metodologi: Algorithmic Carbon Ledgering with Immutable Scope Traceability
+
+Sistem menerapkan prinsip **"Physical-to-Financial Bridge"**, di mana setiap ton CO2e (Ton Karbon Dioksida Ekuivalen) yang dilaporkan dikonversi menjadi entri ledger yang tidak dapat diubah (*immutable*).
+
+1.  **Triangulasi Sumber Data:**
+    Untuk setiap unit emisi Scope 3, sistem meminta setidaknya dua sumber validasi sebelum masuk ke ledger:
+    *   *Source A:* Data langsung dari sensor IoT (misal: sensor gas pada cerobong asap pemasok Tier-1).
+    *   *Source B:* Data transaksi finansial (misal: faktur pembelian bahan baku yang proporsional dengan estimasi emisi).
+    *   *Source C:* Laporan auditor pihak ketiga (jika tersedia).
+
+2.  **Proses Hashing Kriptografis:**
+    Emisi yang terverifikasi tidak disimpan sebagai teks biasa, melainkan sebagai *Hash Anchor*.
+    ```
+    Hash_Carbon_Entry = SHA3-256 (
+        Timestamp + 
+        Supplier_ID + 
+        Quantity_CO2e + 
+        Source_Type (IoT/Financial) + 
+        Previous_Leaf_Hash
+    )
+    ```
+    Hash ini ditulis ke rantai blok internal. Perubahan sekecil apapun pada data emisi di masa depan akan memecah rantai hash (*chain broken*), secara otomatis membatalkan validitas laporan integritas sebelumnya.
+
+3.  **Kopling Finansial (Financial Coupling):**
+    Nilai moneter dari emisi tersebut dihitung menggunakan `--carbon_credit_market_prices`. Emisi yang tidak tertutupi oleh kredit karbon resmi (retired credits) dicatat sebagai **Liabilitas Ekologis**. Sistem secara otomatis menyesuaikan rekomendasi alokasi likuiditas dari agen `adaptive_fintech_investment_agent`:
+    *   Jika Liabilitas Ekologis > Threshold, likuiditas ditarik dari instrumen spekulatif dan dialihkan ke instrumen hedging karbon atau divestasi pemasok berisiko tinggi.
+
+##### 7.1.2. Kepatuhan Standar Internasional
+
+Algoritma akuntansi karbon dalam skrip inti telah diprogram untuk mematuhi kerangka kerja berikut, dengan penyesuaian otomatis terhadap pembaruan regulasi:
+
+| Standar | Fokus Utama | Implementasi dalam Sistem |
+| :--- | :--- | :--- |
+| **GHG Protocol Scope 3 Standard (2022 Update)** | Akurasi data rantai pasok Tier-N. | Sistem secara agresif mengumpulkan data dari Tier-2 dan Tier-3 jika data Tier-1 tidak lengkap, menggunakan metode *spending-based* sebagai fallback yang ditandai dengan level keyakinan rendah. |
+| **ISO 14064-1** | Spesifikasi kuantifikasi dan pelaporan. | Semua metrik diubah ke satuan standar ISO. Sistem memvalidasi batas atas (*boundary*) organisasi agar tidak ada emisi yang dilaporkan ganda (*double counting*) antar departemen. |
+| **CSRD (EU) / ESRS** | Pelaporan keberlanjutan wajib UE. | Output `esg_supply_chain_integrity_v1.json` diformat agar kompatibel langsung dengan template pelaporan ESRS E1 (Perubahan Iklim), termasuk metrik intensitas karbon dan target SBTi. |
+| **ISSB (IFRS S2)** | Pengungkapan risiko iklim. | Sistem memetakan emisi ke dalam skenario iklim TCFD (1.5°C, 2°C, 4°C) untuk menilai sensitivitas portofolio hijau terhadap guncangan regulasi masa depan. |
+
+##### 7.1.3. Prosedur: Greenwashing Interdiction Protocol (GIP)
+
+Ini adalah fitur keamanan forensik tingkat tinggi. GIP dirancang untuk mendeteksi dan mencegah kecurangan lingkungan (*greenwashing*) sebelum laporan dipublikasikan atau aset hijau dicairkan.
+
+**Alur Deteksi Otomatis:**
+
+1.  **Analisis Divergensi Klaim vs. Realita (Claim-Reality Divergence Analysis):**
+    *   Sistem membandingkan klaim publik pemasok (misal: "100% Energi Terbarukan") dengan data telegometri aktual dari meteran listrik cerdas yang terhubung ke node `supply_chain_node_data`.
+    *   *Trigger:* Jika deviasi > 10% selama 3 bulan berturut-turut, status pemasok berubah menjadi `UNDER_INVESTIGATION`.
+
+2.  **Pemeriksaan Konsistensi Audit Silang (Cross-Audit Consistency):**
+    *   Membandingkan laporan keberlanjutan pemasok dengan laporan keuangannya.
+    *   *Indikator Merah:* Pemasok menyatakan pengurangan emisi 20% (klaim hijau) tetapi meningkatkan pengeluaran energi operasional 15% (data keuangan). Ini mengindikasikan potensi manipulasi data.
+
+3.  **Validasi Kredit Karbon (Carbon Credit Verification):**
+    *   Sistem memeriksa keaslian kredit karbon yang digunakan pemasok untuk klaim *Net Zero*.
+    *   Menggunakan API ke registri internasional (Verra, Gold Standard) untuk memastikan kredit tersebut belum digunakan (*double-spent*) dan memiliki kualitas tinggi (additional, permanent).
+    *   Jika kredit berisiko tinggi (misal: proyek reboisasi yang rentan kebakaran), sistem mengurangi bobot kepercayaan (*confidence score*) secara drastis.
+
+4.  **Sandboxing & Notifikasi Forensik:**
+    *   Jika GIP mendeteksi anomali kritis, data pemasok dimasukkan ke dalam *Quarantine Ledger* (ledger terpisah yang hanya dapat diakses oleh Officer Kepatuhan dan Hukum).
+    *   Sertifikat Integritas (`esg_supply_chain_integrity_v1.json`) akan menyertakan flag `WARNING: GREENWASHING_RISK_DETECTED` dan melampirkan bukti forensik (grafik divergensi, log auditor silang).
+    *   Modul `compliance_governance_autonomous_reputational_capital_recovery...` akan otomatis menyiapkan draf pernyataan pers defensif dan rencana mitigasi reputasi.
+
+**Tujuan Akhir:**
+Dengan menggabungkan validasi biologis pengguna (dari bagian 6.4) dengan validasi data operasional dan kriptografis ini, perusahaan beralih dari model kepatuhan "Trust Me" (percaya diri) ke model "Trust but Verify, then Cryptographically Prove" (percaya tapi verifikasi, lalu buktikan secara kriptografis). Ini menciptakan benteng pertahanan terhadap litigasi lingkungan, penalti regulasi CSRD, dan kerusakan reputasi akibat tuduhan greenwashing.
