@@ -32337,3 +32337,81 @@ Analisis ini menggunakan algoritma *Weighted Vector Correlation* yang memetakan 
 Risiko Resiliensi Total ($R_{total}$) dihitung dengan bobot dinamis berdasarkan sensitivitas industri perusahaan:
 
 $$ R_{total} = lpha 
+
+### Algorithmic Ethics Enforcement & Micro-Behavioral Monitoring
+
+Bab ini mendefinisikan arsitektur inti dari **`compliance_governance_autonomous_ethical_compass_and_moral_hazard_detector.py`**. Modul ini beroperasi sebagai "kompas etis otonom" yang tidak hanya memeriksa kepatuhan terhadap hukum (legal compliance), tetapi secara proaktif memindai **disonansi moral** dan **bias algoritmik** yang sering kali luput dari pemeriksaan regulasi tradisional namun dapat merusak reputasi jangka panjang dan integritas organisasi.
+
+Sistem ini menerapkan metodologi **Computational Ethnography** untuk memantau dinamika manusia-AI, memastikan bahwa otomatisasi tidak mengikis nilai inti perusahaan (*core corporate values*).
+
+#### 1. Metodologi Inti: Computational Ethnography & Anomaly Detection
+
+Modul ini bergerak melampaui analisis logis sederhana dengan menerapkan etnografi komputasional, yaitu pendekatan sistematis untuk memahami perilaku sosial melalui data digital. Ini dilakukan melalui tiga lapisan pemindaian real-time:
+
+1.  **Pemantauan Pola Perilaku Karyawan (Human Behavioral Pattern Monitoring):**
+    Menggunakan stream data analitik perilaku (`--behavioral-analytics-stream`), sistem mengidentifikasi anomali yang mengindikasikan *Moral Hazard*. Misalnya, peningkatan drastis dalam volume keputusan berisiko tinggi oleh tim tertentu tanpa peningkatan kompensasi atau kompetensi yang sebanding, yang dapat mengindikasikan bahwa karyawan merasa "aman" secara korporat dan mengambil risiko berlebihan.
+
+2.  **Audit Bias Algoritmik Dinamis (Dynamic Algorithmic Bias Auditing):**
+    Dengan memuat konfigurasi deteksi bias dari `--algorithmic_bias_models`, sistem secara kontinu memindai output dari agen otonom sebelumnya. Sistem mendeteksi ketidakseimbangan statistik (statistical parity) atau ketidakadilan diskriminatif dalam rekomendasi keputusan, memastikan bahwa AI tidak mengulang atau memperburuk bias historis dalam rekrutmen, penentuan kredit, atau alokasi sumber daya.
+
+3.  **Deteksi *Ethical Drift* (Pergeseran Etika Bertahap):**
+    Menggunakan `--ethical_framework_rules`, sistem membandingkan keputusan operasional terhadap prinsip utilitarianisme (manfaat terbesar untuk jumlah terbanyak) dan deontologi (kewajiban moral absolut). Sistem mendeteksi *ethical drift*—pergeseran kecil yang bertahap di mana standar etika ditoleransi demi efisiensi jangka pendek, yang dapat berakumulasi menjadi krisis integritas yang signifikan.
+
+#### 2. Standarde & Kerangka Kepatuhan Global
+
+Sistem ini dirancang untuk mematuhi dan melampaui standar internasional utama dalam tata kelola AI dan etika bisnis:
+
+*   **ISO/IEC 42001:2023 (Artificial Intelligence Management System - AIMS):**
+    Modul ini mengimplementasikan klausul-klausul kunci dari standar AIMS, khususnya pada kontrol **Annex A.5.2 (Bias)** dan **A.5.3 (Security of AI Systems)**. Sistem memastikan bahwa proses pengumpulan data, pelatihan model, dan operasional AI dilakukan dengan transparansi dan akuntabilitas yang terdokumentasi, menyediakan jejak audit (*audit trail*) yang lengkap untuk tujuan sertifikasi eksternal.
+
+*   **OECD Principles on Responsible AI applied to Corporate Governance:**
+    Sistem memetakan keputusan otonom terhadap lima prinsip utama OECD:
+    1.  *Inclusive Growth, Sustainable Development & Well-being:* Apakah keputusan ini menguntungkan seluruh pemangku kepentingan atau hanya kelompok tertentu?
+    2.  *Human-centered Values & Fairness:* Apakah sistem menghormati hak asasi manusia dan mencegah diskriminasi?
+    3.  *Transparency & Explainability:* Dapatkah sistem menjelaskan alasan di balik rekomendasi etisnya?
+    4.  *Robustness, Security & Safety:* Apakah sistem tahan terhadap manipulasi atau kesalahan yang berbahaya?
+    5.  *Accountability:* Apakah ada mekanisme yang jelas untuk menanggung jawab atas dampak keputusan AI?
+
+#### 3. Mekanisme *Bias Intervention Trigger* (Pemicu Intervensi Bias)
+
+Salah satu fitur paling kritis dari modul ini adalah kemampuan untuk mengambil tindakan korektif secara otomatis. Jika sistem mendeteksi bukti kuat dari **bias diskriminatif** atau **manipulasi etis**, *Bias Intervention Trigger* akan diaktifkan melalui protokol berikut:
+
+1.  **Deteksi & Konfirmasi (Detection & Verification):**
+    Algoritma memindai keluaran agen strategis. Jika deviasi dari prinsip etika melebihi ambang batas konfigurasi (`threshold_sensitivity` dalam `ethical_framework_rules`), sistem menandai kejadian tersebut sebagai `HIGH_PRIORITY_ETHICAL_VIOLATION`.
+
+2.  **Penandaan & Isolasi (Flagging & Quarantine):**
+    Keputusan yang terdampak tidak serta merta dihentikan secara brutal (yang dapat mengganggu operasional), tetapi langsung ditandai dan diisolasi ke dalam *quarantine queue*. Semua eksekusi yang bergantung pada keputusan tersebut sementara dihentikan hingga tinjauan ulang.
+
+3.  **Penghentian Eksekusi Otomatis (Automatic Execution Halt):**
+    Dalam skenario yang melibatkan risiko hukum tinggi atau diskriminasi terverifikasi (misalnya, bias gender dalam promosi karyawan atau bias rasial dalam penolakan pinjaman), sistem secara otomatis mengirimkan sinyal `STOP_EXECUTION` ke modul eksekusi strategis. Ini memastikan bahwa keputusan yang tidak etis atau ilegal tidak pernah mencapai tahap implementasi lapangan.
+
+4.  **Notifikasi & Laporan Tinjauan Manusia (Human-in-the-Loop Notification):**
+    Sistem menghasilkan laporan insiden etika yang terperinci, termasuk log penyebab penolakan, bukti bias yang ditemukan, dan saran mitigasi. Laporan ini diteruskan kepada Dewan Direksi atau Komite Etika untuk tinjauan manusia (*human oversight*) sebelum keputusan dapat direvisi dan dieksekusi kembali.
+
+#### 4. Implementasi Teknis & Parameter Konfigurasi
+
+Modul ini dirancang sebagai komponen modular yang dapat diintegrasikan ke dalam pipeline tata kelola yang ada. Berikut adalah spesifikasi teknis untuk eksekusi:
+
+```bash
+python compliance_governance_autonomous_ethical_compass_and_moral_hazard_detector.py \
+    --behavioral-analytics-stream /data/streams/employee_behavior_logs.csv \
+    --algorithmic_bias_models /config/bias_detection_models/v2_config.yaml \
+    --ethical_framework_rules /config/rules/utilitarian_deontological_framework.json \
+    --output_ethical_risk_report /reports/ethical_compass_risk_report_v1.json
+```
+
+**Penjelasan Argumen:**
+
+*   `--behavioral-analytics-stream`: Path ke file atau stream data yang berisi log perilaku karyawan, metadata keputusan operasional, dan indikator keterlibatan. Data ini digunakan untuk mendeteksi anomali perilaku yang mengindikasikan *moral hazard*.
+*   `--algorithmic_bias_models`: Path ke direktori konfigurasi yang berisi definisi metrik bias (seperti Disparate Impact Ratio, Equal Opportunity Difference) dan model deteksi bias yang digunakan untuk memindai output agen AI.
+*   `--ethical_framework_rules`: Path ke file JSON/YAML yang mendefinisikan aturan etika perusahaan. File ini berisi bobot untuk prinsip utilitarianisme dan deontologi, serta daftar nilai inti perusahaan yang tidak boleh dilanggar.
+*   `--output_ethical_risk_report`: Path output di mana sistem akan menyimpan laporan komprehensif tentang risiko etika yang terdeteksi, rekomendasi mitigasi, dan status kepatuhan moral.
+
+#### 5. Integrasi dengan Siklus Tata Kelola Resilien
+
+Dalam ekosistem yang lebih luas yang telah kita bahas sebelumnya, modul ini berfungsi sebagai **penghalang moral terakhir**. Sementara simulasi fidusia memastikan kelegalan dan agen strategis memastikan profitabilitas, *Ethical Compass* memastikan **keabsahan moral**.
+
+Dengan mengintegrasikan pemindaian etika mikro ini, perusahaan tidak hanya menghindari denda regulasi, tetapi juga membangun modal reputasi yang tahan terhadap krisis. Sistem ini memastikan bahwa di era otomatisasi penuh, "hati nurani" perusahaan tetap diprogram ke dalam setiap lapisan pengambilan keputusan, mencegah degradasi nilai inti dan menjaga kepercayaan pemangku kepentingan pada tingkat yang tertinggi.
+
+---
+*Catatan Teknis: Untuk penggunaan produksi, disarankan untuk menyinkronkan pembaruan `ethical_framework_rules` secara berkala dengan Dewan Etika Perusahaan guna mencerminkan evolusi norma sosial dan harapan pemangku stakeholders.*
