@@ -35382,3 +35382,53 @@ LSRP adalah mekanisme pertahanan otomatis yang diaktifkan ketika terjadi guncang
 > 5. Investor diinformasikan melalui laporan otomatis bahwa likuiditas telah diamankan untuk memastikan operasional tidak terganggu selama investigasi, menjaga kepercayaan pasar bahwa perusahaan tidak akan mengalami *technical default*.
 
 Dengan integrasi LSRP, perusahaan tidak hanya "bertahan" dari krisis, tetapi juga menavigasi krisis dengan cara yang menunjukkan ketangguhan finansial (*financial resilience*), yang pada gilirannya dapat memulihkan kepercayaan pasar lebih cepat setelah krisis berlalu.
+
+
+Berikut adalah konten lanjutan untuk file `README.md`, yang secara komprehensif mendokumentasikan arsitektur teknis, algoritma, dan metodologi di balik agen penenang *moral hazard* dan penyangga risiko kedaulatan.
+
+---
+
+## 3. Agen Penyangga Risiko Kedaulatan & Netralisasi Moral Hazard
+
+Bagian ini mendokumentasikan implementasi teknis dari `compliance_governance_autonomous_moral_hazard_insurance_repricing_and_catastrophic_risk_pooling_agent.py`. Agen ini bertindak sebagai jembatan kritis antara ketahanan likuiditas internal, integritas fidusia, dan mekanisme pasar asuransi korporat otonom. Tujuannya adalah untuk menyelesaikan paradoks keamanan finansial dengan mengonversi kepatuhan etis menjadi aset likuid yang dapat dihipotekkan, sekaligus menetralkan *moral hazard* melalui penentuan premi yang sensitif terhadap perilaku (*risk-adjusted pricing*).
+
+### 3.1. Arsitektur Integrasi Data
+
+Agen ini tidak beroperasi dalam vakum, melainkan merupakan node konvergen dari tiga subsistem utama:
+
+1.  **Input Likuiditas (`..._liquidity_optimization_agent.py`)**: Menyediakan laporan Ketahanan Likuiditas (`Liquidity Resilience Report`). Data ini mengidentifikasi buffer kas yang tersedia dan biaya implikasi likuidasi aset Tier 3.
+2.  **Input Integritas (`..._fiduciary_liability_tracker.py`)**: Menyediakan data integritas fidusia dari simulasi dewan otonom, memastikan bahwa keputusan strategis tidak melanggar kewajiban hukum dasar sebelum mengaktifkan skema asuransi.
+3.  **Input Perilaku & Regulasi (File Lokal)**:
+    *   `cultural_intelligence_risk_report_v1.json`: Indeks kepatuhan etis real-time.
+    *   `immutable_governance_ledger_v1.db`: Riwayat pelanggaran yang tidak dapat diubah, digunakan sebagai *ground truth* untuk penentuan risiko kronis.
+
+### 3.2. Parameter Eksekusi (CLI)
+
+Script ini dirancang untuk dijalankan dengan argumen berikut untuk memastikan kontinuitas dan auditabilitas:
+
+| Argumen | Deskripsi | Tipe Data | Contoh Nilai |
+| :--- | :--- | :--- | :--- |
+| `--corporate_risk_profile` | Path ke file profil risiko gabungan (finansial, hukum, budaya) yang menjadi basis kalkulasi. | `str` | `/data/profiles/combined_risk_v2.json` |
+| `--insurance_market_indices` | Path ke data pasar reasuransi global, spread kredit, dan skenario bencana ekstrem (*stress tests*). | `str` | `/data/market/sovereign_catastrophe_indices.csv` |
+| `--ethical_compliance_score_history` | Path ke riwayat historis skor integritas perusahaan (time-series data). | `str` | `/data/history/compliance_scores_q1_q3.db` |
+| `--output_resilience_insurance_strategy` | Path tujuan untuk menyimpan strategi hedging risiko dan alokasi cadangan dana bencana yang dihasilkan. | `str` | `/output/strategies/moral_hazard_insurance_strategy_v1.json` |
+
+**Contoh Penggunaan:**
+```bash
+python compliance_governance_autonomous_moral_hazard_insurance_repricing_and_catastrophic_risk_pooling_agent.py \
+    --corporate_risk_profile ./data/profiles/corp_risk_profile.json \
+    --insurance_market_indices ./data/market/reinsurance_spread_index.csv \
+    --ethical_compliance_score_history ./data/history/compliance_ledger.db \
+    --output_resilience_insurance_strategy ./output/strategy_output.json
+```
+
+### 3.3. Algorithmic Insurance Hedging & Moral Hazard Neutralization
+
+Modul inti dari agen ini menerapkan metodologi canggih untuk mengubah kepatuhan dari "biaya operasional" menjadi "mitigasi risiko aktif".
+
+#### 3.3.1. Dynamic Premium Pricing via Ethical Telematics
+
+Sistem摒弃 (*rejects*) model penentuan premi statis tradisional. Sebaliknya, ia menerapkan **Dynamic Premium Pricing via Ethical Telematics**, di mana premi asuransi korporat dihitung secara real-time berdasarkan *telematics etis*—yaitu jejak digital perilaku manajemen dan kepatuhan karyawan.
+
+*   **Mekanisme Sinyal Harga:** Premi ($P$) bukan sekadar fungsi dari eksposur risiko finansial ($R_f$), tetapi fungsi kuat dari indeks kepatuhan etis ($C_e$) dan riwayat pelanggaran ($V_{hist}$).
+    $$ P_{adjusted} = P_{base} 	imes (1 - lpha 
