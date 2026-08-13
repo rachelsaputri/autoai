@@ -40253,3 +40253,37 @@ Hasil dari prosedur ini ditulis ke dalam `strategic_recommendations` pada output
 ### Integrasi dengan Bagian Sebelumnya
 
 Dengan adanya modul *Ontological Interoperability* ini, output JSON dari bagian sebelumnya (`causal_strength`, `gnn_anomalies`) tidak lagi berdiri sendiri. Setiap `entity_id` dalam `gnn_anomalies` kini dapat ditelusuri kembali ke definisi hukumnya di dalam ontologi sumber, dan skor risikonya telah disesuaikan dengan konteks multi-jurisdiksi. Ini mengubah data mentah menjadi **insight strategis yang dapat ditindaklanjuti**, memastikan bahwa kepatuhan berfungsi sebagai sistem saraf pusat yang responsif, alih-alih hanya menjadi beban administratif.
+
+
+Berikut adalah konten lanjutan untuk `README.md`, yang mencakup dokumentasi teknis mendalam dan skrip implementasi sesuai spesifikasi.
+
+---
+
+## 9.5 Otomatisasi Adaptasi Yurisprudensi Dinamis: Engine Intelektual Hukum Adaptif
+
+Modul ini, `Adaptive Jurisprudence Engine`, merupakan tulang punggung evolusi strategis perusahaan. Berbeda dengan sistem kepatuhan tradisional yang statis (berbasis teks hukum yang di-*hardcode*), sistem ini berfungsi sebagai organ saraf pusat yang mendeteksi "gesekan" antara aturan tertulis dan interpretasi hakim terkini. Dengan mengintegrasikan data output dari *Knowledge Graph Interoperability* (indeks risiko) dan *Forensic Resilience* (ketahanan pasca-krisis), sistem ini secara proaktif memperbarui Ontologi Hukum perusahaan.
+
+### 9.5.1 Arsitektur Sistem & Alur Data
+
+Sistem ini beroperasi dalam tiga tahap utama:
+1.  **Ingest & Embedding:** Membaca keputusan pengadilan global (*Global Judicial Decrees*) dan menyandikannya ke dalam ruang vektor semantik.
+2.  **Gap Analysis & Drift Detection:** Membandingkan kebijakan internal perusahaan dengan preseden hukum terbaru untuk mendeteksi "Legal Drift" (penyimpangan interpretasi).
+3.  **Dynamic Ontology Update:** Melakukan *hot-patching* pada Graf Pengetahuan Hukum tanpa menghentikan operasional, menghasilkan laporan evolusi strategi.
+
+#### Input Dependencies
+Sistem ini bergantung pada output dari dua modul pendahulu:
+*   `compliance_governance_autonomous_cross_domain_knowledge_graph_interoperability_and_standard_mapping_engine.py`: Menyediakan `unified_risk_scores` dan `entity_contexts`.
+*   `compliance_governance_autonomous_forensic_resilience_and_post_crisis_adaptive_learning_loop.py`: Menyediakan `resilience_metrics` dan `past_crisis_patterns`.
+
+### 9.5.2 Dokumentasi Teknis: Metodologi Lanjutan
+
+Bagian ini menjelaskan fondasi teknis yang memungkinkan sistem untuk "memahami" nuansa hukum, bukan hanya kata kunci.
+
+#### 1. Vector-Space Similarity Matching for Judicial Precedents
+Sistem tidak menggunakan pencocokan string (`string matching`) yang rapuh. Sebaliknya, ia menggunakan **High-Dimensional Semantic Embedding** (berbasis model bahasa hukum khusus seperti *Legal-BERT* atau *Lawformer*).
+
+*   **Representasi Kasus:** Setiap putusan pengadilan dipecah menjadi bagian-bagian semantik: *Facts* (Fakta), *Ratio Decidendi* (Alasan Keputusan), dan *Holding* (Keputusan Akhir).
+*   **Embedding:** Setiap komponen diubah menjadi vektor densitas $V \in \mathbb{R}^d$.
+*   **Kosmos Hukum Internal:** Kebijakan internal perusahaan juga di-*embed* menjadi vektor $V_{policy}$.
+*   **Perhitungan Kemiripan:** Sistem menghitung Cosine Similarity ($S$) antara $V_{policy}$ dan kumpulan vektor preseden historis $P_{historic}$.
+    $$ S = rac{V_{policy} 
