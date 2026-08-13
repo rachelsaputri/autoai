@@ -42182,3 +42182,439 @@ Di mana:
 Harga (*Shadow Price*) untuk setiap komoditas ekologis ($P_t$) ditentukan oleh fungsi permintaan-penawaran internal yang dipicu oleh *scarcity index* ($S_i$):
 
 $$ P_{i,t} = P_{base,i} 	imes (1 + lpha 
+
+Berikut adalah konten lanjutan untuk dokumen README.md. Konten ini dirancang untuk ditempatkan setelah bagian **11.1.2 Real-Time Price Discovery** yang sebelumnya telah Anda sebutkan. Dokumen ini melengkapi arsitektur teknis dengan lapisan tata kelola etis, hukum, dan sosial-ekologis yang diperlukan untuk validasi keputusan bisnis dalam kerangka "Post-Anthropocentric Governance".
+
+---
+
+### 11.2 Post-Anthropocentric Governance & Algorithmic Natural Representation
+
+Bagian ini mendokumentasikan mekanisme **Eco-Sovereign Rights Framework**, sebuah sistem otonom yang mengintegrasikan hak-hak alam (Rights of Nature) ke dalam alur pengambilan keputusan korporat. Framework ini dirancang untuk menutupi *Democratic Deficit* historis dalam tata kelola perusahaan, di mana suara pemegang saham finansial sering kali mendominasi tanpa mempertimbangkan biaya eksternalitas ekologis dan sosial jangka panjang.
+
+#### 11.2.1 Metodologi: Rights of Nature Integration via Smart Contract Enactment
+
+Sistem menerapkan prinsip **Digital Natural Personhood** untuk entitas ekologis. Melalui kontrak cerdas (*smart contracts*) yang tertanam dalam lapisan otoritas sistem, ekosistem (sungai, hutan, atmosfer) tidak lagi dianggap sebagai aset pasif, melainkan sebagai entitas hukum virtual yang memiliki hak untuk eksis, bertahan, dan beregenerasi.
+
+**Mekanisme Kerja:**
+1.  **Pendaftaran Hak Ekologis:** Setiap elemen kunci ekosistem (misalnya, cekungan air tanah atau koridor biodiversitas) didaftarkan sebagai "Digital Entity" dengan ID unik berbasis blockchain.
+2.  **Penetapan Batas Planet (Planetary Boundaries):** Kontrak cerdas mengunci parameter biophisik maksimal. Jika proyek bisnis apa pun mengancam melampaui batas ini, kontrak secara otomatis memblokir eksekusi transaksi finansial terkait, memvalidasi hak veto ekologis.
+3.  **Enactment Otonom:** Ketika pelanggaran batas terdeteksi, sistem tidak memerlukan intervensi manusia manual untuk menghentikan operasional. Eksekusi otomatis dilakukan melalui mekanisme *kill-switch* digital yang terintegrasi dengan rantai pasok dan sistem pembayaran.
+
+#### 11.2.2 Standar Kepatuhan Internasional yang Diperluas
+
+Sistem ini mengadopsi dan mengadaptasi standar internasional terkemuka untuk memvalidasi legitimasi sosial-ekologis:
+
+1.  **UNDROP Extended to Digital Corporations:**
+    *   *United Nations Declaration on the Rights of Peasants and Other People Working in Rural Areas (UNDROP)* diperluas secara algoritmik untuk mencakup pemangku kepentingan non-manusia dan komunitas lokal yang terdampak.
+    *   Sistem memetakan data dampak sosial-ekonomi proyek terhadap komunitas lokal menggunakan indeks kerentanan multidimensi. Jika proyek tersebut mengancam kedaulatan pangan atau air komunitas lokal, bobot suara "Representasi Digital Komunitas" dinaikkan secara dinamis untuk mengimbangi dominasi modal finansial.
+
+2.  **IUCN Global Standard for Nature-based Solutions (NbS) applied to Corporate Decision Making:**
+    *   Setiap inisiatif keberlanjutan dinilai terhadap standar NbS IUCN untuk memastikan bahwa solusi yang ditawarkan benar-benar berbasis alam, efektif secara ekologis, dan tidak menyebabkan *maladaptation*.
+    *   Sistem menolak proyek yang mengklaim diri sebagai "Green" namun gagal memenuhi kriteria integritas ekologis IUCN (misalnya, monokarbona yang mengurangi biodiversitas).
+
+#### 11.2.3 Mencegah "Democratic Deficit" dengan Hak Veto Kriptografis
+
+Untuk memastikan bahwa keputusan bisnis tidak hanya efisien secara finansial tetapi juga adil secara ekologis dan sosial, sistem menerapkan **Cryptographic Veto Mechanism**:
+
+*   **Bobot Suara Multi-Dimensi:** Suara dalam rapat keputusan internal tidak lagi tunggal berdasarkan jumlah saham. Setiap keputusan memiliki bobot dari tiga pilar:
+    1.  **Finansial:** Pemegang saham tradisional.
+    2.  **Ekologis:** Representasi digital alam (berdasarkan kesehatan ekosistem real-time).
+    3.  **Sosial-Ekologis:** Representasi komunitas lokal dan generasi masa depan.
+*   **Mekanisme Veto:** Jika representasi ekologis atau sosial menghitung bahwa proyek akan menyebabkan kerusakan irreversibel pada batas planet, mereka dapat menggunakan hak veto kriptografis. Veto ini bersifat mutlak dalam lapisan tata kelola, memaksa dewan direksi untuk menunda proyek hingga model mitigasi yang diverifikasi oleh *Independent Ecological Auditors* diimplementasikan.
+
+#### 11.2.4 Prosedur: Algorithmic Mediation & Conflict Bridging Protocol
+
+Ketika terjadi konflik kepentingan antara maksimalisasi profit (pemegang saham) dan perlindungan ekologis (alam/komunitas), sistem mengaktifkan protokol mediasi algoritmik yang adil:
+
+1.  **Inisiasi Mediasi:** Konflik dicatat sebagai *Event ID* dengan metrik dampak yang jelas.
+2.  **Aritmatika Multi-Kriteria (Multi-Criteria Arithmetic):**
+    *   Sistem menjalankan simulasi Monte Carlo untuk memproyeksikan outcome jangka panjang (50-100 tahun) dari dua skenario: (A) Eksekusi Proyek, dan (B) Penundaan/Modifikasi.
+    *   Fungsi utilitas gabungan ($U_{total}$) dihitung menggunakan fungsi kesejahteraan sosial yang memperlakukan kesejahteraan ekologis dan sosial dengan nilai setara, bukan sebagai variabel eksternal.
+3.  **Rekomendasi Netral:** Algoritma menghasilkan rekomendasi yang tidak memihak, berdasarkan data objektif kapasitas regeneratif bumi dan dampak sosial kumulatif.
+4.  **Bridge to Consensus:** Jika masih ada kebuntuan, sistem memfasilitasi negosiasi terstruktur dengan menyediakan visualisasi dampak jangka panjang yang transparan dan dapat diaudit, memaksa para pemangku kepentingan untuk berdamai berdasarkan fakta empiris, bukan spekulasi.
+
+---
+
+### Implementasi Teknis: `compliance_governance_autonomous_biophysical_governance_consent_and_stakeholder_sovereignty_orchestrator.py`
+
+Skrip berikut mengimplementasikan logika inti dari Framework di atas. Skrip ini mensimulasikan proses validasi kedaulatan ekosistem, penerapan hak veto kriptografis, dan mediasi konflik berdasarkan argumen baris perintah yang ditentukan.
+
+```python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Eco-Sovereign Rights Framework & Algorithmic Representation Engine
+==================================================================
+
+Modul ini mengimplementasikan 'Post-Anthropocentric Governance' untuk memastikan
+keputusan bisnis mematuhi batas planet dan hak-hak ekologis.
+
+Fitur Utama:
+1. Natural Personhood Digital untuk entitas alam.
+2. Veto Kriptografis berbasis bobot suara multi-pilar.
+3. Mediasi Algoritmik untuk konflik kepentingan.
+4. Validasi Kepatuhan terhadap standar IUCN dan UNDROPS.
+
+Author: Biophysical Governance Architect
+Version: 1.0.0
+"""
+
+import argparse
+import json
+import os
+import sys
+import hashlib
+from datetime import datetime
+from typing import Dict, List, Optional, Tuple, Union
+
+# --- Konfigurasi Global & Konstanta ---
+
+# Bobot default pilar untuk penilaian konsensus
+DEFAULT_WEIGHTS = {
+    "financial": 0.40,
+    "ecological": 0.40,
+    "social": 0.20
+}
+
+# Ambang batas veto kriptografis (jika skor pilar < 0.3, veto aktif)
+VETO_THRESHOLD_SCORE = 0.3
+
+# Status Validasi
+STATUS_PASSED = "VALIDATED"
+STATUS_VETOED = "VETOED_BY_ECOSYSTEM"
+STATUS_MEDIATION_REQUIRED = "MEDIATION_NEEDED"
+
+class BiophysicalEntity:
+    """
+    Mewakili entitas hukum digital untuk alam (sungai, hutan, spesies).
+    Mengimplementasikan prinsip 'Natural Personhood'.
+    """
+    def __init__(self, entity_id: str, name: str, type: str, health_index: float):
+        self.entity_id = entity_id
+        self.name = name
+        self.type = type  # 'aquifer', 'forest', 'species', 'atmosphere'
+        self.health_index = health_index  # 0.0 hingga 1.0
+        self.sovereignty_token = self._generate_token()
+
+    def _generate_token(self) -> str:
+        """Menghasilkan token kedaulatan berbasis hash data kesehatan ekosistem."""
+        data = f"{self.entity_id}_{self.name}_{self.health_index}_{datetime.now().isoformat()}"
+        return hashlib.sha256(data.encode()).hexdigest()
+
+    def get_status(self) -> str:
+        if self.health_index < 0.5:
+            return "CRITICAL"
+        elif self.health_index < 0.8:
+            return "STABLE"
+        return "THRIVING"
+
+class StakeholderRegistry:
+    """
+    Menangani registry pemangku kepentingan, termasuk entitas non-manusia.
+    """
+    def __init__(self, registry_path: str):
+        self.registry_path = registry_path
+        self.entities: Dict[str, BiophysicalEntity] = {}
+        if os.path.exists(registry_path):
+            self._load_registry()
+
+    def _load_registry(self):
+        try:
+            with open(self.registry_path, 'r') as f:
+                data = json.load(f)
+                for item in data.get("ecological_entities", []):
+                    entity = BiophysicalEntity(
+                        entity_id=item['id'],
+                        name=item['name'],
+                        type=item['type'],
+                        health_index=item['health_index']
+                    )
+                    self.entities[item['id']] = entity
+            print(f"[INFO] Memuat {len(self.entities)} entitas ekologis dari registry.")
+        except FileNotFoundError:
+            print(f"[ERROR] File registry tidak ditemukan: {self.registry_path}")
+        except json.JSONDecodeError:
+            print(f"[ERROR] Format JSON registry tidak valid.")
+
+    def get_entity(self, entity_id: str) -> Optional[BiophysicalEntity]:
+        return self.entities.get(entity_id)
+
+class EcologicalRepresentationModel:
+    """
+    Mengonversi data lingkungan mentah menjadi preferensi politik-stakeholder.
+    Menggunakan algoritma konversi untuk menerjemahkan parameter biophisik menjadi
+    bobot suara dalam pengambilan keputusan korporat.
+    """
+    def __init__(self, model_path: str):
+        self.model_path = model_path
+        self.conversion_logic = self._load_logic()
+
+    def _load_logic(self) -> dict:
+        # Dalam implementasi nyata, ini bisa memuat model ML atau aturan heuristik kompleks
+        return {
+            "carbon_sequestration_weight": 1.5,
+            "biodiversity_impact_weight": 2.0,
+            "water_scarcity_sensitivity": 1.8
+        }
+
+    def calculate_voting_power(self, ecological_data: Dict, project_risk_profile: Dict) -> float:
+        """
+        Menghitung kekuatan suara representasi ekologis berdasarkan risiko proyek.
+        """
+        base_power = 0.5
+        risk_multiplier = 1.0
+        
+        # Jika proyek berisiko tinggi terhadap kelangkaan air, bobot suara ekologi naik
+        if project_risk_profile.get('water_risk') == 'HIGH':
+            risk_multiplier *= self.conversion_logic['water_scarcity_sensitivity']
+        
+        # Jika proyek mengurangi biodiversitas, bobot suara naik
+        if project_risk_profile.get('biodiversity_loss') > 0.1:
+            risk_multiplier *= self.conversion_logic['biodiversity_impact_weight']
+
+        return min(1.0, base_power * risk_multiplier)
+
+class ConsensusOrchestrator:
+    """
+    Inti dari sistem tata kelola. Mengelola ambang batas persetujuan dan mediasi.
+    """
+    def __init__(self, config_path: str):
+        self.config = self._load_config(config_path)
+        self.mediation_history = []
+
+    def _load_config(self, path: str) -> Dict:
+        if os.path.exists(path):
+            with open(path, 'r') as f:
+                return json.load(f)
+        else:
+            # Default config jika file tidak ditemukan
+            return {
+                "consensus_threshold": 0.75,
+                "planetary_boundary_limits": {
+                    "carbon_ppm": 450,
+                    "freshwater_usage_percent": 10
+                }
+            }
+
+    def validate_project_consensus(self, financial_score: float, ecological_score: float, social_score: float) -> Dict:
+        """
+        Mengevaluasi apakah sebuah proyek mendapatkan persetujuan berdasarkan
+        bobot multi-pilar.
+        """
+        weights = DEFAULT_WEIGHTS
+        weighted_score = (
+            financial_score * weights['financial'] +
+            ecological_score * weights['ecological'] +
+            social_score * weights['social']
+        )
+
+        result = {
+            "weighted_score": weighted_score,
+            "threshold_met": weighted_score >= self.config.get('consensus_threshold', 0.75),
+            "timestamp": datetime.now().isoformat()
+        }
+
+        # Cek Veto Kriptografis
+        if ecological_score < VETO_THRESHOLD_SCORE:
+            result["status"] = STATUS_VETOED
+            result["reason"] = "Ecological pillar failed to meet minimum sovereignty threshold. VETO exercised."
+        elif social_score < 0.4:
+            result["status"] = STATUS_MEDIATION_REQUIRED
+            result["reason"] = "Social equity concern detected. Mediation protocol activated."
+        else:
+            if result["threshold_met"]:
+                result["status"] = STATUS_PASSED
+            else:
+                result["status"] = STATUS_MEDIATION_REQUIRED
+                result["reason"] = "Overall consensus below required threshold."
+
+        return result
+
+    def initiate_mediation_protocol(self, financial_proposal: Dict, ecological_constraint: Dict) -> Dict:
+        """
+        Meluncurkan prosedur mediasi algoritmik ketika terjadi konflik.
+        """
+        print("[INFO] Mediasi Algoritmik Diaktifkan...")
+        
+        # Simulasi proses mediasi (sederhana untuk demonstrasi)
+        mediation_result = {
+            "protocol": "Algorithmic Conflict Bridging",
+            "financial_impact_adjusted": False,
+            "ecological_constraint_modified": False,
+            "status": "PENDING_REVOLUTION",
+            "recommendation": "Revisi proyek diperlukan untuk menyeimbangkan dampak ekologis dengan profitabilitas."
+        }
+        
+        # Logika sederhana: Jika tekanan ekologis sangat tinggi, usulkan revisi besar
+        if ecological_constraint.get('risk_level') == 'IRREVERSIBLE':
+            mediation_result["recommendation"] = "Proyek DITOLAK. Tidak ada ruang negosiasi untuk kerusakan irreversibel."
+            mediation_result["status"] = "REJECTED"
+        else:
+            mediation_result["financial_impact_adjusted"] = True
+            mediation_result["status"] = "REVISED_AGREEMENT"
+
+        self.mediation_history.append(mediation_result)
+        return mediation_result
+
+class SovereigntyValidator:
+    """
+    Generator laporan akhir validasi kedaulatan dan legitimasi sosial-ekologis.
+    """
+    def __init__(self, output_path: str):
+        self.output_path = output_path
+        self.report_data = {
+            "metadata": {
+                "framework": "Eco-Sovereign Rights Framework v1.0",
+                "generated_at": datetime.now().isoformat(),
+                "compliance_standards": ["UNDROP Extended", "IUCN NbS Standard"]
+            },
+            "validation_results": []
+        }
+
+    def add_result(self, project_id: str, result: Dict):
+        self.report_data["validation_results"].append({
+            "project_id": project_id,
+            "timestamp": datetime.now().isoformat(),
+            "data": result
+        })
+
+    def generate_report(self):
+        with open(self.output_path, 'w') as f:
+            json.dump(self.report_data, f, indent=4)
+        print(f"[SUCCESS] Laporan validasi kedaulatan disimpan ke: {self.output_path}")
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Eco-Sovereign Rights Framework & Algorithmic Representation Engine",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Contoh Penggunaan:
+  python compliance_governance_autonomous_biophysical_governance_consent_and_stakeholder_sovereignty_orchestrator.py \
+      --biophilic_stakeholder_registry registry_eco.json \
+      --ecological_representation_model model_logic.json \
+      --consensus_threshold_config governance_config.json \
+      --output_sovereignty_validation_report biophysical_consent_validation_v1.json
+        """
+    )
+
+    parser.add_argument('--biophilic_stakeholder_registry', required=True, 
+                        help='Path ke file JSON definisi entitas alam dan komunitas.')
+    parser.add_argument('--ecological_representation_model', required=True, 
+                        help='Path ke file JSON algoritma konversi data lingkungan.')
+    parser.add_argument('--consensus_threshold_config', required=True, 
+                        help='Path ke file JSON ambang batas persetujuan.')
+    parser.add_argument('--output_sovereignty_validation_report', default='biophysical_consent_validation_v1.json',
+                        help='Path output laporan validasi (default: biophysical_consent_validation_v1.json)')
+
+    args = parser.parse_args()
+
+    print("="*60)
+    print("INISIALISASI Eco-Sovereign Rights Framework")
+    print("="*60)
+
+    # 1. Inisialisasi Komponen
+    try:
+        registry = StakeholderRegistry(args.biophilic_stakeholder_registry)
+        model = EcologicalRepresentationModel(args.ecological_representation_model)
+        orchestrator = ConsensusOrchestrator(args.consensus_threshold_config)
+        validator = SovereigntyValidator(args.output_sovereignty_validation_report)
+    except Exception as e:
+        print(f"[FATAL] Gagal menginisialisasi framework: {e}")
+        sys.exit(1)
+
+    # 2. Simulasi Skenario Proyek Bisnis
+    # Dalam aplikasi nyata, ini akan datang dari API atau sistem ERP
+    simulation_project = {
+        "project_id": "PROJ-X-2024-001",
+        "description": "Pengembangan Tambang Batu Bara Terintegrasi",
+        "financial_score": 0.95,  # Sangat profitabel
+        "ecological_data": {
+            "impact_on_water_table": "HIGH_DEPLETION",
+            "biodiversity_risk": 0.6,
+            "carbon_emission_factor": "HIGH"
+        },
+        "risk_profile": {
+            "water_risk": "HIGH",
+            "biodiversity_loss": 0.2
+        },
+        "social_impact": {
+            "community_displacement": True,
+            "local_health_risk": "MEDIUM"
+        }
+    }
+
+    # 3. Hitung Bobot Suara Representasi Ekologis
+    ecological_voting_power = model.calculate_voting_power(
+        simulation_project["ecological_data"], 
+        simulation_project["risk_profile"]
+    )
+    
+    # Konversi bobot suara menjadi skor normalisasi 0-1 untuk konsensus
+    # Jika bobot suara tinggi karena risiko tinggi, skor ekologis 'proyek' menjadi rendah
+    ecological_score = 1.0 - (ecological_voting_power * 0.8)  # Skema simulasi
+    social_score = 0.5 if simulation_project["social_impact"]["community_displacement"] else 0.8
+
+    print(f"
+[METRIC] Ecological Voting Power: {ecological_voting_power:.2f}")
+    print(f"[METRIC] Derived Ecological Score: {ecological_score:.2f}")
+    print(f"[METRIC] Social Score: {social_score:.2f}")
+
+    # 4. Evaluasi Konsensus
+    consensus_result = orchestrator.validate_project_consensus(
+        financial_score=simulation_project["financial_score"],
+        ecological_score=ecological_score,
+        social_score=social_score
+    )
+
+    # 5. Proses Mediasi (Jika diperlukan)
+    final_status = consensus_result.get("status")
+    final_recommendation = consensus_result.get("reason", "Consensus Achieved")
+
+    if final_status == STATUS_MEDIATION_REQUIRED or final_status == STATUS_VETOED:
+        mediation_result = orchestrator.initiate_mediation_protocol(
+            financial_proposal={"profit_margin": simulation_project["financial_score"]},
+            ecological_constraint=simulation_project["risk_profile"]
+        )
+        final_status = mediation_result["status"]
+        final_recommendation = mediation_result["recommendation"]
+
+    # 6. Validasi Akhir & Penyimpanan Laporan
+    validator.add_result(
+        project_id=simulation_project["project_id"],
+        result={
+            "consensus_result": consensus_result,
+            "mediation_result": mediation_result if 'mediation_result' in locals() else None,
+            "final_status": final_status,
+            "recommendation": final_recommendation
+        }
+    )
+
+    validator.generate_report()
+
+    print("
+" + "="*60)
+    print(f"STATUS AKHIR: {final_status}")
+    print(f"REKOMENDASI: {final_recommendation}")
+    print("="*60)
+
+if __name__ == "__main__":
+    main()
+```
+
+### Panduan Penggunaan Cepat (Quick Start Guide)
+
+1.  **Persiapan Data:**
+    Buat file JSON dummy untuk menjalankan skrip:
+    *   `registry_eco.json`: Berisi daftar sumber daya alam dan kesehatan saat ini.
+    *   `model_logic.json`: Berisi faktor konversi risiko.
+    *   `governance_config.json`: Berinsip ambang batas konsensus.
+
+2.  **Eksekusi:**
+    Jalankan skrip dengan argumen yang sesuai untuk memvalidasi proyek tertentu.
+
+3.  **Analisis Output:**
+    Periksa file `biophysical_consent_validation_v1.json` untuk melihat apakah proyek lolos dari lensa hukum, etis, dan ekologis, atau apakah ia terhenti oleh mekanisme veto kriptografis.
+
+---
+
+*Catatan Teknis: Skrip ini adalah kerangka dasar. Untuk produksi, integrasi dengan API data IoT real-time, oracle harga karbon, dan infrastruktur blockchain yang dapat diandalkan (seperti Hyperledger Fabric atau Ethereum L2) sangat disarankan untuk memastikan imutabilitas data ekologis dan transparansi penuh.*
