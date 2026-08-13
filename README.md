@@ -39948,3 +39948,212 @@ if __name__ == "__main__":
 
 3.  **Analisis Output:**
     *   Periksa `algorithmic_trading_safety_v1.json` untuk melihat jejak audit lengkap setiap keputusan trading, termasuk status etika, dampak pasar, dan alasan penolakan atau persetujuan.
+
+
+### Semantic Knowledge Graph Architecture & Causal Inference Layer
+
+Modul `compliance_governance_autonomous_knowledge_graph_semantic_cognitive_core.py` merepresentasikan lompatan paradigma dari analisis kepatuhan berbasis aturan (*rule-based*) menuju analisis berbasis pemahaman semantik dan inferensi kausal. Sistem ini tidak lagi memandang setiap transaksi atau keputusan sebagai entitas yang terisolasi, melainkan sebagai node dalam jaringan dinamis yang saling terhubung melalui relasi logis, temporal, dan kausal.
+
+#### 1. Arsitektur Ontologi Dinamis dengan Logika Temporal
+
+Inti dari sistem ini adalah kemampuan untuk membangun dan memperbarui ontologi secara *real-time* seiring dengan masuknya aliran data baru. Berbeda dengan basis data relasional statis, arsitektur ini menggunakan pendekatan **Dynamic Ontology Construction** yang memungkinkan perubahan struktur pengetahuan tanpa memerlukan downtime atau migrasi skema manual.
+
+*   **Pemisahan Schema dan Instance:** Sistem memisahkan definisi kelas dan properti (*TBox*) dari data instansial spesifik (*ABox*). Ini memungkinkan skalabilitas horizontal saat volume transaksi meningkat, sementara konsistensi logika tetap terjaga.
+*   **Logika Temporal (Temporal Logic):** Setiap node dalam graph dilengkapi dengan metadata temporal (`validity_start`, `validity_end`, `state_history`). Ini memungkinkan sistem melakukan pertanyaan berbasis waktu, seperti: *"Apakah keputusan pencairan dana X pada T1 bertentangan dengan regulasi Y yang berlaku pada T2?"* atau *"Bagaimana pola hubungan antara entitas A dan B berubah selama periode volatilitas pasar tinggi?"*
+*   **Konsistensi Ontologi:** Menggunakan engine reasoner (seperti HermiT atau Pellet) untuk secara otomatis memeriksa konsistensi ontologi. Jika ada kontradaksi dalam aturan kepatuhan baru yang diinputkan, sistem akan menandai konflik tersebut sebelum diterapkan ke dalam graf operasional, mencegah "logika cacat" yang meracuni seluruh sistem intelijen.
+
+#### 2. Standar Kompatibilitas Enterprise: RDF 1.2 dan OWL 2 DL
+
+Untuk memastikan interoperabilitas dengan ekosistem kepatuhan yang sudah ada dan standar industri global, arsitektur ini mengadopsi spesifikasi W3C yang paling ketat:
+
+*   **RDF 1.2 (Resource Description Framework):** Digunakan sebagai kerangka kerja fundamental untuk merepresentasikan data sebagai triplet Subject-Predicate-Object. Standar ini memastikan bahwa data kepatuhan dapat dipertukarkan antar sistem (*interoperable*) tanpa kehilangan makna semantik.
+*   **OWL 2 DL (Web Ontology Language - Description Logic):** Memilih profil *DL* untuk menyeimbangkan ekspresivitas logika dan efisiensi komputasi. OWL 2 DL memungkinkan definisi kelas yang kompleks, termasuk pembatasan properti (*property restrictions*), kepribadian (*personality*), dan kesetaraan kelas (*class equivalence*). Ini krusial untuk mendefinisikan konsep kepatuhan yang rumit, misalnya, mendefinisikan "Individu Terkait" (*Politically Exposed Person - PEP*) berdasarkan hierarki keluarga dan afiliasi bisnis yang berlapis.
+
+#### 3. Kepatuhan terhadap ISO/IEC 30122-1 (Graph Data Science)
+
+Sistem ini dirancang sesuai dengan kerangka kerja **ISO/IEC 30122-1**, yang menetapkan persyaratan untuk sistem komputasi data grafik. Implementasi ini mencakup:
+
+*   **Manajemen Data Grafik Berskala Besar:** Optimasi penyimpanan dan kueri untuk graph dengan miliaran triplet, memastikan latensi rendah untuk kueri real-time.
+*   **Integrasi Algoritma Data Science:** Penyediaan antarmuka standar untuk mengintegrasikan algoritma deteksi komunitas (*community detection*), pemetaan kesamaan (*similarity mapping*), dan sentrality analisis langsung ke dalam pipeline kepatuhan.
+*   **Keamanan dan Privasi Data:** Mekanisme kontrol akses berbasis atribut (*Attribute-Based Access Control - ABAC*) yang diterapkan pada level node dan edge, memastikan hanya agen atau modul berwenang yang dapat mengakses informasi sensitif dalam graf.
+
+#### 4. Transformasi Data Mentah menjadi "Cognitive Truth"
+
+Proses inti dari modul ini adalah transformasi data struktural dan tidak terstruktur menjadi **Cognitive Truth**—sebuah representasi pengetahuan yang memetakan hubungan sebab-akibat (*causal links*) antara keputusan operasional, risiko kepatuhan, dan dampak reputasi.
+
+1.  **Ekstraksi Semantik:** Data mentah dari modul agen kepatuhan sebelumnya (bias, stres pasar, sentimen) diproses menggunakan NLP untuk mengekstrak entitas, konteks, dan intent.
+2.  **Penjajaran Semantik (*Semantic Alignment*):** Entitas yang diekstrak dipetakan ke ontologi perusahaan. Misalnya, kode internal untuk "Sektor Energi Terbarukan" dijajarkan dengan definisi standar industri dan definisi internal perusahaan untuk memastikan konsistensi makna.
+3.  **Inferensi Kausal:** Sistem menggunakan logika deduktif dan induktif untuk menyimpulkan hubungan yang tidak eksplisit. Jika Transaksi A memiliki karakteristik mirip dengan pola skema penipuan Y yang terdeteksi sebelumnya, sistem akan menetapkan bobot probabilitas tinggi bahwa A adalah bagian dari skema tersebut, bahkan jika belum ada pelanggaran regulasi spesifik yang dilanggar secara eksplisit.
+4.  **Visualisasi Hubungan Kontekstual:** Hasil akhir bukan sekadar daftar pelanggaran, tetapi peta jaringan yang menunjukkan bagaimana satu anomali kecil dapat memicu cascading failure reputasi atau regulasi melalui rantai pasok atau afiliasi entitas.
+
+---
+
+### Anomaly Pattern Detection via Graph Neural Networks (GNN)
+
+Untuk mendeteksi pola pelanggaran kompleks yang tidak terlihat oleh analisis monolitik atau aturan statis, modul ini mengintegrasikan **Graph Neural Networks (GNN)** khusus untuk deteksi anomali struktural. GNN memungkinkan sistem untuk belajar dari struktur graf itu sendiri, mengidentifikasi node atau subgraf yang menyimpang dari pola normal komunitas.
+
+#### Metodologi Deteksi Anomali:
+
+1.  **Embedding Node Dinamis:**
+    Setiap entitas (perusahaan, individu, transaksi) direpresentasikan sebagai vektor embedding dalam ruang multidimensi. Vektor ini dihasilkan oleh GNN dengan mempertimbangkan:
+    *   Fitur fitur node itu sendiri (nilai transaksi, sektor, riwayat kepatuhan).
+    *   Topologi tetangga (siapa partner transaksi mereka, siapa owner mereka, dll).
+    *   Konteks temporal (perubahan pola transaksi seiring waktu).
+
+2.  **Deteksi Subgraf Anomali:**
+    Sistem secara aktif mencari subgraf (kelompok entitas yang saling terhubung) yang menunjukkan pola perilaku tidak wajar:
+    *   **Circular Trading Patterns:** Mengidentifikasi siklus transaksi tertutup yang tidak memiliki tujuan bisnis substantif, yang sering menjadi indikasi manipulasi harga atau pencucian uang.
+    *   **Hidden Convergence:** Mendeteksi entitas yang tampak independen tetapi secara tersembunyi memiliki jaringan afiliasi atau aliran dana yang tumpang tindih, mengindikasikan skema terkoordinasi.
+    *   **Outlier Structural Role:** Mengidentifikasi node yang memiliki posisi sentral yang tidak proporsional dibandingkan dengan fitur fiturnya, yang bisa mengindikasikan penggunaan *shell companies* atau *straw men*.
+
+3.  **Pelatihan Adversarial & Generalisasi:**
+    GNN dilatih dengan dataset historis yang mencakup kasus pelanggaran yang diketahui dan normal. Untuk meningkatkan ketahanan terhadap upaya penghindaran (*evasion attacks*), sistem menggunakan teknik adversarial training, di mana model terus-menerus ditantang untuk mendeteksi anomali yang dibuat dengan sengaja untuk tampak "normal" secara statistik. Ini memastikan bahwa sistem tidak hanya reaktif terhadap sinyal tunggal, tetapi mampu memahami konteks holistik dan nuansa semantik dari seluruh ekosistem bisnis secara simultan.
+
+4.  **Interpretabilitas Hasil (Explainable AI):**
+    Setiap deteksi anomali disertai dengan penjelasan tingkat tinggi (*high-level explanation*). Sistem tidak hanya memberi label "Sangat Berisiko", tetapi juga menyediakan alasan semantik: *"Node X ditandai anomali karena terlibat dalam 3 transaksi circular dengan Node Y dan Z dalam periode 24 jam, dengan total volume yang menyimpang 4 standar deviasi dari rata-rata sektor."* Ini memungkinkan analis manusia untuk meninjau dan memvalidasi keputusan mesin dengan cepat.
+
+---
+
+### Panduan Penggunaan Lanjutan: Semantic Core
+
+Modul `compliance_governance_autonomous_knowledge_graph_semantic_cognitive_core.py` memerlukan konfigurasi spesifik untuk menginisialisasi graph database, muat vektor embedding, dan menjalankan kueri inferensi silang.
+
+#### 1. Persyaratan Lingkungan
+
+Pastikan Anda telah menginstal dependensi berikut:
+
+```bash
+pip install rdflib networkx pytorch-geometric neo4j python-dotenv
+```
+
+*Catatan: `pytorch-geometric` digunakan untuk lapisan GNN, sementara `rdflib` dan `neo4j` digunakan untuk manajemen graph dan penyimpanan RDF.*
+
+#### 2. Struktur File Input
+
+Sebelum menjalankan skrip, siapkan file-file konfigurasi berikut:
+
+*   **`business_logic_vectors.json`** (atau path yang ditentukan via `--vector_embedding_store`):
+    Berisi vektor embedding untuk dokumen hukum, pedoman internal, dan logika bisnis. Format diharapkan berupa array objek JSON dengan struktur:
+    ```json
+    [
+      {
+        "id": "reg_art_24_1",
+        "text": "Article 24.1: Prohibition of insider trading...",
+        "embedding_vector": [0.12, -0.45, ...],
+        "type": "regulation"
+      },
+      {
+        "id": "biz_rule_anti_money",
+        "text": "Business Rule: Transactions > $10k require enhanced due diligence...",
+        "embedding_vector": [0.34, 0.12, ...],
+        "type": "business_rule"
+      }
+    ]
+    ```
+
+*   **`compliance_ontology_schema.jsonld`** (atau path yang ditentukan via `--graph_schema_definition`):
+    Definisi skema ontologi dalam format JSON-LD atau Turtle yang mendefinisikan kelas, properti, dan aturan OWL.
+    ```json
+    {
+      "@context": {
+        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+        "owl": "http://www.w3.org/2002/07/owl#",
+        "comp": "http://ontology.compliance/core#"
+      },
+      "classes": [
+        {
+          "id": "comp:Transaction",
+          "subClassOf": "comp:FinancialEvent",
+          "properties": ["amount", "timestamp", "counterparty"]
+        }
+      ],
+      "objectProperties": [
+        {
+          "id": "comp:hasCounterparty",
+          "domain": "comp:Transaction",
+          "range": "comp:Entity"
+        }
+      ]
+    }
+    ```
+
+*   **`cross_agency_inference_queries.json`**:
+    Kueri SPARQL atau Cypher yang didefinisikan secara programmatic untuk menarik kesimpulan silang antar modul agen.
+    ```json
+    [
+      {
+        "query_id": "detect_circular_funds",
+        "type": "cypher",
+        "description": "Find circular transaction patterns between entities within 3 hops",
+        "query": "MATCH path=(a:Entity)-[:HAS_TRANSACTION*2..3]->(b:Entity)-[:HAS_TRANSACTION]->(a) RETURN path"
+      },
+      {
+        "query_id": "check_pec_regulation_alignment",
+        "type": "sparql",
+        "description": "Check if any transaction involves a PEP not covered by current PEC exemptions",
+        "query": "SELECT ?txn ?pep WHERE { ?txn comp:involves ?pep . ?pep a comp:PEP . FILTER NOT EXISTS { ?pep comp:hasExemption ?ex } }"
+      }
+    ]
+    ```
+
+#### 3. Menjalankan Skrip
+
+Gunakan argumen baris perintah untuk mengarahkan skrip ke file sumber daya dan menentukan lokasi output:
+
+```bash
+python compliance_governance_autonomous_knowledge_graph_semantic_cognitive_core.py \
+    --vector_embedding_store path/to/business_logic_vectors.json \
+    --graph_schema_definition path/to/compliance_ontology_schema.jsonld \
+    --cross_agency_inference_queries path/to/cross_agency_inference_queries.json \
+    --output_semantic_intelligence_report semantic_cognitive_intelligence_v1.json
+```
+
+#### 4. Analisis Laporan Output (`semantic_cognitive_intelligence_v1.json`)
+
+Output akan berisi lapisan intelijen yang kaya, bukan sekadar log mentah. Struktur contoh:
+
+```json
+{
+  "report_id": "sci_v1_20231027_001",
+  "timestamp": "2023-10-27T10:00:00Z",
+  "cognitive_state": {
+    "overall_risk_level": "HIGH",
+    "confidence_score": 0.92,
+    "anomaly_patterns_detected": 3
+  },
+  "causal_inferences": [
+    {
+      "inference_id": "inf_001",
+      "description": "Transaction spike in Sector X correlated with negative sentiment shift in Sector Y, suggesting potential market manipulation via cross-sector distraction.",
+      "evidence_nodes": ["txn_123", "sentiment_feed_456", "sector_x_entity_789"],
+      "causal_strength": 0.85,
+      "recommendation": "Initiate Enhanced Due Diligence (EDD) for Sector X entities linked to Sector Y."
+    }
+  ],
+  "gnn_anomalies": [
+    {
+      "anomaly_id": "anom_gnn_001",
+      "type": "circular_trading",
+      "involved_entities": ["ent_A", "ent_B", "ent_C"],
+      "subgraph_structure": "Cycle length 3",
+      "risk_score": 0.95,
+      "explanation": "Highly suspicious circular flow detected without commercial substance."
+    }
+  ],
+  "strategic_recommendations": [
+    {
+      "priority": "CRITICAL",
+      "action": "Freeze assets for entities in anomalous subgraph",
+      "rationale": "High probability of coordinated manipulation based on GNN structural analysis."
+    },
+    {
+      "priority": "MEDIUM",
+      "action": "Review ontological definitions for 'Related Party'",
+      "rationale": "Current definition may not capture indirect ownership via trusts, as seen in new inference patterns."
+    }
+  ]
+}
+```
+
+Laporan ini memungkinkan tim kepatuhan dan manajemen risiko untuk bergerak dari respons reaktif menuju proaktif, dengan kemampuan untuk melihat "gambar besar" dari risiko yang saling terkait dan mengambil tindakan strategis yang didukung oleh data kausal yang kuat.
