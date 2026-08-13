@@ -30423,3 +30423,164 @@ Log ini akan berisi struktur JSON yang terstruktur, mencakup:
 *   `ethical_compliance_check`: Hasil verifikasi terhadap ABA Rule 3.1 dan IEEE 7000-2021.
 
 Dengan mengintegrasikan visualisasi yang dioptimasi secara kognitif, basis pengetahuan hukum yang dinamis, dan simulasi adversarial yang realistis, sistem ini menutup lingkaran lengkap dari persiapan litigasi berbasis data. Ini mengubah proses litigasi dari aktivitas yang bergantung pada intuisi individu menjadi proses yang terukur, dapat diprediksi, dan secara etis dapat dipertanggungjawabkan.
+
+
+Berikut adalah konten lanjutan untuk dokumentasi teknis Anda. Materi ini dirancang untuk menyambung dengan bagian sebelumnya, menyediakan spesifikasi teknis mendalam mengenai modul simulasi multisensorik dan respons biometrik, serta mendokumentasikan skrip Python baru yang diperlukan.
+
+---
+
+### 8.6.6. Simulasi Pengadilan Multisensorik & Pemodelan Respons Stres Biometrik
+
+Sistem litigasi otonom tidak lagi berhenti pada analisis teks dan logika hukum. Bagian ini memperkenalkan **"Sensory Legal Environment Simulator"**, sebuah modul canggih yang mentransformasi data strategis menjadi pengalaman simulasi virtual yang imersif. Modul ini menggabungkan output dari `autonomous_trial_execution_agent` (strategi argumen) dan `jury_neuromarketing_agent` (tekanan kognitif) ke dalam lingkungan 3D yang mensimulasikan faktor fisik dan fisiologis yang sering diabaikan dalam simulasi berbasis teks tradisional.
+
+#### 8.6.6.1. Integrasi Arsitektur Sistem
+
+Simulator ini bertindak sebagai lapisan akhir (*rendering layer*) sebelum eksekusi simulasi penuh, memastikan bahwa setiap argumen hukum diproses melalui filter persepsi manusia yang realistis. Alur integrasi data adalah sebagai berikut:
+
+1.  **Input Strategis**: Membaca `adversarial-reevaluation-log` untuk memahami tekanan argumentatif yang harus dihadapi.
+2.  **Input Aset Kognitif**: Memuat `cognitive-load-optimized-assets` untuk menyesuaikan kecepatan bicara, intonasi, dan kompleksitas visual presentasi.
+3.  **Input Lingkungan Virtual**: Memuat `immersive-environment-config` yang mendefinisikan tata letak ruangan, pencahayaan, akustik, dan jarak sosial (*proxemics*).
+4.  **Pemrosesan Biometrik**: Mensimulasikan respons fisiologis (detak jantung, konstriksi pupil, keringat telapak tangan melalui *haptic feedback*) pada avatar saksi dan juri virtual berdasarkan stresor yang diberikan.
+
+#### 8.6.6.2. Metodologi: *Embodied Cognition in Legal Advocacy*
+
+Sistem ini didasarkan pada prinsip **Embodied Cognition**, yang menyatakan bahwa kognisi tidak terjadi di dalam otak saja, tetapi dipengaruhi secara signifikan oleh interaksi tubuh dengan lingkungan fisik. Dalam konteks litigasi:
+
+*   **Pencahayaan & Kredibilitas**: Pencahayaan yang terlalu terang dapat meningkatkan kewaspadaan namun mengurangi empati, sementara cahaya redup dapat menumbuhkan rasa aman namun mengurangi kejelasan fakta. Simulator memodelkan bagaimana perubahan iluminasi mempengaruhi *trustworthiness score* pada juri virtual.
+*   **Akustik & Kepercayaan**: kejelasan suara (*speech intelligibility index*) dimodelkan secara dinamis. Gema atau dengung latar belakang (*background noise*) diimplementasikan untuk menguji bagaimana gangguan auditorial meningkatkan beban kognitif juri, yang pada akhirnya dapat membuat mereka lebih rentan terhadap argumen emosional daripada logis.
+*   **Proxemics (Jarak Sosial)**: Jarak fisik antara saksi dan penanya dimodelkan untuk memicu respons "fight or flight" pada saksi virtual. Pendekatan agresif (jarak < 1 meter) akan memicu lonjakan cortisol simulasi, yang diterjemahkan ke dalam tremor suara atau gangguan artikulasi pada avatar.
+
+#### 8.6.6.3. Prosedur: *Virtual Biometric Stress Testing*
+
+Prosedur ini memungkinkan tim hukum untuk melakukan pengujian ketahanan psikologis secara otomatis. Berikut adalah langkah-langkah teknis simulasi:
+
+1.  **Inisialisasi Baseline Biometrik**: Sistem menetapkan denyut jantung istirahat, variabilitas detak jantung (HRV), dan ukuran pupil rata-rata untuk setiap avatar (saksi/juri) berdasarkan profil psikologis yang dimuat.
+2.  **Penerapan Stresor Multi-Sensorik**:
+    *   *Visual*: Menampilkan ekspresi wajah juri yang skeptis atau marah (menggunakan model animasi wajah real-time).
+    *   *Auditori*: Menambahkan suara guncangan kursi, bisikan penonton, atau nada suara yang meninggi secara gradual.
+    *   *Haptik*: Pada sesi VR, pengguna (pengacara) akan merasakan getaran pada kontroler yang mensimulasikan detak jantung cepat atau tekanan udara, menciptakan simbiosis antara pengacara dan saksi virtual.
+3.  **Pemodelan Respons Fisiologis Ekstrem**:
+    *   Sistem menghitung probabilitas *Panic Response* (napas cepat, bicara terputus) atau *Aggressive Deflection* (menjawab dengan nada tinggi, postur defensif) berdasarkan intensitas stresor dan ketahanan psikologis karakter.
+    *   Jika respons fisiologis melebihi ambang batas toleransi (*tolerance threshold*), sistem akan mencatat "Breakdown Event" dalam laporan.
+4.  **Analisis Dampak terhadap Narasi**: Sistem mengukur apakah respons biometrik tersebut menyebabkan perubahan signifikan dalam *narrative coherence* (koherensi narasi) atau *credibility degradation* (penurunan kredibilitas).
+
+#### 8.6.6.4. Standar dan Kompatibilitas Teknis
+
+Untuk memastikan akurasi simulasi dan latensi rendah yang kritis bagi pengalaman imersif, sistem mematuhi standar berikut:
+
+*   **IEEE 802.11ax (Wi-Fi 6) for Low-Latency Real-Time Sync**:
+    Simulasi biometrik memerlukan sinkronisasi waktu dunia nyata (real-time) antara input pengguna, logika simulasi, dan rendering grafis. Protokol ini memastikan latensi end-to-end di bawah 10ms, mencegah *motion-to-photon latency* yang dapat menyebabkan mabuk gerak (*cybersickness*) atau pemutusan ilusi realitas (*break immersion*) saat tes stres tinggi.
+*   **ISO 9241-210:2019 Ergonomics of Human-System Interaction**:
+    Desain lingkungan virtual dan antarmuka pengujian mengikuti prinsip desain yang berpusat pada manusia. Ini mencakup prinsip keterlibatan pengguna (*user involvement*), iteratif, dan desain holistik. Dalam konteks ini, "pengguna" adalah sistem simulasi itu sendiri, memastikan bahwa variabel lingkungan (suara, cahaya, suara) diatur sedemikian rupa agar representasi psikologisnya valid secara ergonomis kognitif.
+
+#### 8.6.6.5. Implementasi Skrip: `compliance_litigation_courtroom_digital_twin_and_haptic_feedback_synthesizer.py`
+
+Skrip berikut berfungsi sebagai inti dari simulator lingkungan pengadilan digital. Skrip ini membaca konfigurasi logika hukum dan aset kognitif, lalu merender simulasi 3D dengan lapisan data biometrik.
+
+**Spesifikasi Argumen:**
+
+| Argumen | Deskripsi | Tipe | Wajib |
+| :--- | :--- | :--- | :--- |
+| `--adversarial-reevaluation-log` | Path ke file JSON log evaluasi strategi adversarial dari engine sebelumnya. | String | Ya |
+| `--cognitive-load-optimized-assets` | Path ke direktori aset presentasi yang dioptimalkan (audio, slide, video). | String | Ya |
+| `--immersive-environment-config` | Path ke skema JSON konfigurasi lingkungan virtual 3D (tata letak, cahaya, akustik). | String | Ya |
+| `--output-haptic-simulation-report` | Path output untuk laporan JSON hasil simulasi biometrik dan haptic feedback. | String | Ya |
+| `--biometric-model` | Model AI untuk simulasi respons fisiologis (`default`, `aggressive`, `anxious`). | String | Tidak (Default: `default`) |
+| `--rendering-backend` | Backend rendering simulasi (`webxr`, `unity_webgl`, `desktop_opengl`). | String | Tidak (Default: `webxr`) |
+
+**Contoh Penggunaan:**
+
+```bash
+python compliance_litigation_courtroom_digital_twin_and_haptic_feedback_synthesizer.py \
+    --adversarial-reevaluation-log ./logs/mock_trial_results_2023_Q4.json \
+    --cognitive-load-optimized-assets ./optimized_jury_presentation_package_v1/ \
+    --immersive-environment-config ./configs/virtual_courtroom/courtroom_layout_v2.json \
+    --output-haptic-simulation-report ./reports/haptic_feedback_simulation_v1.json \
+    --biometric-model anxious \
+    --rendering-backend webxr
+```
+
+**Logika Eksekusi Utama (Pseudo-code):**
+
+```python
+class CourtroomDigitalTwin:
+    def __init__(self, args):
+        self.load_strategic_context(args.adversarial_log)
+        self.load_cognitive_assets(args.cognitive_assets)
+        self.initialize_3d_environment(args.env_config)
+        self.biometric_engine = BiometricModel(args.biometric_model)
+        
+    def run_simulation(self):
+        # 1. Inisialisasi Avatar Saksi & Juri
+        witnesses = self.create_avatar_agents(self.strategic_context)
+        jury_pool = self.create_jury_agents(self.cognitive_assets)
+        
+        # 2. Loop Simulasi Interaktif
+        for scene in self.env_config.scenes:
+            self.apply_environmental_stressors(scene) # Cahaya, Suara, Jarak
+            
+            # 3. Evaluasi Argumen dalam Konteks Fisik
+            arguments = self.get_current_arguments()
+            stress_response = self.biometric_engine.calculate_response(
+                stressor_intensity=scene.stress_level,
+                witness_resilience=witnesses.resilience_score,
+                environmental_factors=scene.acoustic_clarity
+            )
+            
+            # 4. Update State Avatar (Animasi & Biometrik)
+            witnesses.update_physiology(stress_response)
+            
+            # 5. Rekaman Data untuk Laporan
+            self.log_biometric_event(stress_response, arguments)
+
+    def generate_report(self, output_path):
+        # Menghasilkan laporan JSON yang mencakup:
+        # - Korrelasi antara tekanan lingkungan dan penurunan kredibilitas
+        # - Data detak jantung/pupil per interval waktu
+        # - Rekomendasi penyesuaian strategi litigasi berdasarkan titik lemah fisik
+        pass
+```
+
+**Format Output (`haptic_feedback_simulation_v1.json`):**
+
+Laporan ini berisi data mentah biometrik yang dapat dianalisis lebih lanjut oleh agen strategi hukum.
+
+```json
+{
+  "simulation_id": "sim_20231027_0930",
+  "environmental_settings": {
+    "lighting_lux": 500,
+    "ambient_noise_db": 35,
+    "speaker_proximity_meters": 1.2
+  },
+  "biometric_timeline": [
+    {
+      "timestamp": "T+00:05",
+      "witness_id": "witness_A",
+      "heart_rate_bpm": 72,
+      "pupil_dilation_mm": 4.1,
+      "stress_level": "low",
+      "narrative_coherence": 0.95
+    },
+    {
+      "timestamp": "T+00:12",
+      "witness_id": "witness_A",
+      "heart_rate_bpm": 110,
+      "pupil_dilation_mm": 5.8,
+      "stress_level": "high",
+      "trigger_event": "Aggressive_questioning_by_prosecution",
+      "narrative_coherence": 0.65,
+      "haptic_feedback_activated": true
+    }
+  ],
+  "analysis_summary": {
+    "critical_breakdown_point": "T+00:12",
+    "recommended_strategy_pivot": "Switch to softer lighting and reduce questioning tempo to regain coherence.",
+    "credibility_impact_score": -0.3
+  }
+}
+```
+
+### 8.7. Penutup: Dari Simulasi ke Kebenaran Hukum
+
+Dengan integrasi modul simulasi multisensorik dan biometrik ini, sistem litigasi otonom kami tidak hanya menghitung probabilitas kemenangan berdasarkan hukum, tetapi juga memprediksi dinamika kemanusiaan di balik setiap persidangan. Pendekatan ini menutup celah antara data hukum abstrak dan realitas psikologis yang keras di ruang pengadilan, memberikan kepada advokat alat yang belum pernah ada sebelumnya untuk menguasai panggung—baik secara logis maupun emosional.
