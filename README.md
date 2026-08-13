@@ -33688,3 +33688,99 @@ Inti dari inovasi ini adalah **Legal-Logic Transpilation Engine**. Ini bukan sek
     *   Hash Referensi ke Ledger Abadi (untuk non-repudiation).
 
 Dengan cara ini, perusahaan dapat beroperasi secara global. Jika ada perubahan regulasi (misalnya, UU PDP Indonesia berubah dalam hal batasan retention data), perusahaan hanya perlu memperbarui file `jurisdictional_data_laws.json` dan menjalankan ulang *minter*. Tidak ada kode sumber aplikasi inti atau infrastruktur ledger yang perlu diubah, memastikan **Ketahanan Regulasi** yang tinggi.
+
+
+Berikut adalah konten lanjutan yang komprehensif dan terstruktur untuk bagian dokumentasi teknis, dirancang agar dapat langsung disalin dan ditempel ke dalam file `README.md` Anda.
+
+---
+
+### 7.4. Post-Quantum Cryptographic Migration & Temporal Data Permanence
+
+Seiring dengan kemajuan komputasi kuantum, algoritma kriptografi asimetris klasik (sep RSA dan ECC) dan fungsi hash standar (SHA-2) menghadapi ancaman eksistensial terhadap integritas data jangka panjang. Untuk menjamin **Ketahanan Kuantum (Quantum Resilience)** dan **Keabadian Data (Data Permanence)**, sistem kami mengimplementasikan orkestrator migrasi otonom yang secara proaktif memigrasikan infrastruktur ledger ke standar kriptografi tahan kuantum (Post-Quantum Cryptography/PQC) dan mengimplementasikan protokol "Forever Archival".
+
+#### 7.4.1. Arsitektur Orkestrator Quantum-Ready
+
+Komponen inti yang menangani transisi ini adalah skrip Python bernama `compliance_governance_adaptive_quantum_resistant_ledger_migration_and_forever_archival_agent.py`. Agen ini berfungsi sebagai *"Quantum-Ready Continuity & Eternal Data Integrity Orchestrator"* dengan tiga fungsi utama:
+
+1.  **Autonomous PQC Migration:** Melakukan migrasi bertahap dari primitif kriptografi klasik ke standar NIST PQC.
+2.  **Hybrid Signature Implementation:** Memastikan kompatibilitas mundur (backward compatibility) selama periode transisi.
+3.  **Eternal Data Archival:** Menduplikasi, mengenkripsi ulang, dan mengarsipkan bukti kepatuhan ke media jangka panjang yang stabil secara format.
+
+##### Penggunaan CLI
+
+Agen ini dirancang untuk dijalankan sebagai proses terpisah atau bagian dari pipeline CI/CD. Berikut adalah contoh penggunaan dengan argumen wajib:
+
+```bash
+python compliance_governance_adaptive_quantum_resistant_ledger_migration_and_forever_archival_agent.py \
+    --current-ledger-state /data/ledger/state/q-resistant-v1.db \
+    --pq-algorithm-configs /configs/nist-pqc-mlkem-ml-dsa-config.yaml \
+    --long-term-storage-endpoints /creds/archival-mam-iso28500-credentials.json \
+    --output-quantum-resilience-report /reports/quantum_resilience_archival_report_v1.json
+```
+
+**Penjelasan Argumen:**
+*   `--current-ledger-state`: Path ke basis data atau state ledger yang sudah dimulai migrasi atau dalam proses migrasi. Agent ini akan memindai entri lama dan menandai yang perlu migrasi.
+*   `--pq-algorithm-configs`: Path ke file konfigurasi YAML/JSON yang mendefinisikan algoritma PQC spesifik (misal: `ML-KEM-768` untuk enkapsulasi kunci dan `ML-DSA-65` untuk tanda tangan) yang telah diverifikasi oleh NIST.
+*   `--long-term-storage-endpoints`: Path ke kredensial yang terenkripsi untuk mengakses sistem arsip jangka panjang yang mendukung format seperti MAM (Merkle Authentication Module) atau standar dokumen fisik/digital ISO/IEC 28500 (Preservasi Digital).
+*   `--output-quantum-resilience-report`: Path file JSON output yang berisi laporan teknis keberhasilan migrasi, hash verifikasi akhir, dan checksum integritas arsip.
+
+#### 7.4.2. Metodologi: Hybrid Digital Signatures for Backward Compatibility
+
+Satu-satunya cara untuk memigrasi ledger tanpa mengganggu validitas historis adalah dengan menggunakan **Tanda Tangan Hibrida (Hybrid Signatures)**. Sistem tidak segera mengganti algoritma lama sepenuhnya, melainkan menggabungkan lapisan keamanan.
+
+**Cara Kerja:**
+1.  **Struktur Paket Tanda Tangan:** Sebuah paket tanda tangan hibrida berisi dua bagian:
+    *   `[Sig_Classic]`: Tanda tangan menggunakan algoritma lama (misal: ECDSA secp256k1).
+    *   `[Sig_PQC]`: Tanda tangan menggunakan algoritma baru (misal: Dilithium/ML-DSA).
+2.  **Verifikasi:** Verifikator hanya menganggap bukti sebagai valid jika **kedua** tanda tangan valid.
+3.  **Transisi:**
+    *   *Fase 1:* Sistem mengonfigurasi untuk menerima dan memverifikasi tanda tangan Hibrida.
+    *   *Fase 2:* Agen migrasi memindai ledger lama, menandatangani ulang entri kritis dengan kunci PQC baru (tetapi tetap menyertakan tanda tangan lama sebagai referensi historis).
+    *   *Fase 3 (Future):* Setelah ancaman kuantum terkonfirmasi oleh komunitas keamanan, sistem dapat beralih ke mode "PQC-Only", membuang lapisan klasik untuk efisiensi ruang.
+
+Keuntungan utama dari pendekatan ini adalah **non-disruptive migration**. Auditor yang menggunakan sistem lama tetap dapat memverifikasi integritas data masa lalu, sementara auditor masa depan menggunakan kunci kuantum.
+
+#### 7.4.3. Standar Kriptografi yang Diadopsi
+
+Sistem ini mengunci diri pada standar yang sedang dikembangkan dan diadopsi oleh NIST (National Institute of Standards and Technology) untuk memastikan interoperabilitas global jangka panjang.
+
+| Standar NIST | Nama Algoritma | Fungsi dalam Sistem | Alasan Adopsi |
+| :--- | :--- | :--- | :--- |
+| **FIPS 203** | **ML-KEM** (Mandatory Key Encapsulation Mechanism) | Enkapsulasi Kunci & Enkripsi Data Bukti | Diganti dari Kyber. Menawarkan keamanan berbasis *Module-Lattice*, tahan terhadap serangan Shor. |
+| **FIPS 204** | **ML-DSA** (Module-Lattice Digital Signature Algorithm) | Tanda Tangan Digital Audit Trail | Diganti dari Dilithium. Digunakan untuk menandatangani blok ledger dan bukti ZKP. |
+| **FIPS 205** | **SLH-DSA** (Stateless Hash-based Digital Signature Algorithm) | Arsip Jangka Panjang Ultra-Secure | Diganti dari SPHINCS+. Diberikan hanya untuk data yang tidak dapat diubah selamanya, karena tanda tangan ini stateless dan tidak memerlukan manajemen kunci kompleks. |
+
+#### 7.4.4. Protokol "Forever Archival" & ISO 16363 (PDI)
+
+Migrasi kriptografi saja tidak cukup jika media penyimpanan fisik atau format data usang. Protokol *Forever Archival* mengadopsi prinsip **ISO 16363 (Profile for Digital Institutional Repositories - PDI)** untuk memastikan keandalan, keberlanjutan, dan kepercayaan (trustworthiness) data arsip.
+
+**Mekanisme Implementasi:**
+1.  **Replication across Heterogeneous Media:** Bukti kepatuhan (hash ledger + payload ZKP) diduplikasi ke minimal tiga media berbeda (misal: SSD Enterprise, Optical Archival Disc, dan Cloud Cold Storage dengan enkripsi sisi klien).
+2.  **Format Independent Preservation:** Data tidak disimpan sebagai file biner tertutup. Alih-alih, data dikemas dalam format XML/JSON-LD yang memisahkan *data content* dari *rendering logic*. Metadata deskriptif dan administratif (PROV-O, PREMIS) dilampirkan untuk menjelaskan konteks hukum dan teknis.
+3.  **Regular Re-encryption & Integrity Check:** Agen arsip secara berkala (misal: setiap 5 tahun) memindai integritas bit-per-bit (bit rot detection). Jika ditemukan kerusakan, sistem melakukan regenerasi hash dan memperbarui tanda tangan kuantum pada salinan baru.
+4.  **Decoy & Plausible Deniability (Opsional):** Untuk data yang sangat sensitif, sistem dapat mengimplementasikan teknik *steganografi* atau enkripsi berlapis di mana kunci dekripsi dipecah dan disimpan di jurisdiksi hukum yang berbeda, memastikan bahwa bahkan jika satu entitas dikompromikan, data utuh tetap aman.
+
+#### 7.4.5. Prosedur: Cryptographic Agility Verification
+
+Untuk memastikan bahwa asumsi keamanan kuantum kita tetap valid, sistem mengimplementasikan siklus audit otomatis yang disebut **Cryptographic Agility Verification**.
+
+**Alur Kerja Verifikasi:**
+
+1.  **Quantum Threat Modeling Simulation:**
+    *   Sistem menjalankan simulasi algoritma Grover dan Shor secara virtual pada lingkungan sandbox terisolasi.
+    *   Ini bukan serangan nyata, melainkan perhitungan kompleksitas bit untuk memvalidasi bahwa kunci saat ini (misal: 128-bit equivalent security) masih berada di atas batas ambang keamanan yang ditentukan oleh NIST.
+
+2.  **Layer-by-Layer Audit:**
+    *   **Hash Layer:** Memvalidasi bahwa semua anchor hash di ledger menggunakan SHA-3 atau algoritma tahan kuantum lain (jika sudah di-migrate).
+    *   **Signature Layer:** Memastikan setiap blok ledger memiliki tanda tangan hybrid atau PQC-only sesuai fase migrasi.
+    *   **ZKP Layer:** Memverifikasi bahwa witness data yang digunakan dalam Sirkuit ZKP tidak terekspose melalui side-channel analysis yang mungkin diperkuat oleh komputasi kuantum (analisis teoretis).
+
+3.  **Auto-Remediation & Reporting:**
+    *   Jika simulasi menunjukkan bahwa tingkat keamanan telah turun di bawah threshold (misal: karena kemajuan algoritma pemecah kisi), agen akan secara otomatis memicu alur kerja migrasi untuk meningkatkan parameter keamanan (misal: beralih dari `ML-KEM-512` ke `ML-KEM-768`).
+    *   Laporan `quantum_resilience_archival_report_v1.json` akan diterbitkan, mencakup:
+        *   Status keamanan setiap entri ledger.
+        *   Waktu simulasi terakhir.
+        *   Rekomendasi pembaruan algoritma jika diperlukan.
+        *   Hash integritas arsip jangka panjang.
+
+Dengan integrasi **Hybrid Signatures**, standar **NIST FIPS 203/204/205**, dan kepatuhan terhadap **ISO 16363**, sistem ini tidak hanya memenuhi kepatuhan hukum saat ini, tetapi juga menjamin bahwa bukti kepatuhan yang dihasilkan hari ini akan tetap valid, dapat diverifikasi, dan tidak dapat dipalsukan di tengah-tengah evolusi teknologi komputasi di masa depan. Ini menciptakan jaminan abadi atas integritas data, melampaui siklus hidup infrastruktur teknologi konvensional.
