@@ -49354,3 +49354,94 @@ Agar cadangan dana tetap relevan dengan dinamika ekologis yang berubah, sistem m
     *   Cetak laporan `ecological_liability_provisioning_v1.json` untuk transparabilitas stakeholder.
 
 Dengan menginternalisasikan biaya entropi ini, sistem menciptakan insentif ekonomi yang kuat bagi manajemen perusahaan: **Efisiensi operasional dan restorasi ekologis bukan hanya kewajiban moral, tetapi strategi kunci untuk menjaga likuiditas dan profitabilitas jangka panjang.**
+
+
+###### E. Modulus Lanjutan: Actuarial Risk Modeling for Biophysical Depreciation
+
+Untuk bergerak melampaui penyediaan cadangan reaktif dan menuju pemodelan risiko proaktif, sistem mengintegrasikan *Actuarial Risk Modeling for Biophysical Depreciation*. Modul ini mentransformasikan data biotik menjadi parameter finansial yang dapat diaudit, memastikan bahwa depresiasi aset alam tidak lagi dianggap sebagai estimasi subjektif, melainkan sebagai kewajiban aktuaria yang terukur.
+
+### 1. Natural Capital Depreciation Scheduling (NCDS)
+
+Berbeda dengan penyusutan aset tetap tradisional yang mengikuti garis waktu fiskal linear atau menurun tetap, NCDS mengadopsi **Laju Pemulihan Alami Ekosistem** sebagai dasar pengakuan beban. Sistem secara otomatis menjadwalkan pengakuan liabilitas berdasarkan dinamika regenerasi biologis yang diprediksi oleh orakel data.
+
+**Prinsip Dasar NCDS:**
+*   **Non-Linearitas Waktu:** Depresiasi diakui lebih cepat jika laju regenerasi biomassa rendah (indikator degradasi cepat) dan lebih lambat jika ekosistem menunjukkan resistensi tinggi.
+*   **Akurasi Neraca:** Memastikan nilai buku aset alam mencerminkan nilai restitusi aktual (Present Value of Restoration Cost) daripada nilai historis.
+
+**Alur Implementasi NCDS dalam Sistem:**
+
+1.  **Inisialisasi Jadwal Depresiasi:**
+    *   Mengambil parameter biologis awal (`Initial_Biomass_Capacity`) dari database proyek.
+    *   Menetapkan `Restoration_Horizon` berdasarkan siklus hidup spesies kunci di lokasi proyek.
+
+2.  **Kalkulasi Beban Periodik:**
+    *   Sistem menjalankan algoritma diskonto kas yang dimodifikasi:
+        $$ Depreciation\_Expense_t = PV(	ext{Estimated Restoration Cost}) 	imes f(	ext{Regeneration\_Velocity}_t) $$
+    *   Faktor $f()$ adalah fungsi koreksi yang disesuaikan oleh `Entropy_Risk_Index`. Jika entropi meningkat, faktor koreksi meningkat, mempercepat pengakuan beban.
+
+3.  **Rekonsiliasi Otomatis:**
+    *   Setiap akhir periode akuntansi (bulanan/kuartalan), sistem mencocokkan pengakuan beban teoritis dengan data aktual dari `ecological_liability_oracle`.
+    *   Selisih (variansi) dicatat sebagai *Actuarial Gain/Loss* dan dialokasikan ke akun cadangan risiko, bukan langsung ke laba rugi, untuk menghindari volatilitas ekstrem pada laporan keuangan interim.
+
+### 2. Natural Capital Accounting Framework (SEEA EA) Applied to Corporate Ledger
+
+Sistem ini mengadopsi standar **System of Environmental-Economic Accounting (SEEA) - Ecosystem Accounting (EA)** yang dikembangkan oleh PBB, untuk menerjemahkan aliran ekologis menjadi entri akuntansi korporat yang koheren.
+
+**Integrasi Metodologis:**
+
+*   **Alokasi Ekosistem (Ecosystem Area):**
+    *   Menentukan luas area yang terkena dampak operasional.
+    *   Memetakan tipe tutupan lahan (Land Cover) dan fungsinya (Penyimpanan Karbon, Regulasi Air, Produksi Biomassa).
+*   **Jasa Ekosistem (Ecosystem Services):**
+    *   Mengkuantifikasi jasa penyediaan (misal: kayu, air) dan jasa pengatur (misal: penyerapan polutan).
+    *   Nilai jasa ini digunakan sebagai dasar untuk menghitung *Opportunity Cost* dari degradasi. Jika sebuah lahan tidak lagi mampu menyerap karbon sebesar kapasitas aslinya, selisih nilai tersebut dihitung sebagai beban eksternalisasi yang dininternalisasi.
+*   **Kapital Alam (Natural Capital Stock):**
+    *   Melacak perubahan stok ekosistem (misal: volume air tanah, tonase biomassa hutan).
+    *   Perubahan stok ini memicu entri jurnal akuntansi:
+        *   *Penurunan Stok:* Debit Beban Depresiasi Ekologis, Kredit Liabilitas Restorasi.
+        *   *Peningkatan Stok:* Kredit Penerimaan Ekologis (jika memenuhi kriteria realisasi yang dapat diukur secara andal).
+
+### 3. Alignment with EFRAG ESRS E1 & E5
+
+Untuk memastikan kepatuhan terhadap regulasi pelaporan keberlanjutan Uni Eropa dan standar global lainnya, modul ini memetakan parameter internal langsung ke kerangka kerja **European Financial Reporting Advisory Group (EFRAG) European Sustainability Reporting Standards (ESRS)**.
+
+#### E1: Climate Change
+*   **Parameter Koneksi:** `Carbon_Sequestration_Rate` dan `Greenhouse_Gas_Emissions_Intensity`.
+*   **Mekanisme Pengakuan:**
+    *   Liabilitas terkait perubahan iklim dihitung berdasarkan harga karbon internal perusahaan yang disesuaikan dengan skenario harga karbon eksternal (TCFD/ESRS alignment).
+    *   Jika laju sequestrasi karbon di bawah target net-zero, sistem secara otomatis meningkatkan *Climate Transition Risk Reserve*.
+    *   Pengungkapan: Sistem menghasilkan laporan otomatis yang memenuhi persyaratan pengungkapan ESRS E1, termasuk metrik intensitas emisi, ketahanan bisnis terhadap risiko fisik, dan strategi mitigasi.
+
+#### E5: Pollution and Biodiversity
+*   **Parameter Koneksi:** `Biodiversity_Index_Score` (misal: Shannon Index) dan `Toxic_Waste_Discharge_Volume`.
+*   **Mekanisme Pengakuan:**
+    *   Fokus pada *Dependency and Impact Assessment*.
+    *   Liabilitas dihitung berdasarkan potensi kerusakan pada spesies terancam dan kesehatan ekosistem lokal.
+    *   Sistem menggunakan *Species Sensitivity Distribution (SSD)* untuk memperkirakan tingkat keparahan dampak polutan terhadap biodiversitas lokal, yang kemudian diterjemahkan menjadi multiplier risiko pada perhitungan provisi.
+    *   Pengungkapan: Data otomatis disesuaikan dengan persyaratan ESRS E5 mengenai dampak material pada biodiversitas, tujuan restorasi, dan target pengurangan risiko.
+
+### 4. Konfigurasi Model Aktuarial
+
+Berikut adalah argumen konfigurasi kunci untuk mengkalibrasi *Actuarial Risk Engine* agar sesuai dengan profil risiko spesifik perusahaan dan lokasi operasional:
+
+| Argumen Konfigurasi | Deskripsi | Nilai Default/Rekomendasi | Dampak pada Modelling |
+| :--- | :--- | :--- | :--- |
+| `discount_rate_bps` | Tingkat diskonto yang digunakan untuk menghitung Present Value dari biaya restorasi masa depan. | 4.5% - 6.0% (sesuai risiko lokasi) | Tingkat diskonto lebih tinggi mengurangi nilai saat ini liabilitas, tetapi meningkatkan sensitivitas terhadap fluktuasi biaya masa depan. |
+| `regeneration_volatility_sigma` | Koefisien variasi untuk ketidakpastian laju regenerasi biomassa. | 0.15 - 0.30 | Semakin tinggi volatilitas, semakin besar *Risk Margin* yang ditambahkan ke dalam provisi untuk menahan kejutan eksternal. |
+| `entropy_decay_factor` | Parameter eksponensial yang mengukur seberapa cepat efisiensi operasional menurun seiring dengan degradasi ekologis. | 0.85 - 0.95 | Faktor yang lebih rendah mempercepat pengakuan beban biaya entropi, mencerminkan risiko sistemik yang lebih tinggi. |
+| `restoration_success_probability` | Probabilitas estimasi bahwa intervensi restorasi akan mencapai target biomassa dalam `Restoration_Horizon`. | 0.70 - 0.90 | Jika probabilitas rendah, sistem meningkatkan provisi untuk mencakup skenario "worst-case" kegagalan restorasi. |
+| `stress_test_scenario` | Skenario stres makro-ekologis yang digunakan untuk menguji ketahanan cadangan (misal: kekeringan ekstrem, wabah hama). | `RCP_8.5` (SSP5-8.5) | Memaksa sistem untuk menghitung cadangan berdasarkan kondisi ekstrem, memastikan likuiditas cukup bahkan dalam krisis ekologis parah. |
+
+### 5. Integrasi dan Output Compliance
+
+Setelah kalkulasi selesai, *Autonomous Ecological Liability Provision Engine* menghasilkan dua artefak utama untuk kepatuhan dan transparansi:
+
+1.  **`actuarial_balance_sheet_v2.json`**:
+    *   Menampilkan posisi aset dan liabilitas alam yang disesuaikan dengan SEEA EA.
+    *   Menyertakan *Sensitivity Analysis* untuk menunjukkan dampak perubahan parameter aktuarial terhadap posisi keuangan.
+
+2.  **`esrs_disclosure_pack.zip`**:
+    *   Paket data terstruktur yang siap diimpor ke dalam alat pelaporan keberlanjutan eksternal.
+    *   Memenuhi persyaratan pengungkapan teknis untuk ESRS E1, E2, E3, E4, dan E5, termasuk metrik kinerja utama (KPIs) dan target (KTOs) yang telah diverifikasi oleh ledger terdistribusi.
+
+Dengan menerapkan *Actuarial Risk Modeling* dan kerangka kerja akuntansi modal alam ini, perusahaan tidak hanya mematuhi regulasi, tetapi juga membangun ketahanan finansial yang berbasis pada realitas biofisik. Liabilitas tidak lagi menjadi item pasif di neraca, melainkan indikator dinamis yang memandu keputusan strategis operasional dan investasi.
