@@ -29867,3 +29867,87 @@ if __name__ == "__main__":
 
 ### Kesimpulan Teknis
 Modul ini memastikan bahwa paket produksi Anda tidak hanya mematuhi aturan *e-discovery* secara substantif, tetapi juga aman secara forensik. Dengan menghapus jejak digital internal (seperti path server, nama admin, dan versi software) tanpa mengubah bukti hukum, perusahaan melindungi rahasia dagang dan infrastruktur ITnya sekaligus mempertahankan integritas bukti di mata pengadilan. Audit trail yang dihasilkan (`sanitization_audit_report.json`) memberikan bukti tertulis bahwa langkah-langkah kepatuhan telah diambil sesuai standar NIST dan ISO.
+
+
+Berikut adalah konten lanjutan untuk file `README.md`, dirancang untuk menyelaraskan dengan tone teknis, forensik, dan hukum dari bagian sebelumnya.
+
+---
+
+### 4. Automated Forensic Storytelling & Cognitive Visual Mapping
+
+Setelah proses sanitasi data selesai, langkah kritis berikutnya adalah **rekonstruksi narasi**. Bukti digital yang terisolasi dalam file biner atau JSON yang sulit dibaca seringkali gagal convey konteks yang dibutuhkan oleh hakim dan juri. Modul ini, `compliance_litigation_evidence_visualization_and_storytelling_synthesizer.py`, berfungsi sebagai **"Forensic Narrative Architect"**.
+
+Alat ini mengubah output teknis dari *Data Sanitization Engine* menjadi visualisasi data forensik yang persuasif, transparan, dan dapat dimengerti oleh non-teknisi. Fokus utamanya adalah memetakan relasi waktu, lokasi, dan entitas dari metadata yang telah disanitasi ke dalam dua format visual utama:
+1.  **Interactive Chronological Timeline:** Diagram alur kronologis interaktif yang menampilkan urutan peristiwa.
+2.  **Entity Relationship Graph (ERG):** Peta jaringan yang menghubungkan orang, perangkat, dan dokumen berdasarkan metadata forensik.
+
+#### Metodologi: "Visual Evidence Reconstruction"
+
+Sistem ini tidak sekadar menampilkan grafik; ia membangun narasi berdasarkan prinsip **"Visual Evidence Reconstruction"**. Setiap elemen visual (titik, garis, node) dipetakan langsung ke datum forensik yang telah diverifikasi integritasnya melalui hash SHA-256 dari proses sanitasi sebelumnya. Ini menjamin bahwa apa yang dilihat oleh pihak lawan (counter-party) atau juri adalah representasi akurat dari bukti fisik digital, bukan interpretasi subjektif yang rentan bias.
+
+#### Kepatuhan terhadap Federal Rules of Evidence (FRE) 401 & 403
+
+Dalam litigasi siber, visualisasi data sering kali diserang sebagai "prejudicial" (mendzalimi) dibandingkan dengan nilai pembuktianya (*probative value*). Modul ini secara eksplisit dirancang untuk mematuhi standar FRE 401 (Relevansi) dan FRE 403 (Pengecualian Karena Prejudice):
+
+*   **Relevansi (FRE 401):** Setiap titik data dalam visualisasi harus memiliki *metadata link* yang dapat dilacak kembali ke dokumen asli yang telah disanitasi. Jika sebuah node dalam grafik tidak memiliki sumber data yang valid, visualisasi tersebut tidak akan dirender.
+*   **Menghindari Prejudice (FRE 403):** Sistem mendeteksi dan menghilangkan elemen visual yang bersifat dekoratif atau emosional yang dapat menipu juri. Visualisasi harus objektif, bersih, dan bebas dari manipulasi persepsi.
+
+#### Mencegah "Junk Science" melalui Validasi Matematis
+
+Untuk mencegah tuduhan *"Junk Science"* (sains sampah) di pengadilan, di mana visualisasi dianggap sebagai spekulasi yang tidak berdasar, sistem ini menerapkan lapisan validasi matematis:
+
+1.  **Hash-Linked Rendering:** Setiap visual element memiliki properti `source_hash` yang merujuk pada hash dokumen sanitasi. Jika ada perubahan pada file sumber, visualisasi akan ditandai sebagai *invalid* atau *stale*, mencegah penggunaan bukti yang telah direkonstruksi secara tidak sah.
+2.  **Deterministic Algorithms:** Penempatan node dalam *Entity Relationship Graph* menggunakan algoritma layout deterministik (seperti Force-Directed dengan seed tetap). Ini memastikan bahwa visualisasi yang sama akan selalu menghasilkan layout yang sama, sehingga dapat direplikasi dan diaudit oleh ahli forensik pihak lawan.
+
+#### Prosedur "Deceptive Visualization Detection"
+
+Salah satu strategi pertahanan hukum paling umum adalah menuduh pihak lawan melakukan *misleading visualization* (visualisasi menyesatkan). Modul ini secara otomatis menjalankan **Deceptive Visualization Detection Protocol** sebelum menghasilkan aset output. Sistem akan menolak menghasilkan visualisasi jika mendeteksi distorsi berikut:
+
+*   **Truncated Axes (Sumbu Terpotong):** Sistem secara otomatis memaksa sumbu Y pada grafik temporal untuk dimulai dari nol, kecuali jika menggunakan skala logaritmika yang dinyatakan secara eksplisit dengan label "Logarithmic Scale" yang besar dan jelas.
+*   **Distorted Aspect Ratios:** Mencegah perpanjangan visual palsu pada perubahan kecil dengan membatasi rasio aspek visual berdasarkan skala data aktual.
+*   **Misleading Aggregation:** Jika data diskrit digabungkan menjadi agregat, sistem akan mewajibkan indikator "n" (jumlah sampel) ditampilkan, mencegah kesan bahwa rata-rata mewakili semua kasus tanpa keragaman.
+
+Deteksi ini menghasilkan laporan `visual_integrity_audit.log` yang sertifikasi bahwa visualisasi yang dihasilkan "fit and proper" untuk digunakan sebagai bukti di pengadilan.
+
+#### Penggunaan & Argumentasi
+
+Berikut adalah cara menggunakan skrip untuk menghasilkan paket visualisasi naratif:
+
+```bash
+python compliance_litigation_evidence_visualization_and_storytelling_synthesizer.py \
+  --sanitized-document-set ./sanitized_discovery_package_v1/ \
+  --temporal-metadata-logs ./extracted_temporal_metadata.json \
+  --visual-narrative-template ./templates/courtroom_standard.json \
+  --output-visualization-package ./evidence_storytelling_assets_v1/
+```
+
+**Penjelasan Argumen:**
+
+| Argumen | Deskripsi | Contoh Input |
+| :--- | :--- | :--- |
+| `--sanitized-document-set` | Path ke direktori output dari *Sanitization Engine*. Ini adalah sumber kebenaran tunggal (source of truth) untuk metadata. | `./sanitized_discovery_package_v1/` |
+| `--temporal-metadata-logs` | File JSON berisi ekstraksi timestamp (created, modified, accessed) yang telah diverifikasi. Diperlukan untuk membangun timeline. | `./extracted_temporal_metadata.json` |
+| `--visual-narrative-template` | Konfigurasi JSON yang mendefinisikan gaya visual: linear timeline, geospatial heat map, atau network graph. Template ini juga mengatur palet warna netral untuk menghindari bias emosional. | `./templates/courtroom_standard.json` |
+| `--output-visualization-package` | Direktori tujuan untuk aset visual (gambar resolusi tinggi, file HTML interaktif, dan laporan audit). | `./evidence_storytelling_assets_v1/` |
+
+#### Struktur Output: `evidence_storytelling_assets_v1/`
+
+Setelah eksekusi berhasil, direktori output akan berisi struktur berikut yang siap untuk presentasi di pengadilan:
+
+```text
+evidence_storytelling_assets_v1/
+├── visualizations/
+│   ├── chronological_timeline.html      # Interaktif: Hover untuk melihat detail metadata
+│   ├── entity_relationship_graph.svg    # Statis/Resolusi Tinggi untuk dokumen pengadilan
+│   └── geospatial_analysis_map.png      # Jika metadata lokasi tersedia
+├── reports/
+│   ├── visual_integrity_audit.log       # Bukti deteksi "Deceptive Visualization" (Harus kosong/tidak ada alert)
+│   ├── source_hash_manifest.json        # Daftar hash dokumen yang divisualisasikan
+│   └── narrative_summary.pdf            # Ringkasan naratif hukum yang dihasilkan dari visual
+└── documentation/
+    └── visualization_methodology.pdf    # Penjelasan teknis bagi hakim/juri tentang metodologi
+```
+
+#### Catatan Hukum & Etika
+
+Pengguna harus memahami bahwa **visualisasi adalah alat interpretasi**, meskipun dipandu oleh algoritma ketat. Meskipun sistem ini mencegah distorsi teknis otomatis, penafsiran makna di balik pola visual (misalnya, "apakah koneksi antara Entity A dan B membuktikan niat jahat?") tetap berada di domain ahli hukum. Modul ini menjamin bahwa **premis visualnya** akurat dan tidak menipu, sehingga debat hukum dapat difokuskan pada interpretasi fakta, bukan pada integritas penyajian data.
