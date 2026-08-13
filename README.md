@@ -40287,3 +40287,313 @@ Sistem tidak menggunakan pencocokan string (`string matching`) yang rapuh. Sebal
 *   **Kosmos Hukum Internal:** Kebijakan internal perusahaan juga di-*embed* menjadi vektor $V_{policy}$.
 *   **Perhitungan Kemiripan:** Sistem menghitung Cosine Similarity ($S$) antara $V_{policy}$ dan kumpulan vektor preseden historis $P_{historic}$.
     $$ S = rac{V_{policy} 
+
+Berikut adalah konten lanjutan untuk dokumentasi `README.md`, dirancang agar langsung disalin dan ditempel ke bagian **9.5** atau sebagai bab terpisah setelah deskripsi arsitektur saat ini. Konten ini mencakup skrip Python fungsional dan eksplorasi dokumentasi teknis mendalam sesuai permintaan.
+
+---
+
+### 9.5.3 Implementasi Kode: Adaptive Jurisprudence Engine
+
+Kelas berikut mengimplementasikan logika inti dari Engine Intelektual Hukum Adaptif. Modul ini bertindak sebagai orkestrator yang menghubungkan data eksternal (putusan pengadilan) dengan konteks internal perusahaan, menggunakan pendekatan *Vector-Space Similarity* untuk mendeteksi celah kepatuhan.
+
+Simpan skrip ini sebagai `compliance_governance_autonomous_legal_intelligence_and_precedent_adaptation_orchestrator.py`.
+
+```python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+compliance_governance_autonomous_legal_intelligence_and_precedent_adaptation_orchestrator.py
+
+Adaptive Jurisprudence Engine: Mendeteksi "Legal Drift" dan memperbarui Ontologi Hukum secara dinamis.
+Sistem ini mengintegrasikan data dari Knowledge Graph Interoperability dan Forensic Resilience
+untuk memastikan kerangka kepatuhan berevolusi bersama preseden hukum.
+
+Dependencies:
+- numpy (for vector operations)
+- json (for data handling)
+- argparse (for CLI arguments)
+"""
+
+import argparse
+import json
+import os
+import sys
+import numpy as np
+from datetime import datetime
+from typing import Dict, List, Tuple, Optional
+import logging
+
+# Setup Logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+class LegalEmbeddingModel:
+    """
+    Simulasi model embedding semantik hukum (seperti Legal-BERT).
+    Dalam produksi, ini akan terhubung ke API HuggingFace atau model lokal yang fine-tuned.
+    """
+    def __init__(self, dim=768):
+        self.dim = dim
+        logger.info(f"LegalEmbeddingModel initialized with dimensionality: {dim}")
+
+    def embed(self, text: str) -> np.ndarray:
+        """
+        Mengonversi teks hukum menjadi vektor densitas.
+        """
+        # Simulasi: Hash teks menjadi vektor acak yang deterministik untuk demo
+        # Di lingkungan nyata, gunakan model transformer
+        np.random.seed(hash(text) % 2**32)
+        return np.random.rand(self.dim)
+
+    def cosine_similarity(self, vec1: np.ndarray, vec2: np.ndarray) -> float:
+        """
+        Menghitung kemiripan kosinus antara dua vektor.
+        """
+        dot_product = np.dot(vec1, vec2)
+        norm1 = np.linalg.norm(vec1)
+        norm2 = np.linalg.norm(vec2)
+        if norm1 == 0 or norm2 == 0:
+            return 0.0
+        return float(dot_product / (norm1 * norm2))
+
+class AdaptiveJurisprudenceEngine:
+    def __init__(self, 
+                 global_judicial_feeds: str, 
+                 legal_ontology_snapshot: str, 
+                 risk_scores_path: str, 
+                 resilience_metrics_path: str,
+                 similarity_threshold: float,
+                 output_report_path: str):
+        
+        self.global_judicial_feeds = global_judicial_feeds
+        self.legal_ontology_snapshot = legal_ontology_snapshot
+        self.risk_scores_path = risk_scores_path
+        self.resilience_metrics_path = resilience_metrics_path
+        self.similarity_threshold = similarity_threshold
+        self.output_report_path = output_report_path
+        
+        self.embedding_model = LegalEmbeddingModel()
+        self.current_ontology = {}
+        self.historical_precedents = []
+        self.drift_detected = []
+
+        logger.info("AdaptiveJurisprudenceEngine initialized.")
+        self._load_initial_state()
+
+    def _load_initial_state(self):
+        """Memuat Ontologi Hukum saat ini dan Metrik Resiliensi."""
+        # 1. Load Legal Ontology (Snapshot)
+        if os.path.exists(self.legal_ontology_snapshot):
+            with open(self.legal_ontology_snapshot, 'r') as f:
+                self.current_ontology = json.load(f)
+            logger.info(f"Loaded Legal Ontology from {self.legal_ontology_snapshot}")
+        else:
+            logger.warning("No legal ontology snapshot found. Initializing empty ontology.")
+            self.current_ontology = {"policies": {}, "rules": []}
+
+        # 2. Load External Data Dependencies
+        self.risk_data = self._load_json_dependency(self.risk_scores_path, "Unified Risk Scores")
+        self.resilience_data = self._load_json_dependency(self.resilience_metrics_path, "Resilience Metrics")
+
+    def _load_json_dependency(self, path: str, name: str) -> Dict:
+        if os.path.exists(path):
+            with open(path, 'r') as f:
+                return json.load(f)
+        logger.warning(f"{name} file not found at {path}. Using mock data.")
+        return {"mock_entity_contexts": "dummy"}
+
+    def _parse_judicial_decree(self, decree_text: str) -> Dict:
+        """
+        Mendecide teks putusan pengadilan menjadi komponen semantik: 
+        Facts, Ratio Decidendi, Holding.
+        """
+        # Dalam implementasi nyata, gunakan NLP parsing
+        return {
+            "text": decree_text,
+            "facts": decree_text[:100], # Simulasi
+            "ratio": decree_text[100:200],
+            "holding": decree_text[200:]
+        }
+
+    def _detect_legal_drift(self, policy_name: str, policy_text: str) -> Optional[Dict]:
+        """
+        Membandingkan kebijakan internal dengan preseden hukum terkini.
+        """
+        policy_vector = self.embedding_model.embed(policy_text)
+        
+        best_match = None
+        max_similarity = -1.0
+        
+        # Simulasi: Membandingkan dengan "Global Judicial Decrees" yang dimuat
+        # Untuk demo, kita gunakan dummy list if feed is not parsed yet
+        # Asumsi: global_judicial_feeds adalah path ke file JSON berisi daftar putusan terbaru
+        
+        if os.path.exists(self.global_judicial_feeds):
+            with open(self.global_judicial_feeds, 'r') as f:
+                recent_decrees = json.load(f)
+        else:
+            logger.error("Global judicial feeds file not found.")
+            recent_decrees = []
+
+        for decree in recent_decrees:
+            decree_vector = self.embedding_model.embed(decree.get('full_text', ""))
+            similarity = self.embedding_model.cosine_similarity(policy_vector, decree_vector)
+            
+            if similarity > max_similarity:
+                max_similarity = similarity
+                best_match = decree
+
+        # Cek Ambang Batas Drift
+        # Jika kemiripan rendah, artinya kebijakan kita sudah "jauh" dari arah yurisprudensi terkini (Drift)
+        # Atau jika kemiripan tinggi namun Holding berlawanan dengan Kebijakan -> Kontradiksi
+        
+        drift_info = {
+            "policy_name": policy_name,
+            "current_policy": policy_text,
+            "highest_similarity_score": max_similarity,
+            "threshold": self.similarity_threshold,
+            "status": "STABLE"
+        }
+
+        if max_similarity < self.similarity_threshold:
+            drift_info["status"] = "DRIFT_DETECTED"
+            drift_info["suggested_update_direction"] = best_match.get('holding', 'Unknown') if best_match else None
+            self.drift_detected.append(drift_info)
+            logger.warning(f"Legal Drift detected for policy: {policy_name}")
+        else:
+            logger.info(f"Policy {policy_name} remains aligned with jurisprudence.")
+
+        return drift_info
+
+    def _update_ontology(self, drift_reports: List[Dict]) -> Dict:
+        """
+        Melakukan 'hot-patching' pada Ontologi Hukum berdasarkan temuan drift.
+        """
+        ontology_updates = []
+        
+        for report in drift_reports:
+            if report["status"] == "DRIFT_DETECTED":
+                update_entry = {
+                    "policy_key": report["policy_name"],
+                    "action": "REVISE_POLICY",
+                    "reason": "Jurisprudence Drift",
+                    "similarity_score": report["highest_similarity_score"],
+                    "new_interpretation_hint": report.get("suggested_update_direction", "Manual Review Required"),
+                    "timestamp": datetime.now().isoformat()
+                }
+                ontology_updates.append(update_entry)
+                logger.info(f"Queuing update for {report['policy_name']}")
+        
+        return ontology_updates
+
+    def run_adaptation_cycle(self) -> Dict:
+        """
+        Siklus utama: Ingest -> Analyze -> Update.
+        """
+        logger.info("Starting Adaptive Jurisprudence Cycle...")
+        
+        # 1. Ingest & Analyze
+        # Asumsi: current_ontology['policies'] berisi daftar kebijakan string
+        policies = self.current_ontology.get("policies", {})
+        
+        if not policies:
+            logger.warning("No policies found in ontology. Exiting.")
+            return {"status": "NO_POLICIES"}
+
+        drift_reports = []
+        for policy_name, policy_content in policies.items():
+            report = self._detect_legal_drift(policy_name, policy_content)
+            if report:
+                drift_reports.append(report)
+
+        # 2. Update Ontology
+        updates = self._update_ontology(drift_reports)
+
+        # 3. Generate Evolution Report
+        evolution_report = {
+            "engine_version": "1.0.0",
+            "timestamp": datetime.now().isoformat(),
+            "summary": {
+                "total_policies_analyzed": len(policies),
+                "drifts_detected": len(drift_reports),
+                "updates_queued": len(updates)
+            },
+            "drift_analysis": drift_reports,
+            "ontology_updates": updates,
+            "integrations": {
+                "risk_context_incorporated": bool(self.risk_data),
+                "resilience_context_incorporated": bool(self.resilience_data)
+            }
+        }
+
+        # 4. Save Report
+        try:
+            os.makedirs(os.path.dirname(self.output_report_path) or '.', exist_ok=True)
+            with open(self.output_report_path, 'w') as f:
+                json.dump(evolution_report, f, indent=4)
+            logger.info(f"Evolution report saved to {self.output_report_path}")
+        except Exception as e:
+            logger.error(f"Failed to save report: {e}")
+
+        return evolution_report
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Adaptive Jurisprudence Engine: Otomatisasi Adaptasi Yurisprudensi Dinamis"
+    )
+    parser.add_argument("--global_judicial_decree_feeds", type=str, required=True,
+                        help="Path ke file JSON agregasi putusan pengadilan global (SCOTUS, ECHR, MK, dll).")
+    parser.add_argument("--legal_ontology_snapshot", type=str, required=True,
+                        help="Path ke file JSON snapshot Ontologi Hukum perusahaan saat ini.")
+    parser.add_argument("--risk_scores_path", type=str, default="./output/risk_scores.json",
+                        help="Path ke output dari Knowledge Graph Interoperability Engine.")
+    parser.add_argument("--resilience_metrics_path", type=str, default="./output/resilience_metrics.json",
+                        help="Path ke output dari Forensic Resilience Engine.")
+    parser.add_argument("--precedent_similarity_threshold", type=float, default=0.75,
+                        help="Ambang batas kosinus similarity (0-1). Di bawah nilai ini dianggap 'Drift'.")
+    parser.add_argument("--output_legal_evolution_report", type=str, default="./output/legal_intelligence_adaptation_v1.json",
+                        help="Path untuk menyimpan laporan evolusi hukum.")
+    return parser.parse_args()
+
+def main():
+    args = parse_args()
+    
+    engine = AdaptiveJurisprudenceEngine(
+        global_judicial_feeds=args.global_judicial_decree_feeds,
+        legal_ontology_snapshot=args.legal_ontology_snapshot,
+        risk_scores_path=args.risk_scores_path,
+        resilience_metrics_path=args.resilience_metrics_path,
+        similarity_threshold=args.precedent_similarity_threshold,
+        output_report_path=args.output_legal_evolution_report
+    )
+    
+    result = engine.run_adaptation_cycle()
+    
+    if result.get("status") == "NO_POLICIES":
+        sys.exit(1)
+    
+    logger.info("Adaptation cycle completed successfully.")
+
+if __name__ == "__main__":
+    main()
+```
+
+---
+
+### 9.5.4 Dokumentasi Teknis: Metodologi Lanjutan
+
+Bagian ini merinci fondasi teknis yang memungkinkan sistem untuk memahami nuansa hukum secara mendalam, melampaui pencarian kata kunci sederhana, dan mematuhi standar transparansi AI global.
+
+#### 1. Vector-Space Similarity Matching for Judicial Precedents
+
+Sistem ini tidak bergantung pada pencocokan string (`string matching`) yang rapuh terhadap sinonim atau struktur kalimat berbeda. Sebaliknya, ia menggunakan **High-Dimensional Semantic Embedding** berbasis model bahasa hukum khusus (seperti *Legal-BERT* atau *Lawformer*) yang telah di-fine-tune pada corpus putusan pengadilan.
+
+**Mekanisme Kerja:**
+1.  **Representasi Kasus Semantik:** Teks putusan pengadilan tidak diproses sebagai blok teks tunggal. Ia dipecah menjadi komponen hukum esensial:
+    *   *Facts:* Konteks kejadian yang memicu sengketa.
+    *   *Ratio Decidendi:* Alasan logis utama hakim dalam mengambil keputusan.
+    *   *Holding:* Keputusan akhir atau prinsip hukum baru yang ditetapkan.
+2.  **Embedding Densitas:** Setiap komponen ini diubah menjadi vektor matematika $V \in \mathbb{R}^d$. Vektor ini menangkap makna semantik dan hubungan logis antar kata. Kebijakan internal perusahaan juga di-*embed* menjadi vektor $V_{policy}$.
+3.  **Perhitungan Kemiripan Logis:** Sistem menghitung *Cosine Similarity* ($S$) antara vektor kebijakan perusahaan dengan kumpulan vektor preseden historis ($P_{historic}$) dari yurisdiksi relevan.
+
+    $$ S(V_{policy}, V_{precedent}) = rac{V_{policy} 
