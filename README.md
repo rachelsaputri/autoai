@@ -51441,3 +51441,18 @@ Auditor eksternal tidak perlu mengakses sistem internal perusahaan. Prosedur ver
     *   Jika auditor memiliki akses ke log waktu publik (blockchain/timestamp oracle), auditor dapat memverifikasi bahwa urutan waktu kejadian fisik dan digital sesuai dengan aturan di `temporal_consistency_checker`.
 
 Melalui proses ini, kepercayaan beralih dari "kepercayaan pada manajemen" menjadi "kepercayaan pada matematika dan kriptografi".
+
+
+Berikut adalah konten lanjutan untuk `README.md`, dirancang agar dapat langsung disalin dan ditempel setelah bagian 9.2 sebelumnya. Konten ini mempertahankan nada teknis, struktur yang jelas, dan kedalaman konseptual yang sesuai dengan tema dokumentasi teknis Anda.
+
+***
+
+### 10. Regenerative Finance Architecture & Impact-Adjusted Valuation
+
+Sistem ini tidak sekadar mengoptimalkan profitabilitas finansial tradisional, tetapi merekonfigurasi fungsi tujuan (*objective function*) dari alokasi modal untuk menginternalisasi eksternalitas ekologis. Pendekatan ini mengubah paradigma dari *shareholder primacy* berbasis arus kas diskonto (*discounted cash flow* konvensional) menjadi *stakeholder-regenerative primacy* yang mengintegrasikan nilai fisik biosfer ke dalam neraca perusahaan.
+
+#### 10.1 Metodologi: Natural Capital Depreciation & Accumulation Modeling
+
+Untuk membedakan investasi "less bad" (mitigasi kerusakan) dari "net-positive" (pemulihan aktif), sistem ini menerapkan model dinamika stok modal alam (*Natural Capital Stock Dynamics*) menggunakan persamaan diferensial yang disederhanakan untuk tujuan optimasi diskrit:
+
+$$ \Delta S_{t} = I_{reg} 
