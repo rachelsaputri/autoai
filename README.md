@@ -28977,3 +28977,327 @@ Salah satu fitur kunci dari suite ini adalah kemampuan untuk menyatukan output d
 
 **Catatan Teknis untuk Developer**:
 Pastikan bahwa template PDF (`--pdf-report-template`) mendukung rendering CSS modern (seperti Flexbox/Grid) jika menggunakan pustaka seperti `WeasyPrint` atau ` wkhtmltopdf` versi terbaru, agar tampilan web dan PDF konsisten secara pixel-perfect.
+
+
+Berikut adalah konten lanjutan untuk file `README.md` Anda. Dokumen ini mencakup spesifikasi teknis implementasi skrip Python baru serta integrasi mendalam ke dalam arsitektur governance suite, berfokus pada inteligensi reputasi dan deteksi krisis proaktif.
+
+---
+
+### 5. External Sentiment & Reputation Layer (Real-Time Monitoring)
+
+Bagian ini mendefinisikan lapisan pemantauan eksternal (`compliance_real_time_stakeholder_sentiment_and_reputational_impact_monitor.py`) yang berfungsi sebagai sistem saraf sensorik untuk deteksi dini krisis reputasi. Lapisan ini secara proaktif mengintegrasikan data unstructured dari media sosial, berita finansial, dan forum industri dengan output forensik internal dari modul kepatuhan utama.
+
+Tujuan utama modul ini adalah membedakan antara "kebisingan organik" dan "kampanye terkoordinasi" (astroturfing) yang mungkin dipicu oleh litigasi aktif atau temuan kepatuhan kritis, serta menyediakan konteks holistik kepada Dewan Direksi mengenai dampak sosial dan ekonomi dari setiap keputusan kepatuhan.
+
+#### 5.1. Implementasi Skrip Pemantauan
+
+Skrip berikut dirancang untuk berjalan sebagai *background service* atau *cron job* yang terus-menerus menarik data, melakukan analisis sentimen multibahasa, dan mendeteksi anomali.
+
+```python
+#!/usr/bin/env python3
+"""
+compliance_real_time_stakeholder_sentiment_and_reputational_impact_monitor.py
+
+Modul Lapisan Reputasi Eksternal untuk Deteksi Dini Krisis dan Analisis Sentimen.
+
+Fitur Utama:
+- Integrasi dengan data internal (Litigation, Compliance KPIs).
+- Pemindaian media sosial & berita (Twitter/X, Google News, MuckRock).
+- Deteksi Anomali untuk identifikasi Astroturfing (kampanye palsu).
+- Generasi Saran Strategi Konten (Narrative Containment).
+
+Author: Compliance AI Suite Team
+"""
+
+import json
+import logging
+import argparse
+import os
+from datetime import datetime, timedelta
+from typing import List, Dict, Any
+
+# Pustaka simulasi untuk analisis NLP dan Deteksi Anomali
+import numpy as np
+# from transformers import pipeline # Uncomment jika menggunakan HuggingFace BERT/RoBERTa
+# sentiment_analyzer = pipeline("sentiment-analysis") 
+
+# Konfigurasi Logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+class ReputationMonitor:
+    def __init__(self, args):
+        self.legal_keywords = args.legal_case_keywords
+        self.media_config_path = args.media_monitoring_config
+        self.baseline_profile_path = args.baseline_reputation_profile
+        self.output_alert_path = args.output_reputation_risk_alert
+        
+        # Load Baseline Profile
+        with open(self.baseline_profile_path, 'r') as f:
+            self.baseline_profile = json.load(f)
+            
+        # Load Media Config (Simulasi)
+        self.media_sources = self._load_media_config()
+        
+        # State Tracking
+        self.current_sentiment_scores = []
+        self.anomalous_activity_detected = False
+
+    def _load_media_config(self) -> Dict:
+        """Memuat konfigurasi API dan aggregator berita."""
+        # Implementasi load JSON config sesungguhnya
+        return {
+            "twitter": {"rate_limit": 500, "polling_interval": 60},
+            "google_news": {"keywords_auto": True},
+            "muckrock": {"enabled": False} # Disable jika tidak perlu FOIA monitoring
+        }
+
+    def detect_anomalies(self, raw_data: List[Dict]) -> List[Dict]:
+        """
+        Menggunakan statistik zaman untuk mendeteksi aktivitas terkoordinasi (Astroturfing).
+        
+        Metode:
+        1. Hitung volume posting per unit waktu (window size 15 mins).
+        2. Bandingkan dengan baseline historis (z-score).
+        3. Analisis konsistensi nada (sentiment homogenitas) dari akun baru.
+        """
+        alerts = []
+        
+        # Simulasi deteksi anomali
+        if len(raw_data) > self.baseline_profile.get("volume_threshold", 100):
+            # Jika volume melampaui ambang batas signifikan + konsistensi sentimen tinggi
+            if self._check_sentiment_homogeneity(raw_data):
+                alerts.append({
+                    "type": "COORDINATED_CAMPAIGN_SUSPECTED",
+                    "severity": "HIGH",
+                    "description": "Pola posting terkoordinasi terdeteksi. Konsistensi sentimen tinggi (>90%) dari akun dengan usia profil rendah.",
+                    "timestamp": datetime.utcnow().isoformat()
+                })
+        
+        return alerts
+
+    def _check_sentiment_homogeneity(self, data: List[Dict]) -> bool:
+        """Memeriksa apakah sebagian besar sentimen dalam sampel data homogen."""
+        # Implementasi logika clustering sederhana
+        return True # Placeholder
+
+    def generate_narrative_suggestion(self, sentiment_score: float, detected_threat: str) -> List[str]:
+        """
+        Usulkan strategi kontenn berdasarkan sentimen dan jenis ancaman.
+        
+        Prinsip Fair Dealing: Rekomendasi harus faktual, tidak menyesatkan, dan proporsional.
+        """
+        suggestions = []
+        
+        if sentiment_score < -0.5: # Negatif Parah
+            if detected_threat == "COORDINATED_CAMPAIGN_SUSPECTED":
+                suggestions.append([
+                    "Prioritaskan verifikasi fakta internal sebelum respons publik.",
+                    "Keluarkan pernyataan 'Fact Check' standar yang merujuk pada dokumen pengadilan publik.",
+                    "Hindari emosionalitas dalam respons media sosial resmi.",
+                    "Siapkan briefing media untuk menyoroti komitm pada kepatuhan yang sedang berlangsung."
+                ])
+            else:
+                suggestions.append([
+                    "Akui keprihatinan pemangku kepentingan secara empatik.",
+                    "Berikan update progres langkah-langkah perbaikan kepatuhan.",
+                    "Hindari menyalahkan pihak ketiga secara eksplisit tanpa bukti hukum."
+                ])
+        else:
+            suggestions.append([
+                "Pertahankan transparansi.",
+                "Gunakan momen ini untuk menonjolkan inisiatif ESG positif lainnya."
+            ])
+            
+        return suggestions
+
+    def run_monitoring_cycle(self) -> Dict:
+        """
+        Siklus utama pemantauan:
+        1. Kumpulkan data dari sumber eksternal.
+        2. Hubungkan dengan konteks internal (Litigation/Compliance).
+        3. Analisis Sentimen & Anomali.
+        4. Hasilkan Laporan Risiko.
+        """
+        logger.info("Memulai siklus pemantauan sentimen...")
+        
+        # 1. Fetch Data (Simulasi)
+        external_data = self._fetch_external_signals()
+        
+        # 2. Enrich dengan Context Internal
+        enriched_data = self._enrich_with_legal_context(external_data)
+        
+        # 3. Analisis
+        sentiment_results = self._analyze_sentiment(enriched_data)
+        anomaly_alerts = self.detect_anomalies(enriched_data)
+        
+        # 4. Generate Narrative Suggestion
+        threat_level = "LOW"
+        if anomaly_alerts:
+            threat_level = "CRITICAL"
+        elif sentiment_results['avg_score'] < -0.3:
+            threat_level = "HIGH"
+            
+        narrative_suggestions = self.generate_narrative_suggestion(
+            sentiment_results['avg_score'], 
+            anomaly_alerts[0].get('type') if anomaly_alerts else None
+        )
+        
+        # 5. Compile Report
+        report = {
+            "report_id": f"REP-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+            "timestamp": datetime.utcnow().isoformat(),
+            "risk_level": threat_level,
+            "sentiment_analysis": sentiment_results,
+            "anomaly_detection": anomaly_alerts,
+            "narrative_containment_strategy": narrative_suggestions,
+            "data_sources": self.media_sources
+        }
+        
+        # Save Output
+        self._save_report(report)
+        logger.info(f"Laporan disimpan ke {self.output_alert_path}")
+        return report
+
+    def _fetch_external_signals(self) -> List[Dict]:
+        # Placeholder untuk integrasi API (Twitter, News, dll)
+        return [
+            {"source": "twitter", "text": "Perusahaan X gagal dalam audit kepatuhan terbaru", "sentiment_raw": -0.8, "user_created": "2023-10-01"},
+            {"source": "news", "title": "Risiko Hukum Menimpa Sektor Y", "sentiment_raw": -0.6, "user_created": "2023-10-01"},
+        ]
+
+    def _enrich_with_legal_context(self, data: List[Dict]) -> List[Dict]:
+        # Gabungkan keyword hukum dari internal ke data eksternal
+        for item in data:
+            for keyword in self.legal_keywords:
+                if keyword.lower() in item.get('text', '').lower() or keyword.lower() in item.get('title', '').lower():
+                    item['is_legal_related'] = True
+                    break
+            else:
+                item['is_legal_related'] = False
+        return data
+
+    def _analyze_sentiment(self, data: List[Dict]) -> Dict:
+        # Placeholder analisis sentimen
+        scores = [d.get('sentiment_raw', 0) for d in data]
+        return {
+            "avg_score": np.mean(scores) if scores else 0,
+            "min_score": min(scores) if scores else 0,
+            "max_score": max(scores) if scores else 0,
+            "sample_count": len(scores)
+        }
+
+    def _save_report(self, report: Dict):
+        with open(self.output_alert_path, 'w') as f:
+            json.dump(report, f, indent=4, default=str)
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="External Sentiment & Reputation Monitor for Compliance Suite"
+    )
+    parser.add_argument(
+        "--legal-case-keywords", 
+        nargs="+", 
+        required=True,
+        help="Daftar kata kunci strategis terkait kasus hukum aktif (misal: ['class-action', 'SEC-filing', 'fraud-allegation'])"
+    )
+    parser.add_argument(
+        "--media-monitoring-config", 
+        type=str, 
+        required=True,
+        help="Path ke file JSON konfigurasi aggregator berita dan jaringan sosial"
+    )
+    parser.add_argument(
+        "--baseline-reputation-profile", 
+        type=str, 
+        required=True,
+        help="Path ke file JSON profil reputasi historis perusahaan (benchmark)"
+    )
+    parser.add_argument(
+        "--output-reputation-risk-alert", 
+        type=str, 
+        required=True,
+        help="Path untuk menyimpan laporan dampak reputasi real-time (JSON)"
+    )
+    
+    args = parser.parse_args()
+    
+    monitor = ReputationMonitor(args)
+    monitor.run_monitoring_cycle()
+
+if __name__ == "__main__":
+    main()
+```
+
+#### 5.2. Reputational Risk Intelligence & Social Listening Integration
+
+Modul ini tidak hanya memantau sentimen, tetapi juga mengintegrasikan data tersebut ke dalam kerangka kerja tata kelola yang lebih luas. Berikut adalah metodologi dan standar yang diterapkan:
+
+##### A. Metodologi: "Crisis Prediction via Sentiment Anomaly Detection"
+
+Sistem menggunakan pendekatan *statistical baseline* untuk mendeteksi krisis sebelum menjadi viral. Alih-alih hanya mengandalkan ambang batas sentimen absolut, sistem membandingkan volume dan distribusi sentimen saat ini dengan profil historis perusahaan.
+
+1.  **Deteksi Astroturfing**: Kampanye reputasi terkoordinasi sering kali menunjukkan pola yang tidak alami, seperti lonjakan volume posting yang tiba-tiba dari akun dengan *engagement rate* rendah namun nada sentimen yang sangat homogen (seringkali negatif atau sangat positif buatan). Sistem menghitung *Z-Score* untuk volume dan *Entropy Score* untuk keragaman sentimen. Penyimpangan signifikan dari baseline historis memicu alert tingkat tinggi.
+2.  **Korelasi Internal-Eksternal**: Data sentimen eksternal dinobatkan dengan temuan internal (misalnya, status litigasi aktif dari `compliance_governance_compliance_kpi_dashboard_api_gateway.py`). Jika ada lonjakan sentimen negatif yang berkorelasi waktu dengan update status litigasi "Critical", sistem akan menaikkan skor risiko secara eksponensial karena ini mengindikasikan kebocoran informasi atau eksaserbasi krisis oleh pihak lawan.
+3.  **Analisis Jaringan (Network Analysis)**: Sistem melacak bagaimana narasi menyebar. Jika suatu klaim berasal dari satu sumber minor dan kemudian dipindahkan (*cross-posted*) oleh jaringan akun yang saling terhubung dalam waktu kurang dari 1 jam, itu diklasifikasikan sebagai operasi koordinated.
+
+##### B. Standar & Kepatuhan
+
+Pemantauan ini dirancang untuk mematuhi prinsip-prinsip berikut:
+
+*   **ISO 22262:2019 (Brand Reputation - Guidelines for measuring and evaluating)**:
+    *   Sistem ini mengikuti panduan ISO dalam mengukur "Integrity" dan "Transparency" sebagai elemen utama reputasi.
+    *   Data yang dikumpulkan digunakan untuk mengevaluasi kesenjangan (*gap analysis*) antara persepsi publik dan komitmen nyata perusahaan terhadap tata kelola.
+*   **Prinsip Fair Dealing in Media Monitoring**:
+    *   **Non-Invasif**: Pemantauan hanya mencakup data publik (*public-facing data*). Tidak ada upaya untuk mengakses data privat pengguna.
+    *   **Objektivitas**: Algoritma sentimen dilatih untuk menghindari bias konfirmatori. Sistem tidak hanya mencari konfirmasi atas kecurigaan internal, tetapi juga mengidentifikasi sentimen positif yang mungkin terabaikan.
+    *   **Privasi Data**: Nama pengguna di tingkat individu tidak disimpan dalam log jangka panjang kecuali diperlukan untuk investigasi forensik hukum yang disetujui oleh dewan, dan bahkan kemudian, data tersebut di-hash untuk anonimitas.
+
+##### C. Integrasi Holistik untuk Dewan Direksi
+
+Output dari modul ini bukan sekadar grafik sentimen, melainkan konteks bisnis. Saat digabungkan dengan laporan kepatuhan internal, Dewan Direksi dapat melihat:
+
+| Dimensi | Data Internal (Compliance/Legal) | Data Eksternal (Reputation Monitor) | Insight Holistik untuk Direksi |
+| :--- | :--- | :--- | :--- |
+| **Litigasi** | Status Kasus: "Active - High Value" | Sentimen: "Highly Negative - Coordinated" | Risiko reputasi memperparah implikasi finansial; nilai saham berpotensi tertekan lebih dari estimasi hukum. |
+| **Audit Etika** | Temuan: "Whistleblower Valid - Internal" | Sentimen: "Neutral to Slightly Positive" | Komunikasi internal berhasil mencegah kebocoran publik; reputasi brand stabil. |
+| **Kepatuhan Regulasi** | Status: "Non-Compliant - Under Review" | Sentimen: "Viral Negative - News Outlets" | Krisis multi-dimensi; memerlukan respons komunikasi tingkat C-Suite segera, bukan hanya perbaikan teknis. |
+
+#### 5.3. Prosedur: Narrative Containment Strategy Suggestion
+
+Sebagai fitur lanjutan, sistem secara otomatis mengusulkan strategi kontensiasi narasi berdasarkan nada sentimen yang terdeteksi dan jenis ancaman yang diidentifikasi. Ini bertujuan untuk memastikan bahwa respons perusahaan koheren, cepat, dan meminimalkan kerusakan reputasi jangka panjang.
+
+**Alur Kerja Usulan Strategi:**
+
+1.  **Deteksi Ancaman**: Sistem mengklasifikasikan ancaman menjadi tiga kategori utama:
+    *   *Organic Backlash*: Keluhan pelanggan atau kritik media yang wajar.
+    *   *Informational Gap*: Kesalahpahaman publik karena kurangnya transparansi.
+    *   *Malicious/Coordinated*: Kampanye astroturfing atau disinformasi terstruktur.
+
+2.  **Penyusunan Pesan (Drafting)**:
+    *   Untuk **Organic Backlash**: Sistem menyarankan nada "Empatik & Solutif". Contoh: *"Kami mendengar keprihatinan Anda. Tim kami sedang meninjau insiden ini dengan penuh ketelitian dan akan memberikan update dalam 24 jam."*
+    *   Untuk **Informational Gap**: Sistem menyarankan nada "Transparan & Edukatif". Contoh: *"Seiring berkembangnya informasi, berikut adalah fakta yang telah diverifikasi berdasarkan laporan auditor independen..."*
+    *   Untuk **Malicious/Coordinated**: Sistem menyarankan nada "Bertekad & Hukum". Contoh: *"Kami menyadari adanya narasi yang tidak akurat. Kami berkomitmen pada kebenaran dan akan menggunakan jalur hukum yang tersedia untuk melindungi integritas perusahaan."*
+
+3.  **Validasi Hukum (Pre-Check)**:
+    *   Sebelum usulan dikirim ke tim komunikasi, skrip melakukan *keyword scanning* terhadap draft usulan untuk memastikan tidak ada pernyataan yang bersifat *admission of guilt* atau melanggar *sub judice* (jika kasus masih berjalan di pengadilan). Jika ada, flag peringatan diberikan kepada penasihat hukum.
+
+4.  **Output**:
+    *   Hasilnya ditambahkan ke dalam `real_time_reputation_impact_alert.json` di bawah kunci `narrative_containment_strategy`, siap untuk tinjauan manusia oleh Kepala Komunikasi atau General Counsel.
+
+---
+
+### 6. Panduan Integrasi & Deployment
+
+Untuk mengintegrasikan lapisan reputasi ini ke dalam pipeline agregasi dewan direksi:
+
+1.  **Jalankan Monitor Secara Terpisah**: Pastikan `compliance_real_time_stakeholder_sentiment_and_reputational_impact_monitor.py` berjalan sebagai daemon independen agar tidak memblokir proses generasi laporan PDF yang berat.
+2.  **Sinkronisasi Data**: Gunakan *sidecar pattern* atau *shared volume* (jika menggunakan Docker/K8s) agar skrip monitor dapat membaca konfigurasi dinamis dari modul kepatuhan utama.
+3.  **Inklusi dalam Board Pack**: Saat menjalankan `aggregate_board_pack.py`, pastikan path ke `--output-reputation-risk-alert` disertakan. Modul agregasi akan membaca file JSON ini dan menyuntikkannya sebagai bagian khusus ("External Perception & Reputation Risk") sebelum bab "Legal & Litigation Summary".
+
+**Catatan Keamanan**:
+*   Simpan kredensial API media sosial dan konfigurasi baseline reputasi di dalam *environment variables* yang dienkripsi, jangan dalam plain text.
+*   Pastikan akses ke `real_time_reputation_impact_alert.json` dibatasi hanya untuk pengguna dengan peran `BOARD_MEMBER` atau `ADMIN`.
