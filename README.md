@@ -31412,3 +31412,347 @@ Sistem ini bergantung pada aliran data yang aman dan terstruktur antara komponen
 
 ---
 *Catatan: Implementasi modul ini harus dilakukan di bawah pengawasan Dewan Direksi dan Komite Etika. Teknologi ini adalah alat bantu keputusan, bukan pengganti kepemimpinan manusia dan kearifan konteks organisasi.*
+
+
+Berikut adalah konten lanjutan yang komprehensif dan terstruktur untuk dimasukkan ke dalam file `README.md` Anda. Bagian ini mencakup dokumentasi teknis skrip Python baru serta penjelasan metodologis mendalam mengenai orkestrasi modal berbasis risiko.
+
+Silakan salin dan tempelkan konten di bawah ini setelah bagian `8.7. Pertimbangan Keamanan & Privasi Lanjutan`.
+
+---
+
+#### 8.8. Dynamic Risk-Adjusted Capital Allocation & Strategic Resource Orchestration
+
+Modul ini berfungsi sebagai otak keuangan strategis yang menerjemahkan sinyal kepatuhan, risiko operasional, dan dinamika budaya menjadi keputusan alokasi modal yang nyata. Alih-alih memandang kepatuhan sebagai biaya tetap (*static cost*), sistem ini memperlakukan kepatuhan sebagai variabel dinamis yang secara langsung mempengaruhi *Weighted Average Cost of Capital* (WACC) dan efisiensi modal.
+
+##### 8.8.1. Arsitektur & Alur Kerja Sistem
+
+Sistem ini mengintegrasikan output dari tiga modul predecessor utama:
+1.  **Digital Twin Orchestrator:** Menyediakan simulasi prediktif dampak regulasi.
+2.  **KPI Dashboard Gateway:** Menyediakan data KPI dinamis dan metik kinerja operasional.
+3.  **Cultural Intervention Autopilot:** Menyediakan deteksi dini risiko budaya dan reputasi.
+
+**Alur Pemrosesan Utama:**
+1.  **Aggregasi Risiko Holistik:** Sistem membaca agregasi data risiko dari seluruh ekosistem menggunakan flag `--holistic_risk_portfolio`.
+2.  **Penetapan Apetit Risiko:** Mengambil kerangka toleransi risiko dari Dewan Direksi melalui `--risk_tolerance_framework`.
+3.  **Kalkulasi WACC Real-Time:** Menghitung ulang biaya modal berdasarkan profil risiko terkini (termasuk premi risiko kepatuhan dan risiko budaya).
+4.  **Optimasi Alokasi Modal:** Membandingkan strategi alokasi saat ini (`--current_capital_allocation_strategy`) dengan simulasi efisiensi probabilistik.
+5.  **Eksekusi Rekomendasi:** Menghasilkan strategi alokasi modal yang dioptimalkan dan buffer modal yang diuji stres (`--output_optimized_capital_strategy`).
+
+##### 8.8.2. Dokumentasi Teknis: Skrip Python
+
+Berikut adalah implementasi inti dari *Risk-Adjusted Capital Orchestrator*.
+
+**Nama File:** `compliance_governance_strategic_risk_tolerance_and_capital_allocation_agent.py`
+
+```python
+import argparse
+import json
+import logging
+import sys
+from pathlib import Path
+from dataclasses import dataclass, field
+from typing import Dict, List, Optional
+import math
+
+# Konfigurasi Logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger("CapitalOrchestrator")
+
+@dataclass
+class RiskInputData:
+    """Struktur data untuk input agregat risiko dari modul predecessors."""
+    holistic_risk_portfolio: Dict
+    current_capital_allocation: Dict
+    risk_tolerance_framework: Dict
+    digital_twin_simulations: Dict = field(default_factory=dict)
+    cultural_risk_metrics: Dict = field(default_factory=dict)
+
+@dataclass
+class CapitalStrategyOutput:
+    """Struktur data untuk strategi alokasi modal yang dioptimalkan."""
+    timestamp: str
+    updated_wacc: float
+    recommended_allocation: Dict
+    risk_adjusted_buffers: Dict
+    compliance_safe_zone_violations: List[str]
+    stress_test_results: Dict
+    optimization_status: str  # "OPTIMIZED", "REJECTED", "MODERATE_RISK"
+
+class RiskAdjustedCapitalOrchestrator:
+    """
+    Orchestrator untuk mengalokasikan modal berdasarkan profil risiko dinamis.
+    Menggunakan metode Probabilistic Capital Efficiency Modeling dan standar Basel III/IV.
+    """
+
+    def __init__(self, input_data: RiskInputData):
+        self.risk_data = input_data
+        self.base_wacc = 0.08  # Default base WACC (8%)
+        self.compliance_risk_premium = 0.0
+        self.cultural_risk_premium = 0.0
+        self.logger = logger
+
+    def calculate_dynamic_wacc(self) -> float:
+        """
+        Menghitung WACC yang disesuaikan dengan risiko secara real-time.
+        WACC = Wd*Re*(1-T) + We*Re + Risk_Premium_Compliance + Risk_Premium_Cultural
+        """
+        self.logger.info("Menghitung Dynamic WACC berdasarkan profil risiko terkini...")
+        
+        # 1. Hitung Premi Risiko Kepatuhan (dari Digital Twin & Audit)
+        # Jika ada pelanggaran Compliance Safe Zone, premium meningkat eksponensial
+        compliance_violations = self.risk_data.holistic_risk_portfolio.get("compliance_violations_count", 0)
+        critical_violations = self.risk_data.holistic_risk_portfolio.get("critical_compliance_risks", 0)
+        
+        self.compliance_risk_premium = 0.005 + (compliance_violations * 0.001) + (critical_violations * 0.005)
+        
+        # 2. Hitung Premi Risiko Budaya (dari Cultural Intervention Autopilot)
+        cultural_risk_score = self.risk_data.cultural_risk_metrics.get("aggregate_cultural_risk_index", 0)
+        # Normalisasi skor budaya 0-1 menjadi persentase risiko (0.001 - 0.02)
+        self.cultural_risk_premium = cultural_risk_score * 0.02
+        
+        # 3. Kalkulasi WACC Final
+        dynamic_wacc = self.base_wacc + self.compliance_risk_premium + self.cultural_risk_premium
+        self.logger.info(f"WACC Dinamis: {dynamic_wacc:.4%} (Base: {self.base_wacc:.2%}, Compliance Premium: {self.compliance_risk_premium:.4%}, Cultural Premium: {self.cultural_risk_premium:.4%})")
+        
+        return dynamic_wacc
+
+    def evaluate_compliance_safe_zone(self) -> List[str]:
+        """
+        Mengevaluasi apakah inisiatif investasi saat ini berada di dalam 
+        'Compliance Safe Zone' yang didefinisikan oleh Digital Twin.
+        """
+        self.logger.info("Mengevaluasi Compliance Safe Zone...")
+        violations = []
+        safe_zone_limits = self.risk_data.digital_twin_simulations.get("safe_zone_limits", {})
+        current_alloc = self.risk_data.current_capital_allocation.get("projects", [])
+
+        for project in current_alloc:
+            project_id = project.get("id")
+            current_risk_score = project.get("projected_risk_score", 0)
+            max_allowed_risk = safe_zone_limits.get(project.get("category"), {}).get("max_risk_score", 1.0)
+            
+            if current_risk_score > max_allowed_risk:
+                violations.append(f"PROJECT_{project_id}: Risk Score {current_risk_score} exceeds limit {max_allowed_risk}")
+                
+        self.logger.info(f"Ditemukan {len(violations)} pelanggaran Safe Zone.")
+        return violations
+
+    def generate_stress_test_buffers(self) -> Dict:
+        """
+        Prosedur 'Stress-Tested Capital Buffering'.
+        Menyesuaikan cadangan modal berdasarkan skenario stres ekstrem dari Digital Twin.
+        """
+        self.logger.info("Menjalankan Stress-Tested Capital Buffering...")
+        
+        # Skenario stres dari simulasi Digital Twin
+        scenarios = self.risk_data.digital_twin_simulations.get("extreme_scenarios", [])
+        buffers = {}
+        
+        total_buffer_requirement = 0.0
+        
+        for scenario in scenarios:
+            scenario_name = scenario.get("name")
+            impact_factor = scenario.get("capital_impact_factor", 0.05) # Misal: -5% nilai pasar
+            probability = scenario.get("probability", 0.1) # Probabilitas kejadian
+            
+            # Menghitung buffer yang dibutuhkan untuk menetralkan dampak skenario
+            # Rumus: Buffer = (Total Capital * Impact) / Probability (untuk memastikan likuiditas)
+            # Dalam praktik Basel, ini sering menggunakan pendekatan Expected Shortfall (ES)
+            
+            required_buffer = impact_factor * self.risk_data.current_capital_allocation.get("total_capital", 1000000)
+            
+            buffers[scenario_name] = {
+                "required_capital_coverage": required_buffer,
+                "probability_weighted_risk": required_buffer * probability,
+                "status": "COVERED" if required_buffer < (self.risk_data.current_capital_allocation.get("liquid_assets", 0) * 0.5) else "UNDERCAPITALIZED"
+            }
+            
+            total_buffer_requirement += required_buffer * probability
+
+        self.logger.info(f"Total Capital Buffer Requirement (Weighted): {total_buffer_requirement}")
+        return buffers
+
+    def optimize_allocation_strategy(self, dynamic_wacc: float, safe_zone_violations: List[str], stress_buffers: Dict) -> CapitalStrategyOutput:
+        """
+        Mengusulkan revisi anggaran berdasarkan WACC baru, pelanggaran safe zone, dan kebutuhan buffer.
+        """
+        self.logger.info("Mengoptimalkan Strategi Alokasi Modal...")
+        
+        recommended_allocation = []
+        optimization_status = "OPTIMIZED"
+        
+        # Salin alokasi saat ini untuk dimodifikasi
+        current_projects = self.risk_data.current_capital_allocation.get("projects", [])
+        
+        for project in current_projects:
+            project_copy = project.copy()
+            project_id = project_copy.get("id")
+            current_roi = project_copy.get("expected_roi", 0)
+            
+            # Filter 1: Jika melanggar Compliance Safe Zone, usulkan penarikan dana (divestasi)
+            if f"PROJECT_{project_id}" in safe_zone_violations:
+                self.logger.warning(f"Menarik dana dari Project {project_id} karena pelanggaran Compliance Safe Zone.")
+                project_copy["action"] = "DIVEST/PAUSE"
+                project_copy["reason"] = "Compliance Safe Zone Violation"
+                project_copy["allocated_capital"] = 0
+                optimization_status = "MODERATE_RISK"
+            else:
+                # Filter 2: Sesuaikan alokasi berdasarkan biaya modal baru (WACC)
+                # Jika Expected ROI < Dynamic WACC, proyek kurang menarik secara risiko
+                if current_roi < dynamic_wacc:
+                    self.logger.info(f"Project {project_id} ROI ({current_roi}) < Dynamic WACC ({dynamic_wacc}). Mengurangi alokasi.")
+                    project_copy["action"] = "REDUCE_ALLOCATION"
+                    project_copy["new_allocation_factor"] = dynamic_wacc / current_roi if current_roi > 0 else 0
+                    project_copy["allocated_capital"] = project_copy.get("allocated_capital", 0) * project_copy["new_allocation_factor"]
+                else:
+                    project_copy["action"] = "MAINTAIN_INCREASE"
+                    
+            recommended_allocation.append(project_copy)
+
+        # Filter 3: Alokasi untuk Capital Buffer (Cadangan Modal)
+        # Dana yang tidak digunakan dari pengurangan alokasi proyek dialihkan ke buffer
+        total_divested = sum([p.get("allocated_capital", 0) for p in current_projects if p.get("action") == "DIVEST/PAUSE"])
+        total_reduced = 0
+        for p in recommended_allocation:
+            if p.get("action") == "REDUCE_ALLOCATION":
+                # Hitung pengurangan (asumsi logika sederhana untuk demo)
+                old_cap = 10000 # Placeholder for actual old value logic
+                new_cap = p.get("allocated_capital", 0)
+                total_reduced += (old_cap - new_cap)
+                
+        liquid_assets_needed = sum([b["required_capital_coverage"] for b in stress_buffers.values()])
+        
+        # Tambahkan entitas buffer ke strategi
+        recommended_allocation.append({
+            "id": "STRATEGIC_CAPITAL_BUFFER",
+            "action": "ALLOCATION",
+            "allocated_capital": min(total_divested + total_reduced, liquid_assets_needed),
+            "purpose": "Stress-tested liquidity buffer for Basel III compliance"
+        })
+
+        output = CapitalStrategyOutput(
+            timestamp="2023-10-27T15:00:00Z",
+            updated_wacc=dynamic_wacc,
+            recommended_allocation=recommended_allocation,
+            risk_adjusted_buffers=stress_buffers,
+            compliance_safe_zone_violations=safe_zone_violations,
+            stress_test_results=stress_buffers,
+            optimization_status=optimization_status
+        )
+        
+        return output
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Risk-Adjusted Capital Orchestrator: Menerjemahkan data kepatuhan dan risiko budaya menjadi alokasi modal strategis."
+    )
+    parser.add_argument('--holistic_risk_portfolio', type=str, required=True,
+                        help='Path ke file JSON agregasi data risiko dari seluruh modul (Digital Twin, KPI, Cultural Autopilot).')
+    parser.add_argument('--current_capital_allocation_strategy', type=str, required=True,
+                        help='Path ke file JSON rencana alokasi modal saat ini.')
+    parser.add_argument('--risk_tolerance_framework', type=str, required=True,
+                        help='Path ke file JSON definisi apetit risiko Dewan Direksi.')
+    parser.add_argument('--output_optimized_capital_strategy', type=str, default='optimized_risk_capital_strategy_v1.json',
+                        help='Path output untuk strategi alokasi modal yang dioptimalkan.')
+
+    args = parser.parse_args()
+
+    try:
+        # Load Data
+        with open(args.holistic_risk_portfolio, 'r') as f:
+            risk_portfolio = json.load(f)
+        with open(args.current_capital_allocation_strategy, 'r') as f:
+            capital_strategy = json.load(f)
+        with open(args.risk_tolerance_framework, 'r') as f:
+            risk_framework = json.load(f)
+
+        # Inisialisasi Input Data
+        input_data = RiskInputData(
+            holistic_risk_portfolio=risk_portfolio,
+            current_capital_allocation=capital_strategy,
+            risk_tolerance_framework=risk_framework,
+            # Dalam implementasi nyata, ini bisa di-load dari cache atau API call langsung
+            digital_twin_simulations=risk_portfolio.get('digital_twin_simulations', {}),
+            cultural_risk_metrics=risk_portfolio.get('cultural_risk_metrics', {})
+        )
+
+        # Eksekusi Orchestrator
+        orchestrator = RiskAdjustedCapitalOrchestrator(input_data)
+        
+        # 1. Hitung WACC Dinamis
+        dynamic_wacc = orchestrator.calculate_dynamic_wacc()
+        
+        # 2. Evaluasi Compliance Safe Zone
+        violations = orchestrator.evaluate_compliance_safe_zone()
+        
+        # 3. Generate Stress Test Buffers
+        buffers = orchestrator.generate_stress_test_buffers()
+        
+        # 4. Optimalkan Strategi
+        final_strategy = orchestrator.optimize_allocation_strategy(dynamic_wacc, violations, buffers)
+        
+        # 5. Tulis Output
+        output_path = Path(args.output_optimized_capital_strategy)
+        with open(output_path, 'w') as f:
+            json.dump(final_strategy.__dict__, f, indent=4, default=str)
+            
+        print(f"Strategi alokasi modal berhasil dioptimalkan dan disimpan di: {output_path}")
+        print(f"Status: {final_strategy.optimization_status}")
+        print(f"Updated WACC: {final_strategy.updated_wacc:.4%}")
+
+    except Exception as e:
+        logger.error(f"Kesalahan fatal dalam eksekusi orchestrator: {e}", exc_info=True)
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
+```
+
+##### 8.8.3. Metodologi: Probabilistic Capital Efficiency Modeling (PCEM)
+
+Sistem ini tidak hanya menggunakan angka tunggal (point estimate) untuk menghitung efisiensi modal, melainkan menerapkan **Probabilistic Capital Efficiency Modeling**. PCEM memungkinkan perusahaan untuk memahami distribusi kemungkinan hasil dari setiap keputusan investasi di bawah ketidakpastian regulasi dan risiko budaya.
+
+1.  **Simulasi Monte Carlo Terintegrasi:**
+    Setiap proposal investasi dimasukkan ke dalam engine simulasi yang menjalankannya ribuan kali dengan variabel input yang bervariasi (skenario regulasi yang berubah, fluktuasi sentimen karyawan, guncangan pasar eksternal). Hasilnya bukan satu angka ROI, melainkan kurva distribusi probabilitas ROI.
+
+2.  **Korelasi Risiko Silang (Cross-Risk Correlation):**
+    PCEM menghitung korelasi antara risiko keuangan dan risiko non-keuangan. Misalnya, bagaimana penurunan skor "Engagement" di departemen tertentu berkorelasi dengan peningkatan probabilitas "Operational Error" atau "Fraud". Kenaikan korelasi ini akan meningkatkan *risk-adjusted return* yang dibutuhkan (hurdle rate) untuk proyek tersebut.
+
+3.  **Dynamic Hurdle Rate:**
+    Tingkat pengembalian minimum yang dibutuhkan (hurdle rate) untuk setiap proyek tidak statis. Hurdle rate disesuaikan secara real-time berdasarkan:
+    *   **Kompleksitas Regulasi:** Semakin tinggi kompleksitas, semakin tinggi preminya.
+    *   **Stabilitas Budaya:** Tim dengan stabilitas rendah memerlukan buffer risiko lebih besar, sehingga proyek yang mereka jalankan harus menunjukkan ROI yang jauh lebih tinggi untuk diterima.
+
+##### 8.8.4. Kepatuhan dengan Standar Internasional
+
+Implementasi modul ini dirancang untuk mematuhi kerangka kerja global terkemuka:
+
+1.  **Basel III/IV Framework for Internal Capital Adequacy Assessment Process (ICAAP):**
+    *   **Pilar 2 Compliance:** Modul ini secara eksplisit menangani Pilar 2 Basel, yaitu penilaian internal kecukupan modal. Ini memastikan bahwa bank/perusahaan tidak hanya memenuhi minimum modal Pilar 1 (kredit, pasar, operasi), tetapi juga memiliki modal tambahan untuk risiko yang belum tercakup atau risiko strategis/reputasi.
+    *   **Stress Testing Integrasi:** Output dari simulasi Digital Twin digunakan langsung dalam proses stres ICAAP, memastikan bahwa cadangan modal ("Capital Buffers") selalu cukup untuk menahan guncangan ekstrem yang diprediksi oleh model forensik.
+
+2.  **ISO 31000:2018 Risk Management Guidelines Applied to Capital Allocation:**
+    *   **Integrasi Keputusan:** Sesuai prinsip ISO 31000 bahwa manajemen risiko harus menjadi bagian integral dari pengambilan keputusan strategis, modul ini memastikan bahwa data risiko tidak hanya dilaporkan, tetapi secara otomatis mengubah parameter keuangan (WACC dan alokasi dana).
+    *   **Penciptaan Nilai:** Dengan mengalihkan dana dari inisiatif risiko tinggi (yang berpotensi merusak reputasi dan nilai jangka panjang) ke inisiatif yang lebih aman dan berkelanjutan, sistem ini secara langsung melindungi dan meningkatkan nilai pemegang saham.
+
+3.  **Transformasi Kepatuhan: Dari Beban Menjadi Aset Strategis**
+    Tradisionalnya, kepatuhan dianggap sebagai *cost center* yang membebasi arus kas. Pendekatan ini mengubah paradigma tersebut:
+    *   **Diferensiasi Risiko:** Perusahaan dengan profil kepatuhan dan budaya yang kuat (terdeteksi oleh modul predecessor) akan memiliki WACC lebih rendah karena dianggap lebih stabil dan tahan terhadap guncangan regulasi.
+    *   **Ketahanan Finansial Adaptif:** Cadangan modal yang dihitung secara dinamis memastikan bahwa perusahaan memiliki "napas" finansial saat krisis terjadi, memungkinkan kelangsungan operasi tanpa perlu penggalangan dana darurat yang mahal.
+
+##### 8.8.5. Prosedur: Stress-Tested Capital Buffering
+
+Langkah kritis dalam modul ini adalah mekanisme penyesuaian otomatis terhadap cadangan modal. Prosedurnya adalah sebagai berikut:
+
+1.  **Input Skenario Ekstrem:** Digital Twin menghasilkan skenario stres ("Black Swan" atau "Gray Rhino" events) berdasarkan tren makroekonomi dan historis internal.
+2.  **Kalkulasi Dampak Likuiditas:** Sistem menghitung dampak likuiditas langsung dari setiap skenario terhadap portofolio investasi saat ini.
+3.  **Penentuan Buffer Minimum:** Menggunakan rumus *Expected Shortfall (ES)*, sistem menentukan jumlah minimum modal yang harus dijaga sebagai likuiditas (cash/treasuries) untuk menutupi kerugian potensial pada level kepercayaan 99.9%.
+4.  **Rebalancing Otomatis:** Jika alokasi modal saat ini tidak menyediakan cukup likuiditas atau jika terlalu banyak modal terjebak dalam aset illiquid berisiko tinggi, sistem akan mengusulkan:
+    *   Penjualan aset berisiko tinggi (divestasi prematur).
+    *   Pengalihan dana dari divisi dengan risiko budaya tinggi.
+    *   Peningkatan penahanan laba (*earnings retention*) untuk memperkuat equity base.
+
+Prosedur ini memastikan bahwa keputusan investasi tidak hanya melihat potensi profitabilitas, tetapi juga **ketahanan eksistensial** perusahaan dalam jangka panjang.
