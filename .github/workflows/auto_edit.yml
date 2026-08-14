@@ -1,4 +1,4 @@
-name: AI Self-Prompting README Updater
+name: Autonomous AI Software Engineer
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
     - cron: '*/5 * * * *'
 
 jobs:
-  auto-commit:
+  auto-develop:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -14,7 +14,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run Self-Improving Loop
+      - name: Run Autonomous Engineering Loop
         env:
           OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
         run: |
@@ -22,39 +22,40 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           if [ ! -f history.txt ]; then
-            echo "Initial topic: Autonomous AI system development and knowledge base." > history.txt
+            echo "Initialization: System boot and core tool development." > history.txt
           fi
           if [ ! -f README.md ]; then
-            echo "# AI Self-Improving Documentation" > README.md
+            echo "# Autonomous AI Knowledge & Toolbase" > README.md
           fi
           TOPICS=(
-            "AI Ethics and Safety"
-            "The Future of AI and Automation"
-            "Advanced Prompt Engineering Techniques"
-            "Machine Learning vs Deep Learning Fundamentals"
-            "Introduction to Retrieval-Augmented Generation (RAG)"
-            "LLM Performance and Context Optimization"
-            "Real-World AI Industry Applications"
+            "Develop an advanced web scraping utility in Python for data extraction bypassing basic protections."
+            "Implement matrix multiplication algorithms and computational optimization in Python or C."
+            "Create robust Linux shell scripts for network analysis and automated system diagnostics."
+            "Build self-healing automated tools to handle API rate limits and data pagination."
+            "Develop an intelligent API wrapper tool for multi-threaded data retrieval and parsing."
+            "Design custom AI helper scripts for automated dataset cleaning and formatting."
+            "Implement low-level network packet sniffing or protocol analysis simulators."
           )
           for i in {1..6}
           do
             HISTORY_CONTEXT=$(tail -n 20 history.txt | tr '\n' ' ')
             README_CONTEXT=$(tail -n 30 README.md | tr '\n' ' ')
+            DIR_STRUCTURE=$(find . -maxdepth 3 -not -path '*/\.git/*' | sort | tr '\n' ' | ')
             RESET_CHANCE=$((RANDOM % 5))
             if [ $RESET_CHANCE -eq 0 ]; then
               RANDOM_TOPIC="${TOPICS[$RANDOM % ${#TOPICS[@]}]}"
-              GENERATED_PROMPT="Disregard the previous context. Create a completely NEW, highly detailed, and informative chapter about: '$RANDOM_TOPIC'. Use markdown headings (##) for this new chapter."
+              GENERATED_PROMPT="Focus entirely on this new objective: '$RANDOM_TOPIC'. You must write functional, production-ready code for this task. Your current workspace files: $DIR_STRUCTURE."
             else
               PROMPT_PAYLOAD=$(jq -n \
                 --arg model "MiniMaxAI/MiniMax-M2.7" \
                 --arg history "$HISTORY_CONTEXT" \
-                --arg readme "$README_CONTEXT" \
+                --arg dirs "$DIR_STRUCTURE" \
                 '{
                   model: $model,
                   messages: [
                     {
                       role: "user",
-                      content: ("Based on the following prompt history:\n" + $history + "\n\nAnd the latest README content:\n" + $readme + "\n\nGenerate exactly 1 logical follow-up prompt to continue, deepen, or expand the current README content. Return ONLY the new prompt text without any explanations, tags, or conversational filler.")
+                      content: ("You are an Autonomous AI. Here is your current workspace file structure:\n" + $dirs + "\n\nBased on this history:\n" + $history + "\n\nGenerate exactly 1 logical follow-up instruction. If you already built a tool for a task, your instruction should be to UPGRADE it, optimize it, or build a NEW tool that connects to it. Return ONLY the new instruction text.")
                     }
                   ]
                 }')
@@ -65,23 +66,24 @@ jobs:
               GENERATED_PROMPT=$(echo "$NEW_PROMPT_RESP" | jq -r '.choices[0].message.content // empty' 2>/dev/null | perl -0777 -pe 's/<think>.*?<\/think>\s*//gs' || echo "")
             fi
             if [ -z "$GENERATED_PROMPT" ]; then
-              GENERATED_PROMPT="Continue the previous topic by providing more detailed technical explanations, best practices, and real-world examples."
+              GENERATED_PROMPT="Analyze the current file structure and build a new utility script for data processing."
             fi
             echo "[$(date +'%Y-%m-%d %H:%M:%S')] $GENERATED_PROMPT" >> history.txt
             CONTENT_PAYLOAD=$(jq -n \
               --arg model "MiniMaxAI/MiniMax-M2.7" \
               --arg prompt "$GENERATED_PROMPT" \
-              --arg readme "$README_CONTEXT" \
+              --arg dirs "$DIR_STRUCTURE" \
               '{
                 model: $model,
+                response_format: { type: "json_object" },
                 messages: [
                   {
                     role: "system",
-                    content: "You are an expert technical documentation writer. Write comprehensive, well-structured, and highly informative continuation content. Ensure seamless flow with the previous content. Use markdown formatting like headings, lists, or tables where appropriate to enhance readability."
+                    content: ("You are an elite Autonomous AI Software Engineer. Your current workspace files: " + $dirs + ". You possess deep knowledge of algorithms, matrices, Linux, networking, and IT infrastructure. You MUST respond strictly in valid JSON format with exactly two keys: \n1. \"filepath\": The relative path (e.g., \"tools/scraper.py\", \"linux_scripts/net_monitor.sh\"). If updating an existing file, use its exact path. \n2. \"content\": The complete, raw, functional code for that file. Do NOT include markdown code blocks inside the content string.")
                   },
                   {
                     role: "user",
-                    content: ("Current README context:\n" + $readme + "\n\nYour task:\n" + $prompt + "\n\nWrite the next section to be appended to the README.md. Output strictly the raw Markdown text only. Do not include markdown code block backticks around the entire output.")
+                    content: ("Execute task:\n" + $prompt)
                   }
                 ]
               }')
@@ -89,11 +91,16 @@ jobs:
               -H "Authorization: Bearer $OPENAI_KEY" \
               -H "Content-Type: application/json" \
               -d "$CONTENT_PAYLOAD")
-            GENERATED_CONTENT=$(echo "$NEW_CONTENT_RESP" | jq -r '.choices[0].message.content // empty' 2>/dev/null | perl -0777 -pe 's/<think>.*?<\/think>\s*//gs' || echo "")
-            if [ -n "$GENERATED_CONTENT" ]; then
-              echo -e "\n\n$GENERATED_CONTENT" >> README.md
-              git add history.txt README.md
-              git commit -m "docs: expand README & update prompt history [$(date +'%H:%M:%S')]" || true
+            RAW_JSON=$(echo "$NEW_CONTENT_RESP" | jq -r '.choices[0].message.content // empty' 2>/dev/null | perl -0777 -pe 's/<think>.*?<\/think>\s*//gs')
+            FILEPATH=$(echo "$RAW_JSON" | jq -r '.filepath // empty' 2>/dev/null)
+            CODE_CONTENT=$(echo "$RAW_JSON" | jq -r '.content // empty' 2>/dev/null)
+            if [ -n "$FILEPATH" ] && [ -n "$CODE_CONTENT" ] && [ "$FILEPATH" != "null" ] && [ "$CODE_CONTENT" != "null" ]; then
+              DIRNAME=$(dirname "$FILEPATH")
+              mkdir -p "$DIRNAME"
+              echo "$CODE_CONTENT" > "$FILEPATH"
+              echo -e "\n### Auto-Generated Tool: \`$FILEPATH\`\n**Date:** $(date +'%Y-%m-%d %H:%M:%S')\n**Objective:** $GENERATED_PROMPT\n" >> README.md
+              git add .
+              git commit -m "feat(ai): autonomous update to $FILEPATH [$(date +'%H:%M:%S')]" || true
               git push || true
             fi
             sleep 30
