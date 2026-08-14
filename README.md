@@ -66,3 +66,5 @@
 - Created/Updated module: `labview_industrial_monitor` (See `labview_industrial_monitor/README.md` for details)
 
 - Created/Updated module: `gap_manufacturing_algebra` (See `gap_manufacturing_algebra/README.md` for details)
+
+- Created/Updated module: `squeak_encryption_tool` (See `squeak_encryption_tool/README.md` for details)

@@ -3652,3 +3652,48 @@ Implement a computational algebra utility for cryptographic key management and p
 </think>
 
 Implement a dynamic test orchestration and configuration management utility for Java microservice ecosystems, constructing the utility STRICTLY using BeanShell to capitalize on its native Java integration and lightweight scripting runtime, guaranteeing the solution is housed in a NEW dedicated folder populated with modular BeanShell source scripts and a comprehensive local README.md that details the environment setup, scripting methodology, and CI/CD integration procedures.
+[2026-08-14 21:57:50] (Target Lang: Squeak) Thinking Process:
+
+1.  **Deconstruct the Request:**
+    *   Goal: Generate exactly 1 logical follow-up instruction.
+    *   Constraint: Explicitly demand the new tool be built STRICTLY using Squeak.
+    *   Constraint: If building a new tool, place it in a NEW dedicated folder.
+    *   Constraint: Create a local README.md.
+    *   Constraint: Return ONLY the instruction text.
+    *   Constraint: NEVER target the `.github` directory.
+    *   Context: The workspace contains various tools (BeanShell, Java, Rust, Python, Go, etc.). The previous instruction (History) was about a BeanShell utility. A logical follow-up might be related, or just a new distinct tool. Since the prompt asks for a "logical follow-up", it should probably relate to the domain of the workspace (automation, testing, configuration, Java ecosystem, etc.) or just be a coherent next step. However, the core constraints are the language (Squeak) and folder structure.
+
+2.  **Drafting the Instruction:**
+    *   *Topic:* Squeak is a Smalltalk-based language/environment. It's often used for educational purposes, but also has real-world applications in specific niches. A logical follow-up might be a configuration management tool, a data processor, or a simulation tool that complements the existing ecosystem. Let's choose a "Real-time System Simulation Tool" or a "Configuration Validation Engine" to fit the pattern of the workspace.
+    *   *Draft 1:* "Implement a real-time system simulation engine for industrial control scenarios, constructing the solution STRICTLY using Squeak to leverage its expressive object-oriented paradigm and robust VM, ensuring the artifact resides in a NEW dedicated folder containing modular Squeak source images and scripts alongside a comprehensive local README.md outlining installation instructions, coding conventions, and integration workflows."
+    *   *Review against constraints:*
+        *   "Implement..." -> Yes, standard instruction format.
+        *   "STRICTLY using Squeak" -> Yes.
+        *   "NEW dedicated folder" -> Yes.
+        *   "comprehensive local README.md" -> Yes.
+        *   "Return ONLY the instruction text" -> Yes.
+        *   "NEVER target .github" -> The draft doesn't mention `.github`. Good.
+        *   "Logical follow-up" -> The workspace has tools like `signal_processing_pipeline`, `gap_manufacturing_algebra`, `labview_industrial_monitor`. A Squeak industrial simulation fits well with the industrial/manufacturing themes present in the workspace.
+
+3.  **Refining the Text:**
+    *   The draft looks solid. It mentions "Squeak", "STRICTLY", "NEW dedicated folder", "local README.md".
+    *   Let's check the "Return ONLY" constraint. The output should be just the string.
+    *   Result: "Implement a real-time system simulation engine for industrial control scenarios, constructing the solution STRICTLY using Squeak to leverage its expressive object-oriented paradigm and robust VM, ensuring the artifact resides in a NEW dedicated folder containing modular Squeak source images and scripts alongside a comprehensive local README.md outlining installation instructions, coding conventions, and integration workflows."
+
+4.  **Final Polish (Mental Representation of Output):**
+    *   Output: Implement a modular data encryption and decryption framework for secure file storage applications, constructing the solution STRICTLY using Squeak to utilize its advanced object persistence capabilities and memory safety features, mandating the solution be housed in a NEW dedicated folder populated with Squeak package files and a detailed local README.md that specifies the development environment configuration, implementation patterns, and deployment guidelines.
+    *   *Critique:* "Data encryption" is a good use case. Squeak has strong object capabilities. This is a logical tool.
+    *   *Constraints Check:*
+        *   STRICTLY using Squeak? Yes.
+        *   NEW dedicated folder? Yes.
+        *   local README.md? Yes.
+        *   No .github? Yes.
+        *   Logical? Yes, fits a toolset context.
+
+5.  **Final Output Construction:**
+    *   "Implement a modular data encryption and decryption framework for secure file storage applications, constructing the solution STRICTLY using Squeak to utilize its advanced object persistence capabilities and memory safety features, mandating the solution be housed in a NEW dedicated folder populated with Squeak package files and a detailed local README.md that specifies the development environment configuration, implementation patterns, and deployment guidelines."
+
+This meets all criteria.
+</think>
+
+Implement a modular data encryption and decryption framework for secure file storage applications, constructing the solution STRICTLY using Squeak to utilize its advanced object persistence capabilities and memory safety features, mandating the solution be housed in a NEW dedicated folder populated with Squeak package files and a detailed local README.md that specifies the development environment configuration, implementation patterns, and deployment guidelines.
