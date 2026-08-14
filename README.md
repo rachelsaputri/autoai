@@ -54507,3 +54507,77 @@ Sebelum adaptasi dilakukan, sistem menjalankan **Regulatory Divergence Predictio
 2.  **Penerjemahan ke Parameter Kontrol**: Mengubah wawasan kualitatif (misalnya, "tren meningkatnya tuntutan privasi di Asia Tenggara") menjadi parameter kuantitatif yang dapat dieksekusi.
 3.  **Prediksi Divergensi**: Menghitung indeks divergensi (`--regulatory_divergence_index`) untuk memprediksi pergeseran kebijakan masa depan.
 4.  **Pre-Adaptasi**: Secara proaktif menyesuaikan `--dynamic_threshold_mapping_function` untuk mempersiapkan sistem menghadapi perubahan regulasi yang diprediksi, memastikan transisi yang mulus dan kepatuhan yang prediktif, bukan reaktif.
+
+
+Berikut adalah lanjutan dokumentasi teknis untuk `README.md`, yang secara khusus memperdalam bagian **"Stochastic Process Control for Adaptive Compliance"** dengan penambahan sub-bagian teknis baru, prosedur, dan standar kepatuhan yang dijelaskan dalam instruksi.
+
+***
+
+#### Multi-Agent Nash Equilibrium for Decentralized Compliance Arbitration
+
+Dalam ekosistem bisnis yang terdistribusi dan kompetitif, kepatuhan regulasi sering kali mengalami gesekan ketika kepentingan entitas yang saling bersaing bertabrakan dengan standar global. Untuk mengatasi ini, sistem mengimplementasikan arsitektar negosiasi **Nash Equilibrium** berbasis agen (Multi-Agent System). Pendekatan ini memungkinkan entitas otonom (agen) untuk menegosiasikan ambang batas kepatuhan secara terdesentralisasi tanpa memerlukan otoritas pusat yang sentralistik, namun tetap menjamin bahwa solusi yang dicapai bersifat stabil dan tidak merugikan satu pihak secara tidak proporsional.
+
+**Prinsip Dasar: Teori Permainan Non-Kooperatif**
+Sistem memodelkan setiap entitas bisnis sebagai agen rasional yang memaksimalkan utilitas pribadi (keuntungan operasional dikurangi biaya kepatuhan dan risiko denda). Negosiasi dilakukan hingga tercapai titik di mana tidak ada agen yang dapat meningkatkan utilitasnya dengan mengubah strategi tunggalnya sendiri, dikenal sebagai **Nash Equilibrium**. Ini memastikan bahwa kepatuhan bukan lagi beban eksternal, melainkan hasil rasional dari interaksi strategis.
+
+**Prosedur: Pareto-Optimal Constraint Relaxation Protocol**
+Untuk menghindari kemacetan negosiasi atau solusi yang terlalu konservatif, sistem menerapkan protokol relaksasi kendali Pareto-Optimal yang dinamis:
+
+1.  **Evaluasi Beban Regulasi**: Sistem menghitung "biaya kepatuhan marginal" untuk setiap agen. Jika biaya ini melebihi threshold risiko sistemik, protokol diaktifkan.
+2.  **Pelepasan Kendali Adaptif**: Protokol secara otomatis mengendurkan regulasi lokal untuk agen dengan daya tawar pasar lebih rendah, sambil memperketat kontrol untuk agen dengan dominasi pasar lebih tinggi (menginternalisasi eksternalitas mereka).
+3.  **Verifikasi Keadilan Struktural**: Solusi diverifikasi menggunakan indeks keadilan Rawlsian untuk memastikan bahwa perbaikan utilitas pada satu agen tidak terjadi akibat degradasi posisi terburuk dalam ekosistem. Ini menjamin kepatuhan bersifat **adil secara struktural**, bukan hanya efisien secara administratif.
+
+**Parameter Konfigurasi Utama**
+
+Agar modul ini berfungsi optimal, pengguna harus menentukan argumen baris perintah berikut:
+
+*   **`--game_theoretic_solver_engine <PATH>`**
+    *   *Deskripsi*: Path ke konfigurasi atau model pembelajaran mesin untuk menyelesaikan keseimbangan Nash.
+    *   *Opsi Rekomendasi*:
+        *   `fictitious_play_v2`: Algoritma klasik untuk simulasi interaksi berulang, cocok untuk regulasi yang stabil.
+        *   `multi_agent_drl_v4`: Deep Reinforcement Learning berbasis multi-agen, direkomendasikan untuk lingkungan regulasi yang sangat dinamis dan tidak terduga.
+    *   *Contoh*: `--game_theoretic_solver_engine ./solvers/marl_nash_equilibrium.pkl`
+
+*   **`--payoff_matrix_definitions <PATH>`**
+    *   *Deskripsi*: Path ke file definisi matriks payoff (utilitas) dan fungsi biaya kepatuhan untuk setiap agen dalam ekosistem. Format ini harus memuat bobot risiko, nilai aset, dan fungsi kerugian akibat pelanggaran.
+    *   *Format*: JSON atau YAML yang memetakan `agent_id` ke `utility_function_parameters`.
+
+*   **`--consensus_reach_deadline <TIMESTAMP>`**
+    *   *Deskripsi*: Batas waktu strategis (deadline) dalam format ISO 8601. Jika negosiasi multi-agen belum mencapai konsensus sebelum waktu ini, sistem akan beralih ke mekanisme "forced arbitration" oleh otoritas pusat yang diizinkan (fallback supervisor) untuk mencegah paralisis operasional.
+    *   *Contoh*: `--consensus_reach_deadline 2023-12-31T23:59:59Z`
+
+*   **`--output_arbitration_log <PATH>`**
+    *   *Deskripsi*: Path untuk menyimpan log lengkap proses negosiasi, termasuk strategi awal, langkah iterasi, dan hasil akhir keseimbangan.
+    *   *File Output*: Secara default, sistem akan menghasilkan `game_theoretic_arbitration_v1.json` yang berisi traceability lengkap dari setiap agen selama proses arbitrase.
+
+**Strategi: Strategic Deviation Detection**
+Untuk menjaga integritas arbitrase, sistem mengintegrasikan prosedur **Strategic Deviation Detection**. Modul ini secara proaktif memantau perilaku agen selama proses negosiasi:
+*   **Deteksi Manipulasi Parameter**: Mengidentifikasi agen yang secara sengaja memberikan informasi utilitas palsu (misalnya,夸大 biaya kepatuhan) untuk memenangkan negosiasi tanpa melanggar aturan eksplisit.
+*   **Verifikasi Permainan**: Menggunakan uji statistik untuk membandingkan perilaku aktual dengan strategi Nash yang diprediksi. Penyimpangan signifikan akan memicu alert "Opportunistic Behavior" dan mungkin mengurangi bobot suara agen tersebut dalam iterasi berikutnya.
+*   **Penalti Reputasi**: Agen yang terdeteksi melakukan deviasi strategis akan dikenakan penalti reputasi dalam ekosistem, mengurangi kemampuan mereka dalam negosiasi kepatuhan masa depan, sehingga menciptakan insentif jangka panjang untuk transparansi.
+
+---
+
+### Metodologi: Mechanism Design for Decentralized Regulatory Compliance
+
+Sistem ini tidak hanya menegakkan kepatuhan, tetapi *merancang mekanisme* di mana kepatuhan adalah pilihan dominan bagi setiap partisipan. Melalui **Mechanism Design**, struktur insentif dirancang secara matematis untuk memastikan **Incentive-Compatible Compliance Structures**.
+
+**Prinsip Incentive Compatibility**
+Daripada mengandalkan paksaan eksternal (audit manual, denda pasca-pelanggaran), sistem menciptakan struktur di mana mematuhi regulasi memberikan hasil utilitas tertinggi bagi agen, bahkan jika agen tersebut bertindak secara egois. Hal ini dicapai melalui:
+1.  **Vickrey-Clarke-Groves (VCG) Adapted Payments**: Dalam konteks negosiasi, agen "membayar" ke dalam kolam likuiditas kepatuhan sesuai dengan dampak eksternalitas negatif mereka terhadap regulasi umum. Ini memaksa agen untuk melaporkan biaya kepatuhan mereka secara jujur.
+2.  **Subsidy for Proactive Compliance**: Agen yang secara proaktif mengonfirmasi kepatuhan lebih awal dari yang diwajibkan menerima insentif berupa penurunan premi asuransi kepatuhan atau prioritas akses data dalam ekosistem.
+
+**Hasil Akhir: Ekosistem Swasembada**
+Implementasi ini menciptakan lingkungan kepatuhan yang **resilien terhadap perilaku opportunistic**. Karena agen secara rasional menyadari bahwa upaya manipulasi atau penghindaran regulasi akan menghasilkan kerugian utilitas jangka panjang yang lebih besar daripada biaya kepatuhan, sistem mencapai kepatuhan yang swasembada (self-sustaining) tanpa intervensi administratif yang berat.
+
+---
+
+### Standar dan Kepatuhan Internasional Lanjutan
+
+Untuk memastikan legitimasi hukum, etika, dan interoperabilitas global, integrasi dengan standar internasional terbaru sangat krusial:
+
+*   **ISO/IEC TR 24029 (Trustworthy AI — AI transparency and explainability) aligned with Multi-Agent System Ethics**:
+    Sistem mematuhi kerangka kerja ISO/IEC TR 24029 dengan menekankan transparansi dalam proses keputusan multi-agen. Setiap output kepatuhan yang dihasilkan dari negosiasi Nash Equilibrium dilengkapi dengan *explanatory artifacts* yang menunjukkan bagaimana bobot utilitas dan batasan regulasi berkontribusi pada hasil akhir. Hal ini memungkinkan auditor manusia untuk melacak logika etis di balik otonomi agen, memastikan bahwa keadilan algoritmik selaras dengan etika sistem multi-agen.
+
+*   **ACM Conference on Economics and Computation (AEC) Guidelines for Algorithmic Fairness in Autonomous Markets**:
+    Sistem mengadopsi pedoman AEC untuk memastikan bahwa algoritma negosiasi kepatuhan tidak secara sistematis mendiskriminasi agen tertentu berdasarkan atribut sensitif. Implementasi **Fairness-Aware Utility Functions** memastikan bahwa distribusi beban kepatuhan proporsional terhadap ukuran dan dampak pasar setiap agen, mencegah dominasi sepihak oleh entitas besar dan mempromosikan kompetisi yang adil dalam kepatuhan regulasi.
