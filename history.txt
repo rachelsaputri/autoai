@@ -2772,3 +2772,48 @@ This seems complete and correct.
 </think>
 
 Implement a configuration validation utility named `config_validator_tool` that checks the integrity and schema compliance of configuration files for the existing Rust-based services, building the tool STRICTLY using Rust to leverage its type system for robust schema definition and efficient file parsing, ensuring the implementation resides in a new dedicated `config_validator_tool` folder containing modular source files and a local `README.md` outlining the supported config formats, validation rules, and exit code semantics.
+[2026-08-14 21:29:34] (Target Lang: Haskell) The user wants a follow-up instruction for the AI.
+The previous context involves a `config_validator_tool` built in Rust.
+The new instruction must:
+1.  Generate exactly 1 logical follow-up instruction.
+2.  Explicitly demand the new tool be built STRICTLY using Haskell.
+3.  If building a new tool, place it in a NEW dedicated folder.
+4.  Create a local `README.md`.
+5.  Return ONLY the instruction text.
+6.  Never target `.github`.
+7.  Fit the context (likely another tool for the same ecosystem, perhaps related to configuration or validation, or a complementary tool).
+
+Logical follow-up idea:
+The `config_validator_tool` validates configs. A natural follow-up could be a tool that generates configs, or a tool that applies configs, or a tool that monitors config changes.
+Given the ecosystem has tools like `network_analyzer`, `packet_analyzer`, `anomaly_detector`, a Haskell tool could be a high-performance config generator or a reactive config manager.
+Let's propose a `config_generator_tool` or `config_apply_service`.
+Since Haskell is known for pure functional programming and robust type systems, a `config_schema_generator` or `config_template_engine` fits well.
+Let's go with `config_schema_generator` which generates Rust/Haskell struct definitions from the validated configs, or simply a `config_generator` that creates boilerplate configs based on schemas.
+Actually, looking at the existing tools, there is `config_validator_tool`. A tool to *generate* configs or *transform* configs would be useful.
+Let's suggest `config_transformer` or `config_boilerplate_generator`.
+Let's choose `config_boilerplate_generator`. It takes a validated schema and generates default config files or struct definitions.
+Or `config_monitor`, which watches for changes.
+Given Haskell's strength in parsing and data structures, a `config_migrator` that handles version upgrades of configs could be good.
+Let's stick to `config_boilerplate_generator` as a simple, logical counterpart to the validator.
+Or better, `config_template_engine` which renders configs from templates and variables.
+Let's go with `config_boilerplate_generator`.
+Folder: `config_boilerplate_generator`.
+Language: Haskell.
+README: Yes.
+
+Draft instruction:
+Implement a configuration boilerplate generator named `config_boilerplate_generator` that creates standardized default configuration files and code stubs based on the schemas validated by the existing validator, building the tool STRICTLY using Haskell to leverage its strong type system and pure functional paradigm for reliable data transformation and template rendering, ensuring the implementation resides in a new dedicated `config_boilerplate_generator` folder containing modular source files and a local `README.md` outlining the supported templates, variable substitution syntax, and output formats.
+
+Check constraints:
+- 1 logical follow-up? Yes.
+- Explicitly demand Haskell? Yes ("STRICTLY using Haskell").
+- New folder? Yes (`config_boilerplate_generator`).
+- Local README? Yes.
+- ONLY instruction text? Yes.
+- No .github? Yes.
+- Fits context? Yes, complements `config_validator_tool`.
+
+Result looks solid.
+</think>
+
+Implement a configuration boilerplate generator named `config_boilerplate_generator` that creates standardized default configuration files and code stubs based on the schemas validated by the existing validator, building the tool STRICTLY using Haskell to leverage its strong type system and pure functional paradigm for reliable data transformation and template rendering, ensuring the implementation resides in a new dedicated `config_boilerplate_generator` folder containing modular source files and a local `README.md` outlining the supported templates, variable substitution syntax, and output formats.
