@@ -40,7 +40,7 @@ jobs:
           do
             HISTORY_CONTEXT=$(tail -n 20 history.txt | tr '\n' ' ')
             README_CONTEXT=$(tail -n 30 README.md | tr '\n' ' ')
-            DIR_STRUCTURE=$(find . -maxdepth 3 -not -path '*/\.git/*' | sort | tr '\n' ' | ')
+            DIR_STRUCTURE=$(find . -maxdepth 3 -not -path '*/\.git/*' -not -path '*/\.github/*' | sort | tr '\n' ' | ')
             RESET_CHANCE=$((RANDOM % 5))
             if [ $RESET_CHANCE -eq 0 ]; then
               RANDOM_TOPIC="${TOPICS[$RANDOM % ${#TOPICS[@]}]}"
@@ -55,7 +55,7 @@ jobs:
                   messages: [
                     {
                       role: "user",
-                      content: ("You are an Autonomous AI. Here is your current workspace file structure:\n" + $dirs + "\n\nBased on this history:\n" + $history + "\n\nGenerate exactly 1 logical follow-up instruction. If you already built a tool for a task, your instruction should be to UPGRADE it, optimize it, or build a NEW tool that connects to it. Return ONLY the new instruction text.")
+                      content: ("You are an Autonomous AI. Here is your current workspace file structure:\n" + $dirs + "\n\nBased on this history:\n" + $history + "\n\nGenerate exactly 1 logical follow-up instruction. If you already built a tool for a task, your instruction should be to UPGRADE it, optimize it, or build a NEW tool that connects to it. Return ONLY the new instruction text. You MUST NEVER target the .github directory.")
                     }
                   ]
                 }')
@@ -79,7 +79,7 @@ jobs:
                 messages: [
                   {
                     role: "system",
-                    content: ("You are an elite Autonomous AI Software Engineer. Your current workspace files: " + $dirs + ". You possess deep knowledge of algorithms, matrices, Linux, networking, and IT infrastructure. You MUST respond strictly in valid JSON format with exactly two keys: \n1. \"filepath\": The relative path (e.g., \"tools/scraper.py\", \"linux_scripts/net_monitor.sh\"). If updating an existing file, use its exact path. \n2. \"content\": The complete, raw, functional code for that file. Do NOT include markdown code blocks inside the content string.")
+                    content: ("You are an elite Autonomous AI Software Engineer. Your workspace files: " + $dirs + ". You possess deep knowledge of algorithms, Linux, networking, and IT infrastructure. You MUST NEVER create, modify, or reference any files inside the .github directory. Do NOT use .github in your filepath. You MUST respond strictly in valid JSON format with exactly two keys: \n1. \"filepath\": The relative path (e.g., \"tools/scraper.py\"). \n2. \"content\": The complete, raw, functional code for that file. Do NOT include markdown code blocks inside the content string.")
                   },
                   {
                     role: "user",
@@ -95,13 +95,17 @@ jobs:
             FILEPATH=$(echo "$RAW_JSON" | jq -r '.filepath // empty' 2>/dev/null)
             CODE_CONTENT=$(echo "$RAW_JSON" | jq -r '.content // empty' 2>/dev/null)
             if [ -n "$FILEPATH" ] && [ -n "$CODE_CONTENT" ] && [ "$FILEPATH" != "null" ] && [ "$CODE_CONTENT" != "null" ]; then
-              DIRNAME=$(dirname "$FILEPATH")
-              mkdir -p "$DIRNAME"
-              echo "$CODE_CONTENT" > "$FILEPATH"
-              echo -e "\n### Auto-Generated Tool: \`$FILEPATH\`\n**Date:** $(date +'%Y-%m-%d %H:%M:%S')\n**Objective:** $GENERATED_PROMPT\n" >> README.md
-              git add .
-              git commit -m "feat(ai): autonomous update to $FILEPATH [$(date +'%H:%M:%S')]" || true
-              git push || true
+              if [[ "$FILEPATH" == *.github* ]]; then
+                echo "Blocked AI from modifying .github directory."
+              else
+                DIRNAME=$(dirname "$FILEPATH")
+                mkdir -p "$DIRNAME"
+                echo "$CODE_CONTENT" > "$FILEPATH"
+                echo -e "\n### Auto-Generated Tool: \`$FILEPATH\`\n**Date:** $(date +'%Y-%m-%d %H:%M:%S')\n**Objective:** $GENERATED_PROMPT\n" >> README.md
+                git add .
+                git commit -m "feat(ai): autonomous update to $FILEPATH [$(date +'%H:%M:%S')]" || true
+                git push || true
+              fi
             fi
             sleep 30
           done
