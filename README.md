@@ -26,3 +26,5 @@
 - Created/Updated module: `advanced_web_scraper` (See `advanced_web_scraper/README.md` for details)
 
 - Created/Updated module: `api_rate_limiter` (See `api_rate_limiter/README.md` for details)
+
+- Created/Updated module: `network_protocol_simulator` (See `network_protocol_simulator/README.md` for details)
