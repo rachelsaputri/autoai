@@ -44,3 +44,5 @@
 - Created/Updated module: `anomaly_detector` (See `anomaly_detector/README.md` for details)
 
 - Created/Updated module: `response_orchestrator` (See `response_orchestrator/README.md` for details)
+
+- Created/Updated module: `interactive_diagnostic_tool` (See `interactive_diagnostic_tool/README.md` for details)
