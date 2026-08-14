@@ -702,3 +702,353 @@ class PerformanceBenchmark:
         self.results: List[BenchmarkResult] = []
     
     async def benchmark_latency(self, num_requests: int
+
+
+<think>The user wants me to create a comprehensive new section for a README.md about "Perbedaan Dasar Machine Learning dan Deep Learning" (Basic Differences between Machine Learning and Deep Learning). This is a technical documentation writing task where I need to create detailed, well-structured content using Markdown.
+
+Let me create a thorough, informative chapter about this topic with proper markdown headings, lists, and tables to make it easy to read and understand.
+
+I'll structure it with:
+- Clear introduction
+- Core definitions
+- Detailed comparison tables
+- Key differences in various aspects
+- When to use each approach
+- Visual representation
+- Practical examples
+</think>
+
+## Perbedaan Dasar Machine Learning dan Deep Learning
+
+Dalam ekosistem kecerdasan buatan modern, **Machine Learning (ML)** dan **Deep Learning (DL)** seringkali digunakan secara bergantian, padahal keduanya memiliki karakteristik, kapabilitas, dan область применения yang sangat berbeda. Pemahaman mendalam terhadap perbedaan fundamental keduanya menjadi kunci dalam memilih pendekatan yang tepat untuk menyelesaikan suatu masalah.
+
+---
+
+### 1. Definisi dan Konsep Inti
+
+#### Machine Learning
+Machine Learning adalah subset dari kecerdasan buatan yang memungkinkan sistem komputer **belajar secara otomatis dari data** tanpa diprogram secara eksplisit. Algoritma ML menggunakan metode statistik untuk mengidentifikasi pola dalam data dan membuat keputusan atau prediksi.
+
+```
+Machine Learning = Belajar dari Data + Algoritma Statistik + Prediksi
+```
+
+Karakteristik utama:
+- Membutuhkan **feature engineering** manual oleh manusia
+- Cocok untuk dataset berukuran kecil hingga medium
+- Model cenderung lebih **interpretabel** (white-box)
+- Requiring less computational resources
+
+#### Deep Learning
+Deep Learning adalah subset khusus dari Machine Learning yang menggunakan **neural network berlapis-lapis** (deep neural networks) untuk belajar Representasi data secara hierarkis. "Deep" mengacu pada jumlah lapisan (layers) dalam jaringan saraf yang dapat puluhan hingga ratusan.
+
+```
+Deep Learning = Neural Networks + Feature Learning Otomatis + Representasi Hierarkis
+```
+
+Karakteristik utama:
+- **Feature engineering otomatis** — model belajar fitur secara langsung dari data mentah
+- Membutuhkan dataset dalam jumlah sangat besar
+- Model bersifat **black-box** — kurang interpretabel
+- Membutuhkan resource komputasi tinggi (GPU/TPU)
+
+---
+
+### 2. Perbandingan Komprehensif
+
+| Aspek | Machine Learning | Deep Learning |
+|-------|-----------------|---------------|
+| **Definisi** | Algoritma yang belajar dari data menggunakan metode statistik | Neural network berlapis dalam yang belajar REPRESENTASI data secara otomatis |
+| **Jumlah Data** | Relatif sedikit (ratusan hingga ribuan sampel) | Sangat besar (ribuan hingga jutaan sampel) |
+| **Feature Engineering** | Manual, dilakukan oleh engineer | Otomatis, dipelajari oleh model |
+| **Hardware** | CPU standar sudah cukup | Membutuhkan GPU, TPU, atau FPGA |
+| **Waktu Training** | Relatif cepat (menit hingga jam) | Lama (jam hingga minggu) |
+| **Interpretabilitas** | Tinggi — model mudah dijelaskan | Rendah — sering disebut "black box" |
+| **Akurasi** | Cukup baik untuk data terbatas | Superior untuk data dalam skala besar |
+| **Generalisasi** | Rentan overfitting pada data kompleks | Lebih baik dalam menangkap pola kompleks |
+| **Kebutuhan Domain Expertise** | Tinggi — harus memahami fitur relevan | Relatif rendah — model menemukan sendiri |
+| **Ukuran Model** | Kecil (KB hingga MB) | Besar (MB hingga GB) |
+
+---
+
+### 3. Arsitektur dan Algoritma
+
+#### Pendekatan Machine Learning
+
+```
+┌─────────────────────────────────────────────────┐
+│              PIPELINE MACHINE LEARNING           │
+├─────────────────────────────────────────────────┤
+│                                                  │
+│  [Data Mentah] → FEATURE ENGINEERING → [Fitur]  │
+│                      ↓                          │
+│              [Pilih Algoritma]                   │
+│         ┌─────────────────────────┐             │
+│         │ Decision Tree            │             │
+│         │ Random Forest            │             │
+│         │ Support Vector Machine   │             │
+│         │ Naive Bayes              │             │
+│         │ Linear/Logistic Regression│            │
+│         │ K-Nearest Neighbors      │             │
+│         └─────────────────────────┘             │
+│                      ↓                          │
+│              [Train Model] → [Evaluasi]          │
+│                      ↓                          │
+│              [Prediksi/Output]                   │
+│                                                  │
+└─────────────────────────────────────────────────┘
+```
+
+Algoritma ML populer:
+- **Supervised**: Linear Regression, Logistic Regression, SVM, Decision Tree, Random Forest, Gradient Boosting (XGBoost, LightGBM)
+- **Unsupervised**: K-Means, DBSCAN, PCA, t-SNE, Association Rules
+- **Semi-supervised & Reinforcement**: Label Propagation, Q-Learning, Policy Gradient
+
+#### Pendekatan Deep Learning
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                    PIPELINE DEEP LEARNING                     │
+├──────────────────────────────────────────────────────────────┤
+│                                                               │
+│  [Data Mentah: Gambar/Teks/Audio]                            │
+│            ↓                                                  │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │              DEEP NEURAL NETWORK                      │    │
+│  │                                                       │    │
+│  │  [Input Layer]                                        │    │
+│  │        ↓                                              │    │
+│  │  [Hidden Layer 1] → Activation → BatchNorm → Dropout  │    │
+│  │        ↓                                              │    │
+│  │  [Hidden Layer 2] → Activation → BatchNorm → Dropout  │    │
+│  │        ↓                                              │    │
+│  │  [Hidden Layer N] → Activation → BatchNorm → Dropout  │    │
+│  │        ↓                                              │    │
+│  │  [Output Layer]                                        │    │
+│  │                                                       │    │
+│  │  Backpropagation + Gradient Descent (Adam, SGD, dll)  │    │
+│  └──────────────────────────────────────────────────────┘    │
+│            ↓                                                  │
+│  [Fitur Otomatis] → [Klasifikasi/Regresi/Generasi]           │
+│                                                               │
+└──────────────────────────────────────────────────────────────┘
+```
+
+Arsitektur DL populer:
+- **CNN (Convolutional Neural Network)** — Computer Vision
+- **RNN / LSTM / GRU** — Sequential Data, NLP
+- **Transformer / Attention** — NLP, Sequence Modeling
+- **GAN (Generative Adversarial Network)** — Generative AI
+- **Autoencoder / VAE** — Dimensionality Reduction, Anomaly Detection
+- **Graph Neural Network (GNN)** — Graph Data
+
+---
+
+### 4. Perbedaan dalam Feature Engineering
+
+Salah satu perbedaan paling mendasar terletak pada bagaimana kedua pendekatan menangani **feature engineering**.
+
+#### Machine Learning — Manual Feature Engineering
+
+```python
+# Contoh: Prediksi harga rumah
+import pandas as pd
+from sklearn.ensemble import RandomForestRegressor
+
+# Feature engineering MANUAL dilakukan di sini:
+data['room_ratio'] = data['total_rooms'] / data['total_bedrooms']
+data['household_rooms'] = data['total_rooms'] / data['households']
+data['bedroom_ratio'] = data['total_bedrooms'] / data['total_rooms']
+data['income_per_capita'] = data['median_income'] / data['population_per_household']
+data['housing_median_age_bin'] = pd.cut(data['housing_median_age'], bins=5)
+data['log_median_income'] = np.log1p(data['median_income'])
+
+# Domain expertise SANGAT diperlukan untuk membuat fitur yang relevan
+X = data[['room_ratio', 'income_per_capita', 'bedroom_ratio', 'log_median_income']]
+y = data['median_house_value']
+
+model = RandomForestRegressor()
+model.fit(X, y)
+```
+
+**Tahapan manual yang dibutuhkan ML:**
+1. **Data Cleaning** — menangani missing values, outliers
+2. **Feature Selection** — memilih fitur yang paling relevan
+3. **Feature Extraction** — membuat representasi numerik dari data
+4. **Feature Transformation** — normalisasi, scaling, encoding
+5. **Domain Knowledge** — memahami masalah untuk membuat fitur bermakna
+
+#### Deep Learning — Automatic Feature Learning
+
+```python
+# Contoh: Klasifikasi gambar dengan CNN
+import torch
+import torch.nn as nn
+
+class SimpleCNN(nn.Module):
+    def __init__(self):
+        # Lapisan-lapisan ini SECARA OTOMATIS belajar fitur
+        # Tidak perlu feature engineering manual!
+        super().__init__()
+        self.conv_layers = nn.Sequential(
+            # Fitur level rendah: edge, texture, gradient
+            nn.Conv2d(3, 32, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+            # Fitur level menengah: shapes, patterns
+            nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+            # Fitur level tinggi: object parts
+            nn.Conv2d(64, 128, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+        )
+        self.classifier = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(128 * 28 * 28, 256),
+            nn.ReLU(),
+            nn.Linear(256, 10)  # 10 kelas output
+        )
+
+    def forward(self, x):
+        x = self.conv_layers(x)    # Belajar fitur secara otomatis
+        x = self.classifier(x)     # Klasifikasi
+        return x
+
+# Model langsung menerima data MENTAH (piksel gambar)
+# Feature extraction dilakukan OTOMATIS dalam neural network
+```
+
+**Perbandingan feature learning:**
+
+| Tahap | Machine Learning | Deep Learning |
+|-------|------------------|---------------|
+| Input | Fitur yang sudah dibuat manual | Data mentah atau sedikit preprocessing |
+| Proses | Algoritma statistic bekerja langsung | Neural network层层 belajar representasi |
+| Output | Fitur sudah bermakna secara manual | Fitur hierarkis (low → mid → high level) |
+| Waktu | Feature engineering = 50-80% total waktu | Training = sebagian besar waktu |
+
+---
+
+### 5. Kebutuhan Data dan Komputasi
+
+#### Skala Data
+
+```
+Machine Learning:
+┌────────────────────────┐
+│  Ratusan - Ribuan      │ ← Data relatif sedikit sudah cukup
+│  data point            │
+└────────────────────────┘
+
+Deep Learning:
+┌────────────────────────────────────────────────────────┐
+│  Puluhan ribu - Jutaan - Miliaran                      │
+│  data point                                            │
+│                                                        │
+│  ████████████████████████████████                      │
+│  ██████ (sedikit data = overfitting) ██████           │
+│  ██████████████████████████████████████████████████    │
+└────────────────────────────────────────────────────────┘
+```
+
+#### Kebutuhan Komputasi
+
+| Resource | Machine Learning | Deep Learning |
+|----------|------------------|---------------|
+| **CPU** | Standar (4-8 core sudah cukup) | Bisa, tapi sangat lambat |
+| **RAM** | 8-16 GB | 32-128+ GB |
+| **GPU** | Tidak wajib | **Wajib** untuk training efisien |
+| **Storage** | GB | TB (untuk dataset besar) |
+| **Waktu Training** | Menit - jam | Jam - minggu - bulan |
+| **Energy Consumption** | Rendah | Tinggi (listrik & pendinginan) |
+
+---
+
+### 6. Interpretabilitas Model
+
+Interpretabilitas menjadi pertimbangan kritis, terutama dalam domain yang membutuhkan transparansi keputusan.
+
+#### Machine Learning — High Interpretability
+
+```
+MODEL: Decision Tree untuk approve loan
+┌─────────────────────────────────────────┐
+│  income > 5000?                         │
+│    ├─ YA → credit_score > 700?          │
+│    │            ├─ YA → ✅ APPROVE      │
+│    │            └─ TIDAK → ⚠️ MANUAL    │
+│    └─ TIDAK → debt_ratio < 0.3?         │
+│                 ├─ YA → ⚠️ MANUAL       │
+│                 └─ TIDAK → ❌ REJECT     │
+└─────────────────────────────────────────┘
+
+Keputusan BISA dijelaskan langkah per langkah.
+Siapapun bisa memahami mengapa aplikasi ditolak.
+```
+
+Teknik interpretabilitas ML:
+- **Feature Importance** — Random Forest, XGBoost
+- **SHAP Values** — semua model
+- **LIME** — local explanations
+- **Permutation Importance** — model-agnostic
+- **Partial Dependence Plots** — efek fitur terhadap output
+
+#### Deep Learning — Low Interpretability (Black Box)
+
+```
+MODEL: Neural Network 150-layer untuk diagnose penyakit
+┌──────────────────────────────────────────────────────────────┐
+│                                                               │
+│  Input(CT Scan) → [Layer 1] → ... → [Layer 150] → Output     │
+│                          ↓                                    │
+│                     MILLYARAN parameter                       │
+│                     koneksi nonlinear                         │
+│                          ↓                                    │
+│                     "Model berkata: ADA tumor"               │
+│                                                               │
+│  ❓ TAPI: Fitur apa yang mendeteksi tumor?                   │
+│  ❓ Region mana yang paling berkontribusi?                   │
+│  ❓ Mengapa model membuat keputusan ini?                      │
+│                                                               │
+└──────────────────────────────────────────────────────────────┘
+```
+
+Teknik interpretabilitas DL:
+- **Grad-CAM** — visualisasi region pada gambar
+- **Attention Visualization** — NLP/Transformers
+- **Saliency Maps** — pixel-level importance
+- **SHAP untuk Neural Networks** — meskipun lebih kompleks
+- **Concept Bottleneck Models** — memaksakan konsep interpretable
+
+---
+
+### 7. Kapan Menggunakan Machine Learning vs Deep Learning
+
+#### Gunakan Machine Learning ketika:
+
+```
+✅ Dataset kecil (< 10.000 sampel)
+✅ Feature engineering sudah jelas dan well-defined
+✅ Butuh model yang interpretabel (regulasi, audited decision)
+✅ Resource komputasi terbatas
+✅ Butuh cepat iteration dan deployment
+✅ Masalah tabular/structured data
+✅ Baseline model sebelum coba deep learning
+✅ Kebutuhan maintenance dan debugging yang mudah
+```
+
+**Contoh use case ML:**
+- Prediksi churn customer (structured data)
+- Credit scoring dengan regulasi ketat
+- Anomaly detection pada sensor industrial
+- Rekomendasi produk e-commerce klasik
+- Forecasting inventory supply chain
+- Klasifikasi email spam
+
+#### Gunakan Deep Learning ketika:
+
+```
+✅ Dataset sangat besar (100.000+ sampel)
+✅ Data tidak terstruktur (gambar, audio
