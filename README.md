@@ -58,3 +58,5 @@
 - Created/Updated module: `cryptographic_toolkit` (See `cryptographic_toolkit/README.md` for details)
 
 - Created/Updated module: `signal_processing_pipeline` (See `signal_processing_pipeline/README.md` for details)
+
+- Created/Updated module: `ledger_reconciler` (See `ledger_reconciler/README.md` for details)
