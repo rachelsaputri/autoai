@@ -53515,3 +53515,43 @@ python compliance_governance_autonomous_epistemic_fusion_and_multi_modal_truth_v
 ```
 
 Dengan implementasi ini, organisasi tidak hanya mematuhi regulasi berdasarkan apa yang *dikatakan* oleh AI, tetapi berdasarkan apa yang *bukti* dari data fisik dan kriptografis mendukung. Ini menciptakan fondasi kepatuhan yang tahan terhadap manipulasi, halusinasi AI, dan kesalahan manusia, sambil tetap mempertahankan kecepatan dan skalabilitas analisis big data.
+
+
+### Causal Intervention Analysis for Truth Attribution
+
+Untuk mengatasi fenomena **"Modalities Misalignment"** di mana korelasi temporal antara narasi LLM dan data sensor tidak menyiratkan hubungan kausal, sistem mengimplementasikan kerangka kerja intervensi kausal berbasis **do-calculus** (Pearl, 2009). Pendekatan ini memisahkan korelasi statistik dangkal dari hubungan sebab-akibat fisik yang sebenarnya, memastikan bahwa kebenaran yang diverifikasi berakar pada mekanisme fisika atau logika bisnis yang ketat, bukan pada bias pembelajaran mesin.
+
+#### 1. Metode: Pearl’s Ladder of Causation applied to Multi-Source Data Integrity
+
+Sistem ini mengadopsi tingkatan kausalitas (The Ladder of Causation) untuk memvalidasi integritas data sumber ganda:
+
+1.  **Association (Seeing):** Menganalisis pola statistik standar antara `IoT_Sensor`, `Ledger`, dan `LLM_Narrative`. Ini digunakan untuk deteksi anomali awal dan pencocokan format data.
+2.  **Intervention (Doing):** Menggunakan operator `do()` untuk mensimulasikan perubahan eksternal pada satu modalitas (misalnya, `do(IoT_Sensor = x)`) dan mengamati dampaknya terhadap modalitas lain (`LLM_Narrative`). Jika narasi LLM berubah secara signifikan sebagai respons terhadap intervensi data sensor yang terisolasi, hubungan kausal terkonfirmasi. Jika tidak, hubungan dianggap artifak temporal.
+3.  **Counterfactuals (Imagining):** Menjawab pertanyaan "Apa yang akan terjadi jika?" dengan membandingkan dunia aktual dengan dunia hipotetis yang dimodifikasi. Ini krusial untuk isolasi bias algoritmik dan verifikasi ketahanan klaim kebenaran.
+
+#### 2. Prosedur Counterfactual Truth Filtering
+
+Untuk mengisolasi sumber bias dan memverifikasi validitas klaim di hadapan ketidaklengkapan data, sistem menjalankan prosedur **Counterfactual Truth Filtering** secara otomatis:
+
+*   **Mekanisme Isolation Bias:** Algoritma mensimulasikan skenario kontrafaktual dengan "menghapus" atau "mengacak" input dari modalitas tertentu (misalnya, data sensor IoT) dan mengamati apakah klaim yang didukung oleh Ledger tetap valid atau berubah statusnya.
+    *   *Jika `do(Remove IoT_Data)` menyebabkan `Truth_Verification` gagal, namun `Ledger` tetap valid secara kriptografis:* Sistem menandai adanya ketergantungan berlebihan (over-reliance) pada sensor, berpotensi menyebabkan false positive jika sensor rusak.
+    *   *Jika `do(Remove LLM_Narrative)` tidak mengubah skor kepercayaan pada bukti fisik:* Ini mengonfirmasi bahwa narasi tersebut bersifat konfirmatif, bukan determinatif, mengurangi risiko halusinasi LLM mendominasi keputusan kepatuhan.
+*   **Deteksi Spurious Correlation:** Dengan melakukan intervensi pada variabel perancu (confounders) potensial, sistem memastikan bahwa asosiasi antara narasi AI dan data fisik bukan sekadar kebetulan statistik.
+
+#### 3. Argumen Konfigurasi Analisis Kausal
+
+Untuk mengaktifkan dan mengonfigurasi modul analisis kausal ini, tambahkan argumen baris perintah berikut ke skrip utama:
+
+*   `--enable_causal_intervention`:     *   *Tipe:* Boolean (`true`/`false`).     *   *Deskripsi:* Mengaktifkan pipeline analisis intervensi kausal berbasis do-calculus. Jika dinonaktifkan, sistem hanya menggunakan verifikasi statistik dan konsensus modalitas dasar.
+*   `--causal_graph_path <PATH>`:     *   *Tipe:* String.     *   *Deskripsi:* Path ke file JSON yang mendefinisikan Directed Acyclic Graph (DAG) kausal antar modalitas (`sensor`, `ledger`, `llm`). Format harus sesuai standar JSON DAG untuk mengidentifikasi variabel perancu dan jalur kausal.
+*   `--counterfactual_iterations <N>`:     *   *Tipe:* Integer.     *   *Deskripsi:* Jumlah simulasi kontrafaktual yang dijalankan untuk setiap klaim kebenaran. Nilai lebih tinggi meningkatkan akurasi isolasi bias namun menambah overhead komputasi. Default: `100`.
+*   `--causal_confidence_threshold <FLOAT>`:     *   *Tipe:* Float.     *   *Deskripsi:* Batas minimum kepercayaan kausal (0.0 - 1.0) untuk mengklasifikasikan hubungan antar modalitas sebagai kausal. Nilai default `0.85` disarankan untuk lingkungan regulasi ketat.
+
+#### 4. Standar Kepatuhan: ISO 8000 & Causal Inference in AI
+
+Implementasi ini selaras dengan standar internasional untuk kualitas data dan kerangka kerja kebaruan AI:
+
+*   **ISO 8000 (Data Quality):** Sistem menerapkan prinsip kualitas data ISO 8000 dengan memvalidasi akurasi, konsistensi, dan ketepatan waktu data multi-modal melalui lensa kausalitas. Setiap klaim kebenaran yang diverifikasi dilengkapi dengan metadata kualitas data yang melacak asal-usul kausal, memastikan traceability yang diperlukan untuk audit eksternal.
+*   **Causal Inference Frameworks for AI-Generated Evidence:** Mengikuti praktik terbaik terkini dalam validasi AI, sistem ini membedakan antara "bukti korelatif" yang dihasilkan oleh model generatif dan "bukti kausal" yang didukung oleh data fisik terverifikasi. Hal ini memitigasi risiko legal dan reputasi terkait penggunaan bukti AI yang mungkin halusinatoris, dengan menuntut adanya landasan kausal fisik sebelum klaim diterima sebagai fakta kepatuhan.
+
+Dengan integrasi analisis kausal ini, arsitektur **Multi-Modal Truth Fusion & Epistemic Consensus** tidak lagi hanya bergantung pada konsensus statis, tetapi pada verifikasi dinamis yang memahami *mengapa* dan *bagaimana* data saling berhubungan, menciptakan fondasi kepatuhan yang secara intrinsik tahan terhadap manipulasi, bias algoritmik, dan kesalahan interpretasi konteks.
