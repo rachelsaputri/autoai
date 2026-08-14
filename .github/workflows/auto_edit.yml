@@ -23,39 +23,43 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           if [ ! -f history.txt ]; then
-            echo "Initialization: Polyglot system boot and core tool development." > history.txt
+            echo "Initialization: Ultimate Polyglot system boot (Dynamic JSON)." > history.txt
           fi
           if [ ! -f README.md ]; then
-            echo "# Autonomous AI Polyglot Knowledgebase" > README.md
+            echo "# Autonomous AI Ultimate Polyglot Knowledgebase" > README.md
           fi
+          curl -s "https://gist.githubusercontent.com/calvinfroedge/defeb8fc6cdc0068e172/raw/7904b2504827f6f4883df0299a2bf51accbe9dab/languages.json" > /tmp/languages.json
           TOPICS=(
-            "Develop a high-performance concurrent web scraping utility. Choose the most optimal language. Place it in a dedicated folder with a local README.md."
-            "Implement highly optimized matrix multiplication algorithms. Group them in a specific folder with detailed markdown documentation."
-            "Create an interactive web-based diagnostic dashboard. Place it in a new folder with its required assets."
-            "Build a robust and scalable REST API wrapper for data retrieval. Ensure the folder has a README.md outlining the architecture."
-            "Write a low-level network packet analyzer or protocol simulator. Include a local README.md for human readability."
-            "Design custom AI helper scripts for automated dataset cleaning and formatting. Include a local README.md."
+            "Develop a data extraction or parsing utility."
+            "Implement a complex mathematical or cryptographic algorithm."
+            "Create an interactive diagnostic or visualization tool."
+            "Build a robust data transfer or API interaction script."
+            "Write a low-level memory management or network protocol simulator."
+            "Design an automated dataset cleaning or text formatting tool."
+            "Create a self-healing tool to handle edge cases and errors."
           )
           for i in {1..6}
           do
             HISTORY_CONTEXT=$(tail -n 20 history.txt | tr '\n' ' ')
             README_CONTEXT=$(tail -n 30 README.md | tr '\n' ' ')
             DIR_STRUCTURE=$(find . -maxdepth 4 -not -path '*/\.git/*' -not -path '*/\.github/*' | sort | tr '\n' ' | ')
+            RANDOM_LANG=$(jq -r '.[]' /tmp/languages.json | shuf -n 1)
             RESET_CHANCE=$((RANDOM % 5))
             if [ $RESET_CHANCE -eq 0 ]; then
               RANDOM_TOPIC="${TOPICS[$RANDOM % ${#TOPICS[@]}]}"
-              GENERATED_PROMPT="Focus entirely on this new objective: '$RANDOM_TOPIC'. Autonomously decide the best programming language in the world for this task. Write functional code and proper documentation. Workspace: $DIR_STRUCTURE."
+              GENERATED_PROMPT="Focus entirely on this new objective: '$RANDOM_TOPIC'. You MUST write functional code for this task strictly using this programming language: $RANDOM_LANG. Workspace: $DIR_STRUCTURE."
             else
               PROMPT_PAYLOAD=$(jq -n \
                 --arg model "Qwen3.6-35B-A3B-FP8" \
                 --arg history "$HISTORY_CONTEXT" \
                 --arg dirs "$DIR_STRUCTURE" \
+                --arg lang "$RANDOM_LANG" \
                 '{
                   model: $model,
                   messages: [
                     {
                       role: "user",
-                      content: ("You are an Autonomous AI Polyglot. Workspace structure:\n" + $dirs + "\n\nHistory:\n" + $history + "\n\nGenerate exactly 1 logical follow-up instruction. You must autonomously decide the absolute best programming language in the world for this specific task and explicitly state it in your instruction. Do not default to Python; explore all languages dynamically based on optimization. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory.")
+                      content: ("You are an Autonomous AI. Workspace:\n" + $dirs + "\n\nHistory:\n" + $history + "\n\nGenerate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: " + $lang + ". If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory.")
                     }
                   ]
                 }')
@@ -66,20 +70,21 @@ jobs:
               GENERATED_PROMPT=$(echo "$NEW_PROMPT_RESP" | jq -r '.choices[0].message.content // empty' 2>/dev/null | perl -0777 -pe 's/<think>.*?<\/think>\s*//gs' || echo "")
             fi
             if [ -z "$GENERATED_PROMPT" ]; then
-              GENERATED_PROMPT="Create a new utility for data processing in a new folder, selecting the best language for the job. Include a local README.md."
+              GENERATED_PROMPT="Create a new utility for data processing in a new folder. You MUST write it strictly in $RANDOM_LANG. Include a local README.md."
             fi
-            echo "[$(date +'%Y-%m-%d %H:%M:%S')] $GENERATED_PROMPT" >> history.txt
+            echo "[$(date +'%Y-%m-%d %H:%M:%S')] (Target Lang: $RANDOM_LANG) $GENERATED_PROMPT" >> history.txt
             CONTENT_PAYLOAD=$(jq -n \
               --arg model "Qwen3.6-35B-A3B-FP8" \
               --arg prompt "$GENERATED_PROMPT" \
               --arg dirs "$DIR_STRUCTURE" \
+              --arg lang "$RANDOM_LANG" \
               '{
                 model: $model,
                 response_format: { type: "json_object" },
                 messages: [
                   {
                     role: "system",
-                    content: ("You are an elite Autonomous AI Polyglot Software Engineer, fluent in ALL programming languages in the world. Workspace: " + $dirs + ". You MUST NEVER create or modify files inside the .github directory. You MUST group related tools into their own specific folders. You MUST write code in the programming language specified or best suited for the task. Whenever you create a tool, you MUST also generate a README.md file INSIDE that specific folder to explain it. You MUST respond strictly in valid JSON format containing a single key \"files\" which is an ARRAY of objects. Each object must have exactly two keys: \n1. \"filepath\": The relative path (e.g., \"web_ui/index.html\", \"net_tool/main.go\", \"algo/calc.rs\"). \n2. \"content\": The raw, functional code or markdown text. Do NOT wrap content in markdown code blocks.")
+                    content: ("You are an elite Autonomous AI Polyglot Software Engineer. Workspace: " + $dirs + ". You MUST NEVER create or modify files inside the .github directory. You MUST strictly write the code in the exact programming language requested: " + $lang + ". Whenever you create a tool, you MUST generate a README.md file INSIDE that specific folder. You MUST respond strictly in valid JSON format containing a single key \"files\" which is an ARRAY of objects. Each object must have exactly two keys: \n1. \"filepath\": The relative path. \n2. \"content\": The raw, functional code or markdown text. Do NOT wrap content in markdown code blocks.")
                   },
                   {
                     role: "user",
