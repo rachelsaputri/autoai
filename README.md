@@ -90,3 +90,5 @@
 - Created/Updated module: `alert_dispatch_engine` (See `alert_dispatch_engine/README.md` for details)
 
 - Created/Updated module: `alert_correlation_persistence` (See `alert_correlation_persistence/README.md` for details)
+
+- Created/Updated module: `./self_healing_tool` (See `./self_healing_tool/README.md` for details)
