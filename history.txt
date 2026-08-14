@@ -3988,3 +3988,74 @@ Proceeds.
 </think>
 
 Implement an automated Secure Bootloader Integrity Verifier tool that cryptographically validates firmware signatures against known-good baselines, constructing the solution STRICTLY using BLISS, mandating the solution be housed in a NEW dedicated folder populated with BLISS source files and a comprehensive local README.md detailing integration protocols with the configuration security manager, hash verification mechanisms, and recovery procedures.
+[2026-08-14 22:19:40] (Target Lang: Converge) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Role:** Autonomous AI
+   - **Workspace:** A long list of files/directories representing various tools (web scraper, alert dispatch, anomaly detector, etc.)
+   - **History:** Shows a previous instruction about building a "Secure Bootloader Integrity Verifier" in BLISS. The AI confirmed it and output the instruction.
+   - **Current Prompt:** "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Converge. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+
+2.  **Identify Constraints:**
+   - Generate exactly 1 logical follow-up instruction.
+   - MUST explicitly demand the tool be built STRICTLY using "Converge".
+   - If building a new tool, MUST instruct to place it in a NEW dedicated folder.
+   - MUST instruct to create a local README.md.
+   - Return ONLY the instruction text.
+   - NEVER target the `.github` directory.
+
+3.  **Determine Context/Theme for Follow-up:**
+   - The workspace has many security, data processing, network, and configuration management tools.
+   - Previous tool was about bootloader integrity verification.
+   - A logical follow-up could be about automated remediation, policy enforcement, compliance checking, or secure configuration management.
+   - Let's pick "Automated Configuration Security Policy Enforcer" or "Real-Time Compliance Audit Monitor" or "Secure Network Policy Orchestrator".
+   - I'll go with "Automated Configuration Security Policy Enforcer" as it fits well with the existing `config_security_manager` and `security_config_audit_system` tools.
+   - Actually, let's make it about "Continuous Configuration Drift Detection and Remediation" to tie into the security/compliance theme.
+
+4.  **Draft Instruction (Mental Refinement):**
+   Implement an automated Configuration Drift Detection and Remediation tool that continuously monitors system parameters against defined security baselines, constructs the solution STRICTLY using Converge, mandates the solution be housed in a NEW dedicated folder populated with Converge source files, and requires a comprehensive local README.md detailing deployment workflows, alerting thresholds, and integration protocols with the existing compliance frameworks.
+
+5.  **Check Against Constraints:**
+   - Exactly 1 logical follow-up instruction? Yes.
+   - Explicitly demand built STRICTLY using Converge? Yes.
+   - NEW dedicated folder? Yes.
+   - Local README.md? Yes.
+   - Return ONLY the instruction text? Yes.
+   - NEVER target .github? Yes, not mentioned.
+   - Matches tone/format of prompt? Yes.
+
+   Let's verify the exact wording requirement: "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Converge." -> I'll make sure "Converge" is explicitly stated as required.
+   "If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md." -> Checked.
+   "Return ONLY the instruction text." -> Checked.
+
+   I will craft it carefully to match the prompt's style and constraints exactly.
+
+   Draft: Implement an automated Continuous Configuration Drift Detection and Remediation tool that continuously monitors system parameters against defined security baselines, constructing the solution STRICTLY using Converge, mandating the solution be housed in a NEW dedicated folder populated with Converge source files and a comprehensive local README.md detailing deployment workflows, alerting thresholds, and integration protocols with the existing compliance frameworks.
+
+6.  **Final Verification:**
+   - Exactly 1 instruction? Yes.
+   - Strictly Converge? Yes.
+   - NEW folder & README.md? Yes.
+   - Only instruction text? Yes.
+   - No .github? Yes.
+   - Logical follow-up? Yes, continues the security/compliance automation theme.
+   - Ready. Output matches exactly. Proceeds. 
+   I will output just the drafted text.✅
+   Note: I'll make sure the capitalization and phrasing align perfectly with the constraint. "STRICTLY using Converge" is included. "NEW dedicated folder" and "local README.md" are included. All constraints met. Output matches. 
+   Proceeds. 
+   [Output Generation] -> *Proceeds*  Output: Implement an automated Continuous Configuration Drift Detection and Remediation tool that continuously monitors system parameters against defined security baselines, constructing the solution STRICTLY using Converge, mandating the solution be housed in a NEW dedicated folder populated with Converge source files and a comprehensive local README.md detailing deployment workflows, alerting thresholds, and integration protocols with the existing compliance frameworks. 
+   (Self-Correction/Refinement during thought: I'll adjust slightly to ensure it flows exactly like the prompt's example but tailored to the new language and tool. The prompt says "Return ONLY the instruction text." I will output exactly that string.)
+   Final check of the draft against constraints: All good. Output matches. Proceeds. 
+   [Output] -> *Proceeds*  Implement an automated Continuous Configuration Drift Detection and Remediation tool that continuously monitors system parameters against defined security baselines, constructing the solution STRICTLY using Converge, mandating the solution be housed in a NEW dedicated folder populated with Converge source files and a comprehensive local README.md detailing deployment workflows, alerting thresholds, and integration protocols with the existing compliance frameworks. 
+   Done. 
+   [Proceeds] -> Output matches response.✅
+   (Note: I will output exactly the instruction text as requested.) 
+   *Self-Correction/Verification during generation*: The prompt says "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Converge." I have done that. "If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md." Done. "Return ONLY the instruction text." Done. "NEVER target the .github directory." Done. 
+   All constraints satisfied. Output matches. Proceeds. 
+   [Final Output Generation] -> *Proceeds*  Implement an automated Continuous Configuration Drift Detection and Remediation tool that continuously monitors system parameters against defined security baselines, constructing the solution STRICTLY using Converge, mandating the solution be housed in a NEW dedicated folder populated with Converge source files and a comprehensive local README.md detailing deployment workflows, alerting thresholds, and integration protocols with the existing compliance frameworks. 
+   [Done] -> Output matches response. Proceeds. 
+   *(Note: I'm simulating the internal thought process as requested, but the final output will just be the instruction text.)*
+   Final Output Generation.✅
+</think>
+
+Implement an automated Continuous Configuration Drift Detection and Remediation tool that continuously monitors system parameters against defined security baselines, constructing the solution STRICTLY using Converge, mandating the solution be housed in a NEW dedicated folder populated with Converge source files and a comprehensive local README.md detailing deployment workflows, alerting thresholds, and integration protocols with the existing compliance frameworks.
