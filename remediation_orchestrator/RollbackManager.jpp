@@ -1,0 +1,26 @@
+```j++
+// Rollback Manager
+import jplus.lang.*;
+import system.state.*;
+
+public class RollbackManager {
+    private Map<String, SystemSnapshot> snapshots = new HashMap<>();
+
+    public void createSnapshot(String contextId) {
+        SystemSnapshot snapshot = system.state.StateCapture.capture();
+        snapshots.put(contextId, snapshot);
+    }
+
+    public void revert(String contextId) {
+        SystemSnapshot snapshot = snapshots.get(contextId);
+        if (snapshot != null) {
+            system.state.StateRestore.apply(snapshot);
+            snapshots.remove(contextId);
+        }
+    }
+
+    public void cleanUp() {
+        snapshots.clear();
+    }
+}
+```
