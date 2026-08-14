@@ -53555,3 +53555,33 @@ Implementasi ini selaras dengan standar internasional untuk kualitas data dan ke
 *   **Causal Inference Frameworks for AI-Generated Evidence:** Mengikuti praktik terbaik terkini dalam validasi AI, sistem ini membedakan antara "bukti korelatif" yang dihasilkan oleh model generatif dan "bukti kausal" yang didukung oleh data fisik terverifikasi. Hal ini memitigasi risiko legal dan reputasi terkait penggunaan bukti AI yang mungkin halusinatoris, dengan menuntut adanya landasan kausal fisik sebelum klaim diterima sebagai fakta kepatuhan.
 
 Dengan integrasi analisis kausal ini, arsitektur **Multi-Modal Truth Fusion & Epistemic Consensus** tidak lagi hanya bergantung pada konsensus statis, tetapi pada verifikasi dinamis yang memahami *mengapa* dan *bagaimana* data saling berhubungan, menciptakan fondasi kepatuhan yang secara intrinsik tahan terhadap manipulasi, bias algoritmik, dan kesalahan interpretasi konteks.
+
+
+#### 5. Adaptive Causal Graph Rewiring via Reinforcement Learning
+
+Untuk mengatasi non-stasioneritas dalam dinamika operasional dan perubahan kualitas data secara real-time, sistem mengintegrasikan kerangka kerja **Deep Causal Discovery** yang diperkuat oleh **Reinforcement Learning (RL)**. Modul ini memungkinkan sistem untuk secara otonom memodifikasi struktur Directed Acyclic Graph (DAG) kausal ketika mendeteksi deviasi signifikan dalam hubungan sebab-akibat antar modalitas.
+
+##### 5.1. Structural Causal Models (SCM) with Non-Stationary Dynamics
+
+Sistem memodelkan interaksi antar `IoT_Sensor`, `Ledger`, dan `LLM_Narrative` menggunakan Structural Causal Models (SCM) yang dioptimalkan untuk lingkungan non-stasioner. Berbeda dengan model statis, SCM di sini mendefinisikan persamaan struktural yang berubah seiring waktu ($t$):
+
+$$
+X_i(t) = f_i(X_{pa(i)}(t), U_i(t), 	heta(t))
+$$
+
+Di mana:
+*   $X_i(t)$ adalah variabel observasi pada waktu $t$.
+*   $X_{pa(i)}(t)$ adalah orang tua kausal (parent nodes) dalam graf.
+*   $U_i(t)$ adalah variabel gangguan (exogenous noise).
+*   $	heta(t)$ adalah parameter model yang dievolusikan secara dinamis.
+
+Ketika sistem mendeteksi bahwa korelasi empiris antara data sensor dan narasi LLM menurun di bawah ambang batas yang ditentukan, atau ketika terjadi anomali struktural pada data Ledger, algoritma **Deep Causal Discovery** (berbasis neural networks) dijalankan untuk mengusulkan rewiring struktur graf. Proses ini melibatkan evaluasi hipotesis struktural alternatif dengan memaksimalkan *Likelihood* prediksi kontrafaktual sambil meminimalkan kompleksitas model.
+
+##### 5.2. Dynamic Causal Weight Adjustment Protocol
+
+Selain merevisi struktur graf, sistem menerapkan protokol penyesuaian bobot kausal dinamis. Bobot kepercayaan pada setiap jalur kausal ($w_{ij}$) tidak statis, melainkan disesuaikan secara kontinu berdasarkan metrik performa historis dan biaya kesalahan (error cost).
+
+Algoritma penyesuaian bobot menggunakan fungsi objektif berikut:
+
+$$
+L_{total} = L_{predictive} + \lambda_{cost} 
