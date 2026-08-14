@@ -55948,3 +55948,97 @@ if __name__ == "__main__":
 ### Integrasi dengan Arsitektur MPC
 
 Dalam arsitektur MPC sesungguhnya, output dari `QuantumResistantCredentialRotator` di atas akan diteruskan ke modul **Sharding and Secret Sharing**. Kunci publik baru (EOI) akan di-*shard* dan disebar ke node-nodet MPCC. Saat proses verifikasi kredensial terjadi, node akan menggunakan *Zero-Knowledge Proofs* untuk membuktikan bahwa shard kunci yang sedang digunakan berasal dari pasangan kunci yang valid bagi VC yang ada, tanpa perlu mengungkapkan kunci privat atau hubungan silang dengan identitas legal asli di depan publik.
+
+
+### Post-Quantum Homomorphic Audit Trail Indexing for Privacy-Preserving Searchability
+
+Sebagian besar sistem identitas terdesentralized menghadapi dilema fundamental: kebutuhan untuk *auditability* (kemampuan diaudit) versus *privacy* (kerahasiaan). Solusi konvensional mengharuskan data dideskripsikan sebelum dicari, yang mengorbankan privasi, atau data dibiarkan terenkripsi namun tidak dapat ditemukan, yang mengorbankan fungsionalitas audit.
+
+Modul ini memperkenalkan paradigma **Queryable Confidentiality** melalui integrasi *Searchable Homomorphic Encryption* (SHE). Pendekatan ini memungkinkan auditor dan regulator menjalankan kueri logis terhadap arsip kredensial yang tetap tersimpan dalam keadaan terenkripsi (Encrypted At Rest dan Encrypted In Transit) tanpa membuka konten mentahnya. Sistem ini tidak hanya mencari hash, tetapi mengevaluasi metadata kepatuhan (misalnya, `is_valid == true`, `compliance_status == 'active'`) menggunakan skema enkripsi homomorfik Partial (Paillier/CKKS) atau Full (BFV) yang tahan kuantum.
+
+#### 1. Metodologi Teknis & Standar Kepatuhan
+
+Implementasi ini didasarkan pada tiga pilar utama yang selaras dengan standar industri dan akademis terbaru:
+
+*   **Private Information Retrieval (PIR) in Encrypted Databases:**
+    Menggunakan protokol PIR berbasis kriptografi untuk memastikan bahwa ketika sebuah node memproses kueri pencarian, ia tidak dapat mengetahui *apa* yang sedang dicari oleh klien (auditor), dan sebaliknya, klien tidak belajar apa pun tentang isi database selain hasil yang diminta. Ini mencegah *traffic analysis* dan profilisasi pengguna oleh node jaringan MPC.
+
+*   **ISO/IEC 27559 (Privacy by Design in Cryptographic Contexts):**
+    Sistem menerapkan prinsip "Privacy by Default" di tingkat lapisan kriptografi. Indeks pencarian tidak menyimpan plaintext metadata, melainkan representasi kriptografis yang hanya dapat diproses secara homomorfik. Ini memenuhi persyaratan regulasi ketat seperti GDPR Article 5 dan HIPAA, di mana data sensitif harus dilindungi bahkan selama pemrosesan administratif.
+
+*   **ACM CCS Guidelines on Searchable Encryption for Sensitive Records:**
+    Mengadopsi praktik terbaik dari literatur ACM CCS terkait *Trapdoor-based Searchable Encryption*. Sistem ini menggunakan *trapdoor* yang dihasilkan dari kunci privat pengguna yang ditandatangani secara kuantum-resistan, memastikan bahwa hanya entitas yang berwenang yang dapat menghasilkan kueri valid yang dapat dievaluasi oleh kisi kriptografis terenkripsi.
+
+#### 2. Prosedur Sinkronisasi: Encrypted Bloom Filter Synchronization Protocol
+
+Salah satu tantangan terbesar dalam sistem terdistribusi adalah menjaga konsistensi indeks pencarian saat data berubah (misalnya, saat rotasi kredensial). Jika indeks tidak diperbarui dengan cepat, auditor mungkin menerima hasil usang atau false negative.
+
+**Encrypted Bloom Filter Synchronization Protocol** dirancang untuk mengatasi ini dengan efisiensi O(1) per elemen:
+
+1.  **Hashing Encrypted:** Saat kredensial baru diputar, hash metadata (dalam bentuk ciphertext) dihitung dan dimasukkan ke dalam Bloom Filter terenkripsi lokal di setiap node.
+2.  **Differential Update:** Node tidak menyinkronkan seluruh database, melainkan hanya *delta* perubahan. Protokoles ini menggunakan *Additive Homomorphic Properties* untuk menggabungkan filter Bloom dari berbagai node menjadi satu global view tanpa mendekripsi data individu.
+3.  **Consistency Check:** Setiap node memverifikasi integritas filter global menggunakan Proof of Membership terenkripsi. Jika tingkat *false positive* (FP) melampaui ambang batas yang ditentukan, sistem secara otomatis memicu re-indexing parsial pada shard yang relevan.
+
+#### 3. Optimasi Performa: Latency-Optimized Homomorphic Evaluation
+
+Operasi homomorfik secara inheren lebih lambat daripada operasi plaintext. Untuk memenuhi kebutuhan *real-time auditing*, sistem ini mengimplementasikan pipeline optimasi adaptif:
+
+*   **Parameter Batching Dinamis:** Menggunakan teknik *SIMD* (Single Instruction, Multiple Data) yang didukung oleh skema CKKS/BFV untuk memproses banyak kueri metadata secara paralel dalam satu slot kriptografis.
+*   **Early-Exit Protocols:** Jika hasil evaluasi homomorfik menunjukkan ketidakmungkinan hasil yang diharapkan (misalnya, bit parity tidak cocok), proses komputasi dihentikan lebih awal untuk menghemasi sumber daya.
+*   **Hardware-Aware Scheduling:** Orkestrator mendeteksi jenis perangkat keras node MPC. Pada node dengan akselerator NPU/FPGA pasca-kuantum, operasi *Modulus Switching* dan *Rescaling* dijalankan secara paralel untuk meminimalkan latensi, menyeimbangkan trade-off antara akurasi kueri kompleks dan kecepatan respons.
+
+#### 4. Integrasi CLI: Parameter Konfigurasi Lanjutan
+
+Untuk mengaktifkan dan mengkalibrasi modul pencarian terenkripsi ini, gunakan argumen berikut bersama dengan orkestrator utama:
+
+| Argumen | Deskripsi | Contoh Nilai |
+| :--- | :--- | :--- |
+| `--homomorphic_index_config` | Path ke file JSON konfigurasi skema enkripsi homomorfik (BFV, CKKS, atau Paillier). Mendefinisikan parameter batching, modulus, dan basis kriptografis. | `./configs/ckks_optimized_v1.json` |
+| `--encrypted_query_params` | Path ke file JSON yang mendefinisikan batasan kompleksitas kueri. Mencegah kueri "noisy" yang dapat membebaskan node. | `./configs/query_limits_v1.json` |
+| `--bloom_filter_false_positive_rate` | Ambang batas tingkat kesalahan positif (0.0 - 1.0) yang diizinkan dalam sinkronisasi indeks. Nilai lebih rendah meningkatkan akurasi tetapi menambah overhead komputasi. | `0.001` |
+| `--output_searchability_audit_log` | Path file output untuk log kinerja, akurasi indeks, dan statistik latency operasi homomorfik. | `./logs/homomorphic_search_index_v1.json` |
+
+**Contoh Eksekusi Komprehensif:**
+
+```bash
+python3 compliance_governance_autonomous_epistemic_fusion_and_multi_modal_truth_verification_orchestrator.py \
+  --pqc_did_algorithm_config dilithium_config.json \
+  --unlinkability_parameter_k 5 \
+  --vc_rotation_interval 10 \
+  --output_identity_rotation_log identity_privacy_rotation_v1.json \
+  --homomorphic_index_config configs/ckks_batched_policy.json \
+  --encrypted_query_params configs/query_security_bounds.json \
+  --bloom_filter_false_positive_rate 0.001 \
+  --output_searchability_audit_log logs/encrypted_audit_performance_v1.json
+```
+
+#### 5. Struktur Output Log Pencarian Terenkripsi
+
+File `homomorphic_search_index_v1.json` akan mencatat metrik kritis berikut untuk tujuan transparansi regulasi:
+
+```json
+{
+  "timestamp": "2023-10-27T14:30:00Z",
+  "session_id": "hom-ctx-99283",
+  "metrics": {
+    "encryption_scheme": "CKKS",
+    "batch_size": 64,
+    "avg_query_latency_ms": 145.2,
+    "false_positive_rate_actual": 0.00098,
+    "homomorphic_operations_count": 12045,
+    "privacy_budget_consumed": 2.5,
+    "sync_success_rate": 0.9999
+  },
+  "audit_trail": [
+    {
+      "action": "query_evaluated",
+      "trapdoor_hash": "sha3-256:8f4a...",
+      "result_match_count_encrypted": "ciphertext_blob_xxx",
+      "node_id": "mpc-node-04",
+      "verification_zkp": "0x3f92..."
+    }
+  ]
+}
+```
+
+Dengan integrasi ini, sistem tidak hanya menjamin bahwa identitas tetap privat dan tahan terhadap serangan kuantum, tetapi juga memastikan bahwa kerangka kepatuhan (compliance framework) tetap dapat diaudit secara efektif, menciptakan ekosistem yang seimbang antara keamanan mutlak dan fungsionalitas bisnis.
