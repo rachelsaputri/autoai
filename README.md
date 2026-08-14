@@ -56282,3 +56282,65 @@ Prinsip kunci yang diterapkan meliputi:
 
 1.  **Mathematically Guaranteed Data Integrity:**
     Sistem memverifikasi bahwa fungsi tujuan GAN memenuhi kondisi *Lipschitz continuity* dalam ruang ciphertext. Dengan mengenkripsi parameter model dan gradien menggunakan *Fully Homomorphic Encryption* (FHE), sistem memastikan bahwa transformasi fungsi $f: X ightarrow Y$ bersifat stabil secara matematis. Jika distorsi input kecil ($||\delta||_2 \le psilon$), maka distorsi output juga terbatas ($||f(x+\delta) - f(x)||_2 \le K 
+
+### 3. Homomorphic Adversarial Robustness Certification via Certified Defenses (Lanjutan)
+
+#### B. Federated Gradient Aggregation with Homomorphic Integrity Proofs
+
+Subsistem ini mengimplementasikan protokol **Privacy-Preserving Federated Averaging (PPFA)** yang sepenuhnya terenkripsi, memungkinkan agregasi kontribusi model dari berbagai agen federasi tanpa pernah mengungkapkan distribusi data lokal atau gradien individu. Dengan menerapkan skema *Additive Homomorphic Encryption* (misalnya Paillier atau BFV), sistem memastikan bahwa operasi matematika agregasi dilakukan langsung pada ruang ciphertext. Ini menjamin bahwa tidak ada entitas pusat, termasuk server parameter, yang dapat merekonstruksi vektor gradien individual atau inferensi data pelatihan dari hasil agregasi.
+
+Selain privasi, subsistem ini memperkuat keamanan terhadap serangan Byzantine melalui prosedur **"Malicious Node Detection via Encrypted Gradient Norm Comparison"**. Mekanisme ini secara kriptografis membandingkan norma gradien terenkripsi antar agen untuk mendeteksi *outlier* atau agen jahat (*Byzantine actors*) yang mencoba memanipulasi model global melalui serangan *gradient poisoning*. Deteksi ini dilakukan tanpa dekripsi, memastikan bahwa proses validasi integritas tidak mengorbankan jaminan privasi data.
+
+##### 1. Metodologi: Privacy-Preserving Federated Averaging with Formal Verification
+
+Sistem mengadopsi kerangka kerja **"Verifiable Collaborative Intelligence"** yang menggabungkan prinsip *Secure Multi-Party Computation* (MPC) ringan dengan pembuktian formal. Setiap agen federasi melakukan pelatihan lokal, menghasilkan vektor gradien $\Delta 	heta_i$, yang kemudian dienkripsi menggunakan kunci publik agregasi sebelum dikirim ke server.
+
+Prosedur agregasi melibatkan langkah-langkah berikut:
+1.  **Enkripsi Gradien Lokal:** Agen $i$ menghitung gradien $\Delta 	heta_i$ dan mengenkripsinya menjadi $E(\Delta 	heta_i)$ menggunakan skema homomorfik yang dipilih.
+2.  **Agregasi Homomorfik:** Server melakukan operasi penjumlahan ciphertext secara langsung:
+    $$ E(\Delta 	heta_{global}) = \prod_{i=1}^{N} E(\Delta 	heta_i)^{w_i} \pmod n $$
+    Di mana $w_i$ adalah bobot representatif dari agen $i$. Hasilnya adalah enkripsi dari rata-rata tertimbang gradien.
+3.  **Verifikasi Integritas Kriptografis:** Setiap paket data yang dikirim menyertakan *Zero-Knowledge Proof* (ZKP) ringkas yang membuktikan bahwa vektor terenkripsi berasal dari ruang parameter yang valid dan tidak menyimpang secara ekstrem dari distribusi yang diharapkan, tanpa mengungkapkan nilai sebenarnya.
+
+Pendekatan ini mematuhi standar internasional ketat:
+*   **NIST AI RMF 1.0 (Governance Function: Measure):** Sistem menyediakan metrik terukur untuk "Secure Aggregation in Distributed ML", memastikan bahwa proses pengukuran kinerja model tidak mengkompromikan kerahasiaan data sumber.
+*   **IEEE P7000 (Model of Privacy for Collaborative AI):** Memenuhi prinsip *Privacy by Design* untuk agregasi multi-pihak, di mana data sensitif tidak pernah tersedia dalam bentuk *plaintext* selama tahap kolaborasi, sehingga meminimalkan risiko penyalahgunaan data oleh pihak ketiga.
+
+##### 2. Differential Privacy Noise Injection in Ciphertext Domain
+
+Untuk memenuhi garantif *Differential Privacy* (DP) tingkat sistem dan mencegah inferensi keanggotaan (*membership inference attacks*) melalui analisis frekuensi agregasi, sistem menerapkan **Noise Injection in Ciphertext Domain**.
+
+Sebelum enkripsi final untuk agregasi, *noise* terdistribusi (biasanya Laplacian atau Gaussian) ditambahkan secara kriptografis ke dalam representasi terenkripsi atau pada plaintext sebelum enkripsi dengan parameter privasi $psilon$ dan $\delta$ yang ketat. Karena penambahan ini dilakukan dalam domain yang kompatibel dengan skema enkripsi, noise tersebut tetap "terenkripsi" selama proses agregasi. Hal ini menciptakan lapisan pertahanan ganda:
+1.  **Privasi Statistik:** Mencegah re-identifikasi individu dari model global.
+2.  **Privasi Kriptografis:** Mencegah akses langsung ke gradien oleh infrastruktur komputasi.
+
+Hasilnya adalah fondasi federasi yang tidak hanya aman dan tahan adversarial, tetapi juga dapat diaudit secara transparan oleh regulator untuk memastikan kepatuhan etika dalam pembelajaran mesin terdistribusi.
+
+### 4. Konfigurasi Lanjutan & Parameter Sistem
+
+Bagian ini mendokumentasikan parameter baris perintah tambahan yang diperlukan untuk mengkonfigurasi subsistem *Federated Gradient Aggregation* dan deteksi node jahat.
+
+*   **`--fhe_aggregation_scheme`**: **(String, Path, Wajib)** Path ke file YAML yang menentukan skema enkripsi homomorfik aditif yang digunakan untuk agregasi gradien (misalnya: `paillier`, `bfv`). File ini harus memuat parameter kunci publik, modulus, dan parameter keamanan yang dioptimalkan untuk operasi agregasi vektor gradien berdimensi tinggi. Pilihan skema memengaruhi trade-off antara kecepatan komputasi dan kapasitas enkripsi vektor.
+
+*   **`--byzantine_tolerance_ratio`**: **(Float, Default: `0.33`)** Path ke file JSON atau nilai langsung yang menetapkan rasio maksimum node jahat (*Byzantine actors*) yang dapat ditoleransi dalam protokol agregasi tanpa menyebabkan konvergensi model yang gagal. Nilai ini digunakan oleh algoritma agregasi robust (seperti *Krum* atau *Median* yang terenkripsi) untuk memfilter kontribusi anomali sebelum pembobotan akhir.
+
+*   **`--encrypted_norm_comparison_threshold`**: **(Float, Path)** Path ke parameter batas deviasi norma gradien terenkripsi yang memicu flagging node mencurigakan. Sistem membandingkan norma dari setiap $E(\Delta 	heta_i)$ terhadap median norma agregasi. Jika deviasi melebihi ambang batas ini, node tersebut ditandai sebagai *suspect* dan kontribusinya diturunkan atau diabaikan dalam langkah agregasi berikutnya, tanpa mengetahui nilai gradien asli.
+
+*   **`--output_aggregation_integrity_log`**: **(String, Default: `./logs/federated_aggregation_v1.json`)** Path untuk menyimpan log verifikasi integritas agregasi secara lengkap. Log ini mencakup:
+    *   Identitas agen (anonimis/tokenized) yang berkontribusi.
+    *   Norma gradien terenkripsi yang diverifikasi.
+    *   Status deteksi anomali (*Clean/Suspect/Confirmed Malicious*).
+    *   Bukti kriptografis agregasi (*Homomorphic Integrity Proofs*) yang diperlukan untuk audit pasca-pelatihan dan kepatuhan regulasi (NIST/IEEE).
+
+### 5. Alur Kerja Eksekusi Lengkap
+
+Untuk memastikan implementasi yang benar, ikuti alur kerja eksekusi berikut:
+
+1.  **Inisialisasi Konfigurasi Keamanan:** Jalankan skrip awal untuk menghasilkan kunci publik/privatif dan mengonfigurasi skema FHE.
+2.  **Validasi Pre-Training:** Verifikasi bahwa gradien awal berada dalam batas *Gradient Clipping Norm* yang ditentukan.
+3.  **Pelatihan Federasi Terenkripsi:**
+    *   Setiap agen melatih model lokal dan menghasilkan gradien.
+    *   Gradien di-enkripsi dan dikirim ke server.
+    *   Server melakukan agregasi homomorfik dan deteksi node jahat secara paralel.
+    *   Parameter model global diperbarui (dalam bentuk terenkripsi atau terdekripsi jika menggunakan *Secure Multi-Party Decryption* untuk langkah akhir).
+4.  **Audit & Pelaporan:** Setelah konvergensi atau epoch akhir, sistem menghasilkan laporan audit komprehensif yang mencakup metrik privasi, integritas kausal, dan kepatuhan regulasi.
