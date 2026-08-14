@@ -54182,3 +54182,23 @@ Mekanisme stabilisasi ini tidak bekerja secara terisolasi. Ia berintegrasi erat 
 3.  **Laporan Komprehensif**: Seluruh tindakan stabilisasi (penurunan learning rate, penolakan fitur kausal, isolasi node) dicatat dalam laporan akhir (`adversarial_resilience_v1.json`), memberikan audit trail lengkap untuk kepatuhan ISO 42001 dan standar FAccT.
 
 Dengan menggabungkan ketahanan terhadap perturbasi fisik-digital, toleransi kesalahan Byzantine, stabilisasi loop kausal, dan adaptasi laju pembelajaran yang cerdas, sistem ini menawarkan fondasi epistemik yang tangguh, dapat diaudit, dan siap menghadapi lanskap ancaman yang terus berevolusi. Pendekatan **Defense in Depth** yang diperluas ini memastikan bahwa integritas kebenaran dijaga tidak hanya dari serangan eksternal, tetapi juga dari degenerasi internal model itu sendiri.
+
+
+### 7.5. Stochastic Causal Invariance Testing via Monte Carlo Structural Perturbation
+
+Untuk memastikan bahwa hubungan sebab-akibat yang dipelajari oleh model bersifat universal dan tidak terjebak pada artefak statistik spesifik dari set pelatihan (*overfitting to spurious correlations*), sistem mengimplementasikan kerangka kerja pengujian stokastik yang dinamis. Pendekatan ini bergerak melampaui verifikasi deterministik statis dengan menyimulasikan varian distribusi data secara probabilistik.
+
+#### Metodologi: Monte Carlo Structural Perturbation
+Proses ini dilakukan secara *online* selama fase validasi atau *post-training audit*. Mekanisme utamanya melibatkan dua jenis perturbasi terstruktur pada Graph Causal Model (DAG) yang direpresentasikan oleh model:
+
+1.  **Injeksi Noise Gaussian Terstruktur**:
+    Sistem menyuntikkan noise Gaussian $\mathcal{N}(0, \sigma^2)$ ke dalam bobot edge dan bias node pada DAG. Parameter $\sigma$ tidak tetap, melainkan diskalakan secara adaptif berdasarkan tingkat ketidakpastian (*uncertainty*) lokal pada bagian graf tertentu. Ini mensimulasikan gangguan sensorik atau kesalahan pengukuran yang umum terjadi di lingkungan nyata.
+2.  **Permutasi Acak Parameter Struktural**:
+    Untuk menguji robustness topologi, sistem secara acak menukar (permute) posisi beberapa node penyebab (*causes*) dan efek (*effects*) sementara tetap menjaga sifat *acyclic*. Dengan menjalankan ribuan iterasi Monte Carlo, sistem menghitung varians pada output prediktif. Jika varians output melebihi ambang batas yang ditentukan oleh `--adaptive_lr_threshold`, struktur kausal tersebut dianggap tidak invarian dan ditandai untuk revisi.
+
+#### Integrasi dengan Invariant Risk Minimization (IRM) Regularization Layer
+Sebagai mekanisme pencegahan proaktif, sistem mengintegrasikan lapisan regularisasi IRM langsung ke dalam fungsi loss Neural Network. Tujuannya adalah memaksa model untuk mempelajari representasi fitur yang *invariant* terhadap perubahan lingkungan (*environmental shifts*), sehingga keputusan kebenaran tidak bergantung pada konteks spesifik dari satu subset data saja.
+
+Fungsi Loss yang dimodifikasi didefinisikan sebagai:
+
+$$ \mathcal{L}_{total} = \mathcal{L}_{empirical}(	heta) + \lambda_{irm} 
