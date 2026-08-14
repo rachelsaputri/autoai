@@ -1094,3 +1094,66 @@ This looks solid.
 </think>
 
 Refactor the existing `network_analyzer` directory by replacing the shell scripts with a high-performance Rust implementation utilizing the `tokio` async runtime for superior network scanning speed and memory safety, and update the local `network_analyzer/README.md` to document the Rust-based architecture and required dependencies.
+[2026-08-14 20:36:35] The user wants a follow-up instruction based on the provided workspace structure and history.
+The workspace has various directories: `advanced_web_scraper`, `api_rate_limiter`, `data_processing_utils`, `data_viz_toolkit`, `dataset_cleaner`, `diagnostic_tool`, `network_analyzer`, `web_scraper`.
+The history shows a previous instruction to refactor `network_analyzer` into Rust.
+The current request is to generate exactly 1 logical follow-up instruction.
+I need to decide the best language for this task.
+Looking at the structure, `data_viz_toolkit` is a new tool (or at least a folder). `data_processing_utils` exists.
+A logical flow would be to implement the functionality of `data_viz_toolkit` if it's empty, or perhaps integrate data processing with viz.
+However, the previous instruction refactored `network_analyzer`. A logical follow-up could be to implement the diagnostics or the viz toolkit.
+`data_viz_toolkit` seems like a good candidate for a visualization library. For data visualization, Rust with `plotters` or `nannou` or interacting with web tech is possible, but often visualization libraries are heavy on graphics APIs. Alternatively, `data_processing_utils` has CSV, JSON, Text.
+Maybe `diagnostic_tool` is a good candidate? Or completing `data_viz_toolkit`.
+If I look at `data_viz_toolkit`, it has a README but no code files yet (based on the structure `./data_viz_toolkit/README.md` is listed but no `.py` or `.rs` files).
+So building a `data_viz_toolkit` is a logical next step after data processing and network analysis, to visualize the data.
+For Data Viz, Rust is excellent due to performance, especially for large datasets. Crates like `plotters`, `plotlib`, or `wgpu` make it viable. Or perhaps C++ with OpenGL/Vulkan for raw speed?
+However, Rust is generally the "best" all-rounder for systems-level data viz in a polyglot context where performance is key.
+Instruction: Create a new tool `data_viz_toolkit` using Rust.
+Structure: `./data_viz_toolkit` exists but only has README. I should populate it.
+Language: Rust.
+Justification: Performance, memory safety for large datasets, integration with other Rust tools in the ecosystem.
+Constraint: "If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md."
+The folder `data_viz_toolkit` exists but is empty of code. Is this a "new tool"?
+The structure lists `./data_viz_toolkit/README.md`. It does not list code files.
+So the code files are missing.
+I should instruct to implement the code.
+Is it "building a new tool"? The folder is there, but the tool is not built.
+Usually, "building a new tool" implies creating the folder too.
+However, the instruction can just say "Implement the code for `data_viz_toolkit`...".
+But the constraint says "If building a new tool, explicitly instruct to place it in a NEW dedicated folder...".
+If I interpret "building" as "writing the code for a tool", and the folder exists, I might not need to say "place it in a new folder".
+But to be safe and follow the "new tool" spirit, or if the folder is considered the container for the new tool, I can mention it.
+Actually, the history shows `data_viz_toolkit` appeared. The previous instruction was about `network_analyzer`.
+Maybe `data_viz_toolkit` was created in a step before the history snippet shown?
+The history snippet is just a log of thoughts/actions.
+The workspace structure shows `data_viz_toolkit` exists.
+So I am adding code to an existing folder.
+This is not "building a new tool" in the sense of creating the directory structure from scratch.
+It's implementing an existing module.
+So the "NEW dedicated folder" constraint might not apply strictly, or applies if I treat the code implementation as the build.
+But the constraint usually triggers when the user creates a fresh repo and asks for a tool.
+Here, the tool directory is listed but empty of source.
+I'll focus on `data_viz_toolkit`.
+Language: Rust.
+Reason: High performance for data visualization, memory safety.
+Instruction: "Populate the existing `data_viz_toolkit` directory by implementing a high-performance data visualization library in Rust that leverages `plotters` for 2D rendering and supports direct integration with the `data_processing_utils` crate, ensuring efficient memory management for large datasets and updating the `data_viz_toolkit/README.md` with usage examples."
+This seems logical.
+Alternative: `diagnostic_tool` is also empty of code (only `__init__.py` is listed? Wait, `./diagnostic_tool/__init__.py` is listed).
+`diagnostic_tool` has `__init__.py`. So it might have Python code or is ready for Python.
+`data_viz_toolkit` only has `README.md`.
+So `data_viz_toolkit` is the best candidate for a fresh implementation.
+Rust is the best language for performance-critical visualization.
+Result: Rust.
+Instruction: Implement `data_viz_toolkit` in Rust.
+Text: "Implement the core functionality of the `data_viz_toolkit` by creating a Rust-based visualization library that utilizes the `plotters` crate for efficient plotting and supports generic data types from the ecosystem, ensuring zero-cost abstractions for handling large-scale data streams, and populate the directory with the necessary modules and update the `data_viz_toolkit/README.md`."
+This is one sentence.
+Mentions Rust.
+Mentions justification (efficiency, zero-cost, large-scale).
+Mentions `data_viz_toolkit`.
+Mentions README.
+Does not target `.github`.
+Does not default to Python.
+Perfect.
+</think>
+
+Implement the core functionality of the `data_viz_toolkit` by creating a Rust-based visualization library that utilizes the `plotters` crate for efficient plotting and supports generic data types from the ecosystem, ensuring zero-cost abstractions for handling large-scale data streams, and populate the directory with the necessary modules and update the `data_viz_toolkit/README.md`.
