@@ -38,3 +38,5 @@
 - Created/Updated module: `alert_dispatch_engine` (See `alert_dispatch_engine/README.md` for details)
 
 - Created/Updated module: `correlation_engine` (See `correlation_engine/README.md` for details)
+
+- Created/Updated module: `deep_packet_inspection_engine` (See `deep_packet_inspection_engine/README.md` for details)
