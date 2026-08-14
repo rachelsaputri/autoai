@@ -56344,3 +56344,58 @@ Untuk memastikan implementasi yang benar, ikuti alur kerja eksekusi berikut:
     *   Server melakukan agregasi homomorfik dan deteksi node jahat secara paralel.
     *   Parameter model global diperbarui (dalam bentuk terenkripsi atau terdekripsi jika menggunakan *Secure Multi-Party Decryption* untuk langkah akhir).
 4.  **Audit & Pelaporan:** Setelah konvergensi atau epoch akhir, sistem menghasilkan laporan audit komprehensif yang mencakup metrik privasi, integritas kausal, dan kepatuhan regulasi.
+
+
+### 6. Automated Regulatory Feedback Loop for Continual Model Governance
+
+Bagian ini memperdalam implementasi teknis dari **"Federated Gradient Aggregation with Homomorphic Integrity Proofs"** dengan memperkenalkan subsistem otonom untuk tata kelola model berkelanjutan. Subsistem ini mengintegrasikan metrik agregasi gradien terenkripsi dan hasil deteksi anomali langsung ke dalam mekanisme umpan balik regulasi *real-time*, memungkinkan pembaruan dinamis terhadap bobot kebijakan kepatuhan dalam model AI. Pendekatan ini memastikan bahwa model tidak hanya mempertahankan akurasi matematis, tetapi juga beradaptasi secara proaktif terhadap perubahan standar etika dan regulasi tanpa memerlukan intervensi manual yang lambat atau rentan terhadap kesalahan manusia.
+
+#### 6.1. Parameter Konfigurasi Lanjutan
+Sistem memerlukan argumen baris perintah tambahan untuk mengonfigurasi logika umpan balik regulasi dan pemetaan indikator kepatuhan ke pembaruan parameter model.
+
+*   **`--regulatory_feedback_mechanism`**: **(String, Path, Wajib)** Path ke file konfigurasi JSON yang mendefinisikan algoritma pemetaan antara indikator kepatuhan agregasi (dari log integritas agregasi) dan pembaruan parameter model. File ini menentukan fungsi aktivasi dan batas perubahan bobot (*weight clipping*) untuk memastikan stabilitas numerik selama proses penyesuaian etika. Contoh struktur: `{"mapping_algorithm": "gradient_based_compliance_weighting", "activation_function": "tanh_scaled"}`.
+*   **`--compliance_update_frequency`**: **(String, Path, Default: `epoch`)** Path ke file definisi interval waktu atau jumlah epoch sebelum kebijakan kepatuhan diperbarui berdasarkan data federasi terkini. Mendukung nilai `"epoch"`, `"wall_clock_time"` (format ISO 8601), atau `"data_volume_threshold"` (jumlah sampel terenkripsi yang diproses). Parameter ini menyeimbangkan antara responsivitas terhadap perubahan regulasi baru dan stabilitas pelatihan model.
+*   **`--ethical_constraint_weights`**: **(String, Path, Default: `./config/ethical_weights_initial.yaml`)** Path ke file YAML yang mendefinisikan bobot dinamis batasan etika. Bobot ini disesuaikan secara otomatis berdasarkan deteksi bias dalam agregasi gradien (melalui analisis deviasi norma dan distribusi residu). Misalnya, jika bias terhadap klaster demografis tertentu terdeteksi dalam gradien, bobot konstraint untuk fairnes akan meningkat secara otomatis.
+*   **`--output_governance_feedback_log`**: **(String, Default: `./logs/regulatory_feedback_governance_v1.json`)** Path untuk menyimpan log lengkap umpan balik regulasi. Log ini mencatat:
+    *   Timestamp pembaruan kebijakan kepatuhan.
+    *   Indikator kepatuhan yang memicu perubahan (misalnya: *Anomaly Score Threshold Breached*).
+    *   Perubahan spesifik pada bobot model akibat penyesuaian etika.
+    *   Dampak metric performa model (akurasi, F1-score) pasca-pembaruan kebijakan.
+
+#### 6.2. Metodologi: Continual Learning with Regulatory Constraints
+
+Sistem menerapkan paradigma **"Continual Learning with Regulatory Constraints"** di mana pembelajaran berkelanjutan tidak hanya bertujuan untuk memaksimalkan fungsi kerugian statistik, tetapi juga untuk memelihara kepatuhan terhadap kerangka kerja norma yang dinamis.
+
+1.  **Integrasi Data Regulatori Real-Time**: Selama setiap langkah agregasi, metrik integritas kriptografik dan deteksi anomali diproses oleh modul *Regulatory Feedback Engine*. Engine ini mengevaluasi apakah distribusi gradien yang dienkripsi menyimpang dari distribusi etika yang ditetapkan.
+2.  **Pembaruan Bobot Adaptif**: Menggunakan algoritma yang didefinisikan dalam `--regulatory_feedback_mechanism`, sistem menghitung gradien kepatuhan (*compliance gradients*). Gradien ini dijumlahkan dengan gradien loss standar (setelah dekripsi parsial atau dalam ruang terenkripsi menggunakan *Secure Multi-Party Computation*) untuk menghasilkan pembaruan parameter model yang mempertimbangkan kedua aspek: performa tugas dan kepatuhan etika.
+3.  **Konvergensi yang Disiplin**: Mekanisme *learning rate decay* khusus diterapkan pada komponen kepatuhan untuk mencegah osilasi berlebihan, memastikan bahwa model mengadopsi perubahan regulasi secara bertahap namun signifikan.
+
+#### 6.3. Kepatuhan dengan Standar Global
+
+Implementasi ini dirancang untuk memenuhi dan melampaui standar internasional utama dalam tata kelola AI, khususnya:
+
+*   **ISO/IEC 42001 (AI Management Systems)**: Sistem mendukung prinsip *Continuous Compliance Monitoring* dengan menyediakan jejak audit lengkap (*immutable logs*) yang memverifikasi setiap keputusan regulasi yang diambil secara otomatis. Hal ini memungkinkan organisasi untuk membuktikan kepatuhan terhadap persyaratan manajemen risiko AI secara proaktif.
+*   **OECD AI Principles on Long-term Stability and Adaptability**: Sistem mengimplementasikan prinsip adaptabilitas jangka panjang melalui *Automated Regulatory Feedback Loop*. Dengan kemampuan untuk mendeteksi perubahan dalam lingkungan data atau regulasi dan menyesuaikan diri tanpa henti, sistem memastikan bahwa model tetap relevan dan aman dalam jangka panjang, mitigasi risiko *model decay* dan *regulatory obsolescence*.
+
+#### 6.4. Living Compliance Framework
+
+Sistem ini menegakkan konsep **"Living Compliance Framework"**, yang mengubah kepatuhan dari statis "point-in-time check" menjadi proses dinamis yang berevolusi seiring perkembangan model dan lingkungan regulasi.
+
+*   **Dinamika Proses**: Kepatuhan dipertahankan melalui umpan balik siklik antara agregasi data federasi, evaluasi etika, dan pembaruan model. Setiap epoch pelatihan adalah kesempatan untuk menilai dan meningkatkan keselarasan etika.
+*   **Transparansi Audit**: Log komprehensif yang dicatat dalam `--output_governance_feedback_log` memungkinkan regulator untuk melakukan audit回溯 (*post-audit*) terhadap setiap keputusan model, memastikan bahwa tidak ada penyesuaian yang dilakukan secara arbitrer.
+
+#### 6.5. Prosedur: Regulatory Drift Detection and Correction Protocol
+
+Untuk menjaga integritas etika secara proaktif, sistem menerapkan protokol deteksi dan koreksi *drift* kepatuhan:
+
+1.  **Identifikasi Drift**: Modul deteksi drift membandingkan statistik agregasi gradien terkini (norma, distribusi residu, frekuensi anomali) dengan baseline kepatuhan historis yang tersimpan dalam memori sistem. Peringatan dini (*early warning*) dihasilkan jika deviasi melebihi ambang batas statistik yang ditentukan oleh `--ethical_constraint_weights`.
+2.  **Diagnosa Penyebab**: Sistem menganalisis apakah drift disebabkan oleh:
+    *   Perubahan distribusi data (*Covariate Shift*) dari agen tertentu.
+    *   Adopsi pola perilaku adversarial baru.
+    *   Perubahan dalam definisi etika yang dimuat ulang secara dinamis.
+3.  **Koreksi Otomatis**:
+    *   **Penyesuaian Bobot**: Jika drift teridentifikasi sebagai bias sistematis, bobet batasan etika (`--ethical_constraint_weights`) diperbarui secara otomatis untuk memberikan penalti lebih besar pada aspek yang menyimpang.
+    *   **Isolasi Node**: Jika drift disebabkan oleh anomali lokal, node yang terkait ditandai dalam `--byzantine_tolerance_ratio` dan kontribusinya diredam.
+    *   **Rekalibrasi Model**: Jika drift global terdeteksi, sistem dapat memicu proses *fine-tuning* ulang dengan contoh sintetis yang direpresentasikan secara seimbang untuk mengembalikan model ke jalur kepatuhan yang ditentukan.
+
+Dengan integrasi mendalam ini, fondasi federasi yang dihasilkan tidak hanya aman, privat, dan tahan terhadap serangan adversarial, tetapi juga berkelanjutan, adaptif, dan secara proaktif menjaga integritas etika dalam seluruh siklus hidup model AI terdistribusi, menciptakan lingkungan yang selaras dengan nilai-nilai manusia dan regulasi global yang berkembang.
