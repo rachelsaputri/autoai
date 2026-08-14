@@ -56042,3 +56042,55 @@ File `homomorphic_search_index_v1.json` akan mencatat metrik kritis berikut untu
 ```
 
 Dengan integrasi ini, sistem tidak hanya menjamin bahwa identitas tetap privat dan tahan terhadap serangan kuantum, tetapi juga memastikan bahwa kerangka kepatuhan (compliance framework) tetap dapat diaudit secara efektif, menciptakan ekosistem yang seimbang antara keamanan mutlak dan fungsionalitas bisnis.
+
+
+#### 6. Cross-Modal Federated Knowledge Graph Inference under Confidentiality Constraints
+
+Sub-bagian ini mendefinisikan mekanisme lanjutan untuk mengintegrasikan indeks pencarian homomorfik (dari Bagian 5) ke dalam basis pengetahuan graf kausal terdistribusi. Tujuannya adalah memungkinkan inferensi hubungan sebab-akibat lintas modalitas (teks, sensor fisik, transaksi finansial) tanpa mendekripsi data mentah di sisi node sumber, memastikan kepatuhan terhadap prinsip *privacy-by-design* dalam ekosistem multi-pihak.
+
+##### 6.1 Metodologi: Encrypted Graph Neural Networks (EGNNs) for Privacy-Preserving Reasoning
+
+Sistem ini menerapkan arsitektur *Encrypted Graph Neural Networks* (EGNNs) untuk melakukan propagasi pesan (*message passing*) pada graf kausal dalam ruang terenkripsi. Berbeda dengan GNN tradisional yang memanipulasikan bobot dan aktivasi dalam bentuk terbuka, EGNN menggunakan operasi homomorfik yang kompatibel dengan skema enkripsi CKKS untuk melakukan transformasi linier dan non-linier (melalui aproksimasi polinomial) pada nilai-nilai node dan edge yang terenkripsi.
+
+Proses ini memungkinkan sistem untuk:
+1.  **Menghitung Topologi Tertanam:** Vektor embedding dari berbagai modalitas (misalnya, embedding teks dari NLP terenkripsi dan fitur waktu nyata dari sensor IoT terenkripsi) digabungkan menjadi node graf kausal.
+2.  **Inferensi Relasional:** Sistem menghitung skor relevansi kausal antara entitas yang berbeda yurisdiksi dengan melakukan operasi dot product terenkripsi pada vektor bobot edge dan nilai node, menghasilkan skor kepercayaan kausal tanpa pernah mengungkap nilai aslinya.
+3.  **Validasi ZKP (Zero-Knowledge Proof):** Setiap langkah inferasi divisualisasikan sebagai transaksi di dalam blok audit (seperti pada Bagian 5), di mana *proof* membuktikan bahwa hasil perhitungan keluaran adalah fungsi yang valid dari input terenkripsi, tanpa mengungkap input tersebut.
+
+##### 6.2 Standar Kepatuhan dan Pedoman Keamanan
+
+Implementasi EGNN ini dirancang untuk mematuhi standar internasional ketat berikut:
+
+*   **ISO/IEC 27559 (Privacy by Design in Cryptographic Contexts):** Sistem memastikan bahwa privasi data terintegrasi sejak fase desain arsitektur graf. Setiap node dalam graf kausal diperlakukan sebagai entitas terpisah yang memerlukan otorisasi berbasis konteks sebelum operasi komputasi dilakukan, memastikan bahwa hanya data yang relevan secara hukum yang diproses lebih lanjut.
+*   **ACM CCS Guidelines on Privacy-Preserving Graph Learning:** Sistem menerapkan pembatasan akses berbasis atribut (*Attribute-Based Access Control* - ABAC) pada edge graf. Hanya node dengan bobot kepercayaan (trust score) di atas ambang batas tertentu yang diizinkan untuk menjadi bagian dari jalur inferensi aktif, mengurangi risiko kebocoran informasi melalui analisis side-channel.
+*   **Context-Aware Compliance Reasoning:** Sistem tidak hanya menghitung koneksi statis, tetapi secara dinamis menilai konteks kepatuhan. Misalnya, transaksi finansial yang melibatkan yurisdiksi berisiko tinggi akan memicu jalur audit yang lebih dalam dalam graf, dengan biaya komputasi yang dialokasikan secara otomatis berdasarkan tingkat sensitivitas data yang terenkripsi.
+
+##### 6.3 Prosedur Teknis: Secure Graph Traversal Protocol
+
+Untuk menghitung jalur kausal terpendek dan terkuat dalam graf yang terenkripsi, sistem menggunakan protokolTraversal Aman berbasis kisi (*lattice-based cryptography*). Prosedur ini memastikan bahwa biaya komputasi tetap terkendali dan privasi node tetap terjaga.
+
+1.  **Inisialisasi Skema Graf:** Sistem memuat definisi skema graf kausal yang kompatibel dengan operasi homomorfik, termasuk batasan kedalaman traversal untuk mencegah ekspansi komputasi yang tidak terkontrol.
+2.  **Pemetaan Embedding Lintas Modalitas:** Vektor embedding dari data mentah (teks, sensor, transaksi) dipetakan ke node graf menggunakan hash terenkripsi. Ini memastikan bahwa hubungan semantik antar modalitas terjaga tanpa mengungkap makna asli data.
+3.  **Perhitungan Jalur Aman:** Menggunakan algoritma Dijkstra terenkripsi yang dimodifikasi, sistem menghitung skor jalur kumulatif. Karena operasi penjumlahan dan perkalian dilakukan dalam ruang terenkripsi, agen analisis tidak pernah melihat bobot edge individu, hanya hasil agregat skor kepercayaan.
+4.  **Dynamic Trust Propagation:** Saat bukti kausal baru divalidasi (misalnya, melalui orakel eksternal atau sensor baru), skor kepercayaan node diperbarui secara proporsional. Propagasi kepercayaan ini dilakukan secara terenkripsi, memastikan bahwa tidak ada data mentah yang berpindah antar yurisdiksi selama proses pembaruan.
+
+##### 6.4 Argumen Baris Perintah (CLI) dan Integrasi
+
+Untuk mengaktifkan modul inferensi graf kausal ini, gunakan skrip `compliance_governance_autonomous_epistemic_fusion_and_multi_modal_truth_verification_orchestrator.py` dengan argumen berikut:
+
+```bash
+python compliance_governance_autonomous_epistemic_fusion_and_multi_modal_truth_verification_orchestrator.py \
+    --federated_graph_schema_config ./config/causal_graph_schema_homomorphic.json \
+    --secure_traversal_depth_limit 5 \
+    --cross_modal_embedding_hash ./params/embedding_hashes_v2.bin \
+    --output_graph_inference_report ./reports/federated_graph_inference_v1.json
+```
+
+**Deskripsi Argumen:**
+
+*   `--federated_graph_schema_config`: (Required) Path ke file JSON yang mendefinisikan struktur node dan edge yang kompatibel dengan skema enkripsi CKKS. File ini menentukan jenis operasi homomorfik yang diizinkan pada setiap tipe edge (misalnya, `sum`, `dot_product`, `polynomial_approx`).
+*   `--secure_traversal_depth_limit`: (Integer, Default: 5) Menentukan kedalaman maksimum traversal graf yang diizinkan dalam satu sesi inferensi. Batas ini dikenakan untuk mengontrol kompleksitas komputasi dan biaya enkripsi, mencegah serangan denial-of-service melalui ekspansi graf yang tidak terbatas.
+*   `--cross_modal_embedding_hash`: (Required) Path ke file biner yang berisi parameter hashing terenkripsi. Parameter ini digunakan untuk memetakan vektor embedding dari modalitas berbeda (teks, sensor, keuangan) ke node graf yang sama, memastikan konsistensi identitas lintas domain tanpa dekripsi.
+*   `--output_graph_inference_report`: (Optional, Default: `./reports/federated_graph_inference_v1.json`) Path untuk menyimpan laporan hasil inferensi. Laporan ini mencakup skor relevansi kausal, jalur kepercayaan terkuat, dan metadata audit zkp untuk setiap langkah perhitungan.
+
+Dengan integrasi ini, organisasi tidak hanya memenuhi tuntutan regulasi data yang semakin ketat, tetapi juga membangun ekosistem analisis yang cerdas, adaptif, dan sepenuhnya mematuhi prinsip kerahasiaan data dalam lingkungan multi-pihak yang kompleks.
