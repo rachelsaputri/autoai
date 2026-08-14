@@ -51542,3 +51542,30 @@ Untuk memastikan kepatuhan regulasi dan transparansi, arsitektur ini dipetakan s
 #         # Menghitung harga berdasarkan biaya pemulihan termodinamika
 #         pass
 ```
+
+
+### Real-Time Material Flow Matching & Entropy-Adjusted Pricing Mechanism
+
+Modul inti dari orkestrasi ini menerapkan arsitektur **Bipartite Graph Matching** untuk menyelesaikan masalah alokasi sumber daya dalam jaringan Simbiosis Industri otonom. Sistem tidak lagi bergantung pada pencarian manual atau kontrak jangka panjang yang kaku, melainkan menggunakan algoritma pencocokan optimal (seperti *Hungarian Algorithm* atau *Max-Flow Min-Cut*) untuk memaksimalkan aliran material sirkuler secara real-time.
+
+#### 1. Algoritma Pencocokan Material Real-Time (Bipartite Matching)
+
+Sistem memodelkan ekosistem industri sebagai grafik bipartit $G = (U, V, E)$, di mana:
+*   $U$ mewakili himpunan *Sink* (penerima limbah/material sekunder) yang mendefinisikan kebutuhan input spesifik.
+*   $V$ mewakili himpunan *Source* (penghasil limbah/material surplus).
+*   $E$ mewakili tepi (edges) yang menghubungkan Source dan Sink, dengan bobot yang dihitung berdasarkan kesamaan kimia, fisik, dan termodinamika.
+
+Proses pencocokan dilakukan melalui langkah-langkah berikut:
+
+1.  **Profilisasi Entropi Material**: Setiap unit limbah dan kebutuhan input diprofilkan menggunakan vektor karakteristik material (komposisi kimia, tingkat kontaminasi, densitas energi).
+2.  **Perhitungan Skor Kecocokan (Compatibility Score)**: Bobot tepi dihitung berdasarkan jarak Euclidean dalam ruang metrik termodinamika. Semakin rendah perbedaan entropi antara material keluaran limbah dan input yang dibutuhkan, semakin tinggi skor kecocokan.
+3.  **Optimasi Global**: Algoritma mencari konfigurasi pencocokan yang memaksimalkan total utilitas jaringan (total material yang didaur ulang) sambil meminimalkan biaya logistik dan emisi transportasi.
+
+#### 2. Dynamic Shadow Pricing for Circular Materials
+
+Untuk memastikan insentif ekonomi selaras dengan efisiensi termodinamika, sistem menerapkan mekanisme penentuan harga bayangan (*Shadow Pricing*) yang dinamis. Harga transfer bukan ditetapkan berdasarkan biaya pasar historis, melainkan berdasarkan **nilai entropi yang dihemat**.
+
+Rumus penentuan harga transfer ($P_{transfer}$) didasarkan pada selisih energi bebas Gibbs yang dihemat ($\Delta G_{saved}$) dibandingkan dengan produksi material primer dari awal (*virgin material production*):
+
+$$
+P_{transfer} = C_{recovery\_thermo} + lpha 
