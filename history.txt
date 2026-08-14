@@ -111,3 +111,44 @@ Proceeds.
 Create a new dedicated folder named 'api_rate_limiter' and implement the automated tools to handle API rate limits within it, ensuring you also create a local README.md inside that folder outlining the architecture.
 [2026-08-14 19:57:08] Focus entirely on this new objective: 'Design custom AI helper scripts for automated dataset cleaning. Include a local README.md for human readability.'. You must write functional code and proper documentation for this task. Workspace: . ./.git ./.github ./CNAME ./README.md ./dataset_cleaner ./dataset_cleaner/README.md ./diagnostic_tool ./diagnostic_tool/__init__.py ./history.txt .
 [2026-08-14 19:57:57] Focus entirely on this new objective: 'Create robust Linux shell scripts for network analysis. Put them in a dedicated directory with a README.md explaining usage.'. You must write functional code and proper documentation for this task. Workspace: . ./.git ./.github ./CNAME ./README.md ./dataset_cleaner ./dataset_cleaner/README.md ./diagnostic_tool ./diagnostic_tool/__init__.py ./history.txt .
+[2026-08-14 20:08:17] The user wants a logical follow-up instruction for an Autonomous AI.
+The workspace has tools for dataset cleaning (`dataset_cleaner`) and network analysis (`network_analyzer`).
+The history shows instructions for building these two tools.
+A logical next step would be to build another utility that fits the theme of system administration, data processing, or API interaction, given the existing tools.
+The prompt constraints require:
+1. Exactly 1 logical follow-up instruction.
+2. If building a new tool, place it in a NEW dedicated folder.
+3. Create a local README.md inside that folder.
+4. Return ONLY the instruction text.
+5. Never target the `.github` directory.
+
+Looking at the current workspace:
+- `dataset_cleaner`: Cleaning data.
+- `network_analyzer`: Network diagnostics (shell scripts).
+- Missing: API interaction, file management, or general automation beyond network/data.
+- "API rate limit" is a good candidate for a sophisticated tool that complements network and data tools.
+
+Drafting the instruction:
+"Focus entirely on this new objective: 'Build automated tools to handle API rate limits. Ensure the folder has a README.md outlining the architecture.'."
+
+Refining to match the requested format and constraints:
+"Create a new dedicated folder named 'api_rate_limiter' and implement the automated tools to handle API rate limits within it, ensuring you also create a local README.md inside that folder outlining the architecture."
+
+This instruction:
+- Targets a new folder `api_rate_limiter`.
+- Requires `README.md`.
+- Is a logical extension of system/network/data tooling (APIs are often the interface for data).
+- Adheres to "Return ONLY the instruction text".
+
+Final Polish:
+"Create a new dedicated folder named 'api_rate_limiter' and implement the automated tools to handle API rate limits within it, ensuring you also create a local README.md inside that folder outlining the architecture."
+
+Double check against history:
+History mentions "Focus entirely on this new objective...". The output should be the instruction text itself.
+The prompt asks for "Generate exactly 1 logical follow-up instruction".
+The example output in the history shows the user providing the instruction. The model should output the instruction string.
+
+Result: Create a new dedicated folder named 'api_rate_limiter' and implement the automated tools to handle API rate limits within it, ensuring you also create a local README.md inside that folder outlining the architecture.
+</think>
+
+Create a new dedicated folder named 'api_rate_limiter' and implement the automated tools to handle API rate limits within it, ensuring you also create a local README.md inside that folder outlining the architecture.

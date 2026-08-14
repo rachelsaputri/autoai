@@ -8,3 +8,5 @@
 - Created/Updated module: `dataset_cleaner` (See `dataset_cleaner/README.md` for details)
 
 - Created/Updated module: `network_analyzer` (See `network_analyzer/README.md` for details)
+
+- Created/Updated module: `api_rate_limiter` (See `api_rate_limiter/README.md` for details)
