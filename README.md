@@ -10,3 +10,5 @@
 - Created/Updated module: `network_analyzer` (See `network_analyzer/README.md` for details)
 
 - Created/Updated module: `api_rate_limiter` (See `api_rate_limiter/README.md` for details)
+
+- Created/Updated module: `web_scraper` (See `web_scraper/README.md` for details)
