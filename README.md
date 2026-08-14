@@ -53651,3 +53651,54 @@ Dalam konteks pedoman *Fairness, Accountability, and Transparency (FAccT)*, meka
 *   **Fairness:** Dengan memantau *causal weight adjustment* secara real-time, sistem mendeteksi dan mengoreksi bias yang muncul secara dinamis, memastikan bahwa nilai kebenaran tidak didistorsi oleh bias data historis yang berubah seiring waktu.
 
 Dengan mengintegrasikan CRL yang selaras dengan standar IEEE 7000-3 dan pedoman ACM FAccT, sistem tidak hanya beradaptasi terhadap perubahan, tetapi juga menjamin bahwa adaptasi tersebut tetap etis, transparan, dan bertanggung jawab.
+
+
+###### 5.3.6. Adversarial Robustness and Perturbation Resilience in Truth Fusion Networks
+
+Untuk memastikan kekokohan epistemik sistem terhadap manipulasi data terstruktur, **Adversarial Robustness** diimplementasikan sebagai lapisan pertahanan proaktif dalam *Truth Fusion Networks*. Mekanisme ini tidak hanya merespons anomali pasca-faktual, tetapi secara aktif mendeteksi dan menetralisir upaya manipulasi oleh *Byzantine Agents* (agen yang mungkin tidak jujur atau terkompromi) serta gangguan sinyal sensor yang disengaja.
+
+Inti dari mekanisme ini terletak pada integrasi **Adversarial Training** dan **Gradient Masking Detection**:
+
+1.  **Adversarial Training Integration**:
+    Selama fase pelatihan model kebenaran (Truth Model), sistem secara sintetis menyuntikkan sampel adversarial ke dalam batch pelatihan. Sampel ini dihasilkan melalui serangan *Projective Gradient Descent (PGD)* yang menargetkan gradien fungsi loss kebenaran. Dengan demikian, jaringan pembelajaran mendalam (Deep Neural Network) yang mendasari agregasi fakta menjadi kebal terhadap perturbasi kecil yang dirancang untuk memoles hasil prediksi ke arah bias tertentu. Hal ini memastikan bahwa kebijakan kausal tidak mudah dimanipulasi oleh input yang terlihat valid secara statistik namun secara semantik menyesatkan.
+
+2.  **Gradient Masking Detection**:
+    Banyak teknik pertahanan konvensional rentan terhadap *gradient masking*, di mana gradien terlihat stabil secara lokal namun gagal saat menghadapi serangan adaptif tingkat lanjut. Sistem ini memantau deviasi dalam ruang gradien selama backpropagation. Jika terdeteksi adanya ketidaksesuaian antara gradien yang dihitung dan sensitivitas model terhadap variasi input kecil (menggunakan pendekatan *FreeLB* atau *TRADES*), sistem menandai node tersebut sebagai "Rusak Adversarial". Deteksi ini memungkinkan isolasi dini sebelum kesalahan propagasi ke simpul downstream dalam DAG.
+
+###### 5.3.7. Truth Integrity Shield Protocol (TISP)
+
+Sebagai respons otomatis terhadap deteksi anomali statistik tinggi atau deviasi pola adversarial, sistem mengaktifkan **Truth Integrity Shield Protocol (TISP)**. Protokol ini bekerja dalam tiga fase kritis untuk menjaga integritas graf kausal utama:
+
+*   **Fase Isolasi Dinamis (Dynamic Isolation)**:
+    Node data yang terdeteksi memiliki deviasi statistik di luar ambang batas standar deviasi (misalnya, Z-Score > 4.0) atau menunjukkan tanda-tanda pola adversarial, segera dipisahkan dari graf kausal aktif. Node ini tidak dihapus, tetapi transisi ke status *"Quarantined"*. Selama masa karantina, node tersebut tidak berpartisipasi dalam inferensi kebenaran atau propagasi kepercayaan.
+
+*   **Fase Verifikasi Kontekstual (Contextual Verification)**:
+    Node yang diisolasi dievaluasi ulang menggunakan mekanisme *Cross-Modal Consistency Check*. Jika node tersebut berasal dari sumber multimodal (misalnya, sensor IoT dan teks berita), konsistensi antara modalitas diverifikasi secara eksplisit. Ketidaksesuaian yang signifikan memicu penolakan otomatis terhadap nilai kebenaran node tersebut.
+
+*   **Fase Reintegrasi Terkontrol (Controlled Reintegration)**:
+    Node hanya dapat kembali ke graf utama setelah melewati serangkaian simulasi kontrafaktual berulang. Jika node tersebut terbukti stabil terhadap serangan adversarial yang diuji secara sintetis, aksesnya diberikan kembali dengan bobot kepercayaan yang direduser secara bertahap (*decay factor*), memastikan bahwa kontribusi node tidak segera kembali ke level penuh tanpa bukti kepercayaan tambahan.
+
+###### 5.3.8. Game-Theoretic Truth Verification in Multi-Agent Systems
+
+Dalam lingkungan multi-agent di mana beberapa entitas berkontribusi pada basis fakta, sistem menerapkan kerangka **Game-Theoretic Truth Verification**. Pendekatan ini memodelkan interaksi antar agen sebagai permainan non-kooperatif dengan informasi asimetris.
+
+*   **Nash Equilibrium dalam Agregasi Fakta**:
+    Sistem mencari titik ekuilibrium Nash di mana tidak ada agen tunggal yang dapat meningkatkan utilitas pribadi (kebenaran yang diakui) dengan mengubah strateginya secara unilateral. Ini mencegah agen manipulatif dari mendominasi agregasi kebenaran melalui upaya koordinasi.
+
+*   **Mechanism Design untuk Kejujuran Dominan (Dominant Strategy Truthfulness)**:
+    Protokol insentif dirancang sedemikian rupa sehingga strategi terbaik bagi setiap agen adalah melaporkan data secara jujur. Fungsi utilitas agen dikaitkan dengan akurasi prediksi mereka terhadap fakta yang diverifikasi secara independen. Agen yang mencoba menyebarkan disinformasi akan menghadapi penurunan utilitas jangka panjang karena reputasi kausal mereka yang menurun, yang pada akhirnya mengurangi pengaruh mereka dalam proses pengambilan keputusan sistem.
+
+###### 5.3.9. Standards Alignment: ISO/IEC 24029 & NIST AI RMF 1.0
+
+Implementasi ketahanan adversarial ini selaras secara ketat dengan standar internasional dan kerangka kerja manajemen risiko berikut:
+
+**ISO/IEC 24029: Trustworthy AI — AI transparency and explainability**
+*   **Alignment dengan Pertahanan Pembelajaran Adversarial**: Standar ISO/IEC 24029 menekankan pentingnya transparansi dalam pengambilan keputusan AI. Dalam konteks ini, mekanisme *Adversarial Training* dan *Gradient Masking Detection* menyediakan lapisan transparansi "defense-level". Sistem tidak hanya menjelaskan *apa* keputusan yang diambil, tetapi juga *bagaimana* sistem tersebut kebal terhadap manipulasi input. Jejak audit mencakup logika isolasi node oleh TISP, memberikan penjelasan yang dapat diverifikasi mengapa data tertentu ditolak atau diisolasi, memenuhi persyaratan kejelasan dan akuntabilitas dalam standar ini.
+*   **Explainability of Robustness**: Setiap keputusan isolasi oleh *Truth Integrity Shield Protocol* disertai dengan penjelasan kausal yang mendetail, menyoroti deviasi statistik atau pola adversarial yang terdeteksi, sehingga memungkinkan auditor manusia untuk memahami alasan di balik penolakan data.
+
+**NIST AI Risk Management Framework (AI RMF) 1.0 — Section on Robustness and Resilience**
+*   **Map & Measure (R.4 - Robustness and Resilience)**: NIST AI RMF mensyaratkan bahwa sistem AI harus tangguh terhadap kegagalan dan serangan yang disengaja. Integrasi *Adversarial Robustness* dan protokol *TISP* secara eksplisit memenuhi kriteria ini dengan menerapkan mekanisme deteksi anomali real-time dan respons mitigasi otomatis.
+*   **Manage & Measure (Resilience to Adversarial Attacks)**: Kerangka kerja ini mendorong pengujian ketahanan terhadap serangan adversarial. Dengan menyertakan *Counterfactual Sim Steps* dan simulasi *Byzantine Faults* dalam pipeline validasi, sistem melakukan evaluasi risiko berkelanjutan, memastikan bahwa ketahanan tidak hanya statis tetapi beradaptasi terhadap taktik serangan yang berevolusi.
+*   **Protection Against Disinformation**: Dalam konteks disinformasi data terstruktur, kombinasi *Game-Theoretic Verification* dan *Causal RL* memastikan bahwa sistem dapat membedakan antara sinyal valid dan噪声 (noise) yang dihasilkan oleh upaya manipulasi koordinated, menjaga keandalan output sistem bahkan dalam lingkungan yang bermusuhan.
+
+Dengan mengintegrasikan protokol pertahanan adversarial dan kepatuhan standar internasional, sistem ini tidak hanya mencapai akurasi koreksi kebenaran yang tinggi, tetapi juga menjamin keberlanjutan, keamanan, dan kepercayaan dalam ekosistem data yang dinamis dan berpotensi bermusuhan.
