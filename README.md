@@ -268,3 +268,437 @@ curl -X POST https://api.ai-swadaya.io/api/v1/feedback \
 - **Enkripsi Transit:** Semua traffic internal dan eksternal menggunakan TLS 1.3.  
 - **Enkripsi Data-at‑Rest:** Elasticsearch, Neo4j, dan object storage di‑enkripsi menggunakan AES‑256.  
 - **Audit Trail:** Setiap request dan keputusan safety di‑log
+
+
+<think>The user wants me to create the "Pengujian & Validasi" (Testing & Validation) section for their README.md file. Based on the existing content, this is for an AI Swadaya system that appears to be a safety-focused AI system with GPU monitoring, latency alerts, Elasticsearch, Neo4j, etc.
+
+I need to write comprehensive content that:
+1. Covers unit testing, integration testing, and performance benchmarking
+2. Fits the style and technical level of the existing README
+3. Uses proper Markdown formatting
+4. Is detailed enough to be useful
+
+Let me create a thorough section that covers:
+- Unit testing approach
+- Integration testing approach
+- Performance benchmarking
+- Safety validation testing
+- Continuous testing in CI/CD
+- Test coverage requirements
+- Performance metrics and thresholds
+- Load testing considerations
+</think>
+
+# Pengujian & Validasi
+
+Bagian ini menjelaskan strategi pengujian menyeluruh untuk sistem AI Swadaya, mencakup unit test, integrasi, benchmark performa, serta validasi safety.
+
+---
+
+## 1. Strategi Pengujian
+
+### 1.1 Pendekatan Pengujian Berlapis
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Testing Pyramid                           │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│                         ▲                                    │
+│                        /█\        E2E Tests                  │
+│                       / █ \       (End-to-End Scenarios)    │
+│                      /  █  \      ~10% total testing        │
+│                     /────█────\                              │
+│                    /     █     \     Integration Tests       │
+│                   /      █      \    (API, Database, GPU)   │
+│                  /───────█───────\   ~30% total testing      │
+│                 /        █        \                          │
+│                /─────────█─────────\   Unit Tests            │
+│               /          █          \  (Component, Module)   │
+│              /────────────────────────\ ~60% total testing  │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 1.2 Prinsip Pengujian
+
+| Prinsip | Deskripsi | Penerapan |
+|---------|-----------|-----------|
+| **Isolasi** | Setiap test berdiri sendiri tanpa dependensi eksternal | Mocking services eksternal |
+| **Repeatability** | Hasil test konsisten setiap eksekusi | Environment terkontrol dalam container |
+| **Atomicity** | Setiap test hanya menguji satu aspek | Satu assertion per test case |
+| **Fast Feedback** | Deteksi bug secepat mungkin | Unit test < 5 detik per modul |
+
+---
+
+## 2. Unit Testing
+
+### 2.1 Struktur Pengujian
+
+```
+tests/
+├── unit/
+│   ├── safety/
+│   │   ├── test_content_filter.py
+│   │   ├── test_intent_classifier.py
+│   │   ├── test_response_validator.py
+│   │   └── conftest.py
+│   ├── core/
+│   │   ├── test_tokenizer.py
+│   │   ├── test_embedding.py
+│   │   └── test_cache_manager.py
+│   └── utils/
+│       ├── test_logger.py
+│       └── test_config_loader.py
+```
+
+### 2.2 Contoh Test Cases - Content Filter
+
+```python
+# tests/unit/safety/test_content_filter.py
+import pytest
+from src.safety.content_filter import ContentFilter
+
+class TestContentFilter:
+    """Test suite untuk Content Filter module."""
+    
+    @pytest.fixture
+    def filter_instance(self):
+        """Setup instance ContentFilter."""
+        return ContentFilter(
+            model_path="models/safety-filter-v2",
+            confidence_threshold=0.85
+        )
+    
+    @pytest.mark.parametrize("input_text,expected_risk", [
+        # Skenario: Teks Aman
+        ("Apa kabar?", "low"),
+        ("Jelaskan fotosintesis", "low"),
+        ("Cara memasak nasi", "low"),
+        
+        # Skenario: Teks dengan Risiko Sedang
+        ("Bagaimana membuat bom", "high"),  # Intent berbahaya
+        ("Tutorial hacking", "high"),
+        
+        # Skenario: Boundary Testing
+        ("", "low"),           # Empty input
+        ("a" * 10000, "low"), # Very long input
+        ("🚗🔫💣", "low"),    # Emoji only
+    ])
+    def test_risk_classification(self, filter_instance, input_text, expected_risk):
+        """Test klasifikasi risiko berbagai jenis input."""
+        result = filter_instance.classify(input_text)
+        
+        assert result["risk_level"] == expected_risk
+        assert "confidence_score" in result
+        assert 0 <= result["confidence_score"] <= 1
+    
+    def test_latency_requirement(self, filter_instance):
+        """Test bahwa latensi filtering < 50ms untuk input normal."""
+        import time
+        
+        test_input = "Ini adalah teks pengujian dengan panjang sedang untuk memastikan performa."
+        start = time.time()
+        filter_instance.classify(test_input)
+        latency_ms = (time.time() - start) * 1000
+        
+        assert latency_ms < 50, f"Latensi {latency_ms:.2f}ms melebihi threshold 50ms"
+    
+    def test_audit_log_generation(self, filter_instance):
+        """Test bahwa setiap evaluasi menghasilkan audit log."""
+        result = filter_instance.classify("Test input")
+        
+        assert result["audit_id"] is not None
+        assert result["timestamp"] is not None
+        assert "model_version" in result
+```
+
+### 2.3 Coverage Requirements
+
+| Modul | Minimum Coverage | Critical Paths |
+|-------|------------------|----------------|
+| `safety/` | 90% | Content filtering, intent classification |
+| `core/` | 85% | Tokenizer, embedding generation |
+| `api/` | 80% | Request validation, error handling |
+| `utils/` | 95% | Logging, configuration |
+
+---
+
+## 3. Integration Testing
+
+### 3.1 Test Environment Setup
+
+```yaml
+# docker-compose.test.yml
+version: '3.8'
+
+services:
+  # Test environment menggunakan container 
+  # dengan resource terbatas untuk simulasi
+  
+  api-gateway-test:
+    build: .
+    command: pytest tests/integration/
+    environment:
+      - ENV=test
+      - NEO4J_URI=bolt://neo4j-test:7687
+      - ES_URI=http://elasticsearch-test:9200
+    depends_on:
+      - neo4j-test
+      - elasticsearch-test
+      - redis-test
+    volumes:
+      - ./tests:/app/tests
+      - ./coverage:/app/coverage
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+
+  neo4j-test:
+    image: neo4j:5.12-community
+    environment:
+      - NEO4J_AUTH=none
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+
+  elasticsearch-test:
+    image: elasticsearch:8.11.0
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+
+  redis-test:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+```
+
+### 3.2 Integration Test Cases
+
+#### 3.2.1 End-to-End Request Flow
+
+```python
+# tests/integration/test_request_flow.py
+import pytest
+import httpx
+import asyncio
+
+class TestRequestFlow:
+    """Integration test untuk alur request lengkap."""
+    
+    @pytest.fixture
+    def api_base_url(self):
+        """Setup base URL untuk API test."""
+        return "http://api-gateway-test:8000"
+    
+    @pytest.mark.asyncio
+    async def test_complete_request_lifecycle(self, api_base_url):
+        """
+        Test alur lengkap:
+        1. User mengirim request
+        2. Request masuk Content Filter
+        3. Intent classification
+        4. Response generation (mocked)
+        5. Safety validation
+        6. Audit log ke Elasticsearch
+        7. Graph update ke Neo4j
+        """
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            # Step 1: Submit request
+            request_payload = {
+                "user_id": "test-user-001",
+                "session_id": "session-xyz",
+                "input": {
+                    "type": "text",
+                    "content": "Jelaskan teori relativitas Einstein"
+                },
+                "metadata": {
+                    "client_version": "2.1.0",
+                    "platform": "web"
+                }
+            }
+            
+            response = await client.post(
+                f"{api_base_url}/v1/chat/completions",
+                json=request_payload
+            )
+            
+            # Validate response
+            assert response.status_code == 200
+            data = response.json()
+            
+            assert "request_id" in data
+            assert "response" in data
+            assert "safety_score" in data
+            assert data["safety_score"] >= 0.8
+            
+            # Verify audit log exists
+            audit_response = await client.get(
+                f"{api_base_url}/v1/audit/{data['request_id']}"
+            )
+            assert audit_response.status_code == 200
+            
+            # Verify graph node created
+            graph_response = await client.get(
+                f"{api_base_url}/v1/graph/interactions",
+                params={"user_id": "test-user-001"}
+            )
+            assert graph_response.status_code == 200
+    
+    @pytest.mark.asyncio
+    async def test_concurrent_requests_handling(self, api_base_url):
+        """Test sistem menangani request konkuren dengan baik."""
+        num_requests = 50
+        
+        async def send_request(idx):
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                return await client.post(
+                    f"{api_base_url}/v1/chat/completions",
+                    json={
+                        "user_id": f"user-{idx}",
+                        "input": {"type": "text", "content": f"Request {idx}"}
+                    }
+                )
+        
+        # Execute concurrent requests
+        tasks = [send_request(i) for i in range(num_requests)]
+        responses = await asyncio.gather(*tasks)
+        
+        # Validate all succeeded
+        success_count = sum(1 for r in responses if r.status_code == 200)
+        assert success_count == num_requests, \
+            f"Hanya {success_count}/{num_requests} request berhasil"
+```
+
+#### 3.2.2 Database Integration Tests
+
+```python
+# tests/integration/test_database_integration.py
+import pytest
+from neo4j import GraphDatabase
+from elasticsearch import Elasticsearch
+
+class TestDatabaseIntegration:
+    """Integration tests untuk Neo4j dan Elasticsearch."""
+    
+    @pytest.fixture(scope="class")
+    def neo4j_driver(self):
+        """Setup Neo4j driver untuk test."""
+        driver = GraphDatabase.driver(
+            "bolt://neo4j-test:7687",
+            auth=None
+        )
+        yield driver
+        driver.close()
+    
+    @pytest.fixture(scope="class") 
+    def es_client(self):
+        """Setup Elasticsearch client untuk test."""
+        client = Elasticsearch(["http://elasticsearch-test:9200"])
+        yield client
+        client.close()
+    
+    def test_neo4j_knowledge_graph_operations(self, neo4j_driver):
+        """Test operasi CRUD pada knowledge graph."""
+        with neo4j_driver.session() as session:
+            # Create test node
+            result = session.run("""
+                CREATE (u:User {id: $user_id, name: $name})
+                RETURN u.id as id
+            """, user_id="test-123", name="Test User")
+            assert result.single()["id"] == "test-123"
+            
+            # Read
+            result = session.run(
+                "MATCH (u:User {id: $id}) RETURN u.name",
+                id="test-123"
+            )
+            assert result.single()["name"] == "Test User"
+            
+            # Update
+            session.run("""
+                MATCH (u:User {id: $id})
+                SET u.name = $new_name
+            """, id="test-123", new_name="Updated Name")
+            
+            # Delete
+            session.run("MATCH (u:User {id: $id}) DELETE u", id="test-123")
+            
+            # Verify deletion
+            result = session.run(
+                "MATCH (u:User {id: $id}) RETURN count(u) as count",
+                id="test-123"
+            )
+            assert result.single()["count"] == 0
+    
+    def test_elasticsearch_audit_logging(self, es_client):
+        """Test audit log indexing dan search."""
+        # Index audit log
+        doc = {
+            "request_id": "test-req-001",
+            "user_id": "test-user",
+            "action": "safety_check",
+            "timestamp": "2024-01-15T10:30:00Z",
+            "result": "passed"
+        }
+        
+        es_client.index(index="audit-logs", id="test-req-001", document=doc)
+        es_client.indices.refresh(index="audit-logs")
+        
+        # Search
+        response = es_client.search(
+            index="audit-logs",
+            body={
+                "query": {
+                    "term": {"request_id": "test-req-001"}
+                }
+            }
+        )
+        
+        assert response["hits"]["total"]["value"] == 1
+        assert response["hits"]["hits"][0]["_source"]["action"] == "safety_check"
+```
+
+---
+
+## 4. Performance Benchmarking
+
+### 4.1 Benchmark Framework
+
+```python
+# benchmarks/run_benchmark.py
+import asyncio
+import time
+import statistics
+from typing import List, Dict
+from dataclasses import dataclass
+import httpx
+
+@dataclass
+class BenchmarkResult:
+    """Struktur data untuk hasil benchmark."""
+    metric_name: str
+    min: float
+    max: float
+    mean: float
+    median: float
+    p95: float
+    p99: float
+    unit: str
+
+class PerformanceBenchmark:
+    """Framework untuk benchmark performa sistem."""
+    
+    def __init__(self, api_base_url: str):
+        self.api_base_url = api_base_url
+        self.results: List[BenchmarkResult] = []
+    
+    async def benchmark_latency(self, num_requests: int
