@@ -56240,3 +56240,26 @@ Untuk memastikan keandalan skala global, sistem mengimplementasikan prosedur **"
 1.  **Manifold Verification:** Setiap putaran agregasi model, validator terpusat memverifikasi bahwa distribusi kumulatif data sintetis dari semua klien berada dalam jarak konvergen dari manifold kausal data observasi historis global.
 2.  **Cross-Cohort Consistency Check:** Memastikan bahwa pola kausal yang diimputasi oleh satu klien konsisten dengan pola yang diimputasi oleh klien lain dalam ko-hor yang sama, mencegah fragmentasi pengetahuan kausal.
 3.  **Regulatory Audit Readiness:** Laporan konsensus ini menghasilkan dokumen kepatuhan yang siap untuk audit regulasi internasional, membuktikan bahwa basis data yang lengkap dan siap analisis tidak mengorbankan integritas kebenaran kausal maupun privasi individu, serta menciptakan fondasi data yang tangguh terhadap bias yang tidak lengkap.
+
+
+**Causal Consistency Preservation in Generative Adversarial Networks under Homomorphic Constraints**
+
+Bagian ini mendokumentasikan implementasi teknis dari subsistem inti yang menjamin integritas kausal dan privasi data tingkat tinggi selama proses *imputasi* menggunakan *Generative Adversarial Network* (GAN). Integrasi ini bekerja dalam ruang terenkripsi (*Homomorphic Space*), memastikan bahwa model generatif tidak hanya mempelajari distribusi statistik, tetapi juga mematuhi struktur kausal yang mendasarinya, tanpa pernah mengekspos data mentah atau gradien intermediat.
+
+### 1. Argumen Konfigurasi Lanjutan
+
+Berikut adalah definisi detail untuk argumen baris perintah yang mengontrol perilaku GAN Homomorfik dan mekanisme penjaga konsistensi kausal:
+
+*   **`--homomorphic_gan_loss_weights`**: **(String, Path, Wajib)** Path ke file konfigurasi JSON yang menentukan bobot relatif antara *Causal Consistency Loss* dan *Adversarial Loss* dalam ruang ciphertext. File ini mendefinisikan hiperparameter $\lambda_{causal}$ dan $\lambda_{adv}$ yang digunakan dalam fungsi tujuan gabungan. Pengaturan bobot ini kritis untuk menyeimbangkan antara fidelitas statistik (kemiripan data) dan kepatuhan struktural (validitas kausal), memastikan bahwa model tidak mengorbankan kebenaran sebab-akibat demi akurasi numerik semata.
+*   **`--causal_structure_constraint_matrix`**: **(String, Path, Wajib)** Path ke file array numpy atau CSV yang merepresentasikan Matriks Kendala Struktur Kausal ($M_{struct}$). Matriks ini mendefinisikan tepi (*edges*) wajib (nilai positif) dan terlarang (nilai negatif) dalam graf kausal sintetis. GAN dibatasi secara matematis untuk menghasilkan gradien yang ortogonal terhadap konstrain terlarang, sehingga mencegah pembuatan hubungan kausal artifisial yang melanggar domain knowledge yang telah dikurasi.
+*   **`--gradient_clipping_norm`**: **(String, Path, Wajib)** Path ke file YAML yang menetapkan batas norma gradien maksimum (*global gradient norm threshold*) untuk backpropagation terenkripsi. Dalam lingkungan Federated Learning dengan FHE, gradien yang tidak dikontrol dapat menyebabkan ketidakstabilan numerik eksponensial atau kebocoran informasi melalui侧-channel analysis. Parameter ini memicu klipping gradien adaptif jika norma melebihi ambang batas, menjamin stabilitas pelatihan tanpa perlu dekripsi.
+*   **`--output_homomorphic_gan_audit`**: **(String, Default: `./reports/homomorphic_gan_audit_v1.json`)** Path untuk menyimpan laporan audit komprehensif yang mencakup validasi konsistensi kausal dalam ruang terenkripsi dan integritas proses homomorfik. Laporan ini mencakup metrik seperti *Homomorphic Compute Overhead Ratio*, *Causal Edge Fidelity Score*, dan *Gradient Norm Stability Index*, yang diperlukan untuk kepatuhan regulasi dan audit pasca-pelatihan.
+
+### 2. Metodologi: Privacy-Preserving Generative Modeling via Homomorphic Encryption
+
+Sistem menerapkan arsitektur **Causal GAN Terenkripsi** yang beroperasi sepenuhnya di atas data ciphertext. Metodologi ini didasarkan pada prinsip *Causal Fidelity under Encryption*, yang menjamin bahwa hubungan sebab-akibat fundamental tetap utuh dan dapat diverifikasi bahkan ketika komputasi dilakukan dalam ruang ciphertext yang tidak dapat dibaca (*plaintext-agnostic*).
+
+#### A. Integrasi Kendala Kausal ke dalam Fungsi Loss GAN
+Berbeda dengan pendekatan konvensional yang menerapkan kendala kausal sebagai pasca-proses, sistem ini mengintegrasikan kendala tersebut langsung ke dalam fungsi kerugian (*loss function*) Generator dalam ruang terenkripsi:
+
+$$ \mathcal{L}_{total} = \lambda_{adv} 
