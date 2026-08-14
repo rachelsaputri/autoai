@@ -3,7 +3,7 @@ name: AI Self-Prompting README Updater
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '*/15 * * * *' # Disarankan 15 menit agar tidak terkena rate-limit / abuse limit
 
 jobs:
   auto-commit:
@@ -23,23 +23,40 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Buat file history.txt jika belum ada
-          if [ ! -f history.txt ]; then
-            echo "Mulai dari topik awal: Pengembangan sistem AI mandiri dan basis pengetahuan." > history.txt
+          # 1. Cek dan Handle Reset Topik (Jika README sudah > 350 baris)
+          MAX_LINES=350
+          CURRENT_LINES=0
+          if [ -f README.md ]; then
+            CURRENT_LINES=$(wc -l < README.md)
           fi
 
-          # Buat file README.md jika belum ada
-          if [ ! -f README.md ]; then
-            echo "# Documentasi AI Self-Improving" > README.md
+          if [ ! -f README.md ] || [ "$CURRENT_LINES" -ge "$MAX_LINES" ]; then
+            TIMESTAMP=$(date +'%Y%m%d_%H%M%S')
+            
+            # Arsipkan README lama jika sudah terlalu panjang
+            if [ -f README.md ] && [ "$CURRENT_LINES" -ge "$MAX_LINES" ]; then
+              mkdir -p archives
+              mv README.md "archives/README_$TIMESTAMP.md"
+              echo "README mencapai $CURRENT_LINES baris. Diarsipkan ke archives/README_$TIMESTAMP.md"
+            fi
+
+            # Inisialisasi Topik Baru
+            echo "# Knowledge Base & AI Documentation Hub" > README.md
+            echo "> *Terakhir di-reset: $(date +'%Y-%m-%d %H:%M:%S') UTC*" >> README.md
+            echo -e "\n## Daftar Isi & Modul\nDokumentasi ini dibuat dan diperluas secara otonom oleh AI.\n" >> README.md
+            echo "[$(date +'%Y-%m-%d %H:%M:%S')] TOPIC_RESET: Memulai modul topik baru." >> history.txt
           fi
 
-          for i in {1..6}
+          # Loop iterasi
+          for i in {1..3}
           do
-            # Read last entries from history and README
-            HISTORY_CONTEXT=$(tail -n 20 history.txt | tr '\n' ' ')
-            README_CONTEXT=$(tail -n 30 README.md | tr '\n' ' ')
+            echo "--- Iterasi ke-$i ---"
+            
+            # Ambil konteks ringkas (maksimal 20 baris terakhir)
+            HISTORY_CONTEXT=$(tail -n 15 history.txt 2>/dev/null | tr '\n' ' ' | sed 's/"/\\"/g')
+            README_CONTEXT=$(tail -n 25 README.md | tr '\n' ' ' | sed 's/"/\\"/g')
 
-            # 1. AI Generate Prompt Baru berdasarkan history dan README
+            # 1. AI Generate Prompt Lanjutan / Sub-topik
             PROMPT_PAYLOAD=$(jq -n \
               --arg model "MiniMaxAI/MiniMax-M2.7" \
               --arg history "$HISTORY_CONTEXT" \
@@ -48,8 +65,12 @@ jobs:
                 model: $model,
                 messages: [
                   {
+                    role: "system",
+                    content: "Anda adalah perancang silabus teknis. Buat 1 prompt tugas spesifik untuk menulis bab dokumentasi lanjutan (misal: Arsitektur, Best Practices, Security, Kode Contoh, Optimasi). HANYA kembalikan teks instruksi tugasnya tanpa pembuka/penutup."
+                  },
+                  {
                     role: "user",
-                    content: ("Berdasarkan riwayat prompt berikut:\n" + $history + "\n\nDan isi README terakhir:\n" + $readme + "\n\nBuatlah 1 perintah/prompt baru yang logis untuk melanjutkan, memperdalam, atau memperluas konten README tersebut. Berikan HANYA teks prompt baru tersebut tanpa penjelasan tambahan.")
+                    content: ("Konteks dokumentasi saat ini:\n" + $readme + "\n\nRiwayat modul sebelumnya:\n" + $history + "\n\nBuat sub-topik berikutnya yang paling relevan.")
                   }
                 ]
               }')
@@ -59,16 +80,21 @@ jobs:
               -H "Content-Type: application/json" \
               -d "$PROMPT_PAYLOAD")
 
-            GENERATED_PROMPT=$(echo "$NEW_PROMPT_RESP" | jq -r '.choices[0].message.content // empty')
-
-            if [ -z "$GENERATED_PROMPT" ]; then
-              GENERATED_PROMPT="Lanjutkan pembahasan materi sebelumnya dengan memberikan penjelasan teknis yang lebih detail."
+            # Validasi respon JSON agar tidak crash
+            if echo "$NEW_PROMPT_RESP" | jq empty 2>/dev/null; then
+              GENERATED_PROMPT=$(echo "$NEW_PROMPT_RESP" | jq -r '.choices[0].message.content // empty')
+            else
+              echo "Error: Respon API bukan JSON valid: $NEW_PROMPT_RESP"
+              GENERATED_PROMPT=""
             fi
 
-            # Catat prompt baru ke history.txt
+            if [ -z "$GENERATED_PROMPT" ]; then
+              GENERATED_PROMPT="Tuliskan bab lanjutan mengenai Arsitektur Sistem, Flowchart logic, dan Contoh Implementasi teknisnya."
+            fi
+
             echo "[$(date +'%Y-%m-%d %H:%M:%S')] $GENERATED_PROMPT" >> history.txt
 
-            # 2. AI Generate Konten README berdasarkan prompt baru dan konteks README saat ini
+            # 2. AI Generate Konten Dokumentasi
             CONTENT_PAYLOAD=$(jq -n \
               --arg model "MiniMaxAI/MiniMax-M2.7" \
               --arg prompt "$GENERATED_PROMPT" \
@@ -78,11 +104,11 @@ jobs:
                 messages: [
                   {
                     role: "system",
-                    content: "Anda adalah penulis dokumentasi teknis. Tuliskan konten lanjutan yang komprehensif, terstruktur, dan langsung menambah nilai informasi."
+                    content: "Anda adalah Technical Documentation Engineer. Buat modul dokumentasi Markdown yang sangat informatif, rapi dengan heading H2/H3, tabel/bullet-points, dan diagram/code blocks bila perlu. Jangan ulangi teks pembuka README."
                   },
                   {
                     role: "user",
-                    content: ("Konten README saat ini:\n" + $readme + "\n\nTugas:\n" + $prompt + "\n\nTuliskan bab/materi lanjutan untuk ditempel ke README.md. Gunakan format Markdown yang rapi.")
+                    content: ("README saat ini berakhir di:\n" + $readme + "\n\nTugas penulisan modul baru:\n" + $prompt + "\n\nTuliskan kontennya dalam Markdown valid:")
                   }
                 ]
               }')
@@ -92,15 +118,22 @@ jobs:
               -H "Content-Type: application/json" \
               -d "$CONTENT_PAYLOAD")
 
-            GENERATED_CONTENT=$(echo "$NEW_CONTENT_RESP" | jq -r '.choices[0].message.content // empty')
-
-            if [ -n "$GENERATED_CONTENT" ]; then
-              echo -e "\n\n$GENERATED_CONTENT" >> README.md
-
-              git add history.txt README.md
-              git commit -m "docs: expand README & update prompt history [$(date +'%H:%M:%S')]" || true
-              git push
+            # Validasi respon JSON kedua
+            if echo "$NEW_CONTENT_RESP" | jq empty 2>/dev/null; then
+              GENERATED_CONTENT=$(echo "$NEW_CONTENT_RESP" | jq -r '.choices[0].message.content // empty')
+            else
+              echo "Error: Respon API konten bukan JSON valid: $NEW_CONTENT_RESP"
+              GENERATED_CONTENT=""
             fi
 
-            sleep 30
+            if [ -n "$GENERATED_CONTENT" ]; then
+              echo -e "\n\n---\n\n$GENERATED_CONTENT" >> README.md
+
+              git pull origin main --rebase || true
+              git add history.txt README.md archives/ 2>/dev/null || true
+              git commit -m "docs(ai): update modules & expand docs [$(date +'%H:%M:%S')]" || true
+              git push || echo "Push gagal, akan dicoba pada iterasi berikutnya."
+            fi
+
+            sleep 15
           done
