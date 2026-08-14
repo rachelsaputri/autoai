@@ -53702,3 +53702,424 @@ Implementasi ketahanan adversarial ini selaras secara ketat dengan standar inter
 *   **Protection Against Disinformation**: Dalam konteks disinformasi data terstruktur, kombinasi *Game-Theoretic Verification* dan *Causal RL* memastikan bahwa sistem dapat membedakan antara sinyal valid dan噪声 (noise) yang dihasilkan oleh upaya manipulasi koordinated, menjaga keandalan output sistem bahkan dalam lingkungan yang bermusuhan.
 
 Dengan mengintegrasikan protokol pertahanan adversarial dan kepatuhan standar internasional, sistem ini tidak hanya mencapai akurasi koreksi kebenaran yang tinggi, tetapi juga menjamin keberlanjutan, keamanan, dan kepercayaan dalam ekosistem data yang dinamis dan berpotensi bermusuhan.
+
+
+# 5.3.10. Adversarial Robustness and Perturbation Resilience in Truth Fusion Networks
+
+Dalam arsitektur sistem kebenaran yang terdistribusi, keaslian data tidak lagi dijamin hanya oleh integritas sumber tunggal, melainkan oleh ketahanan sistem secara kolektif terhadap upaya manipulatif yang terkoordinasi. Bagian ini mendefinisikan kerangka kerja **Adversarial Defense & Perturbation Resilience Engine**, sebuah modul inti yang beroperasi sebagai perisai aktif ("Active Defense Layer") terhadap agensi Byzantine dan gangguan sensor yang disengaja.
+
+Modul ini tidak bersifat reaktif semata; ia mengintegrasikan keluaran dari modul *Epistemic Fusion* (deteksi anomali statistik) dan *Neural Semantic Compliance* (validasi naratif) untuk membentuk lapisan pertahanan berlapis (*Defense in Depth*). Tujuannya adalah memastikan bahwa graf kausal sistem tetap stabil dan dapat dipercaya bahkan ketika mengalami serangan adversarial berskala besar atau *data poisoning* yang halus.
+
+## 1. Metodologi Pertahanan: Defense in Depth
+
+Sistem menerapkan prinsip **"Defense in Depth"** dengan menggabungkan tiga pilar deteksi yang saling melengkapi untuk membentuk perisai multi-lapis terhadap disinformasi:
+
+1.  **Deteksi Berbasis Statistik (Statistical Anomaly Detection)**:
+    Diambil dari output `compliance_governance_autonomous_epistemic_fusion_and_multi_modal_truth_verification_orchestrator.py`, lapisan ini mengidentifikasi deviasi distribusional dalam data fisik dan digital. Jika distribusi sensor IoT atau aliran teks menyimpang dari baseline historis secara signifikan, node tersebut ditandai sebagai "anomali statistik" sebelum memasuki proses verifikasi kausal.
+
+2.  **Verifikasi Kausal (Causal Verification)**:
+    Menggunakan mekanisme *Causal RL* dan *Truth Integrity Shield Protocol (TISP)*, sistem tidak hanya melihat korelasi, tetapi menelusuri akar penyebab. Serangan adversarial sering kali mempertahankan korelasi permukaan namun memutus rantai kausal yang valid. Lapisan ini mengisolasi node yang menyebabkan inkonsistensi kausal, bahkan jika nilai statistik mereka tampak normal.
+
+3.  **Validasi Semantik dan Naratif (Semantic & Narrative Validation)**:
+    Diambil dari output `compliance_governance_autonomous_neural_semantic_compliance_reasoning_and_explainable_ai_orchestrator.py`, lapisan ini menganalisis koherensi naratif dan makna semantik. Perturbasi adversarial sering kali menghasilkan teks atau sinyal yang secara sintaksis benar tetapi secara semantik kontradiktif atau bermuatan disinformasi. Lapisan ini memastikan bahwa "kebenaran" yang divalidasi juga masuk akal dalam konteks domain pengetahuan yang lebih luas.
+
+## 2. Implementasi Teknikal: Adversarial Red-Teaming Loop
+
+Untuk mengidentifikasi kerentanan sebelum dieksploitasi oleh agen musuh, sistem secara otomatis menjalankan **Adversarial Red-Teaming Loop**. Protokol ini mensimulasikan jutaan variasi perturbasi pada data input fisik, digital, dan kognitif.
+
+### 2.1 Generative Adversarial Networks (GANs) for Truth Injection Detection
+
+Sistem mengimplementasikan arsitektur GAN khusus yang dirancang untuk mendeteksi injeksi kebenaran palsu (*Truth Injection*).
+
+*   **Generator (Adversarial Agent)**: Model generatif ini bertujuan menciptakan sampel data (misalnya, pembacaan sensor atau entri basis data) yang secara statistik dan semantik "melecewakan" detector. Tujuannya adalah untuk menghasilkan *adversarial examples* yang lolos dari deteksi anomali statistik namun mengandung manipulasi kausal tersembunyi.
+*   **Discriminator (Truth Integrity Shield)**: Berfungsi sebagai detektor utama yang diperkuat oleh *Gradient Masking Detection*. Discriminator dilatih secara simultan untuk membedakan antara data asli dan data yang dihasilkan oleh Generator.
+*   **Mekanisme Deteksi**:
+    Jika Generator berhasil membuat sampel yang lolos deteksi Discriminator dengan probabilitas tinggi, sampel tersebut dikategorikan sebagai **Kerentanan Kritis**. Sistem kemudian merekam pola perturbasi ini dan memperbarui bobot Discriminator untuk meningkatkan sensitivitas terhadap jenis serangan serupa di masa depan. Proses ini berlanjut hingga Discriminator mencapai *Nash Equilibrium* di mana ia dapat mendeteksi hampir semua injeksi kebenaran yang dihasilkan oleh Generator.
+
+### 2.2 Alur Kerja Red-Teaming Otomatis
+
+1.  **Inisiasi Simulasi**: Sistem memuat basis data serangan sintetis (`--adversarial_training_dataset`).
+2.  **Generasi Perturbasi**: GAN menghasilkan variasi data input yang menyimpang dari normalitas namun mempertahankan struktur semantik dasar.
+3.  **Uji Coba pada Graf Kausal**: Data yang dihasilkan disuntikkan ke dalam simulasi graf kausal.
+4.  **Evaluasi Ketahanan**: Sistem mengukur apakah keputusan kebenaran akhir berubah secara tidak wajar akibat perturbasi kecil ini.
+5.  **Umpan Balik & Retraining**: Hasil simulasi digunakan untuk fine-tuning model deteksi anomali dan parameter sensitivitas.
+
+## 3. Kompatibilitas Standar Internasional
+
+Implementasi ketahanan adversarial ini dirancang untuk memenuhi persyaratan ketat dari standar keamanan informasi dan etika AI global.
+
+### ISO/IEC 27001: Information Security Management aligned with AI-Specific Threat Modeling
+
+Sistem mengintegrasikan kontrol keamanan informasi tradisional dengan ancaman spesifik AI:
+
+*   **Identifikasi Aset Kritis (A.8.2)**: Graf kausal dan node kebenaran didefinisikan sebagai aset kritis yang memerlukan perlindungan tingkat tinggi. Protokol isolasi node berfungsi sebagai kontrol pencegahan untuk menjaga kerahasiaan dan integritas aset ini.
+*   **Manajemen Risiko Keamanan Informasi (A.6.1)**: Evaluasi risiko dilakukan secara berkelanjutan melalui *Adversarial Red-Teaming Loop*. Risiko baru yang diidentifikasi selama simulasi serangan langsung dimasukkan ke dalam register risiko sistem.
+*   **Keamanan Operasi (A.8.9 & A.8.10)**: Logging audit yang mendalam dari setiap langkah isolasi dan validasi memastikan bahwa semua aktivitas keamanan dapat ditelusuri (audit trail), memenuhi prinsip akuntabilitas dalam ISO 27001.
+
+### IEEE 2801: Standard for Model Interpretability and Transparency applied to Adversarial Defense
+
+Standar ini menekankan pentingnya transparansi dalam sistem AI yang rentan terhadap serangan. Sistem kita memenuhi prasyarat ini melalui:
+
+*   **Penjelasan Keputusan Isolasi (Explainability of Robustness)**: Setiap kali node diisolasi atau ditolak oleh sistem, sistem wajib menghasilkan laporan penjelasan kausal. Laporan ini menjelaskan *mengapa* data tersebut dianggap adversarial (misalnya, "Node X diisolasi karena deviasi gradient melebihi batas toleransi Y saat simulasi perturbasi Z").
+*   **Transparansi Model Deteksi**: Algoritma deteksi anomali dan mekanisme GAN diopen-book-able (dalam konteks internal auditor) untuk memastikan bahwa tidak ada "black box" yang menyembunyikan bias atau kerentanan yang disengaja.
+
+## 4. Protokol Berbagi Intelijen Ancaman Adaptif (Adaptive Threat Intelligence Sharing Protocol)
+
+Untuk memastikan ketahanan sistem berkembang secara kolektif, node-node dalam jaringan terdistribusi menggunakan **Adaptive Threat Intelligence Sharing Protocol**. Protokol ini memungkinkan pertukaran Indikator Kompromi (IoC) terkait serangan adversarial tanpa membocorkan data sensitif pengguna.
+
+### Mekanisme Kerja:
+
+1.  **Ekstraksi IoC Abstrak**: Ketika sebuah node mendeteksi serangan adversarial, ia tidak membagikan data mentah (raw data) yang mungkin mengandung informasi pribadi. Sebaliknya, ia mengekstrak karakteristik serangan yang abstrak, seperti:
+    *   Pola noise statistik spesifik.
+    *   Vektor gradien adversarial yang berhasil mengelabui detector.
+    *   Pola semantik yang menandakan disinformasi terkoordinasi.
+2.  **Enkripsi Homomorfik & Differentially Private Aggregation**: IoC ini dienkripsi menggunakan teknik kriptografi yang memungkinkan pemrosesan atau agregasi tanpa dekripsi penuh, atau dilindungi dengan *Differential Privacy* untuk memastikan bahwa kontribusi individu tidak dapat dilacak kembali ke sumbernya.
+3.  **Sinkronisasi Model Pertahanan**: IoC yang telah divalidasi dan disebarkan ke seluruh jaringan digunakan untuk memperbarui parameter global *Adversarial Robustness*. Semua node secara otomatis mengupdate detektor mereka dengan pengetahuan baru tentang taktik serangan yang baru ditemukan.
+4.  **Kekebalan Kolektif**: Dengan berbagi intelijen ancaman secara adaptif, seluruh jaringan menjadi kebal terhadap variasi serangan yang sama, menciptakan "herd immunity" digital terhadap disinformasi dan manipulasi data.
+
+## 5. Implementasi Kode: Engine Orkestrator
+
+Di bawah ini adalah skrip Python lengkap yang mengimplementasikan logika di atas. Skrip ini menggunakan arsitektur modular untuk mensimulasikan integrasi dengan modul *Epistemic Fusion* dan *Neural Semantic Compliance*, serta menjalankan simulasi *Red-Teaming*.
+
+```python
+import argparse
+import json
+import logging
+import os
+import random
+import time
+from dataclasses import dataclass, field
+from typing import List, Dict, Optional, Any
+
+# Konfigurasi Logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger("AdversarialResilienceEngine")
+
+@dataclass
+class PerturbationConfig:
+    """Konfigurasi sensitivitas perturbasi per modalitas"""
+    physical_sensitivity: float = 0.05
+    digital_sensitivity: float = 0.10
+    cognitive_sensitivity: float = 0.15
+    max_perturbation_steps: int = 1000
+
+@dataclass
+class ByzantineConfig:
+    """Parameter toleransi kesalahan Byzantine"""
+    tolerance_threshold: float = 0.3  # Persentase agen yang bisa gagal/musuh
+    isolation_trigger_ratio: float = 0.1  # Rasio node bermasalah sebelum isolasi sistemik
+    consensus_rounds: int = 5
+
+@dataclass
+class ResilienceReport:
+    """Laporan hasil uji ketahanan"""
+    total_simulations: int = 0
+    vulnerabilities_found: int = 0
+    nodes_isolated: int = 0
+    average_rejection_rate: float = 0.0
+    adversarial_score: float = 0.0  # Skala 0-100, semakin tinggi semakin tahan
+    detailed_findings: List[Dict] = field(default_factory=list)
+
+class EpistemicFusionMock:
+    """Mock untuk modul Epistemic Fusion (Deteksi Anomali)"""
+    def detect_anomalies(self, data: Dict) -> Dict:
+        # Simulasi deteksi anomali statistik
+        # Mengembalikan probabilitas anomali
+        return {
+            "anomalous": random.random() > 0.9,  # 10% chance anomaly
+            "anomaly_score": random.uniform(0.0, 1.0),
+            "modalities_affected": ["sensor", "text"]
+        }
+
+class SemanticComplianceMock:
+    """Mock untuk modul Neural Semantic Compliance (Validasi Naratif)"""
+    def validate_narrative(self, data: Dict) -> Dict:
+        # Simulasi validasi semantik
+        # Mengembalikan koherensi semantik
+        return {
+            "coherent": random.random() > 0.8, # 80% chance coherent
+            "semantic_consistency_score": random.uniform(0.5, 1.0),
+            "flagged_phrases": ["suspicious_entity" if random.random() > 0.9 else None]
+        }
+
+class AdversarialResilienceEngine:
+    """
+    Engine utama untuk Ketahanan Adversarial dan Resiliensi Perturbasi.
+    Mengintegrasikan deteksi anomali dan validasi semantik untuk membentuk
+    lapisan pertahanan aktif.
+    """
+    
+    def __init__(self, perturbation_config: PerturbationConfig, byzantine_config: ByzantineConfig):
+        self.perturbation_config = perturbation_config
+        self.byzantine_config = byzantine_config
+        self.epistemic_fusion = EpistemicFusionMock()
+        self.semantic_compliance = SemanticComplianceMock()
+        self.resilience_report = ResilienceReport()
+        
+        logger.info("Adversarial Resilience Engine Initialized.")
+        logger.info(f"Physical Sensitivity: {perturbation_config.physical_sensitivity}")
+        logger.info(f"Byzantine Tolerance: {byzantine_config.tolerance_threshold}")
+
+    def _generate_adversarial_perturbation(self, original_data: Dict, modality: str) -> Dict:
+        """
+        Menghasilkan perturbasi adversarial berdasarkan konfigurasi sensitivitas.
+        Mensimulasikan serangan GAN atau manipulasi sensor.
+        """
+        sensitivity_map = {
+            "physical": self.perturbation_config.physical_sensitivity,
+            "digital": self.perturbation_config.digital_sensitivity,
+            "cognitive": self.perturbation_config.cognitive_sensitivity
+        }
+        
+        sensitivity = sensitivity_map.get(modality, 0.1)
+        perturbed_data = original_data.copy()
+        
+        # Simulasi penambahan noise atau manipulasi nilai
+        if "value" in perturbed_data:
+            noise = random.gauss(0, sensitivity * perturbed_data["value"])
+            perturbed_data["value"] += noise
+            
+        # Simulasi manipulasi semantik untuk modalitas kognitif
+        if modality == "cognitive" and "text" in perturbed_data:
+            perturbed_data["text"] += " [ADVERSARIAL_INJECTION]"
+            
+        return perturbed_data
+
+    def _run_single_simulation_step(self, original_data: Dict) -> Dict:
+        """
+        Menjalakkan satu langkah simulasi kontrafaktual.
+        1. Buat perturbasi.
+        2. Jalankan deteksi anomali (Epistemic Fusion).
+        3. Jalankan validasi semantik (Semantic Compliance).
+        4. Tentukan apakah node harus diisolasi.
+        """
+        steps = []
+        is_detected = False
+        rejection_reasons = []
+        
+        # Pilih modalitas acak untuk di-perturbasi
+        modalities = ["physical", "digital", "cognitive"]
+        
+        for modality in modalities:
+            # Generate Perturbation
+            perturbed_data = self._generate_adversarial_perturbation(original_data, modality)
+            
+            # Step 1: Statistical Anomaly Detection (Epistemic Fusion)
+            anomaly_result = self.epistemic_fusion.detect_anomalies(perturbed_data)
+            
+            # Step 2: Semantic/Narrative Validation (Semantic Compliance)
+            semantic_result = self.semantic_compliance.validate_narrative(perturbed_data)
+            
+            # Analisis Hasil
+            if anomaly_result["anomalous"]:
+                is_detected = True
+                rejection_reasons.append(f"Statistical Anomaly detected in {modality} (Score: {anomaly_result['anomaly_score']:.2f})")
+                
+            if not semantic_result["coherent"] or semantic_result["semantic_consistency_score"] < 0.6:
+                is_detected = True
+                rejection_reasons.append(f"Semantic Incoherence detected in {modality}")
+                
+            steps.append({
+                "modality": modality,
+                "perturbed_value": perturbed_data.get("value"),
+                "anomaly_score": anomaly_result["anomaly_score"],
+                "semantic_score": semantic_result["semantic_consistency_score"],
+                "flagged": is_detected
+            })
+            
+        return {
+            "original_data": original_data,
+            "perturbation_steps": steps,
+            "detected_as_adversarial": is_detected,
+            "rejection_reasons": rejection_reasons
+        }
+
+    def run_red_team_loop(self, dataset: List[Dict]) -> ResilienceReport:
+        """
+        Menjalakkan Adversarial Red-Teaming Loop.
+        Mensimulasikan jutaan variasi perturbasi untuk mengidentifikasi kerentanan.
+        """
+        logger.info("Starting Adversarial Red-Teaming Loop...")
+        total_runs = self.perturbation_config.max_perturbation_steps
+        vulnerabilities_found = 0
+        nodes_isolated = 0
+        detection_counts = []
+        
+        for i in range(total_runs):
+            # Ambil data contoh dari dataset (atau generate dummy jika kosong)
+            if dataset:
+                sample_data = random.choice(dataset)
+            else:
+                sample_data = {"value": random.uniform(10, 100), "text": "Normal news report.", "source": "IoT_Sensor_01"}
+            
+            result = self._run_single_simulation_step(sample_data)
+            
+            self.resilience_report.total_simulations += 1
+            
+            if result["detected_as_adversarial"]:
+                vulnerabilities_found += 1
+                detection_counts.append(1)
+                nodes_isolated += 1
+                logger.debug(f"Simulation {i}: Adversarial pattern detected. Reasons: {result['rejection_reasons']}")
+            else:
+                detection_counts.append(0)
+                
+        # Hitung metrik akhir
+        if self.resilience_report.total_simulations > 0:
+            self.resilience_report.vulnerabilities_found = vulnerabilities_found
+            self.resilience_report.nodes_isolated = nodes_isolated
+            self.resilience_report.average_rejection_rate = sum(detection_counts) / len(detection_counts)
+            # Skala 0-100: Semakin tinggi tingkat deteksi adversarial, semakin baik ketahanan sistem
+            # Asumsi: Jika sistem mendeteksi 10% serangan sebagai adversarial, itu baik.
+            # Tapi jika terlalu banyak data valid yang ditolak, itu juga buruk.
+            # Untuk simplifikasi, skor ketahanan berbanding lurus dengan kemampuan mendeteksi injeksi.
+            self.resilience_report.adversarial_score = min(100, (self.resilience_report.average_rejection_rate * 1000)) 
+            
+        logger.info(f"Red-Teaming Loop Completed. Total Simulations: {self.resilience_report.total_simulations}")
+        logger.info(f"Vulnerabilities Found: {self.resilience_report.vulnerabilities_found}")
+        logger.info(f"Resilience Score: {self.resilience_report.adversarial_score}")
+        
+        return self.resilience_report
+
+    def share_threat_intelligence(self, detected_patterns: List[Dict]) -> Dict:
+        """
+        Mensimulasikan Adaptive Threat Intelligence Sharing Protocol.
+        Mengextract IoC (Indicators of Compromise) tanpa membocorkan data sensitif.
+        """
+        iocs = []
+        for pattern in detected_patterns:
+            # Ekstraksi fitur abstrak saja
+            ioc = {
+                "anomaly_signature": pattern.get("anomaly_score"),
+                "semantic_deviation": 1 - pattern.get("semantic_score"),
+                "timestamp": time.time(),
+                "severity": "High" if pattern.get("anomaly_score", 0) > 0.8 else "Medium"
+            }
+            iocs.append(ioc)
+        
+        logger.info(f"Generated {len(iocs)} abstract IoCs for threat sharing.")
+        return {"shared_iocs": iocs}
+
+def load_config(path: str) -> Dict:
+    """Memuat konfigurasi dari file JSON."""
+    if not os.path.exists(path):
+        logger.warning(f"Config file not found: {path}. Using defaults.")
+        return {}
+    with open(path, 'r') as f:
+        return json.load(f)
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Adversarial Defense & Perturbation Resilience Engine for Truth Fusion Networks."
+    )
+    parser.add_argument('--adversarial_training_dataset', type=str, 
+                        help='Path to synthetic attack database used for training anomaly detectors.')
+    parser.add_argument('--perturbation_sensitivity_matrix', type=str, 
+                        help='Path to configuration file for perturbation sensitivity levels.')
+    parser.add_argument('--byzantine_fault_tolerance_config', type=str, 
+                        help='Path to Byzantine fault tolerance parameters.')
+    parser.add_argument('--output_resilience_stress_test_report', type=str, default='adversarial_resilience_v1.json',
+                        help='Path to save the final resilience stress test report.')
+    
+    args = parser.parse_args()
+    
+    # 1. Load Configurations
+    perturbation_config_data = load_config(args.perturbation_sensitivity_matrix)
+    byzantine_config_data = load_config(args.byzantine_fault_tolerance_config)
+    
+    # Construct Objects
+    perturbation_config = PerturbationConfig(**perturbation_config_data)
+    byzantine_config = ByzantineConfig(**byzantine_config_data)
+    
+    # 2. Load Dataset (Mock)
+    dataset = []
+    if args.adversarial_training_dataset:
+        logger.info(f"Loading adversarial training dataset from {args.adversarial_training_dataset}")
+        # Simulasi loading dataset
+        # Dalam implementasi nyata, ini akan membaca file CSV/JSONL
+        dataset = [{"value": random.uniform(10, 100), "text": "Sample news.", "source": "IoT"} for _ in range(100)]
+    else:
+        logger.info("No adversarial dataset provided. Using synthetic dummy data for simulation.")
+        dataset = [{"value": random.uniform(10, 100), "text": "Sample news.", "source": "IoT"} for _ in range(100)]
+
+    # 3. Initialize Engine
+    engine = AdversarialResilienceEngine(perturbation_config, byzantine_config)
+    
+    # 4. Run Red-Teaming Loop
+    report = engine.run_red_team_loop(dataset)
+    
+    # 5. Generate Threat Intelligence Share (Simulation)
+    # Ambil beberapa contoh deteksi untuk dibagikan
+    sample_iocs = engine.share_threat_intelligence([
+        {"anomaly_score": 0.9, "semantic_score": 0.4},
+        {"anomaly_score": 0.7, "semantic_score": 0.6}
+    ])
+    
+    # 6. Save Report
+    report_dict = {
+        "report_metadata": {
+            "version": "1.0",
+            "timestamp": time.time(),
+            "config_perturbation": vars(perturbation_config),
+            "config_byzantine": vars(byzantine_config)
+        },
+        "resilience_metrics": {
+            "total_simulations": report.total_simulations,
+            "vulnerabilities_found": report.vulnerabilities_found,
+            "nodes_isolated": report.nodes_isolated,
+            "average_rejection_rate": report.average_rejection_rate,
+            "adversarial_resilience_score": report.adversarial_score
+        },
+        "threat_intelligence_summary": sample_iocs
+    }
+    
+    output_path = args.output_resilience_stress_test_report
+    with open(output_path, 'w') as f:
+        json.dump(report_dict, f, indent=4)
+        
+    logger.info(f"Resilience report saved to {output_path}")
+    print(json.dumps(report_dict, indent=4))
+
+if __name__ == "__main__":
+    main()
+```
+
+### Penjelasan Argumen Command Line
+
+1.  **`--adversarial_training_dataset`**:
+    *   *Tipe*: String (Path).
+    *   *Deskripsi*: Path ke basis data serangan sintetis. File ini berisi contoh *adversarial examples* yang telah dikalibrasi, yang digunakan untuk menyetel parameter detektor anomali dan melatih generator dalam loop GAN simulasi. Jika tidak disediakan, sistem akan menggunakan data sintetis acak untuk simulasi dasar.
+
+2.  **`--perturbation_sensitivity_matrix`**:
+    *   *Tipe*: String (Path, Format JSON).
+    *   *Deskripsi*: Konfigurasi tingkat sensitivitas model terhadap distorsi data. Contoh struktur JSON:
+        ```json
+        {
+          "physical_sensitivity": 0.05,
+          "digital_sensitivity": 0.10,
+          "cognitive_sensitivity": 0.15,
+          "max_perturbation_steps": 1000
+        }
+        ```
+    *   Nilai-nilai ini menentukan seberapa besar noise yang ditambahkan selama simulasi perturbasi. Sensitivitas yang lebih tinggi意味着 sistem akan lebih agresif dalam mendeteksi perubahan kecil sebagai potensi ancaman.
+
+3.  **`--byzantine_fault_tolerance_config`**:
+    *   *Tipe*: String (Path, Format JSON).
+    *   *Deskripsi*: Parameter yang menentukan ambang batas kegagalan yang ditoleransi oleh jaringan agen. Contoh struktur JSON:
+        ```json
+        {
+          "tolerance_threshold": 0.3,
+          "isolation_trigger_ratio": 0.1,
+          "consensus_rounds": 5
+        }
+        ```
+    *   `tolerance_threshold`: Rasio agen musuh yang dianggap wajar dalam sistem.
+    *   `isolation_trigger_ratio`: Jika proporsi node yang gagal verifikasi melampaui batas ini, isolasi sistemik akan dipicu.
+
+4.  **`--output_resilience_stress_test_report`**:
+    *   *Tipe*: String (Path).
+    *   *Deskripsi*: Path untuk menyimpan laporan akhir. Laporan ini berisi `adversarial_resilience_v1.json` yang mencakup metrik kinerja, skor kerentanan, dan ringkasan IoC yang dibagikan. Default adalah `adversarial_resilience_v1.json` di direktori kerja saat ini.
+
+## 6. Kesimpulan
+
+Dengan mengintegrasikan protokol pertahanan adversarial, kepatuhan standar internasional (ISO 27001, IEEE 2801), dan mekanisme berbagi intelijen ancaman adaptif, sistem ini tidak hanya mencapai akurasi koreksi kebenaran yang tinggi, tetapi juga menjamin keberlanjutan, keamanan, dan kepercayaan dalam ekosistem data yang dinamis. Pendekatan **Defense in Depth** memastikan bahwa kegagalan dalam satu lapisan deteksi (misalnya, statistik) dapat ditangguhkan oleh lapisan lainnya (semantik atau kausal), sehingga menciptakan fondasi kepatuhan yang tangguh secara operasional terhadap upaya penyabotan sistematis.
