@@ -84,3 +84,5 @@
 - Created/Updated module: `network_config_auditor` (See `network_config_auditor/README.md` for details)
 
 - Created/Updated module: `threat_3d_visualizer` (See `threat_3d_visualizer/README.md` for details)
+
+- Created/Updated module: `distributed_telemetry_mapper` (See `distributed_telemetry_mapper/README.md` for details)

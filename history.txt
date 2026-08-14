@@ -4311,3 +4311,50 @@ This looks solid.
 </think>
 
 Implement a grid-based telemetry correlation engine that processes distributed security signals across a cluster for real-time threat detection, constructing the solution STRICTLY using this exact programming language: X10, mandating the implementation be placed in a NEW dedicated folder populated with X10 source files and a comprehensive local README.md detailing the distributed runtime models, message passing semantics, and integration interfaces with the existing anomaly detector and response orchestrator.
+[2026-08-14 22:48:55] (Target Lang: MAPPER) Thinking Process:
+
+1.  **Analyze the Request:**
+    *   Goal: Generate exactly 1 logical follow-up instruction.
+    *   Constraint 1: The new tool MUST be built STRICTLY using the programming language: MAPPER.
+    *   Constraint 2: If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md.
+    *   Constraint 3: Return ONLY the instruction text.
+    *   Constraint 4: NEVER target the `.github` directory.
+    *   Context: The user provides a workspace listing with various tools (web scraper, anomaly detector, response orchestrator, etc.). The previous prompt (in History) asked for an X10 grid-based telemetry correlation engine. The current instruction is the next step.
+
+2.  **Determine the "Logical Follow-up":**
+    *   Previous context: "grid-based telemetry correlation engine... integration interfaces with the existing anomaly detector and response orchestrator."
+    *   Current language: MAPPER.
+    *   What is MAPPER? MAPPER is often associated with data flow, parallel processing, or specific domain-specific languages. In the context of the workspace (security tools, telemetry, clustering), a "Mapper" could imply a tool that maps data, processes parallel streams, or defines a mapping strategy for the distributed system.
+    *   Potential Ideas:
+        *   A tool that maps anomaly scores to remediation actions (links anomaly detector to response orchestrator).
+        *   A tool that maps telemetry data fields to a unified schema (links to correlation engine).
+        *   A distributed mapping service.
+    *   Selection: A "Distributed Telemetry Data Mapper" fits well. It bridges the gap between the correlation engine (which processes signals) and the downstream consumers or storage. It can handle the "mapping" logic required for the grid-based engine's outputs.
+
+3.  **Drafting the Instruction:**
+    *   *Subject:* Distributed Telemetry Data Mapper.
+    *   *Function:* Transforms and normalizes raw telemetry streams into a standardized schema for the correlation engine, handling high-throughput parallel ingestion across the cluster nodes.
+    *   *Language:* STRICTLY using this exact programming language: MAPPER.
+    *   *Location:* NEW dedicated folder.
+    *   *Documentation:* Comprehensive local README.md.
+    *   *Content of README:* Data transformation pipelines, schema versioning, parallel execution strategies, and integration points with the X10 correlation engine and the Python-based anomaly detector.
+
+4.  **Refining the Text (matching the style):**
+    *   *Style Check:* "Implement a [Tool Name] that [Description], constructing the solution STRICTLY using [Language], mandating..."
+    *   *Draft:* Implement a distributed telemetry data mapper that normalizes and routes high-throughput security signals into a unified schema for the cluster-wide correlation engine, constructing the solution STRICTLY using this exact programming language: MAPPER, mandating the implementation be placed in a NEW dedicated folder populated with MAPPER source files and a comprehensive local README.md detailing the data transformation pipelines, schema versioning protocols, parallel execution strategies, and integration interfaces with the X10 correlation engine and the existing Python-based anomaly detector.
+
+5.  **Final Verification:**
+    *   *Logical Follow-up?* Yes, data mapping precedes or feeds the correlation engine.
+    *   *STRICTLY using MAPPER?* Yes.
+    *   *NEW dedicated folder?* Yes.
+    *   *README.md?* Yes.
+    *   *ONLY instruction text?* Yes.
+    *   *No .github?* Yes.
+
+6.  **Final Polish:**
+    *   "Implement a distributed telemetry data mapper that normalizes and routes high-throughput security signals into a unified schema for the cluster-wide correlation engine, constructing the solution STRICTLY using this exact programming language: MAPPER, mandating the implementation be placed in a NEW dedicated folder populated with MAPPER source files and a comprehensive local README.md detailing the data transformation pipelines, schema versioning protocols, parallel execution strategies, and integration interfaces with the X10 correlation engine and the existing Python-based anomaly detector."
+
+This looks solid.
+</think>
+
+Implement a distributed telemetry data mapper that normalizes and routes high-throughput security signals into a unified schema for the cluster-wide correlation engine, constructing the solution STRICTLY using this exact programming language: MAPPER, mandating the implementation be placed in a NEW dedicated folder populated with MAPPER source files and a comprehensive local README.md detailing the data transformation pipelines, schema versioning protocols, parallel execution strategies, and integration interfaces with the X10 correlation engine and the existing Python-based anomaly detector.
