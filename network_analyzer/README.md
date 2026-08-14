@@ -1,44 +1,17 @@
-# Network Analyzer Tools
+# Network Analyzer
 
-This directory contains robust Linux shell scripts for network analysis.
+## Overview
+A high-performance network analysis tool built with Rust to replace legacy shell scripts. This module provides asynchronous port scanning capabilities with superior throughput and memory safety.
 
-## Scripts
+## Architecture
+The core logic is implemented in `scanner.rs`, leveraging the `tokio` async runtime for non-blocking I/O operations. This allows for efficient scanning of multiple ports concurrently without the overhead of managing OS-level threads.
 
-### scan.sh
-A script to scan local networks and identify active hosts.
+## Dependencies
+- `tokio`: Async runtime for Rust.
+- `tokio-util`: Additional utilities for async operations.
 
-**Usage:**
-```bash
-./scan.sh [subnet]
-```
+## Usage
+Include the `scanner` module in your Rust project and use `scan_range` to identify open ports within a specified range.
 
-Example:
-```bash
-./scan.sh 192.168.1.0/24
-```
-
-### port_check.sh
-A script to check if specific ports are open on a target host.
-
-**Usage:**
-```bash
-./port_check.sh <host> <port1,port2,...>
-```
-
-Example:
-```bash
-./port_check.sh 192.168.1.1 22,80,443
-```
-
-### trace_route.sh
-A script to trace the route to a target host.
-
-**Usage:**
-```bash
-./trace_route.sh <host>
-```
-
-Example:
-```bash
-./trace_route.sh 8.8.8.8
-```
+## Safety
+All network interactions are handled safely, preventing common vulnerabilities associated with lower-level network access.

@@ -1,0 +1,11 @@
+[package]
+name = "network_analyzer"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1.28", features = ["full"] }
+
+[[bin]]
+name = "scanner"
+path = "scanner.rs"
