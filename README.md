@@ -57011,3 +57011,42 @@ Agar model kausal tetap relevan dengan dinamika dunia nyata, orkestrator menjala
 3.  **Sertifikasi Berkelanjutan:** Setiap validasi yang berhasil menghasilkan pembaruan pada `causal_robustness_cert_v1.json`, memastikan bahwa sertifikat kepatuhan tidak hanya statis, tetapi berevolusi seiring dengan kompleksitas lingkungan operasi.
 
 Dengan integrasi **Causal-Counterfactual Regulatory Robustness**, sistem ini tidak hanya membuktikan bahwa AI beroperasi dalam batas probabilistik, tetapi juga membuktikan bahwa kepatuhan tersebut *robust* terhadap intervensi kebijakan, *fair* dari bias konfonding, dan *accountable* melalui jejak kausal yang transparan. Ini menciptakan fondasi kepatuhan yang siap menghadapi kompleksitas sistem sosial-teknis dengan presisi analitik tertinggi, membedakan secara tegas antara kebetulan statistik dan tanggung jawab etika.
+
+
+##### 6. Topological Data Analysis for Robust Causal Graph Validation
+
+Untuk mengatasi keterbatasan metode statistik konvensional dalam mendeteksi struktur kausal non-linear dan robust terhadap noise, implementasi modul ini mengintegrasikan **Topological Data Analysis (TDA)**, khususnya melalui *Persistent Homology*. Pendekatan ini memvalidasi integritas struktural grafik kausal dengan menganalisis "bentuk" ruang data, mendeteksi anomali topologis seperti komponen terputus yang tidak terduga atau siklus (loop) yang melanggar asumsi Directed Acyclic Graph (DAG), yang sering kali luput dari deteksi korelasi standar.
+
+**Argumen Teknis Tambahan:**
+
+*   **`--persistence_diagram_params` (String):** Path ke file konfigurasi YAML yang mendefinisikan parameter filtrasi dan fungsi persistensi. Parameter ini mengatur bagaimana fitur topologis (seperti komponen terhubung, lubang, dan rongga) diekstrak dan diukur tingkat keberlangsungannya (*lifetime*) seiring dengan perubahan skala data.
+*   **`--topological_filtration_complex` (String):** Path ke file definisi kompleks simplicial yang digunakan untuk membangun representasi topologis dari data. Pilihan umum mencakup **Vietoris-Rips Complex** untuk efisiensi komputasi pada ruang berdimensi tinggi atau **Cech Complex** untuk presisi geometri yang lebih tinggi. Kompleks ini menentukan bagaimana titik-titik data saling terhubung untuk membentuk struktur simpleks.
+*   **`--betti_number_thresholds` (String):** Path ke file vektor numerik yang menentukan ambang batas untuk Angka Betti ($eta_0, eta_1, \dots$).
+    *   $eta_0$ (Komponen Terhubung): Harusnya bernilai 1 untuk graf yang terhubung secara kausal; deviasi menunjukkan terputusnya alur sebab-akibat.
+    *   $eta_1$ (Siklus/Lubang): Idealnya bernilai 0 untuk struktur DAG murni; nilai $>0$ mendeteksi adanya siklus implisit atau konflik kausal yang melanggar asumsi asiklik, yang mengindikasikan kesalahan pemodelan atau adanya feedback loop yang tidak termodelkan.
+*   **`--output_topological_audit_report` (String):** Path file keluaran untuk laporan audit topologis (`topological_causal_audit_v1.json`). File ini berisi diagram persistensi, skor stabilitas struktur kausal, dan indikator deteksi anomali topologis yang memberikan lapisan verifikasi geometris di atas verifikasi probabilistik.
+
+###### 6.1 Metodologi: Topological Data Analysis in High-Dimensional Causal Inference
+
+Modul ini menerapkan prinsip **"Topological Integrity of Truth"**. Dalam kerangka ini, kebenaran kausal tidak hanya dinilai berdasarkan validitas statistik atau probabilitas kondisional, tetapi juga berdasarkan ketahanan geometris (*geometric robustness*) terhadap deformasi data.
+
+*   **Deteksi Anomali Struktural:** Dengan menggunakan *Persistent Homology*, sistem mengubah data observasi menjadi kompleks simplicial. Fitur topologis yang bertahan lama (*high persistence*) dianggap sebagai sinyal kausal yang kuat, sementara fitur dengan *lifetime* singkat diinterpretasikan sebagai noise atau artefak sampling. Ini memungkinkan pemisahan yang lebih tajam antara struktur kausal fundamental dan fluktuasi acak dibandingkan metode berbasis korelasi Pearson atau Spearman.
+*   **Topological Invariant Verification for Causal Invariance:** Prosedur ini memastikan bahwa struktur sebab-akibat inti tetap stabil terhadap transformasi nonlinear dari data input. Dengan memverifikasi invarian topologis (seperti grup homologi), sistem menjamin bahwa kesimpulan kausal tidak berubah meskipun data mengalami skala, rotasi, atau distorsi nonlinear non-informatif. Ini mencegah distorsi kausal yang muncul akibat perubahan distribusi input yang tidak relevan secara kausal (*nuisance parameters*).
+
+###### 6.2 Protokol Adaptif: Dynamic Topological Mesh Refinement Protocol
+
+Untuk mengoptimalkan biaya komputasi dan meningkatkan presisi pada area kritis, sistem mengimplementasikan protokol **Dynamic Topological Mesh Refinement**:
+
+1.  **Koalesensi Awal:** Analisis topologis dimulai dengan resolusi grid kasar pada seluruh ruang fitur.
+2.  **Deteksi Ketidakstabilan:** Area graf kausal yang menunjukkan fluktuasi tinggi pada diagram persistensi (misalnya, kelahiran dan kematian fitur topologis yang berdekatan dalam skala filtrasi) diidentifikasi sebagai wilayah "rawan".
+3.  **Refinemen Lokal:** Resolusi analisis topologis ditingkatkan secara adaptif hanya pada wilayah berisiko tinggi tersebut menggunakan kompleks simplicial yang lebih padat. Wilayah yang stabil secara topologis dibiarkan dengan resolusi rendah.
+4.  **Sinkronisasi:** Hasil refinemen disinkronkan dengan pembaruan DAG utama, memastikan bahwa struktur kausal yang divalidasi adalah representasi yang paling akurat dan efisien secara komputasi.
+
+Dengan integrasi TDA, sistem ini menciptakan fondasi kepatuhan yang **invariant secara topologis**. Hal ini menjamin bahwa keputusan regulatorik yang diambil oleh AI tidak hanya akurat secara statistik, tetapi juga andal terhadap variasi data di dunia nyata yang sering kali berisik, non-stasioner, dan terdistorsi.
+
+###### 6.3 Standar dan Kerangka Acuoan yang Diperluas
+
+Implementasi ini melampaui standar umum dengan mengadopsi pedoman terkini dalam analisis data topologis:
+
+*   **ISO/IEC 24029 (Trustworthy AI) aligned with TDA:** Standar ini menekankan *Robustness*. Integrasi TDA memberikan bukti forensik bahwa model AI mempertahankan integritas strukturalnya meskipun ada gangguan input, memenuhi persyaratan keandalan untuk sistem AI kritis.
+*   **Nature Machine Intelligence Guidelines on Interpretable AI using Topological Methods:** Mengikuti best practices dalam penggunaan *persistent homology* untuk interpretabilitas, sistem ini menyediakan visualisasi dan metrik (seperti *Betti curves* dan *landscape diagrams*) yang memungkinkan auditor manusia untuk memahami "bentuk" kausalitas di balik keputusan AI, meningkatkan transparansi (*Transparency*) dan keterpercayaan (*Trustworthiness*).
