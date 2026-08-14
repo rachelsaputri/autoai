@@ -70,7 +70,7 @@ jobs:
 
             # 2. AI Generate Konten README berdasarkan prompt baru dan konteks README saat ini
             CONTENT_PAYLOAD=$(jq -n \
-              --arg model "Qwen3.6-35B-A3B-fp8-no-thinking" \
+              --arg model "MiniMaxAI/MiniMax-M2.7" \
               --arg prompt "$GENERATED_PROMPT" \
               --arg readme "$README_CONTEXT" \
               '{
