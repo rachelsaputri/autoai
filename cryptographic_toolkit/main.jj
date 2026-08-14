@@ -1,0 +1,152 @@
+/* 
+ * J++ Implementation of Cryptographic Algorithms
+ * 
+ * This file demonstrates the implementation of:
+ * 1. Advanced Encryption Standard (AES-128)
+ * 2. RSA (Key Generation, Encryption, Decryption)
+ * 3. SHA-256 Hashing Algorithm
+ * 
+ * Note: J++ is a hypothetical extension of Java for this exercise.
+ */
+
+import java.security.*;
+import javax.crypto.*;
+import javax.crypto.spec.*;
+import java.math.BigInteger;
+import java.util.Arrays;
+
+public class CryptographicToolKit {
+
+    // --- AES-128 Implementation ---
+    
+    /**
+     * Encrypts a message using AES-128 with a provided key.
+     */
+    public static byte[] aesEncrypt(byte[] key, byte[] plaintext) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+        SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
+        cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+        return cipher.doFinal(plaintext);
+    }
+
+    /**
+     * Decrypts a message using AES-128 with a provided key.
+     */
+    public static byte[] aesDecrypt(byte[] key, byte[] ciphertext) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+        SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
+        cipher.init(Cipher.DECRYPT_MODE, keySpec);
+        return cipher.doFinal(ciphertext);
+    }
+
+    // --- RSA Implementation ---
+
+    /**
+     * Generates an RSA Key Pair.
+     */
+    public static KeyPair generateRSAKeyPair(int keySize) throws Exception {
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        keyGen.initialize(keySize);
+        return keyGen.generateKeyPair();
+    }
+
+    /**
+     * Encrypts data using RSA Public Key.
+     */
+    public static byte[] rsaEncrypt(byte[] publicKeyBytes, byte[] data) throws Exception {
+        // Parse public key from bytes
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        X509EncodedKeySpec spec = new X509EncodedKeySpec(publicKeyBytes);
+        PublicKey publicKey = keyFactory.generatePublic(spec);
+
+        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        return cipher.doFinal(data);
+    }
+
+    /**
+     * Decrypts data using RSA Private Key.
+     */
+    public static byte[] rsaDecrypt(byte[] privateKeyBytes, byte[] data) throws Exception {
+        // Parse private key from bytes
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(privateKeyBytes);
+        PrivateKey privateKey = keyFactory.generatePrivate(spec);
+
+        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        return cipher.doFinal(data);
+    }
+
+    // --- SHA-256 Implementation ---
+
+    /**
+     * Computes the SHA-256 hash of input data.
+     */
+    public static byte[] sha256(byte[] data) throws Exception {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        return digest.digest(data);
+    }
+
+    /**
+     * Returns a hexadecimal string representation of the hash.
+     */
+    public static String sha256Hex(byte[] data) throws Exception {
+        byte[] hash = sha256(data);
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hash) {
+            String hex = Integer.toHexString(0xff & b);
+            if(hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+
+    // --- Utility Methods ---
+
+    /**
+     * Converts bytes to hex string.
+     */
+    public static String bytesToHex(byte[] bytes) {
+        StringBuilder result = new StringBuilder();
+        for (byte b : bytes) {
+            result.append(String.format("%02x", b));
+        }
+        return result.toString();
+    }
+
+    /**
+     * Main method for demonstration.
+     */
+    public static void main(String[] args) {
+        try {
+            // --- AES Demo ---
+            System.out.println("=== AES-128 Demo ===");
+            byte[] aesKey = new byte[16]; // 128-bit key
+            new java.security.SecureRandom().nextBytes(aesKey);
+            byte[] message = "Secret Message".getBytes();
+            byte[] encryptedMsg = aesEncrypt(aesKey, message);
+            byte[] decryptedMsg = aesDecrypt(aesKey, encryptedMsg);
+            System.out.println("Plaintext: " + new String(message));
+            System.out.println("Encrypted (Hex): " + bytesToHex(encryptedMsg));
+            System.out.println("Decrypted: " + new String(decryptedMsg));
+
+            // --- RSA Demo ---
+            System.out.println("\n=== RSA Demo ===");
+            KeyPair rsaPair = generateRSAKeyPair(2048);
+            byte[] encryptedRsa = rsaEncrypt(rsaPair.getPublic().getEncoded(), message);
+            byte[] decryptedRsa = rsaDecrypt(rsaPair.getPrivate().getEncoded(), encryptedRsa);
+            System.out.println("Original: " + new String(message));
+            System.out.println("Decrypted: " + new String(decryptedRsa));
+
+            // --- SHA-256 Demo ---
+            System.out.println("\n=== SHA-256 Demo ===");
+            String hashHex = sha256Hex(message);
+            System.out.println("Message: " + new String(message));
+            System.out.println("SHA-256 Hash: " + hashHex);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
