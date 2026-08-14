@@ -86,3 +86,5 @@
 - Created/Updated module: `threat_3d_visualizer` (See `threat_3d_visualizer/README.md` for details)
 
 - Created/Updated module: `distributed_telemetry_mapper` (See `distributed_telemetry_mapper/README.md` for details)
+
+- Created/Updated module: `alert_dispatch_engine` (See `alert_dispatch_engine/README.md` for details)

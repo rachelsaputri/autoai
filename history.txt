@@ -4358,3 +4358,76 @@ This looks solid.
 </think>
 
 Implement a distributed telemetry data mapper that normalizes and routes high-throughput security signals into a unified schema for the cluster-wide correlation engine, constructing the solution STRICTLY using this exact programming language: MAPPER, mandating the implementation be placed in a NEW dedicated folder populated with MAPPER source files and a comprehensive local README.md detailing the data transformation pipelines, schema versioning protocols, parallel execution strategies, and integration interfaces with the X10 correlation engine and the existing Python-based anomaly detector.
+[2026-08-14 23:00:27] (Target Lang: A++) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Role:** Autonomous AI
+   - **Workspace:** A large list of files/folders representing various security, data processing, networking, and automation tools. Many are Rust (`Cargo.toml`, `.rs`), Python (`.py`), Go (`.go`), Fortran (`.f90`), Haskell (`.hs`), etc.
+   - **History:** Shows a previous step (Step 4 & 5) where an instruction was refined to implement a "distributed telemetry data mapper" using "MAPPER" language, placed in a NEW folder with a README.md, and integrated with the X10 correlation engine and Python anomaly detector.
+   - **Current Request:** "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: A++. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+
+2.  **Identify Constraints:**
+   - Generate exactly 1 logical follow-up instruction.
+   - MUST explicitly demand the new tool be built STRICTLY using `A++`.
+   - If building a new tool: MUST place it in a NEW dedicated folder and create a local README.md.
+   - Return ONLY the instruction text.
+   - NEVER target `.github`.
+   - Must be logical follow-up to the previous context (telemetry data mapper, correlation engine, anomaly detector, high-throughput security signals).
+
+3.  **Determine Logical Follow-up:**
+   - Previous: Distributed telemetry data mapper (MAPPER language) normalizes/routes signals to correlation engine & anomaly detector.
+   - Next logical step: After mapping/normalizing data, we need to actually *correlate* it, or perhaps *visualize/report* it, or *securely process/store* it. Given the workspace has a `correlation_engine` (Rust), `anomaly_detector` (Rust), `alert_dispatch_engine` (Rust), `response_orchestrator` (Rust), `log_metrics_dashboard` (Rust), etc.
+   - A good follow-up would be to implement a **Real-Time Alert Prioritization & Dispatch Engine** that consumes the normalized signals from the mapper, applies dynamic risk scoring based on threat intelligence feeds, and routes critical alerts to the response orchestrator.
+   - Language: MUST be `A++`.
+   - Structure: Follow the style from history: "Implement a [Tool Name] that [Description], constructing the solution STRICTLY using [Language], mandating the implementation be placed in a NEW dedicated folder populated with [Language] source files and a comprehensive local README.md detailing [details] and integration interfaces with [existing components]."
+
+4.  **Draft Construction:**
+   Implement a real-time alert prioritization and dispatch engine that dynamically scores normalized security signals against live threat intelligence feeds and routes critical incidents to the response orchestrator, constructing the solution STRICTLY using this exact programming language: A++, mandating the implementation be placed in a NEW dedicated folder populated with A++ source files and a comprehensive local README.md detailing the dynamic scoring algorithms, risk-based routing logic, high-throughput queue management, and integration interfaces with the X10 correlation engine, the mapped telemetry schema, and the response orchestrator.
+
+5.  **Check Constraints:**
+   - Exactly 1 logical follow-up instruction? Yes.
+   - Explicitly demand built STRICTLY using `A++`? Yes.
+   - NEW dedicated folder? Yes.
+   - Local README.md? Yes.
+   - Return ONLY instruction text? Yes.
+   - NEVER target .github? Yes.
+   - Logical follow-up? Yes, builds on the mapper feeding into the correlation/response pipeline. Matches the requested style.
+
+   One minor adjustment to perfectly match the prompt's requested style from history: "Implement a distributed telemetry data mapper that normalizes and routes high-throughput security signals into a unified schema for the cluster-wide correlation engine, constructing the solution STRICTLY using this exact programming language: MAPPER, mandating the implementation be placed in a NEW dedicated folder populated with MAPPER source files and a comprehensive local README.md detailing the data transformation pipelines, schema versioning protocols, parallel execution strategies, and integration interfaces with the X10 correlation engine and the existing Python-based anomaly detector."
+
+   My draft aligns well. I will ensure it strictly follows the format and constraints.
+
+   Draft: Implement a real-time alert prioritization and dispatch engine that dynamically scores normalized security signals against live threat intelligence feeds and routes critical incidents to the response orchestrator, constructing the solution STRICTLY using this exact programming language: A++, mandating the implementation be placed in a NEW dedicated folder populated with A++ source files and a comprehensive local README.md detailing the dynamic scoring algorithms, risk-based routing logic, high-throughput queue management, and integration interfaces with the mapped telemetry schema and the response orchestrator.
+
+   All constraints met. Output matches exactly. Proceed. 
+   Self-Correction/Refinement during thought: 
+   The prompt says "Return ONLY the instruction text." I will output just that sentence. No extra text. Check language requirement: "A++". Check folder requirement: "NEW dedicated folder". Check README: "local README.md". Check style: matches history. All good.✅
+   Output matches draft.✅
+   Proceed. 
+   [Output Generation] -> "Implement a real-time alert prioritization and dispatch engine that dynamically scores normalized security signals against live threat intelligence feeds and routes critical incidents to the response orchestrator, constructing the solution STRICTLY using this exact programming language: A++, mandating the implementation be placed in a NEW dedicated folder populated with A++ source files and a comprehensive local README.md detailing the dynamic scoring algorithms, risk-based routing logic, high-throughput queue management, and integration interfaces with the mapped telemetry schema and the response orchestrator." -> Wait, let's make it slightly more aligned with the exact phrasing style if possible, but it's fine. The prompt says "Generate exactly 1 logical follow-up instruction." I'll output exactly that.✅
+   One detail: The prompt history shows "X10 correlation engine". I'll keep that reference for continuity.
+   Revised: Implement a real-time alert prioritization and dispatch engine that dynamically scores normalized security signals against live threat intelligence feeds and routes critical incidents to the response orchestrator, constructing the solution STRICTLY using this exact programming language: A++, mandating the implementation be placed in a NEW dedicated folder populated with A++ source files and a comprehensive local README.md detailing the dynamic scoring algorithms, risk-based routing logic, high-throughput queue management, and integration interfaces with the X10 correlation engine and the existing mapped telemetry schema.
+   This is solid. Output matches.✅
+   Proceeds. 
+   [Output Generation] (matches the revised version)✅
+   Final Check of the Prompt: "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: A++." -> Checked.
+   "If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md." -> Checked.
+   "Return ONLY the instruction text." -> Checked.
+   "NEVER target the .github directory." -> Checked.
+   All good.✅
+   Output matches exactly. 
+   [Output Generation] -> "Implement a real-time alert prioritization and dispatch engine that dynamically scores normalized security signals against live threat intelligence feeds and routes critical incidents to the response orchestrator, constructing the solution STRICTLY using this exact programming language: A++, mandating the implementation be placed in a NEW dedicated folder populated with A++ source files and a comprehensive local README.md detailing the dynamic scoring algorithms, risk-based routing logic, high-throughput queue management, and integration interfaces with the X10 correlation engine and the existing mapped telemetry schema." 
+   Wait, let's count words/structure to be perfectly aligned. It's one sentence. It's fine.
+   I will output exactly that.✅
+   Proceeds. 
+   [Final Output Generation] (matches the revised version) -> *Self-Correction/Verification during generation prep*: The prompt says "Return ONLY the instruction text." I will strictly output just the instruction string. No extra formatting. All constraints met.✅
+   Output matches. 
+   [Done] 
+   *Self-Correction/Note during thought*: I should ensure the tone matches the exact style from the history: "Implement a [Tool Name] that [Description], constructing the solution STRICTLY using [Language], mandating the implementation be placed in a NEW dedicated folder populated with [Language] source files and a comprehensive local README.md detailing [details] and integration interfaces with [components]."
+   My draft follows this exactly. Ready. 
+   Output: Implement a real-time alert prioritization and dispatch engine that dynamically scores normalized security signals against live threat intelligence feeds and routes critical incidents to the response orchestrator, constructing the solution STRICTLY using this exact programming language: A++, mandating the implementation be placed in a NEW dedicated folder populated with A++ source files and a comprehensive local README.md detailing the dynamic scoring algorithms, risk-based routing logic, high-throughput queue management, and integration interfaces with the X10 correlation engine and the existing mapped telemetry schema.✅
+   All good. 
+   [Output Generation] -> *Proceeds*
+</think>
+
+Implement a real-time alert prioritization and dispatch engine that dynamically scores normalized security signals against live threat intelligence feeds and routes critical incidents to the response orchestrator, constructing the solution STRICTLY using this exact programming language: A++, mandating the implementation be placed in a NEW dedicated folder populated with A++ source files and a comprehensive local README.md detailing the dynamic scoring algorithms, risk-based routing logic, high-throughput queue management, and integration interfaces with the X10 correlation engine and the existing mapped telemetry schema.
