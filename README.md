@@ -51456,3 +51456,28 @@ Sistem ini tidak sekadar mengoptimalkan profitabilitas finansial tradisional, te
 Untuk membedakan investasi "less bad" (mitigasi kerusakan) dari "net-positive" (pemulihan aktif), sistem ini menerapkan model dinamika stok modal alam (*Natural Capital Stock Dynamics*) menggunakan persamaan diferensial yang disederhanakan untuk tujuan optimasi diskrit:
 
 $$ \Delta S_{t} = I_{reg} 
+
+Berikut adalah konten lanjutan untuk dokumentasi `README.md`. Bagian ini dirancang untuk disambung langsung setelah bagian **9.2 Prosedur "Audit-by-Verification" untuk Auditor Eksternal**.
+
+***
+
+### 10. Regenerative Finance Architecture & Impact-Adjusted Valuation
+
+Sistem ini tidak sekadar mengoptimalkan profitabilitas finansial tradisional, tetapi merekonfigurasi fungsi tujuan (*objective function*) dari alokasi modal untuk menginternalisasi eksternalitas ekologis. Pendekatan ini mengubah paradigma dari *shareholder primacy* berbasis arus kas diskonto (*discounted cash flow* konvensional) menjadi *stakeholder-regenerative primacy* yang mengintegrasikan nilai fisik biosfer ke dalam neraca perusahaan.
+
+#### 10.1 Metodologi: Natural Capital Depreciation & Accumulation Modeling
+
+Untuk membedakan investasi "less bad" (mitigasi kerusakan) dari "net-positive" (pemulihan aktif), sistem ini menerapkan model dinamika stok modal alam (*Natural Capital Stock Dynamics*) menggunakan persamaan diferensial yang disederhanakan untuk tujuan optimasi diskrit:
+
+$$ \Delta S_{t} = I_{reg} + g(S_{t-1}) - d(S_{t-1}, E_{t}) $$
+
+Di mana:
+*   $S_{t}$: Stok modal alam pada periode $t$.
+*   $I_{reg}$: Input investasi regeneratif (misal: penanaman pohon, restorasi lahan basah).
+*   $g(S_{t-1})$: Laju pertumbuhan alami stok (regenerasi spontan), yang konveks terhadap $S$.
+*   $d(S_{t-1}, E_{t})$: Laju depresiasi akibat ekstraksi sumber daya ($E$), yang merupakan fungsi dari intensitas operasional.
+*   $\Delta S_{t} > 0$ menandakan pencapaian target *Net-Positive*.
+
+Sistem menghitung **Impact-Adjusted Net Present Value (iNPV)** untuk setiap proyek investasi $i$ dalam portofolio:
+
+$$ iNPV_{i} = \sum_{t=1}^{T} rac{(CF_{i,t} + \lambda 
