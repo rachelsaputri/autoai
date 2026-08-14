@@ -56151,3 +56151,44 @@ Untuk mengaktifkan fitur pembelajaran struktur kausal dan penemuan otomatis, tam
 *   `--structural_assumption_prior`: **(Required)** Path ke file JSON yang mendefinisikan prior struktural untuk pembelajaran graf. File ini berisi matriks probabilitas awal atau batasan topologi (misalnya: "Arah kausal tidak boleh membentuk siklus," atau "Variabel X hanya boleh mempengaruhi Y jika Z hadir"). Prior ini sangat krusial dalam kondisi sparsitas tinggi untuk mengurangi ruang pencarian dan meningkatkan akurasi penemuan kausal.
 *   `--interpretability_threshold`: **(Float, Default: 0.05)** Ambang batas signifikansi statistik (p-value) di bawah mana sebuah tepi kausal dianggap valid dan dimasukkan ke dalam graf kausal final. Nilai yang lebih rendah meningkatkan presisi (mengurangi false positives) namun mungkin mengurangi recall (mengabaikan hubungan lemah yang signifikan secara statistik). Parameter ini memungkinkan penyesuaian konservatif sesuai dengan toleransi risiko organisasi.
 *   `--output_structure_learning_audit`: **(Optional, Default: `./reports/causal_structure_audit_v1.json`)** Path untuk menyimpan laporan komprehensif pembelajaran struktur kausal. Laporan ini mencakup matriks adjensi terenkripsi, nilai p-value untuk setiap uji independensi bersyarat, metrik kualitas model (seperti *True Positive Rate* estimasi), serta log verifikasi kepatuhan terhadap standar ISO/IEC 24029 dan IEEE P2801.
+
+
+###### 6.5.6 Federated Causal Discovery via Differential Privacy Noise Injection
+
+Modul ini memperluas kapasitas sistem ke dalam lingkungan pembelajaran terdistribusi (*federated*), di mana data tetap berada di sisi klien lokal dan hanya statistik agregat yang dikomunikasikan ke server pusat. Untuk mencegah kebocoran informasi individu melalui gradien uji independensi atau matriks kovarians, sistem menerapkan **Differential Privacy (DP)** sebagai lapisan pertahanan statis yang komplementer terhadap enkripsi homomorfik.
+
+Pendekatan ini didasarkan pada prinsip *Differentially Private Structure Learning for Causal Graphs*, di mana noise dipompa langsung ke dalam output uji independensi bersyarat sebelum agregasi global dilakukan. Tujuannya adalah memastikan bahwa kehadiran atau ketidakhadiran satu individu dalam dataset tidak mengubah distribusi probabilitas output secara signifikan, sehingga memenuhi standar privasi ketat tanpa mengorbankan keutuhan struktural graf kausal secara keseluruhan.
+
+**Mekanisme Privasi dan Optimasi Utilitas**
+
+Sistem menerapkan prinsip *"Privacy-Utility Trade-off Optimization"* untuk menemukan titik optimal di mana risiko re-identifikasi data dimaksimalkan pembatasannya (minimisasi *information leakage*), sambil memaksimalkan ketepatan penemuan hubungan sebab-akausal. Mekanisme ini dirancang sesuai dengan kerangka kerja **"Privacy by Design" yang selaras dengan Differential Privacy in Federated Learning** sesuai standar **ISO/IEC 27559**, serta mengikuti pedoman teknis **ACM Conference on Knowledge Discovery and Data Mining (KDD) Guidelines on Privacy-Preserving Causal Inference**.
+
+Proses ini melibatkan prosedur **"Adaptive Noise Injection for Sparse Graphs"**, sebuah algoritma adaptif yang dinamis menyesuaikan tingkat kebisingan berdasarkan topologi graf:
+1.  **Node Derajat Rendah (Leaf Nodes):** Node dengan koneksi sedikit sering menjadi target serangan re-identifikasi karena pola perilaku mereka yang unik. Sistem secara otomatis meningkatkan densitas noise (meningkatkan varian) pada gradien yang berasal dari node-node ini untuk menutupi jejak individu.
+2.  **Node Pusat (Hubs):** Node dengan derajat tinggi cenderung stabil secara statistik. Sistem menurunkan tingkat noise pada node ini untuk mempertahankan presisi estimasi kausal, karena sinyal kausalnya lebih kuat dan lebih tahan terhadap gangguan statistik.
+
+Metode ini memastikan bahwa pembelajaran kausal tidak hanya aman secara kriptografis dan privat secara statistik, tetapi juga efisien secara komputasi dalam skenario federasi data berskala besar dengan batasan privasi yang ketat.
+
+###### 6.5.7 Argumen Perintah Tambahan: Differential Privacy & Federated Learning
+
+Untuk mengaktifkan modul privasi diferensial dalam lingkungan federasi, tambahkan argumen berikut ke dalam skrip orkestrator:
+
+```bash python compliance_governance_autonomous_epistemic_fusion_and_multi_modal_truth_verification_orchestrator.py \
+    --differential_privacy_epsilon 1.0 \
+    --dp_mechanism_type gaussian \
+    --gradient_noise_scaling_factor 0.1 \
+    --output_privacy_causal_audit ./reports/dp_causal_audit_v1.json
+```
+
+**Deskripsi Argumen Lanjutan (DP & Federasi):**
+
+*   `--differential_privacy_epsilon`: **(Float, Default: 1.0)** Batas anggaran privasi global ($psilon$) yang diizinkan untuk seluruh proses pembelajaran struktur kausal. Nilai $psilon$ yang lebih rendah memberikan jaminan privasi yang lebih kuat (lebih banyak noise) namun dapat mengurangi akurasi struktur graf. Nilai ini harus dikonfigurasi berdasarkan sensitivitas data dan regulasi kepatuhan yang berlaku (misalnya, GDPR memerlukan $psilon$ yang sangat rendah untuk data biometrik).
+*   `--dp_mechanism_type`: **(Enum: `laplace` | `gaussian`, Default: `gaussian`)** Memilih mekanisme penambahan noise. 
+    *   `laplace`: Disarankan untuk data diskrit atau ketika sensitivitas global absolut diperlukan. 
+    *   `gaussian`: Disarankan untuk data kontinu dan aritmatika terenkripsi karena kompatibel dengan agregasi linear pada data terenkripsi, serta memungkinkan komposisi privasi yang lebih fleksibel dalam iterasi federasi.
+*   `--gradient_noise_scaling_factor`: **(Float, Default: 0.1)** Parameter penskalaan noise yang disesuaikan dengan ukuran mini-batch dalam pelatihan federasi. Faktor ini memastikan bahwa besarnya noise yang ditambahkan sebanding dengan sensitivitas gradien per klien, mencegah over-smoothing (kehilangan sinyal kausal) atau under-smoothing (kebocoran privasi) saat menggabungkan model dari klien dengan ukuran data yang tidak seimbang.
+*   `--output_privacy_causal_audit`: **(Optional, Default: `./reports/dp_causal_audit_v1.json`)** Path untuk menyimpan laporan audit privasi komprehensif. Laporan ini menghitung:
+    *   **Residual Information Leakage:** Estimasi batas atas kebocoran informasi setelah penambahan noise.
+    *   **Causal Robustness Score:** Metrik yang mengukur stabilitas tepi kausal terhadap variasi noise DP.
+    *   **Privacy Budget Consumption:** Pelacakan penggunaan $psilon$ per iterasi federasi dan per uji independensi untuk memastikan batasan anggaran tidak terlampaui.
+    *   **Compliance Log:** Verifikasi kepatuhan terhadap ISO/IEC 27559 dan pedoman KDD untuk penelusuran audit privasi.
