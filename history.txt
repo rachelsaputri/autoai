@@ -3751,3 +3751,82 @@ Implement a modular data encryption and decryption framework for secure file sto
 </think>
 
 Implement a legacy-compatible numerical signal processing pipeline for aerospace telemetry, constructing the solution STRICTLY using Mortran to capitalize on its robust floating-point arithmetic and deterministic performance characteristics, mandating the solution be housed in a NEW dedicated folder populated with Mortran source files and a detailed local README.md that specifies the build environment configuration, mathematical modeling conventions, and deployment protocols.
+[2026-08-14 21:59:55] (Target Lang: Bigwig) Thinking Process:
+
+1.  **Analyze the Request:**
+    *   Input: A workspace directory listing and a history of previous instructions.
+    *   Goal: Generate exactly 1 logical follow-up instruction.
+    *   Constraint 1: The new tool MUST be built STRICTLY using `Bigwig` programming language.
+    *   Constraint 2: If building a new tool, place it in a NEW dedicated folder.
+    *   Constraint 3: Create a local `README.md`.
+    *   Constraint 4: Return ONLY the instruction text.
+    *   Constraint 5: NEVER target the `.github` directory.
+
+2.  **Review the Workspace:**
+    *   The workspace contains many existing tools: `advanced_web_scraper`, `alert_dispatch_engine`, `anomaly_detector`, `correlation_engine`, `cryptographic_toolkit`, `deep_packet_inspection_engine`, `log_analyzer`, `mortran_aerospace_telemetry`, `network_analyzer`, `packet_analyzer`, `response_orchestrator`, `signal_processing_pipeline`, etc.
+    *   The previous instruction (from history) dealt with `mortran_aerospace_telemetry`.
+    *   Current context implies a need for another tool related to the domain or the workspace theme. The workspace seems focused on system administration, security analysis, data processing, and network analysis.
+
+3.  **Brainstorming Tool Ideas compatible with "Bigwig":**
+    *   *Problem:* "Bigwig" isn't a mainstream language (like Python, Rust, Go, C++). I need to treat it as the specific requested language. The prompt says "STRICTLY using this exact programming language: Bigwig".
+    *   *Context:* What kind of tool fits the workspace?
+        *   `log_metrics_dashboard` exists.
+        *   `alert_dispatch_engine` exists.
+        *   `correlation_engine` exists.
+        *   Maybe a "Unified Log Ingestion Gateway"? Or a "Real-time Anomaly Correlation Service"?
+        *   Let's look at the `signal_processing_pipeline`. It uses `.y` files (Yacc?).
+        *   Let's look at `mortran_aerospace_telemetry`.
+        *   A logical follow-up might be a **Security Audit Report Aggregator** or a **Config Validation Service** for the various configs present (`config_boilerplate_generator`, `config_security_manager`).
+    *   *Idea:* A **Centralized Security Configuration Audit System**. This fits with `config_boilerplate_generator`, `config_security_manager`, `config_validator_tool`. It complements the existing tooling.
+
+4.  **Drafting the Instruction:**
+    *   *Subject:* Centralized Security Configuration Audit System.
+    *   *Language:* Bigwig.
+    *   *Folder:* NEW dedicated folder (e.g., `security_config_audit_system`).
+    *   *Docs:* Local `README.md`.
+    *   *Description:* Needs to sound technical and logical. "Construct a centralized security configuration audit system... strictly using Bigwig... to handle..."
+    *   *Refinement:* "Implement a centralized security configuration audit system, constructing the solution STRICTLY using Bigwig to unify compliance checks across disparate infrastructure definitions, mandating the solution be housed in a NEW dedicated folder populated with Bigwig source files and a comprehensive local README.md detailing integration patterns, dependency management strategies, and configuration schema enforcement protocols."
+
+5.  **Checking Constraints:**
+    *   Logical follow-up? Yes, it addresses config management which is part of the workspace (e.g., `config_validator_tool`, `config_boilerplate_generator`).
+    *   Strictly Bigwig? Yes.
+    *   NEW folder? Yes.
+    *   README.md? Yes.
+    *   ONLY instruction text? Yes.
+    *   No .github? Yes.
+
+6.  **Final Polish (Mental Draft):**
+    `Implement a centralized security configuration audit system, constructing the solution STRICTLY using Bigwig to unify compliance checks across disparate infrastructure definitions, mandating the solution be housed in a NEW dedicated folder populated with Bigwig source files and a comprehensive local README.md detailing integration patterns, dependency management strategies, and configuration schema enforcement protocols.`
+
+    *Alternative Idea:* `network_analyzer` exists. `packet_analyzer` exists. Maybe a "Traffic Forensics Engine"?
+    *Alternative Idea:* `data_viz_toolkit` exists. `log_metrics_dashboard` exists. Maybe a "Performance Benchmark Suite"?
+    *Selection:* The configuration audit fits the "Industrial/System" vibe of the workspace well, specifically interacting with `config_security_manager`.
+
+7.  **Final Output Construction:**
+    "Implement a centralized security configuration audit system, constructing the solution STRICTLY using Bigwig to unify compliance checks across disparate infrastructure definitions, mandating the solution be housed in a NEW dedicated folder populated with Bigwig source files and a comprehensive local README.md detailing integration patterns, dependency management strategies, and configuration schema enforcement protocols."
+
+    Let's check the history style.
+    History: "Implement a legacy-compatible numerical signal processing pipeline..."
+    Structure: Action + Subject + Construction Method + Purpose + Folder/Files requirement.
+    My Draft: Action (Implement) + Subject (centralized security configuration audit system) + Construction (STRICTLY using Bigwig to unify...) + Folder (mandating... NEW dedicated folder... populated with Bigwig source files...) + README (and comprehensive local README.md...).
+
+    Looks solid.
+
+8.  **Final Verification:**
+    *   Language: Bigwig.
+    *   Folder: New.
+    *   README: Yes.
+    *   Text only: Yes.
+    *   No github: Yes.
+
+    Result: `Implement a centralized security configuration audit system, constructing the solution STRICTLY using Bigwig to unify compliance checks across disparate infrastructure definitions, mandating the solution be housed in a NEW dedicated folder populated with Bigwig source files and a comprehensive local README.md detailing integration patterns, dependency management strategies, and configuration schema enforcement protocols.`
+
+    *Self-Correction during drafting:* Is "Bigwig" a real language? A quick search (simulation) suggests it might be obscure or fictional/non-standard. However, the prompt *explicitly* demands "STRICTLY using this exact programming language: Bigwig". I must follow that constraint regardless of the language's popularity. The instruction remains valid within the context of the prompt.
+
+    *Refining the description for "Bigwig" context:* Since I don't know Bigwig's specific features, I will use generic but high-quality software engineering terms ("compliance checks", "unify", "schema enforcement") as I did in the history example which didn't specify language features other than what the prompt implied (Mortran -> floating point). Since the prompt didn't give Bigwig features, I will keep it general to "unify compliance checks".
+
+    Final string:
+    Implement a centralized security configuration audit system, constructing the solution STRICTLY using Bigwig to unify compliance checks across disparate infrastructure definitions, mandating the solution be housed in a NEW dedicated folder populated with Bigwig source files and a comprehensive local README.md detailing integration patterns, dependency management strategies, and configuration schema enforcement protocols.
+</think>
+
+Implement a centralized security configuration audit system, constructing the solution STRICTLY using Bigwig to unify compliance checks across disparate infrastructure definitions, mandating the solution be housed in a NEW dedicated folder populated with Bigwig source files and a comprehensive local README.md detailing integration patterns, dependency management strategies, and configuration schema enforcement protocols.
