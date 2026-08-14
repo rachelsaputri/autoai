@@ -23,12 +23,14 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           if [ ! -f history.txt ]; then
-            echo "Initialization: Ultimate Polyglot system boot (Dynamic JSON)." > history.txt
+            echo "Initialization: Ultimate Polyglot system boot (Dynamic Raw Extraction)." > history.txt
           fi
           if [ ! -f README.md ]; then
             echo "# Autonomous AI Ultimate Polyglot Knowledgebase" > README.md
           fi
+          
           curl -s "https://gist.githubusercontent.com/calvinfroedge/defeb8fc6cdc0068e172/raw/7904b2504827f6f4883df0299a2bf51accbe9dab/languages.json" > /tmp/languages.json
+          
           TOPICS=(
             "Develop a data extraction or parsing utility."
             "Implement a complex mathematical or cryptographic algorithm."
@@ -38,12 +40,16 @@ jobs:
             "Design an automated dataset cleaning or text formatting tool."
             "Create a self-healing tool to handle edge cases and errors."
           )
+          
           for i in {1..6}
           do
             HISTORY_CONTEXT=$(tail -n 20 history.txt | tr '\n' ' ')
             README_CONTEXT=$(tail -n 30 README.md | tr '\n' ' ')
             DIR_STRUCTURE=$(find . -maxdepth 4 -not -path '*/\.git/*' -not -path '*/\.github/*' | sort | tr '\n' ' | ')
-            RANDOM_LANG=$(jq -r '.[]' /tmp/languages.json | shuf -n 1)
+            
+            # Trik brutal parsing text: Split by "," lalu hapus semua bracket dan quotes
+            RANDOM_LANG=$(cat /tmp/languages.json | sed 's/","/\n/g' | tr -d '[]"' | shuf -n 1)
+            
             RESET_CHANCE=$((RANDOM % 5))
             if [ $RESET_CHANCE -eq 0 ]; then
               RANDOM_TOPIC="${TOPICS[$RANDOM % ${#TOPICS[@]}]}"
@@ -69,10 +75,13 @@ jobs:
                 -d "$PROMPT_PAYLOAD")
               GENERATED_PROMPT=$(echo "$NEW_PROMPT_RESP" | jq -r '.choices[0].message.content // empty' 2>/dev/null | perl -0777 -pe 's/<think>.*?<\/think>\s*//gs' || echo "")
             fi
+            
             if [ -z "$GENERATED_PROMPT" ]; then
               GENERATED_PROMPT="Create a new utility for data processing in a new folder. You MUST write it strictly in $RANDOM_LANG. Include a local README.md."
             fi
+            
             echo "[$(date +'%Y-%m-%d %H:%M:%S')] (Target Lang: $RANDOM_LANG) $GENERATED_PROMPT" >> history.txt
+            
             CONTENT_PAYLOAD=$(jq -n \
               --arg model "Qwen3.6-35B-A3B-FP8" \
               --arg prompt "$GENERATED_PROMPT" \
@@ -92,11 +101,14 @@ jobs:
                   }
                 ]
               }')
+              
             NEW_CONTENT_RESP=$(curl -s -X POST "$URL" \
               -H "Authorization: Bearer $OPENAI_KEY" \
               -H "Content-Type: application/json" \
               -d "$CONTENT_PAYLOAD")
+              
             RAW_JSON=$(echo "$NEW_CONTENT_RESP" | jq -r '.choices[0].message.content // empty' 2>/dev/null | perl -0777 -pe 's/<think>.*?<\/think>\s*//gs')
+            
             if echo "$RAW_JSON" | jq -e . >/dev/null 2>&1; then
               FILE_COUNT=$(echo "$RAW_JSON" | jq '.files | length' 2>/dev/null || echo "0")
               for (( j=0; j<$FILE_COUNT; j++ )); do
