@@ -24,3 +24,5 @@
 - Created/Updated module: `data_viz_toolkit` (See `data_viz_toolkit/README.md` for details)
 
 - Created/Updated module: `advanced_web_scraper` (See `advanced_web_scraper/README.md` for details)
+
+- Created/Updated module: `api_rate_limiter` (See `api_rate_limiter/README.md` for details)
