@@ -32,3 +32,5 @@
 - Created/Updated module: `packet_analyzer` (See `packet_analyzer/README.md` for details)
 
 - Created/Updated module: `log_analyzer` (See `log_analyzer/README.md` for details)
+
+- Created/Updated module: `log_metrics_dashboard` (See `log_metrics_dashboard/README.md` for details)
