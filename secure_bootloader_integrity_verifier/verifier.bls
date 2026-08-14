@@ -1,0 +1,248 @@
+;
+; Secure Bootloader Integrity Verifier
+; Language: BLISS
+;
+; This module performs cryptographic validation of firmware signatures
+; against known-good baselines and manages recovery procedures.
+;
+IMPORT
+  SYS$STDLIB:BLISS,$
+  SYS$LIB:IO$,
+  SYS$LIB:IO$DEV,
+  SYS$LIB:IO$ERR$
+;
+EXPORT
+  VERIFY_BOOTLOADER_SIGNATURE,
+  RECOVER_BOOTLOADER,
+  LOG_VERIFICATION_STATUS
+;
+
+; Configuration Constants
+MAX_HASH_LENGTH = 64;
+MAX_SIGNATURE_LENGTH = 512;
+HASH_ALGORITHM = "SHA-256";
+SIGNATURE_ALGORITHM = "RSA-4096";
+
+; Data Structures
+BLOCK STRUCTURE BootloaderHeader;
+  VERSION: WORD,
+  BUILD_DATE: WORD,
+  HASH_OFFSET: WORD,
+  HASH_LENGTH: WORD,
+  SIG_OFFSET: WORD,
+  SIG_LENGTH: WORD,
+  PADDING: WORD(64);
+END;
+
+BLOCK STRUCTURE VerificationContext;
+  BOOTLOADER_PTR: ADDRESS,
+  BASELINE_HASH: ARRAY[MAX_HASH_LENGTH] OF BYTE,
+  CURRENT_HASH: ARRAY[MAX_HASH_LENGTH] OF BYTE,
+  SIGNATURE: ARRAY[MAX_SIGNATURE_LENGTH] OF BYTE,
+  VERIFICATION_RESULT: INTEGER,
+  RECOVERY_REQUIRED: BOOLEAN;
+END;
+
+; Subroutine: VERIFY_BOOTLOADER_SIGNATURE
+; Description: Validates the cryptographic signature of a given bootloader image.
+; Input: bootloader_address - Base address of the bootloader image.
+;        baseline_hash - Expected hash value for the bootloader.
+; Output: VERIFICATION_RESULT - 0 if valid, non-zero if invalid.
+
+ROUTINE VERIFY_BOOTLOADER_SIGNATURE
+  LOCALS
+    context: VerificationContext;
+    hash_result: ARRAY[MAX_HASH_LENGTH] OF BYTE;
+    i: INTEGER;
+  BEGIN
+    ; Initialize context
+    context.bootloader_ptr := bootloader_address;
+    context.baseline_hash := baseline_hash;
+    context.verifiation_result := 1; ; Assume invalid initially
+    context.recovery_required := FALSE;
+
+    ; Extract header and validate structure
+    IF NOT VALIDATE_BOOTLOADER_HEADER(context.bootloader_ptr) THEN
+      BEGIN
+        context.recovery_required := TRUE;
+        RETURN 2; ; Error in header structure
+      END;
+
+    ; Calculate current hash of bootloader image (excluding signature)
+    hash_result := COMPUTE_HASH(context.bootloader_ptr, context.header.hash_length);
+
+    ; Compare calculated hash with baseline
+    FOR i := 0 TO MAX_HASH_LENGTH - 1 DO
+      BEGIN
+        IF hash_result[i] # context.baseline_hash[i] THEN
+          BEGIN
+            context.current_hash := hash_result;
+            context.verification_result := 3; ; Hash mismatch
+            context.recovery_required := TRUE;
+            RETURN 3;
+          END;
+      END;
+
+    ; Verify cryptographic signature
+    IF NOT VERIFY_SIGNATURE(context.bootloader_ptr, context.header.sig_offset, context.header.sig_length) THEN
+      BEGIN
+        context.verification_result := 4; ; Signature invalid
+        context.recovery_required := TRUE;
+        RETURN 4;
+      END;
+
+    ; All checks passed
+    context.verification_result := 0;
+    LOG_VERIFICATION_STATUS(0, context);
+    RETURN 0;
+  END;
+
+; Subroutine: RECOVER_BOOTLOADER
+; Description: Initiates recovery procedure if verification fails.
+; Input: recovery_mode - "SAFE_MODE", "ROLLBACK", or "EMERGENCY"
+; Output: STATUS - 0 on success, non-zero on failure.
+
+ROUTINE RECOVER_BOOTLOADER(recovery_mode)
+  BEGIN
+    SWITCH recovery_mode ON
+      BEGIN
+        CASE "SAFE_MODE":
+          BEGIN
+            LOG_VERIFICATION_STATUS(1, NULL);
+            ; Disable secure boot temporarily
+            DISABLE_SECURE_BOOT();
+            ; Attempt to load known-good backup image
+            LOAD_BACKUP_BOOTLOADER();
+          END;
+
+        CASE "ROLLBACK":
+          BEGIN
+            LOG_VERIFICATION_STATUS(2, NULL);
+            ; Rollback to previous known-good version
+            EXECUTE_ROLLBACK_PROCEDURE();
+          END;
+
+        CASE "EMERGENCY":
+          BEGIN
+            LOG_VERIFICATION_STATUS(3, NULL);
+            ; Enter emergency recovery mode
+            ENTER_EMERGENCY_RECOVERY();
+          END;
+
+        DEFAULT:
+          BEGIN
+            RETURN 5; ; Invalid recovery mode
+          END;
+      END;
+
+    RETURN 0;
+  END;
+
+; Subroutine: LOG_VERIFICATION_STATUS
+; Description: Logs the status of the verification process.
+; Input: status_code - Integer status code
+;        context - Optional verification context
+
+ROUTINE LOG_VERIFICATION_STATUS(status_code, context)
+  BEGIN
+    LOCAL
+      log_message: STRING[256];
+
+    SWITCH status_code ON
+      BEGIN
+        CASE 0:
+          log_message := "Bootloader integrity verified successfully.";
+
+        CASE 1:
+          log_message := "Bootloader verification failed - Initiating Safe Mode.";
+
+        CASE 2:
+          log_message := "Bootloader verification failed - Initiating Rollback.";
+
+        CASE 3:
+          log_message := "Bootloader verification failed - Initiating Emergency Recovery.";
+
+        DEFAULT:
+          log_message := "Verification status unknown.";
+      END;
+
+    ; Write log entry
+    WRITE_LOG_FILE(log_message, context);
+  END;
+
+; Helper: VALIDATE_BOOTLOADER_HEADER
+; Checks if the bootloader header is well-formed.
+FUNCTION VALIDATE_BOOTLOADER_HEADER(header_ptr)
+  BEGIN
+    LOCAL
+      header: BootloaderHeader;
+
+    header := READ_HEADER(header_ptr);
+
+    IF header.version = 0 OR header.build_date = 0 THEN
+      RETURN FALSE;
+
+    IF header.hash_length > MAX_HASH_LENGTH OR header.sig_length > MAX_SIGNATURE_LENGTH THEN
+      RETURN FALSE;
+
+    RETURN TRUE;
+  END;
+
+; Helper: COMPUTE_HASH
+; Computes hash of bootloader image.
+FUNCTION COMPUTE_HASH(image_ptr, length)
+  BEGIN
+    ; Implementation would call system crypto library
+    RETURN ZERO_ARRAY(MAX_HASH_LENGTH);
+  END;
+
+; Helper: VERIFY_SIGNATURE
+; Verifies RSA signature against computed hash.
+FUNCTION VERIFY_SIGNATURE(image_ptr, sig_offset, sig_length)
+  BEGIN
+    ; Implementation would call system crypto library
+    RETURN TRUE;
+  END;
+
+; Helper: DISABLE_SECURE_BOOT
+; Disables secure boot mechanism for recovery.
+ROUTINE DISABLE_SECURE_BOOT()
+  BEGIN
+    ; Implementation to toggle hardware secure boot bit
+    WRITE_SECURE_REGISTER(0x1000, 0x00);
+  END;
+
+; Helper: LOAD_BACKUP_BOOTLOADER
+; Loads backup bootloader image from protected storage.
+ROUTINE LOAD_BACKUP_BOOTLOADER()
+  BEGIN
+    ; Implementation to load backup image
+    COPY_FROM_PROTECTED_STORAGE(0x2000, 0x1000);
+  END;
+
+; Helper: EXECUTE_ROLLBACK_PROCEDURE
+; Executes system rollback to previous known-good version.
+ROUTINE EXECUTE_ROLLBACK_PROCEDURE()
+  BEGIN
+    ; Implementation to switch to previous firmware partition
+    SWITCH_ACTIVE_PARTITION(1);
+  END;
+
+; Helper: ENTER_EMERGENCY_RECOVERY
+; Enters emergency recovery mode for manual intervention.
+ROUTINE ENTER_EMERGENCY_RECOVERY()
+  BEGIN
+    ; Implementation to halt system and wait for user input
+    HALT_SYSTEM();
+    PROMPT_USER_RECOVERY();
+  END;
+
+; Helper: WRITE_LOG_FILE
+; Appends message to system log.
+ROUTINE WRITE_LOG_FILE(message, context)
+  BEGIN
+    ; Implementation to write to persistent log file
+    APPEND_TO_LOG_FILE(message);
+  END;
+
+END PROGRAM SECURE_BOOTLOADER_INTEGRITY_VERIFIER;
