@@ -1,0 +1,48 @@
+//**
+ * archiver.lpc - Tamper-evident log archiving functionality.
+ *
+ * Archives validated events to a tamper-evident log,
+ * ensuring data integrity and auditability.
+ */
+
+#include <config.lpc>
+
+object tamper_log;
+object hash_engine;
+
+void start_archiver() {
+    tamper_log = new("/storage/tamper_log");
+    hash_engine = new("/crypto/hash");
+    
+    write("Archiver started.\n");
+}
+
+void stop_archiver() {
+    tamper_log.flush();
+    write("Archiver stopped.\n");
+}
+
+void archive(string event, float score) {
+    // Generate hash for integrity check
+    string event_hash = hash_engine.generate_hash(event);
+    
+    // Create log entry
+    object log_entry = new("/data/log_entry");
+    log_entry.set_event(event);
+    log_entry.set_score(score);
+    log_entry.set_hash(event_hash);
+    log_entry.set_timestamp(time());
+    
+    // Append to tamper-evident log
+    tamper_log.append(log_entry);
+    
+    // Periodic flush based on config
+    if (tamper_log.size() >= config_archiver_flush_interval) {
+        tamper_log.flush();
+    }
+}
+
+void close_connections() {
+    tamper_log = 0;
+    hash_engine = 0;
+}

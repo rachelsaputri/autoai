@@ -1,0 +1,52 @@
+/**
+ * ingestion.lpc - Event ingestion and validation logic.
+ *
+ * Handles raw alert streams from the alert_dispatch_engine,
+ * validates incoming events, and queues them for correlation.
+ */
+
+#include <config.lpc>
+
+object event_queue;
+object validator;
+
+void start_ingestion() {
+    event_queue = new("/data/event_queue");
+    validator = new("/security/validator");
+    
+    // Bind to alert_dispatch_engine stream
+    alert_dispatch_conn.bind_stream("raw_alerts", handle_alert_stream);
+    
+    write("Ingestion pipeline started.\n");
+}
+
+void stop_ingestion() {
+    if (alert_dispatch_conn) {
+        alert_dispatch_conn.unbind_stream("raw_alerts", handle_alert_stream);
+    }
+    write("Ingestion pipeline stopped.\n");
+}
+
+void handle_alert_stream(string alert_data) {
+    if (validator.validate(alert_data)) {
+        event_queue.enqueue(alert_data);
+        // Trigger correlation if batch size is reached
+        if (event_queue.size() >= config_ingestion_batch_size) {
+            process_batch();
+        }
+    } else {
+        write("Invalid alert data received.\n");
+    }
+}
+
+void process_batch() {
+    array batch = event_queue.dequeue_batch(config_ingestion_batch_size);
+    foreach (string event; batch) {
+        correlation_engine.correlate(event);
+    }
+}
+
+void close_connections() {
+    event_queue = 0;
+    validator = 0;
+}

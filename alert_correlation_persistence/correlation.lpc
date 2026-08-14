@@ -1,0 +1,42 @@
+/**
+ * correlation.lpc - Event correlation and threat score computation.
+ *
+ * Correlates events across multiple sources and computes
+ * derived threat scores for validated events.
+ */
+
+#include <config.lpc>
+
+object correlation_rules;
+object threat_scoring;
+
+void start_correlation() {
+    correlation_rules = new("/security/rules");
+    threat_scoring = new("/analytics/scoring");
+    
+    write("Correlation engine started.\n");
+}
+
+void stop_correlation() {
+    write("Correlation engine stopped.\n");
+}
+
+void correlate(string event) {
+    // Apply correlation rules
+    array related_events = correlation_rules.find_related(event);
+    
+    // Compute derived threat score
+    float score = threat_scoring.compute_score(event, related_events);
+    
+    // Pass to archiver if score exceeds threshold
+    if (score >= config_threat_score_threshold) {
+        archiver.archive(event, score);
+        // Optionally notify anomaly_detector
+        anomaly_detector_conn.report_score(score);
+    }
+}
+
+void close_connections() {
+    correlation_rules = 0;
+    threat_scoring = 0;
+}

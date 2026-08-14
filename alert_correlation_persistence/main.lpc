@@ -1,0 +1,50 @@
+/**
+ * main.lpc - Main application entry point and configuration.
+ *
+ * This LPC module initializes the alert correlation persistence layer.
+ * It sets up the ingestion, correlation, and archiving subsystems.
+ */
+
+#include <config.lpc>
+#include <ingestion.lpc>
+#include <correlation.lpc>
+#include <archiver.lpc>
+
+object alert_dispatch_conn;
+object anomaly_detector_conn;
+
+int start_system() {
+    // Initialize connections to external systems
+    alert_dispatch_conn = new("/alert_dispatch/engine");
+    anomaly_detector_conn = new("/anomaly/detector");
+    
+    // Start ingestion pipeline
+    start_ingestion();
+    
+    // Start correlation engine
+    start_correlation();
+    
+    // Start archiver
+    start_archiver();
+    
+    return 1;
+}
+
+void shutdown_system() {
+    // Graceful shutdown logic
+    stop_ingestion();
+    stop_correlation();
+    stop_archiver();
+    
+    close_connections();
+}
+
+void main() {
+    if (start_system()) {
+        write("Alert Correlation Persistence Layer started.\n");
+        keep_alive();
+    } else {
+        write("Failed to start Alert Correlation Persistence Layer.\n");
+        exit(1);
+    }
+}
