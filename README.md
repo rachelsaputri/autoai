@@ -28,3 +28,5 @@
 - Created/Updated module: `api_rate_limiter` (See `api_rate_limiter/README.md` for details)
 
 - Created/Updated module: `network_protocol_simulator` (See `network_protocol_simulator/README.md` for details)
+
+- Created/Updated module: `packet_analyzer` (See `packet_analyzer/README.md` for details)
