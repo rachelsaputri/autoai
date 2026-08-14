@@ -19,46 +19,32 @@ jobs:
           OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
         run: |
           URL="https://ai.tioo.eu.org/v1/chat/completions"
-
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Buat file history.txt jika belum ada
           if [ ! -f history.txt ]; then
-            echo "Mulai dari topik awal: Pengembangan sistem AI mandiri dan basis pengetahuan." > history.txt
+            echo "Initial topic: Autonomous AI system development and knowledge base." > history.txt
           fi
-
-          # Buat file README.md jika belum ada
           if [ ! -f README.md ]; then
-            echo "# Dokumentasi AI Self-Improving" > README.md
+            echo "# AI Self-Improving Documentation" > README.md
           fi
-
-          # Daftar topik untuk Reset agar README informatif & tidak monoton
           TOPICS=(
-            "Etika dan Keamanan Penggunaan AI"
-            "Masa Depan AI dan Otomatisasi"
-            "Tips Melakukan Prompt Engineering"
-            "Perbedaan Dasar Machine Learning dan Deep Learning"
-            "Apa itu RAG (Retrieval-Augmented Generation)?"
-            "Optimasi Kinerja Model AI (LLM)"
-            "Contoh Penerapan AI di Industri Nyata"
+            "AI Ethics and Safety"
+            "The Future of AI and Automation"
+            "Advanced Prompt Engineering Techniques"
+            "Machine Learning vs Deep Learning Fundamentals"
+            "Introduction to Retrieval-Augmented Generation (RAG)"
+            "LLM Performance and Context Optimization"
+            "Real-World AI Industry Applications"
           )
-
           for i in {1..6}
           do
-            # Read last entries from history and README
             HISTORY_CONTEXT=$(tail -n 20 history.txt | tr '\n' ' ')
             README_CONTEXT=$(tail -n 30 README.md | tr '\n' ' ')
-
-            # LOGIKA RESET TOPIK: 20% kemungkinan AI akan dipaksa ganti topik baru
             RESET_CHANCE=$((RANDOM % 5))
-            
             if [ $RESET_CHANCE -eq 0 ]; then
-              # Ambil topik acak dari array TOPICS
               RANDOM_TOPIC="${TOPICS[$RANDOM % ${#TOPICS[@]}]}"
-              GENERATED_PROMPT="Abaikan diskusi sebelumnya. Buatlah bab BARU yang sangat detail dan informatif tentang: '$RANDOM_TOPIC'. Gunakan heading markdown (##) untuk judul bab ini."
+              GENERATED_PROMPT="Disregard the previous context. Create a completely NEW, highly detailed, and informative chapter about: '$RANDOM_TOPIC'. Use markdown headings (##) for this new chapter."
             else
-              # 1. Normal Flow: AI Generate Prompt Baru berdasarkan history dan README
               PROMPT_PAYLOAD=$(jq -n \
                 --arg model "MiniMaxAI/MiniMax-M2.7" \
                 --arg history "$HISTORY_CONTEXT" \
@@ -68,29 +54,20 @@ jobs:
                   messages: [
                     {
                       role: "user",
-                      content: ("Berdasarkan riwayat prompt berikut:\n" + $history + "\n\nDan isi README terakhir:\n" + $readme + "\n\nBuatlah 1 perintah/prompt baru yang logis untuk melanjutkan, memperdalam, atau memperluas konten README tersebut. Berikan HANYA teks prompt baru tersebut tanpa penjelasan tambahan.")
+                      content: ("Based on the following prompt history:\n" + $history + "\n\nAnd the latest README content:\n" + $readme + "\n\nGenerate exactly 1 logical follow-up prompt to continue, deepen, or expand the current README content. Return ONLY the new prompt text without any explanations, tags, or conversational filler.")
                     }
                   ]
                 }')
-
               NEW_PROMPT_RESP=$(curl -s -X POST "$URL" \
                 -H "Authorization: Bearer $OPENAI_KEY" \
                 -H "Content-Type: application/json" \
                 -d "$PROMPT_PAYLOAD")
-
-              # FIX: Tambahkan error suppression untuk jq agar tidak crash saat API mengembalikan error web (bukan JSON)
-              GENERATED_PROMPT=$(echo "$NEW_PROMPT_RESP" | jq -r '.choices[0].message.content // empty' 2>/dev/null || echo "")
+              GENERATED_PROMPT=$(echo "$NEW_PROMPT_RESP" | jq -r '.choices[0].message.content // empty' 2>/dev/null | perl -0777 -pe 's/<think>.*?<\/think>\s*//gs' || echo "")
             fi
-
-            # Fallback jika jq gagal membaca (misal saat server API down)
             if [ -z "$GENERATED_PROMPT" ]; then
-              GENERATED_PROMPT="Lanjutkan pembahasan materi sebelumnya dengan memberikan penjelasan teknis yang lebih detail beserta contohnya."
+              GENERATED_PROMPT="Continue the previous topic by providing more detailed technical explanations, best practices, and real-world examples."
             fi
-
-            # Catat prompt ke history.txt
             echo "[$(date +'%Y-%m-%d %H:%M:%S')] $GENERATED_PROMPT" >> history.txt
-
-            # 2. AI Generate Konten README
             CONTENT_PAYLOAD=$(jq -n \
               --arg model "MiniMaxAI/MiniMax-M2.7" \
               --arg prompt "$GENERATED_PROMPT" \
@@ -100,32 +77,24 @@ jobs:
                 messages: [
                   {
                     role: "system",
-                    content: "Anda adalah penulis dokumentasi teknis. Tuliskan konten lanjutan yang komprehensif, terstruktur, gunakan list atau tabel jika perlu, dan langsung menambah nilai informasi."
+                    content: "You are an expert technical documentation writer. Write comprehensive, well-structured, and highly informative continuation content. Ensure seamless flow with the previous content. Use markdown formatting like headings, lists, or tables where appropriate to enhance readability."
                   },
                   {
                     role: "user",
-                    content: ("Konten README saat ini:\n" + $readme + "\n\nTugas:\n" + $prompt + "\n\nTuliskan bab/materi lanjutan untuk ditempel ke README.md. Gunakan format Markdown yang rapi.")
+                    content: ("Current README context:\n" + $readme + "\n\nYour task:\n" + $prompt + "\n\nWrite the next section to be appended to the README.md. Output strictly the raw Markdown text only. Do not include markdown code block backticks around the entire output.")
                   }
                 ]
               }')
-
             NEW_CONTENT_RESP=$(curl -s -X POST "$URL" \
               -H "Authorization: Bearer $OPENAI_KEY" \
               -H "Content-Type: application/json" \
               -d "$CONTENT_PAYLOAD")
-
-            # FIX: Error suppression untuk JSON parsing konten
-            GENERATED_CONTENT=$(echo "$NEW_CONTENT_RESP" | jq -r '.choices[0].message.content // empty' 2>/dev/null || echo "")
-
+            GENERATED_CONTENT=$(echo "$NEW_CONTENT_RESP" | jq -r '.choices[0].message.content // empty' 2>/dev/null | perl -0777 -pe 's/<think>.*?<\/think>\s*//gs' || echo "")
             if [ -n "$GENERATED_CONTENT" ]; then
               echo -e "\n\n$GENERATED_CONTENT" >> README.md
-
               git add history.txt README.md
-              # Tambahkan || true agar tidak gagal jika tidak ada perubahan baru
               git commit -m "docs: expand README & update prompt history [$(date +'%H:%M:%S')]" || true
               git push || true
             fi
-
-            # Jeda antar request untuk menghindari rate-limit
             sleep 30
           done
