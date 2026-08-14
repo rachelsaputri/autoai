@@ -18,6 +18,7 @@ jobs:
         env:
           OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
         run: |
+          set +e
           URL="https://ai.tioo.eu.org/v1/chat/completions"
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
@@ -25,26 +26,24 @@ jobs:
             echo "Initialization: System boot and core tool development." > history.txt
           fi
           if [ ! -f README.md ]; then
-            echo "# Autonomous AI Knowledge & Toolbase" > README.md
+            echo "# Autonomous AI Root Knowledgebase" > README.md
           fi
           TOPICS=(
-            "Develop an advanced web scraping utility in Python for data extraction bypassing basic protections."
-            "Implement matrix multiplication algorithms and computational optimization in Python or C."
-            "Create robust Linux shell scripts for network analysis and automated system diagnostics."
-            "Build self-healing automated tools to handle API rate limits and data pagination."
-            "Develop an intelligent API wrapper tool for multi-threaded data retrieval and parsing."
-            "Design custom AI helper scripts for automated dataset cleaning and formatting."
-            "Implement low-level network packet sniffing or protocol analysis simulators."
+            "Develop an advanced web scraping utility in Python. Place it in its own folder with a local README.md."
+            "Implement matrix multiplication algorithms. Group them in a specific folder with detailed markdown documentation."
+            "Create robust Linux shell scripts for network analysis. Put them in a dedicated directory with a README.md explaining usage."
+            "Build automated tools to handle API rate limits. Ensure the folder has a README.md outlining the architecture."
+            "Design custom AI helper scripts for automated dataset cleaning. Include a local README.md for human readability."
           )
           for i in {1..6}
           do
             HISTORY_CONTEXT=$(tail -n 20 history.txt | tr '\n' ' ')
             README_CONTEXT=$(tail -n 30 README.md | tr '\n' ' ')
-            DIR_STRUCTURE=$(find . -maxdepth 3 -not -path '*/\.git/*' -not -path '*/\.github/*' | sort | tr '\n' ' | ')
+            DIR_STRUCTURE=$(find . -maxdepth 4 -not -path '*/\.git/*' -not -path '*/\.github/*' | sort | tr '\n' ' | ')
             RESET_CHANCE=$((RANDOM % 5))
             if [ $RESET_CHANCE -eq 0 ]; then
               RANDOM_TOPIC="${TOPICS[$RANDOM % ${#TOPICS[@]}]}"
-              GENERATED_PROMPT="Focus entirely on this new objective: '$RANDOM_TOPIC'. You must write functional, production-ready code for this task. Your current workspace files: $DIR_STRUCTURE."
+              GENERATED_PROMPT="Focus entirely on this new objective: '$RANDOM_TOPIC'. You must write functional code and proper documentation for this task. Workspace: $DIR_STRUCTURE."
             else
               PROMPT_PAYLOAD=$(jq -n \
                 --arg model "MiniMaxAI/MiniMax-M2.7" \
@@ -55,7 +54,7 @@ jobs:
                   messages: [
                     {
                       role: "user",
-                      content: ("You are an Autonomous AI. Here is your current workspace file structure:\n" + $dirs + "\n\nBased on this history:\n" + $history + "\n\nGenerate exactly 1 logical follow-up instruction. If you already built a tool for a task, your instruction should be to UPGRADE it, optimize it, or build a NEW tool that connects to it. Return ONLY the new instruction text. You MUST NEVER target the .github directory.")
+                      content: ("You are an Autonomous AI. Workspace structure:\n" + $dirs + "\n\nHistory:\n" + $history + "\n\nGenerate exactly 1 logical follow-up instruction. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md inside that folder. Return ONLY the instruction text. NEVER target the .github directory.")
                     }
                   ]
                 }')
@@ -66,7 +65,7 @@ jobs:
               GENERATED_PROMPT=$(echo "$NEW_PROMPT_RESP" | jq -r '.choices[0].message.content // empty' 2>/dev/null | perl -0777 -pe 's/<think>.*?<\/think>\s*//gs' || echo "")
             fi
             if [ -z "$GENERATED_PROMPT" ]; then
-              GENERATED_PROMPT="Analyze the current file structure and build a new utility script for data processing."
+              GENERATED_PROMPT="Create a new data processing utility in a new folder, including a local README.md explaining how it works."
             fi
             echo "[$(date +'%Y-%m-%d %H:%M:%S')] $GENERATED_PROMPT" >> history.txt
             CONTENT_PAYLOAD=$(jq -n \
@@ -79,7 +78,7 @@ jobs:
                 messages: [
                   {
                     role: "system",
-                    content: ("You are an elite Autonomous AI Software Engineer. Your workspace files: " + $dirs + ". You possess deep knowledge of algorithms, Linux, networking, and IT infrastructure. You MUST NEVER create, modify, or reference any files inside the .github directory. Do NOT use .github in your filepath. You MUST respond strictly in valid JSON format with exactly two keys: \n1. \"filepath\": The relative path (e.g., \"tools/scraper.py\"). \n2. \"content\": The complete, raw, functional code for that file. Do NOT include markdown code blocks inside the content string.")
+                    content: ("You are an elite Autonomous AI Software Engineer. Workspace: " + $dirs + ". You MUST NEVER create or modify files inside the .github directory. You MUST group related tools into their own specific folders. Whenever you create a tool, you MUST also generate a README.md file INSIDE that specific folder to explain it. You MUST respond strictly in valid JSON format containing a single key \"files\" which is an ARRAY of objects. Each object must have exactly two keys: \n1. \"filepath\": The relative path (e.g., \"network_scanner/scanner.py\" or \"network_scanner/README.md\"). \n2. \"content\": The raw, functional code or markdown text. Do NOT wrap content in markdown code blocks.")
                   },
                   {
                     role: "user",
@@ -92,20 +91,28 @@ jobs:
               -H "Content-Type: application/json" \
               -d "$CONTENT_PAYLOAD")
             RAW_JSON=$(echo "$NEW_CONTENT_RESP" | jq -r '.choices[0].message.content // empty' 2>/dev/null | perl -0777 -pe 's/<think>.*?<\/think>\s*//gs')
-            FILEPATH=$(echo "$RAW_JSON" | jq -r '.filepath // empty' 2>/dev/null)
-            CODE_CONTENT=$(echo "$RAW_JSON" | jq -r '.content // empty' 2>/dev/null)
-            if [ -n "$FILEPATH" ] && [ -n "$CODE_CONTENT" ] && [ "$FILEPATH" != "null" ] && [ "$CODE_CONTENT" != "null" ]; then
-              if [[ "$FILEPATH" == *.github* ]]; then
-                echo "Blocked AI from modifying .github directory."
-              else
-                DIRNAME=$(dirname "$FILEPATH")
-                mkdir -p "$DIRNAME"
-                echo "$CODE_CONTENT" > "$FILEPATH"
-                echo -e "\n### Auto-Generated Tool: \`$FILEPATH\`\n**Date:** $(date +'%Y-%m-%d %H:%M:%S')\n**Objective:** $GENERATED_PROMPT\n" >> README.md
-                git add .
-                git commit -m "feat(ai): autonomous update to $FILEPATH [$(date +'%H:%M:%S')]" || true
-                git push || true
-              fi
+            if echo "$RAW_JSON" | jq -e . >/dev/null 2>&1; then
+              FILE_COUNT=$(echo "$RAW_JSON" | jq '.files | length' 2>/dev/null || echo "0")
+              for (( j=0; j<$FILE_COUNT; j++ )); do
+                FILEPATH=$(echo "$RAW_JSON" | jq -r ".files[$j].filepath // empty")
+                CODE_CONTENT=$(echo "$RAW_JSON" | jq -r ".files[$j].content // empty")
+                if [ -n "$FILEPATH" ] && [ -n "$CODE_CONTENT" ] && [ "$FILEPATH" != "null" ] && [ "$CODE_CONTENT" != "null" ]; then
+                  if [[ "$FILEPATH" == *.github* ]]; then
+                    echo "Blocked .github modification."
+                  else
+                    DIRNAME=$(dirname "$FILEPATH")
+                    mkdir -p "$DIRNAME"
+                    echo "$CODE_CONTENT" > "$FILEPATH"
+                    if [[ "$FILEPATH" == *README.md* && "$FILEPATH" != "README.md" ]]; then
+                      echo -e "\n- Created/Updated module: \`$DIRNAME\` (See \`$FILEPATH\` for details)" >> README.md
+                    fi
+                    git add "$FILEPATH"
+                  fi
+                fi
+              done
+              git add history.txt README.md
+              git commit -m "feat(ai): autonomous update for $FILE_COUNT files [$(date +'%H:%M:%S')]" || true
+              git push || true
             fi
             sleep 30
           done
