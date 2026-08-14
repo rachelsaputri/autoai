@@ -54364,3 +54364,74 @@ Prosedur ini secara otomatis menyesuaikan ambang batas kepercayaan (*confidence 
     3.  Faktor Koreksi Regulatori ($\kappa_{reg}$): Parameter internal yang disesuaikan dengan kebijakan kepatuhan saat ini.
 
     $$ T_{risk} = T_{base} + (lpha 
+
+#### 3.4. Stochastic Process Control for Adaptive Compliance
+
+Bagian ini mendefinisikan kerangka kerja teknis untuk **Adaptive Compliance**, di mana kepatuhan tidak lagi dipandang sebagai status biner statis, melainkan sebagai fungsi kontinu yang dinamis terhadap probabilitas keberhasilan terkalibrasi dan profil risiko finansial. Sistem mengimplementasikan **Control Theory in Probabilistic Regulatory Frameworks** untuk menyesuaikan parameter kontrol secara real-time berdasarkan distribusi probabilitas risiko yang diproyeksikan dari dekomposisi ketidakpastian Bayesian ($U_{total}$).
+
+##### 3.4.1. Metodologi Kontrol: Uncertainty-Aware Governance
+
+Sistem menerapkan prinsip **Uncertainty-Aware Governance** dengan mengintegrasikan metrik ketidakpastian langsung ke dalam logika bisnis melalui *Adaptive Control Loop*. Alih-alih menggunakan ambang batas tetap (*static threshold*), sistem menghitung ulang kebijakan operasional berdasarkan volatilitas ketidakpastian epistemik. Jika deteksi ketidakpastian epistemik ($u_{epi}$) melampaui toleransi risiko yang didefinisikan oleh *Risk Appetite Function*, sistem secara otomatis merekalibrasi parameter model kepatuhan untuk mencegah keputusan otonom yang berisiko tinggi.
+
+Prosedur **Adaptive Control Loop for Risk Mitigation** bekerja sebagai berikut:
+1.  **Input Distribusi Risiko:** Memasukkan distribusi probabilitas risiko yang dihasilkan dari dekomposisi Bayesian.
+2.  **Evaluasi Utilitas:** Mengevaluasi kurva utilitas organisasi terhadap ketidakpastian menggunakan `--risk_appetite_function`.
+3.  **Penyesuaian Dinamis:** Menghitung ulang `stochastic_compliance_v1.json` berdasarkan volatilitas terkini.
+4.  **Eksekusi Kontinu:** Menjamin bahwa sistem tetap beroperasi otonom hanya jika probabilitas keberhasilan melebihi `--compliance_continuity_threshold`.
+
+Pendekatan ini menciptakan ekosistem kepatuhan yang **adaptif, responsif, dan resilient** terhadap ketidakpastian lingkungan eksternal yang dinamis, memastikan bahwa setiap tindakan otonom didukung oleh fondasi kepatuhan yang dapat ditanggung secara finansial dan etis.
+
+##### 3.4.2. Kepatuhan dengan Standar Internasional
+
+Implementasi teknis ini secara spesifik dirancang untuk mematuhi standar internasional ketat:
+
+*   **ISO/IEC 24027 (Trustworthy AI — Quantifying uncertainty):**
+    Sistem melakukan *Probabilistic Risk Assessment (PRA)* yang sejalan dengan klause ISO 24027, mensyaratkan dokumentasi komprehensif mengenai sumber dan besarnya ketidakpastian. Dekomposisi $u_{ale}$ dan $u_{epi}$ menyediakan metrik kuantitatif yang dapat ditelusuri, memungkinkan auditabilitas rigor terhadap "Confidence Intervals" yang dikalibrasi secara probabilistik.
+
+*   **IEEE 7000-1 (Standard Model of Process for Addressing Values in Design):**
+    Aplikasi standar ini pada *Risk-Based AI Governance* memastikan bahwa nilai etika "Kewaspadaan" (*Precaution*) diwujudkan secara teknis. Dengan menerapkan *Risk-Adjusted Thresholds* yang dinamis, sistem memprioritaskan keselamatan dan keadilan dengan menurunkan bobot keputusan ketika ketidakpastian melebihi ambang batas toleransi sosial/organisasional, sesuai dengan prinsip *Value-Sensitive Design*.
+
+##### 3.4.3. Implementasi Teknis dan Argumen Konfigurasi
+
+Untuk mengaktifkan modul **Stochastic Process Control**, skrip Python `compliance_governance_autonomous_epistemic_fusion_and_multi_modal_truth_verification_orchestrator.py` menyediakan parameter baris perintah khusus yang memungkinkan konfigurasi mendalam tentang dinamika kontrol stokastik.
+
+**Struktur Logika Kontrol Stokastik:**
+Kontrol ini dipetakan melalui file konfigurasi yang memetakan distribusi risiko ke kebijakan operasional. Algoritma ini tidak hanya memonitor ketidakpastian, tetapi secara proaktif menyesuaikan `confidence_threshold` berdasarkan fungsi utilitas organisasi dan ambang batas kontinuitas kepatuhan.
+
+**Argumen Baris Perintah:**
+
+```bash
+python compliance_governance_autonomous_epistemic_fusion_and_multi_modal_truth_verification_orchestrator.py \
+    --stochastic_control_parameters ./config/stochastic_control_mapping.yaml \
+    --risk_appetite_function ./models/risk_utility_curve.pkl \
+    --compliance_continuity_threshold 0.95 \
+    --output_stochastic_compliance_log ./logs/stochastic_compliance_v1.json
+```
+
+**Penjelasan Parameter:**
+
+1.  **`--stochastic_control_parameters`**:
+    *   **Tipe:** String (Path ke file YAML/JSON).
+    *   **Deskripsi:** Path ke file konfigurasi yang mendefinisikan dinamika kontrol stokastik. File ini memetakan distribusi probabilitas risiko (dari $u_{epi}$ dan $u_{ale}$) ke dalam kebijakan operasional spesifik, termasuk aturan penyesuaian ambang batas dan respons terhadap *out-of-distribution* data.
+
+2.  **`--risk_appetite_function`**:
+    *   **Tipe:** String (Path ke file model/pickled function).
+    *   **Deskripsi:** Path ke algoritma yang mendefinisikan kurva utilitas organisasi terhadap ketidakpastian. Fungsi ini menentukan seberapa besar volatilitas risiko yang dapat ditoleransi sebelum sistem beralih dari mode "Otonom Tinggi" ke "Perhatian Manusiawi". Ini adalah inti dari penerapan *Risk-Adjusted Thresholds*.
+
+3.  **`--compliance_continuity_threshold`**:
+    *   **Tipe:** Float (0.0 - 1.0).
+    *   **Deskripsi:** Ambang batas minimum probabilitas keberhasilan (confidence score) agar sistem tetap beroperasi dalam mode otonom penuh. Jika probabilitas prediksi di bawah nilai ini, sistem akan menonaktifkan eksekusi aksi kritis dan memicu protokol *Human-in-the-Loop*, memastikan tidak ada keputusan otonom diambil di luar batas kepatuhan yang dapat ditanggung.
+
+4.  **`--output_stochastic_compliance_log`**:
+    *   **Tipe:** String (Path ke file JSON).
+    *   **Deskripsi:** Path untuk log keputusan komprehensif. File ini (`stochastic_compliance_v1.json`) mencatat setiap pergeseran ambang batas, nilai ketidakpastian epistemik/aleatorik terkini, dan alasan teknis di balik perubahan status kepatuhan. Log ini bersifat *append-only* dan terkalibrasi untuk keperluan audit ISO/IEC 24027 dan kepatuhan IEEE 7000-1.
+
+##### 3.4.4. Integrasi Data dan Output
+
+Output dari protokol ini tidak hanya berupa keputusan "Ya/Tidak", melainkan sebuah *Stochastic Compliance State* yang mencakup:
+*   **Risk Probability Distribution:** Distribusi risiko saat ini.
+*   **Adjusted Threshold:** Nilai $T_{risk}$ yang telah disesuaikan secara dinamis.
+*   **Governance Action:** Tindakan spesifik yang diambil (e.g., *Autonomous Execute*, *Request Human Review*, *System Halt*).
+*   **Audit Trail:** Referensi ke bagian log detail untuk investigasi lebih lanjut.
+
+Dengan implementasi ini, sistem menjamin bahwa setiap interaksi dengan lingkungan eksternal dilakukan dengan tingkat kehati-hatian yang sesuai dengan konteks risiko, secara efektif mengabstraksi kompleksitas regulasi menjadi logika kontrol yang dapat dieksekusi secara real-time.
