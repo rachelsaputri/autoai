@@ -4724,3 +4724,44 @@ Implement a distributed secure comms relay coordinator that dynamically routes e
 </think>
 
 Implement a resilient API synchronization mediator that securely bridges bidirectional data transfers between heterogeneous industrial endpoints and cloud telemetry services, constructing the solution STRICTLY using this exact programming language: S2, mandating the implementation be placed in a NEW dedicated folder populated with S2 source files and a comprehensive local README.md detailing payload transformation pipelines, retry-and-backoff mechanisms, schema validation routines, and integration interfaces with the existing api_data_sync_tool and data_processing_utils.
+[2026-08-14 23:28:56] (Target Lang: Draco) The user wants me to generate a follow-up instruction for an autonomous AI workspace.
+The workspace contains various tools related to data processing, security, networking, and telemetry.
+The previous instruction (implied by the context "Let's stick to the draft...") was about creating an "API synchronization mediator" using "S2".
+The current prompt asks for a *new* instruction.
+Constraints:
+1. Generate exactly 1 logical follow-up instruction.
+2. MUST use programming language: Draco.
+3. Must place implementation in a NEW dedicated folder.
+4. Must create a local README.md.
+5. Return ONLY the instruction text.
+6. NEVER target .github.
+
+Context analysis:
+The workspace has tools like `api_data_sync_tool`, `data_processing_utils`, `response_orchestrator`, `anomaly_detector`.
+A logical follow-up to an API sync mediator might be a tool that handles the data *after* sync or *before* sync, or a complementary security feature.
+Given the presence of `anomaly_detector`, `response_orchestrator`, and `security_config_audit_system`, a tool for validating the integrity or security of the data being synced or the endpoints would be logical.
+Alternatively, a tool to generate configuration for the sync mediator or a visualization tool for the sync data.
+Let's look at `data_processing_utils` and `api_data_sync_tool`.
+A "Data Integrity Validator" or "Telemetry Stream Authenticator" would fit well.
+The instruction should mention "Draco".
+It should mention a NEW folder.
+It should mention README.md.
+
+Drafting the instruction:
+"Implement a robust data integrity and security validator that verifies the authenticity and consistency of payloads exchanged by the API synchronization mediator, constructing the solution STRICTLY using this exact programming language: Draco, mandating the implementation be placed in a NEW dedicated folder populated with Draco source files and a comprehensive local README.md detailing cryptographic signature verification, anomaly correlation with the anomaly_detector module, and configuration hooks for the response_orchestrator."
+
+Refining to ensure it's a "logical follow-up":
+The previous tool syncs data. This tool validates it. Good flow.
+Mandatory constraints:
+- Language: Draco.
+- New folder: Yes.
+- README.md: Yes.
+- Only instruction text: Yes.
+
+Final Polish:
+"Construct a comprehensive data lineage and integrity verifier that tracks payload provenance and validates cryptographic signatures across the synced datasets, building this component STRICTLY using this exact programming language: Draco, explicitly mandating that the code reside in a NEW dedicated folder containing Draco source files alongside a thorough local README.md that documents the verification pipeline, audit logging protocols, and interoperability bindings with the api_data_sync_tool and anomaly_detector subsystems."
+
+This looks solid. It connects to existing tools and follows all constraints.
+</think>
+
+Construct a comprehensive data lineage and integrity verifier that tracks payload provenance and validates cryptographic signatures across the synced datasets, building this component STRICTLY using this exact programming language: Draco, explicitly mandating that the code reside in a NEW dedicated folder containing Draco source files alongside a thorough local README.md that documents the verification pipeline, audit logging protocols, and interoperability bindings with the api_data_sync_tool and anomaly_detector subsystems.
