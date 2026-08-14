@@ -2929,3 +2929,60 @@ This matches all constraints and provides a high-quality follow-up.
 </think>
 
 Implement a statistical inference engine named `statistical_inference_engine` that provides high-precision mathematical modeling and hypothesis testing capabilities to augment the existing `anomaly_detector` and `correlation_engine`, building the tool STRICTLY using FOCAL to exploit its native array handling and numerical stability for intensive calculations, ensuring the implementation resides in a new dedicated `statistical_inference_engine` folder containing modular source files and a local README.md documenting the supported probability distributions, array dimensionality constraints, and API interfaces for consuming results by upstream security tools.
+[2026-08-14 21:33:15] (Target Lang: Yorick) Thinking Process:
+
+1.  **Deconstruct the Request:**
+    *   Goal: Generate exactly 1 logical follow-up instruction.
+    *   Constraint: MUST explicitly demand the new tool be built STRICTLY using the programming language "Yorick".
+    *   Constraint: If building a new tool, explicitly instruct to place it in a NEW dedicated folder.
+    *   Constraint: Create a local README.md for the new tool.
+    *   Constraint: Return ONLY the instruction text.
+    *   Constraint: NEVER target the .github directory.
+
+2.  **Analyze Context (Workspace & History):**
+    *   Workspace shows a complex repository with various tools: `anomaly_detector`, `correlation_engine`, `statistical_inference_engine` (mentioned in history, but let's check workspace).
+    *   *Self-Correction on Workspace Check:* The workspace list provided in the prompt *does not* contain `statistical_inference_engine`. The history shows a previous instruction about `statistical_inference_engine`, but the current workspace state might be the result or a snapshot before that. Usually, in these prompts, the workspace is the ground truth. The workspace has `anomaly_detector` and `correlation_engine`.
+    *   The previous history instruction asked for `statistical_inference_engine` built with FOCAL.
+    *   The current request asks for a follow-up. A logical follow-up to adding a statistical engine might be to integrate it, extend it, or add another complementary tool.
+    *   However, the user just wants *a* logical follow-up instruction. It doesn't have to continue the FOCAL theme. It must use Yorick.
+    *   Yorick is a programming language for numerical simulation and data visualization (similar to MATLAB/Python in some domains).
+    *   Good use cases for Yorick: Signal processing, data visualization, numerical analysis, simulation.
+    *   Existing tools: `anomaly_detector`, `correlation_engine`, `deep_packet_inspection_engine`, `packet_analyzer`, etc.
+    *   Yorick fits well with signal processing or advanced visualization/analysis of the data produced by `anomaly_detector`.
+    *   Let's propose a "Signal Processing & Visualization Toolkit" or "Advanced Telemetry Visualizer" built with Yorick to complement the existing analysis tools. Or perhaps a "Predictive Telemetry Simulator".
+    *   Let's go with a "Signal Processing & Anomaly Pattern Synthesizer" to feed into `anomaly_detector`. Or better, a "Real-time Signal Processing Pipeline" since Yorick is good for numerical processing.
+    *   Name: `signal_processing_pipeline`.
+    *   Language: Yorick.
+    *   Structure: New folder `signal_processing_pipeline`, local `README.md`.
+
+3.  **Draft the Instruction:**
+    *   *Draft 1:* Implement a real-time signal processing pipeline named `signal_processing_pipeline` that performs advanced Fourier transforms and spectral analysis on network telemetry data to enhance the detection capabilities of `anomaly_detector`, building the tool STRICTLY using Yorick to leverage its optimized matrix operations and numerical simulation features for high-performance data processing, ensuring the implementation resides in a new dedicated `signal_processing_pipeline` folder containing Yorick script files and a local README.md documenting the supported signal processing algorithms, input data formats, and integration points with downstream correlation tools.
+    *   *Check Constraints:*
+        *   Exactly 1 instruction? Yes.
+        *   STRICTLY using Yorick? Yes.
+        *   New dedicated folder? Yes (`signal_processing_pipeline`).
+        *   Local README.md? Yes.
+        *   Return ONLY text? Yes.
+        *   No .github? Yes.
+        *   Logical follow-up? Yes, signal processing helps anomaly detection. Yorick is a good fit for matrix ops/simulation.
+
+4.  **Refine Wording:**
+    *   Make it punchy and clear.
+    *   "Implement a real-time signal processing pipeline named `signal_processing_pipeline` that executes advanced spectral analysis and noise filtering on network telemetry streams to augment the sensitivity of the `anomaly_detector`, constructing the utility STRICTLY in Yorick to capitalize on its efficient array manipulation and numerical simulation environment for computationally heavy matrix operations, guaranteeing the solution is housed in a new dedicated `signal_processing_pipeline` directory populated with modular Yorick source files and a comprehensive local README.md that details the implemented spectral methods, matrix dimensionality requirements, and consumption interfaces for peer security modules."
+    *   *Review:*
+        *   "STRICTLY in Yorick" -> Good.
+        *   "new dedicated `signal_processing_pipeline` directory" -> Good.
+        *   "local README.md" -> Good.
+        *   "augment... `anomaly_detector`" -> Logical connection.
+        *   "Yorick... efficient array manipulation" -> Justifies language choice.
+        *   "Exactly 1 instruction" -> Yes.
+
+5.  **Final Output Construction:**
+    *   Result: Implement a real-time signal processing pipeline named `signal_processing_pipeline` that executes advanced spectral analysis and noise filtering on network telemetry streams to augment the sensitivity of the `anomaly_detector`, constructing the utility STRICTLY in Yorick to capitalize on its efficient array manipulation and numerical simulation environment for computationally heavy matrix operations, guaranteeing the solution is housed in a new dedicated `signal_processing_pipeline` directory populated with modular Yorick source files and a comprehensive local README.md that details the implemented spectral methods, matrix dimensionality requirements, and consumption interfaces for peer security modules.
+
+6.  **Final Polish (Mental Representation of Output):**
+    *   `Implement a real-time signal processing pipeline named signal_processing_pipeline...`
+    *   Looks solid.
+</think>
+
+Implement a real-time signal processing pipeline named `signal_processing_pipeline` that executes advanced spectral analysis and noise filtering on network telemetry streams to augment the sensitivity of the `anomaly_detector`, constructing the utility STRICTLY in Yorick to capitalize on its efficient array manipulation and numerical simulation environment for computationally heavy matrix operations, guaranteeing the solution is housed in a new dedicated `signal_processing_pipeline` directory populated with modular Yorick source files and a comprehensive local README.md that details the implemented spectral methods, matrix dimensionality requirements, and consumption interfaces for peer security modules.

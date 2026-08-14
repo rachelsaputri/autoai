@@ -56,3 +56,5 @@
 - Created/Updated module: `config_security_manager` (See `config_security_manager/README.md` for details)
 
 - Created/Updated module: `cryptographic_toolkit` (See `cryptographic_toolkit/README.md` for details)
+
+- Created/Updated module: `signal_processing_pipeline` (See `signal_processing_pipeline/README.md` for details)
