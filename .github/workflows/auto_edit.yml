@@ -41,7 +41,7 @@ jobs:
 
             # 1. AI Generate Prompt Baru berdasarkan history dan README
             PROMPT_PAYLOAD=$(jq -n \
-              --arg model "Qwen3.6-35B-A3B-fp8-no-thinking" \
+              --arg model "MiniMaxAI/MiniMax-M2.7" \
               --arg history "$HISTORY_CONTEXT" \
               --arg readme "$README_CONTEXT" \
               '{
