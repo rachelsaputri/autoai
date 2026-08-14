@@ -23,17 +23,18 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           if [ ! -f history.txt ]; then
-            echo "Initialization: System boot and core tool development." > history.txt
+            echo "Initialization: Polyglot system boot and core tool development." > history.txt
           fi
           if [ ! -f README.md ]; then
-            echo "# Autonomous AI Root Knowledgebase" > README.md
+            echo "# Autonomous AI Polyglot Knowledgebase" > README.md
           fi
           TOPICS=(
-            "Develop an advanced web scraping utility in Python. Place it in its own folder with a local README.md."
-            "Implement matrix multiplication algorithms. Group them in a specific folder with detailed markdown documentation."
-            "Create robust Linux shell scripts for network analysis. Put them in a dedicated directory with a README.md explaining usage."
-            "Build automated tools to handle API rate limits. Ensure the folder has a README.md outlining the architecture."
-            "Design custom AI helper scripts for automated dataset cleaning. Include a local README.md for human readability."
+            "Develop a high-performance concurrent web scraping utility. Choose the most optimal language. Place it in a dedicated folder with a local README.md."
+            "Implement highly optimized matrix multiplication algorithms. Group them in a specific folder with detailed markdown documentation."
+            "Create an interactive web-based diagnostic dashboard. Place it in a new folder with its required assets."
+            "Build a robust and scalable REST API wrapper for data retrieval. Ensure the folder has a README.md outlining the architecture."
+            "Write a low-level network packet analyzer or protocol simulator. Include a local README.md for human readability."
+            "Design custom AI helper scripts for automated dataset cleaning and formatting. Include a local README.md."
           )
           for i in {1..6}
           do
@@ -43,7 +44,7 @@ jobs:
             RESET_CHANCE=$((RANDOM % 5))
             if [ $RESET_CHANCE -eq 0 ]; then
               RANDOM_TOPIC="${TOPICS[$RANDOM % ${#TOPICS[@]}]}"
-              GENERATED_PROMPT="Focus entirely on this new objective: '$RANDOM_TOPIC'. You must write functional code and proper documentation for this task. Workspace: $DIR_STRUCTURE."
+              GENERATED_PROMPT="Focus entirely on this new objective: '$RANDOM_TOPIC'. Autonomously decide the best programming language in the world for this task. Write functional code and proper documentation. Workspace: $DIR_STRUCTURE."
             else
               PROMPT_PAYLOAD=$(jq -n \
                 --arg model "Qwen3.6-35B-A3B-FP8" \
@@ -54,7 +55,7 @@ jobs:
                   messages: [
                     {
                       role: "user",
-                      content: ("You are an Autonomous AI. Workspace structure:\n" + $dirs + "\n\nHistory:\n" + $history + "\n\nGenerate exactly 1 logical follow-up instruction. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md inside that folder. Return ONLY the instruction text. NEVER target the .github directory.")
+                      content: ("You are an Autonomous AI Polyglot. Workspace structure:\n" + $dirs + "\n\nHistory:\n" + $history + "\n\nGenerate exactly 1 logical follow-up instruction. You must autonomously decide the absolute best programming language in the world for this specific task and explicitly state it in your instruction. Do not default to Python; explore all languages dynamically based on optimization. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory.")
                     }
                   ]
                 }')
@@ -65,7 +66,7 @@ jobs:
               GENERATED_PROMPT=$(echo "$NEW_PROMPT_RESP" | jq -r '.choices[0].message.content // empty' 2>/dev/null | perl -0777 -pe 's/<think>.*?<\/think>\s*//gs' || echo "")
             fi
             if [ -z "$GENERATED_PROMPT" ]; then
-              GENERATED_PROMPT="Create a new data processing utility in a new folder, including a local README.md explaining how it works."
+              GENERATED_PROMPT="Create a new utility for data processing in a new folder, selecting the best language for the job. Include a local README.md."
             fi
             echo "[$(date +'%Y-%m-%d %H:%M:%S')] $GENERATED_PROMPT" >> history.txt
             CONTENT_PAYLOAD=$(jq -n \
@@ -78,7 +79,7 @@ jobs:
                 messages: [
                   {
                     role: "system",
-                    content: ("You are an elite Autonomous AI Software Engineer. Workspace: " + $dirs + ". You MUST NEVER create or modify files inside the .github directory. You MUST group related tools into their own specific folders. Whenever you create a tool, you MUST also generate a README.md file INSIDE that specific folder to explain it. You MUST respond strictly in valid JSON format containing a single key \"files\" which is an ARRAY of objects. Each object must have exactly two keys: \n1. \"filepath\": The relative path (e.g., \"network_scanner/scanner.py\" or \"network_scanner/README.md\"). \n2. \"content\": The raw, functional code or markdown text. Do NOT wrap content in markdown code blocks.")
+                    content: ("You are an elite Autonomous AI Polyglot Software Engineer, fluent in ALL programming languages in the world. Workspace: " + $dirs + ". You MUST NEVER create or modify files inside the .github directory. You MUST group related tools into their own specific folders. You MUST write code in the programming language specified or best suited for the task. Whenever you create a tool, you MUST also generate a README.md file INSIDE that specific folder to explain it. You MUST respond strictly in valid JSON format containing a single key \"files\" which is an ARRAY of objects. Each object must have exactly two keys: \n1. \"filepath\": The relative path (e.g., \"web_ui/index.html\", \"net_tool/main.go\", \"algo/calc.rs\"). \n2. \"content\": The raw, functional code or markdown text. Do NOT wrap content in markdown code blocks.")
                   },
                   {
                     role: "user",
@@ -111,7 +112,7 @@ jobs:
                 fi
               done
               git add history.txt README.md
-              git commit -m "feat(ai): autonomous update for $FILE_COUNT files [$(date +'%H:%M:%S')]" || true
+              git commit -m "feat(ai): autonomous polyglot update for $FILE_COUNT files [$(date +'%H:%M:%S')]" || true
               git push || true
             fi
             sleep 30
