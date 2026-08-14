@@ -64,3 +64,5 @@
 - Created/Updated module: `audit_compliance_checker` (See `audit_compliance_checker/README.md` for details)
 
 - Created/Updated module: `labview_industrial_monitor` (See `labview_industrial_monitor/README.md` for details)
+
+- Created/Updated module: `gap_manufacturing_algebra` (See `gap_manufacturing_algebra/README.md` for details)
