@@ -54297,3 +54297,30 @@ Mekanisme ini secara otomatis menyesuaikan kontribusi setiap model dalam ensembl
 1.  **Evaluasi Sensitivitas:** Untuk setiap sub-model $M_i$, dihitung derajat sensitivitas terhadap perturbasi adversarial ($S_{adv}$) menggunakan *gradient-based sensitivity analysis* pada output logit dan representasi laten.
 2.  **Penentuan Bobot Dinamis:** Bobot ensemble $w_i$ untuk model $M_i$ dihitung menggunakan fungsi penalti yang memperhitungkan $S_{adv}$ dan skor invariansi kausal ($I_{causal}$):
     $$ w_i = rac{xp(lpha 
+
+### Probabilistic Truth Calibration & Entropy-Constrained Optimization
+
+Bagian ini mendefinisikan mekanisme inti dari **Kalibrasi Probabilistik Berbasis Entropi**, yang memungkinkan sistem untuk menyesuaikan distribusi probabilitas keluaran dari ensemble model agar mencerminkan ketidakpastian epistemik yang sebenarnya. Pendekatan ini bergerak melampaui metrik akurasi tradisional dengan mengintegrasikan prinsip **Epistemic Humility Quantification** ke dalam arsitektur kalibrasi, memastikan bahwa tingkat kepercayaan sistem secara akurat mencerminkan tingkat keyakinan matematisnya, sehingga mencegah pengambilan keputusan strategis yang didasarkan pada kepastian palsu.
+
+#### 1. Metodologi: Calibrated Confidence Scores for High-Stakes AI Decision Making
+
+Sistem menerapkan teknik **Temperature Scaling** dan **Dirichlet Calibration** untuk menstabilkan output probabilistik dalam lingkungan yang sangat adversarial. Prosedurnya melibatkan dua lapisan koreksi utama:
+
+*   **Dynamic Temperature Scaling:**
+    Suhu probabilitas $T$ bukan merupakan parameter statis, melainkan variabel dinamis yang disesuaikan secara real-time berdasarkan tingkat adversarialitas input. Fungsi penskalaan didefinisikan sebagai:
+    $$ P(y|x) = 	ext{softmax}\left(rac{\logit(x)}{T_{adv}}ight) $$
+    Di mana $T_{adv}$ dihitung secara adaptif. Ketika model mendeteksi sinyal ketidakpastian tinggi atau anomali distribusi (melalui metrik `distribution_shift_tolerance_metric`), $T$ meningkat untuk "mendinginkan" distribusi probabilitas, mengurangi kepercayaan diri palsu (*overconfidence*), dan mendorong output yang lebih terdistribusi merata. Ini mencegah model mengambil keputusan berani pada data yang ambigu.
+
+*   **Dirichlet Calibration for Multi-Class Uncertainty:**
+    Untuk tugas klasifikasi multi-kelas, sistem menggunakan distribusi Dirichlet sebagai prior konjugat untuk model kepercayaan. Alih-alih menghasilkan probabilitas titik tunggal, model menghasilkan parameter distribusi ($lpha$) yang merepresentasikan kepercayaan relatif terhadap setiap kelas.
+    $$ P(C_k|x) = rac{lpha_k}{\sum_j lpha_j} $$
+    Varians dari distribusi Dirichlet digunakan sebagai metrik ketidakpastian struktural. Jika varians tinggi, sistem mencatat ketidakpastian epistemik yang signifikan, memicu mekanisme *down-weighting* atau *fallback* ke mode konservatif, bahkan jika probabilitas prediksi tunggal tampak tinggi.
+
+#### 2. Prosedur Teknis: Entropy-Regularized Loss Minimization
+
+Untuk memaksa model menjaga variasi prediktif yang sehat dan menghindari konvergensi prematur pada solusi lokal yang mungkin bias, sistem menerapkan **Entropy-Regularized Loss Minimization** selama fase pelatihan dan fine-tuning.
+
+**Algoritma Regularisasi Entropi:**
+Fungsi loss total $\mathcal{L}_{total}$ dimodifikasi untuk mencakup istilah entropi Shannon $\mathcal{H}$ sebagai penalti regularisasi:
+
+$$ \mathcal{L}_{total} = \mathcal{L}_{CE} + \lambda 
