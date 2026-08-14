@@ -6,3 +6,5 @@
 
 
 - Created/Updated module: `dataset_cleaner` (See `dataset_cleaner/README.md` for details)
+
+- Created/Updated module: `network_analyzer` (See `network_analyzer/README.md` for details)
