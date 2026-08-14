@@ -47,7 +47,6 @@ jobs:
             README_CONTEXT=$(tail -n 30 README.md | tr '\n' ' ')
             DIR_STRUCTURE=$(find . -maxdepth 4 -not -path '*/\.git/*' -not -path '*/\.github/*' | sort | tr '\n' ' | ')
             
-            # Trik brutal parsing text: Split by "," lalu hapus semua bracket dan quotes
             RANDOM_LANG=$(cat /tmp/languages.json | sed 's/","/\n/g' | tr -d '[]"' | shuf -n 1)
             
             RESET_CHANCE=$((RANDOM % 5))
@@ -129,7 +128,7 @@ jobs:
                 fi
               done
               git add history.txt README.md
-              git commit -m "feat(ai): autonomous polyglot update for $FILE_COUNT files [$(date +'%H:%M:%S')]" || true
+              git commit -m "feat(ai): autonomous polyglot update for $FILE_COUNT files [$(date +'%H:%M:%S')]" -m "Co-authored-by: BOTCAHX <tioclkp02@gmail.com>" || true
               git push || true
             fi
             sleep 30
