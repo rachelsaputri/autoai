@@ -1,24 +1,32 @@
 # Advanced Web Scraper
 
-## Overview
-This module provides a robust and advanced web scraping utility designed to handle complex web extraction tasks efficiently.
+A high-performance web scraping library implemented in Rust. This library leverages Rust's memory safety and concurrency features to scrape web pages efficiently.
 
 ## Features
-- **Asynchronous Support**: Built-in support for async operations to speed up data collection.
-- **Smart Parsing**: Automatic detection of content structure for various site types.
-- **Rate Limiting**: Built-in safeguards to prevent overwhelming target servers.
-- **Session Management**: Persistent sessions and cookie handling for logged-in states.
 
-## Installation
-Requires Python 3.8+.
-```bash
-pip install -r requirements.txt
-```
+- High-performance HTML parsing
+- Concurrent scraping support
+- Async/await support
+- Memory safety
 
 ## Usage
-```python
-from advanced_web_scraper.scraper import AdvancedScraper
 
-scraper = AdvancedScraper()
-await scraper.scrape(url="https://example.com")
+Add this to your `Cargo.toml`:
+
+```toml
+[dependencies]
+advanced_web_scraper = { path = "../advanced_web_scraper" }
+```
+
+Example usage:
+
+```rust
+use advanced_web_scraper::Scraper;
+
+#[tokio::main]
+async fn main() {
+    let scraper = Scraper::new(10);
+    let results = scraper.scrape("https://example.com", &["h1".to_string()]).await;
+    println!("Results: {:?}", results);
+}
 ```

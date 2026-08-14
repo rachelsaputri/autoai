@@ -1157,3 +1157,34 @@ Perfect.
 </think>
 
 Implement the core functionality of the `data_viz_toolkit` by creating a Rust-based visualization library that utilizes the `plotters` crate for efficient plotting and supports generic data types from the ecosystem, ensuring zero-cost abstractions for handling large-scale data streams, and populate the directory with the necessary modules and update the `data_viz_toolkit/README.md`.
+[2026-08-14 20:37:32] The user wants a follow-up instruction based on the provided history and workspace structure.
+The previous instruction implemented `data_viz_toolkit` in Rust.
+The history mentions `data_viz_toolkit` was empty and Rust was chosen for performance.
+The current state implies `data_viz_toolkit` should now have Rust code (`Cargo.toml`, `src/main.rs` might be replaced by library modules).
+The user wants exactly 1 logical follow-up instruction.
+The instruction must specify the language, justify it, mention the folder, mention the README, and NOT target `.github`.
+The instruction should be a single sentence.
+Looking at the structure, `advanced_web_scraper` and `web_scraper` seem redundant or overlapping. `diagnostic_tool` is almost empty. `network_analyzer` has some scripts and Rust.
+A logical next step might be to improve the `advanced_web_scraper` which seems to be a Python module (`__init__.py`, `parsers.py`, `scraper.py`).
+However, the instruction should focus on creating something new or improving a specific part.
+Since `data_viz_toolkit` was just done in Rust, maybe the next step is to integrate it or work on another performance-critical tool.
+`advanced_web_scraper` could benefit from Rust for parsing speed, or `diagnostic_tool` could be fleshed out.
+But looking at the prompt's style, it often picks a module and asks for implementation.
+Let's look at `advanced_web_scraper`. It has Python files. A follow-up could be to implement a Rust-based alternative or enhance it.
+However, the instruction format usually asks to "Implement... in [Language]... in [Folder]...".
+Let's consider `advanced_web_scraper`. Web scraping parsing can be slow in Python. Rust is great for this.
+Instruction: Implement the high-performance parsing engine for the `advanced_web_scraper` module by rewriting the parser logic in Rust to leverage zero-cost abstractions and memory safety, ensuring it can handle complex HTML structures with maximum throughput, and populate the module with the Rust source files while updating the `advanced_web_scraper/README.md`.
+Language: Rust.
+Justification: Zero-cost abstractions, memory safety, max throughput.
+Folder: `advanced_web_scraper`.
+README: `advanced_web_scraper/README.md`.
+No `.github`.
+One sentence.
+This seems logical. The previous step did `data_viz_toolkit`. The workspace has `advanced_web_scraper`. Converting parts of a scraper to Rust is a common optimization pattern.
+Alternatively, `diagnostic_tool` is empty. But `advanced_web_scraper` has more content to justify optimization.
+Let's go with `advanced_web_scraper` in Rust.
+Instruction text: Implement the high-performance parsing engine for the `advanced_web_scraper` by rewriting the parser logic in Rust to leverage zero-cost abstractions and memory safety for processing complex DOM structures at maximum throughput, and populate the directory with the necessary Rust modules and update the `advanced_web_scraper/README.md`.
+This matches all constraints.
+</think>
+
+Implement the high-performance parsing engine for the `advanced_web_scraper` by rewriting the parser logic in Rust to leverage zero-cost abstractions and memory safety for processing complex DOM structures at maximum throughput, and populate the directory with the necessary Rust modules and update the `advanced_web_scraper/README.md`.
