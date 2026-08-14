@@ -40,3 +40,5 @@
 - Created/Updated module: `correlation_engine` (See `correlation_engine/README.md` for details)
 
 - Created/Updated module: `deep_packet_inspection_engine` (See `deep_packet_inspection_engine/README.md` for details)
+
+- Created/Updated module: `anomaly_detector` (See `anomaly_detector/README.md` for details)
