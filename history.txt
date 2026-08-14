@@ -5019,3 +5019,66 @@ Implement a centralized data normalization and schema validation pipeline for th
 </think>
 
 Implement a centralized incident tracking and audit log aggregation system for the security telemetry ecosystem using Trac. This tool must strictly ingest normalized alert payloads and validation results to automatically generate, categorize, and link security tickets, compliance records, and remediation tasks across the deployment environment. Build this solution STRICTLY using this exact programming language: Trac, explicitly requiring the code to reside in a NEW dedicated folder populated with Trac source files and configuration scripts, alongside a detailed local README.md that outlines the ticket lifecycle management architecture, database schema integration, workflow automation rules, and audit trail synchronization protocols for cross-system incident management.
+[2026-08-14 23:51:02] (Target Lang: SPITBOL) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Context:** The user provides a workspace structure with many directories and files, mostly related to security, telemetry, monitoring, and various programming languages (Rust, Python, C, Go, etc.). There's also a history section showing a previous interaction where constraints were checked and an instruction was generated.
+   - **Current Prompt:** "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: SPITBOL. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+   - **Constraints from Prompt:**
+     - Exactly 1 instruction.
+     - Explicitly demands language: SPITBOL.
+     - NEW dedicated folder + local README.md.
+     - ONLY instruction text.
+     - No .github targeting.
+     - Logical follow-up.
+
+2.  **Identify Key Requirements:**
+   - The instruction must be a single, coherent sentence/paragraph.
+   - It must explicitly state the programming language: SPITBOL.
+   - It must require a NEW dedicated folder.
+   - It must require a local README.md in that folder.
+   - It must NOT mention `.github`.
+   - It must be a logical follow-up to the existing workspace/context (which is heavily focused on security telemetry, alert correlation, incident tracking, compliance, etc.).
+   - Return ONLY the instruction text.
+
+3.  **Draft Construction (Mental Refinement):**
+   I need to create a tool that fits the security/telemetry theme but uses SPITBOL (a classic string-processing pattern-matching language, historically used for text analysis, parsers, and pattern matching). This fits well with log analysis, pattern matching in security alerts, or network traffic parsing.
+   Let's draft: "Implement a high-performance security log pattern matcher and anomaly correlator for the telemetry ecosystem using SPITBOL. This tool must strictly parse unstructured audit trails, network captures, and system logs to automatically identify complex threat signatures, correlate distributed events, and generate actionable threat intelligence reports. Build this solution STRICTLY using this exact programming language: SPITBOL, explicitly requiring the code to reside in a NEW dedicated folder populated with SPITBOL source files and configuration scripts, alongside a detailed local README.md that outlines the pattern matching architecture, state transition mechanisms, log ingestion pipelines, and report generation protocols for enterprise security operations."
+
+4.  **Check Against Constraints:**
+   - Exactly 1 instruction? Yes.
+   - Explicitly demands language: SPITBOL? Yes.
+   - NEW dedicated folder + local README.md? Yes.
+   - ONLY instruction text? Yes.
+   - No .github? Yes.
+   - Logical follow-up? Yes, fits the security/telemetry log analysis theme of the workspace.
+   - Language exact: SPITBOL. Yes.
+
+   All constraints met. The draft is solid. I will output exactly this text. No extra words, no formatting unless necessary, but the prompt says "Return ONLY the instruction text."
+
+   One minor check: The prompt says "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: SPITBOL." I'll make sure the phrasing matches closely or includes that exact requirement clearly.
+
+   Refined draft: "Implement a distributed security event correlator and log pattern matcher for the telemetry ecosystem using SPITBOL. This tool must strictly ingest raw audit trails, network packet captures, and system metrics to automatically detect complex threat signatures, correlate distributed alerts, and generate structured threat intelligence reports. Build this solution STRICTLY using this exact programming language: SPITBOL, explicitly requiring the code to reside in a NEW dedicated folder populated with SPITBOL source files and configuration scripts, alongside a detailed local README.md that outlines the pattern matching architecture, state transition mechanisms, log ingestion pipelines, and report generation protocols for enterprise security operations."
+
+   Checks:
+   - 1 instruction? Yes.
+   - Explicitly demands language: SPITBOL? Yes.
+   - NEW dedicated folder + local README.md? Yes.
+   - ONLY instruction text? Yes.
+   - No .github? Yes.
+   - Logical follow-up? Yes, complements the existing log analysis, packet analysis, and alert correlation tools.
+
+   Ready. Output matches exactly.✅
+   Proceeds. 
+   Output generation. 
+   [Output] -> "Implement a distributed security event correlator and log pattern matcher for the telemetry ecosystem using SPITBOL. This tool must strictly ingest raw audit trails, network packet captures, and system metrics to automatically detect complex threat signatures, correlate distributed alerts, and generate structured threat intelligence reports. Build this solution STRICTLY using this exact programming language: SPITBOL, explicitly requiring the code to reside in a NEW dedicated folder populated with SPITBOL source files and configuration scripts, alongside a detailed local README.md that outlines the pattern matching architecture, state transition mechanisms, log ingestion pipelines, and report generation protocols for enterprise security operations."✅
+   All constraints verified. Output matches request.✅
+   Proceeds. 
+   [Final Check of the Prompt]: "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: SPITBOL. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+   Matches perfectly. Output matches exactly.✅
+   Proceeds. 
+   [Output Generation] -> *Proceeds with the exact text.* 
+   *(Done.)*
+</think>
+
+Implement a distributed security event correlator and log pattern matcher for the telemetry ecosystem using SPITBOL. This tool must strictly ingest raw audit trails, network packet captures, and system metrics to automatically detect complex threat signatures, correlate distributed alerts, and generate structured threat intelligence reports. Build this solution STRICTLY using this exact programming language: SPITBOL, explicitly requiring the code to reside in a NEW dedicated folder populated with SPITBOL source files and configuration scripts, alongside a detailed local README.md that outlines the pattern matching architecture, state transition mechanisms, log ingestion pipelines, and report generation protocols for enterprise security operations.
