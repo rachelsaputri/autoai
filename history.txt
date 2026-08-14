@@ -4431,3 +4431,56 @@ Implement a distributed telemetry data mapper that normalizes and routes high-th
 </think>
 
 Implement a real-time alert prioritization and dispatch engine that dynamically scores normalized security signals against live threat intelligence feeds and routes critical incidents to the response orchestrator, constructing the solution STRICTLY using this exact programming language: A++, mandating the implementation be placed in a NEW dedicated folder populated with A++ source files and a comprehensive local README.md detailing the dynamic scoring algorithms, risk-based routing logic, high-throughput queue management, and integration interfaces with the X10 correlation engine and the existing mapped telemetry schema.
+[2026-08-14 23:01:43] (Target Lang: KUKA) Thinking Process:
+
+1.  **Deconstruct the Request:**
+    *   Goal: Generate exactly 1 logical follow-up instruction.
+    *   Constraint: MUST explicitly demand the tool be built strictly using the programming language "KUKA".
+    *   Constraint: If building a new tool, place it in a NEW dedicated folder.
+    *   Constraint: Create a local README.md.
+    *   Constraint: Return ONLY the instruction text.
+    *   Constraint: NEVER target the .github directory.
+    *   Context: The user provided a workspace list and history. The history shows a pattern of generating instructions for tools. The previous output was about an "alert prioritization and dispatch engine" using "A++". Now I need a "logical follow-up" instruction using "KUKA".
+
+2.  **Analyze "KUKA":**
+    *   What is KUKA? In the context of programming languages, KUKA is primarily known as the language used for KUKA industrial robots (KRL - KUKA Robot Language). It's a PLC-style language.
+    *   "Logical follow-up": The previous tool was a real-time alert prioritization engine. What would logically follow or complement that?
+        *   Maybe a physical response mechanism? If the alert engine detects a threat, a robot might need to secure the area?
+        *   Maybe an industrial inspection tool?
+        *   Given KUKA's domain (industrial robots), a logical tool might be an "Industrial Robot Safety Supervisor" or "Automated Threat Response Manipulator" or "Factory Floor Anomaly Inspection".
+        *   Let's look at the workspace. There's `alert_dispatch_engine`, `response_orchestrator`, `anomaly_detector`.
+        *   A logical follow-up could be an automated physical remediation tool using robots.
+        *   Idea: "Implement an automated physical threat mitigation system using industrial robots..."
+        *   Language: KUKA.
+        *   Folder: NEW dedicated folder.
+        *   README: Local README.md.
+        *   Details: Robot kinematics, safety interlocks, coordination with the dispatch engine.
+
+3.  **Draft the Instruction:**
+    *   *Draft 1:* Implement an automated industrial threat response manipulator that executes physical isolation procedures on compromised production lines based on signals from the response orchestrator, constructing the solution STRICTLY using this exact programming language: KUKA, mandating the implementation be placed in a NEW dedicated folder populated with KUKA source files and a comprehensive local README.md detailing the kinematic safety constraints, coordinated multi-robot actuation logic, emergency stop protocols, and integration interfaces with the X10 correlation engine and the existing mapped telemetry schema.
+    *   *Review against constraints:*
+        *   1 instruction? Yes.
+        *   Logical follow-up? Yes, physical response to digital alerts.
+        *   Language: KUKA? Yes.
+        *   NEW dedicated folder? Yes.
+        *   README.md? Yes.
+        *   ONLY instruction text? Yes.
+        *   No .github? Yes.
+        *   Structure matches history? "Implement a [Tool Name] that [Description], constructing the solution STRICTLY using [Language], mandating the implementation be placed in a NEW dedicated folder populated with [Language] source files and a comprehensive local README.md detailing [details] and integration interfaces with [components]."
+        *   Draft 1 matches structure well.
+        *   *Refinement:* The history mentions "X10 correlation engine" and "existing mapped telemetry schema" in the previous prompt. It's safe to include these to maintain context, or use generic references to the workspace. The prompt asks for a "logical follow-up". The previous prompt mentioned "integration interfaces with the X10 correlation engine". Including that in the follow-up makes it consistent.
+        *   *Result:* "Implement an automated physical threat mitigation manipulator that executes precise isolation maneuvers on compromised industrial assets under the command of the alert dispatch engine, constructing the solution STRICTLY using this exact programming language: KUKA, mandating the implementation be placed in a NEW dedicated folder populated with KUKA source files and a comprehensive local README.md detailing the kinematic safety constraints, emergency interlock protocols, high-precision actuation logic, and integration interfaces with the alert dispatch engine and the existing mapped telemetry schema."
+
+4.  **Final Polish (Mental Output Generation):**
+    *   Text: `Implement an automated physical threat mitigation manipulator that executes precise isolation maneuvers on compromised industrial assets under the command of the alert dispatch engine, constructing the solution STRICTLY using this exact programming language: KUKA, mandating the implementation be placed in a NEW dedicated folder populated with KUKA source files and a comprehensive local README.md detailing the kinematic safety constraints, emergency interlock protocols, high-precision actuation logic, and integration interfaces with the alert dispatch engine and the existing mapped telemetry schema.`
+    *   Check word "STRICTLY": Present.
+    *   Check language "KUKA": Present.
+    *   Check folder/README: Present.
+    *   Check "ONLY instruction text": No quotes, no markdown if possible (though the output block might render markdown, the content should be the text). The history shows the output is just the string.
+    *   Result looks solid.
+
+5.  **Final Output Construction:**
+    *   `Implement an automated physical threat mitigation manipulator that executes precise isolation maneuvers on compromised industrial assets under the command of the alert dispatch engine, constructing the solution STRICTLY using this exact programming language: KUKA, mandating the implementation be placed in a NEW dedicated folder populated with KUKA source files and a comprehensive local README.md detailing the kinematic safety constraints, emergency interlock protocols, high-precision actuation logic, and integration interfaces with the alert dispatch engine and the existing mapped telemetry schema.`
+</think>
+
+Implement an automated physical threat mitigation manipulator that executes precise isolation maneuvers on compromised industrial assets under the command of the alert dispatch engine, constructing the solution STRICTLY using this exact programming language: KUKA, mandating the implementation be placed in a NEW dedicated folder populated with KUKA source files and a comprehensive local README.md detailing the kinematic safety constraints, emergency interlock protocols, high-precision actuation logic, and integration interfaces with the alert dispatch engine and the existing mapped telemetry schema.
