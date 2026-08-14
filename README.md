@@ -14,3 +14,5 @@
 - Created/Updated module: `web_scraper` (See `web_scraper/README.md` for details)
 
 - Created/Updated module: `advanced_web_scraper` (See `advanced_web_scraper/README.md` for details)
+
+- Created/Updated module: `data_processing_utils` (See `data_processing_utils/README.md` for details)
