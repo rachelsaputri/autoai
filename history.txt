@@ -4105,3 +4105,79 @@ This text meets all constraints.
 </think>
 
 Implement an automated Tcl-based network device configuration audit and remediation script that analyzes running configurations for policy violations and generates compliance reports, constructing the solution STRICTLY using Tcl, mandating the solution be housed in a NEW dedicated folder populated with Tcl source files and a comprehensive local README.md detailing execution workflows, policy definition formats, and integration protocols with existing logging infrastructure.
+[2026-08-14 22:45:52] (Target Lang: Mercury) The user wants a follow-up instruction for an autonomous AI workspace.
+The instruction must:
+1. Be exactly 1 instruction.
+2. STRICTLY use the language Mercury.
+3. Mandate a NEW dedicated folder.
+4. Mandate a local README.md.
+5. ONLY instruction text.
+6. NEVER target .github.
+7. Logical follow-up to the existing workspace.
+
+Looking at the workspace history/files:
+It contains many security, network, data processing, and automation tools (Tcl, Rust, Python, Go, Java, etc.).
+The previous instruction generated was about a Tcl-based network configuration audit.
+I need to create a new instruction for a Mercury-based tool.
+Mercury is a logic programming language. Good for symbolic reasoning, pattern matching, and formal verification or complex data correlation.
+Given the existing tools: `correlation_engine`, `anomaly_detector`, `remediation_orchestrator`, `response_orchestrator`, `network_analyzer`.
+A Mercury tool could be used for "formal verification of security policies" or "symbolic analysis of network traffic patterns" or "constraint satisfaction for incident response workflows".
+Let's go with "symbolic correlation engine for multi-vector security incident analysis". Mercury excels at declarative logic and constraint solving.
+Constraint check: "STRICTLY using Mercury", "NEW dedicated folder", "local README.md", "ONLY instruction text", "NEVER target .github", "Exactly 1 instruction".
+
+Draft:
+Implement a formal logic-based security incident correlation engine that applies declarative constraint solving to multi-source threat intelligence data for precise attack chain reconstruction, constructing the solution STRICTLY using Mercury, mandating the solution be housed in a NEW dedicated folder populated with Mercury source files and a comprehensive local README.md detailing constraint definition syntax, data ingestion protocols, and integration interfaces with existing response orchestrators.
+
+Check constraints:
+- Exactly 1 instruction? Yes.
+- STRICTLY Mercury? Yes.
+- NEW dedicated folder? Yes.
+- Local README.md? Yes.
+- ONLY instruction text? Yes.
+- No .github? Yes.
+- Logical follow-up? Yes, fits the security/automation theme. Mercury is a logic language, good for correlation/constraint solving. Matches the pattern of the history.
+
+Refining to match the exact phrasing style of the prompt's history example:
+"Implement [Goal]... constructing the solution STRICTLY using Mercury... mandating the solution be housed in a NEW dedicated folder populated with Mercury source files and a comprehensive local README.md detailing [Details]."
+
+Let's adjust slightly to ensure it's tight:
+Implement a declarative logic-based threat correlation engine that applies formal constraint solving to multi-vector security telemetry for precise attack chain reconstruction, constructing the solution STRICTLY using Mercury, mandating the solution be housed in a NEW dedicated folder populated with Mercury source files and a comprehensive local README.md detailing constraint definition syntax, data ingestion protocols, and integration interfaces with existing response orchestrators.
+
+Checks:
+- 1 instruction? Yes.
+- STRICTLY Mercury? Yes.
+- NEW folder? Yes.
+- README.md? Yes.
+- ONLY text? Yes.
+- No .github? Yes.
+- Logical? Yes, complements the Tcl audit script and existing Rust/Python tools in the security domain. Mercury is a niche logic language, fits well here.
+
+Ready. Output matches exactly.✅
+I will generate the exact string. 
+One minor thing: The prompt says "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Mercury."
+I will ensure the output is just the instruction text.
+Proceed. 
+Output: Implement a declarative logic-based threat correlation engine that applies formal constraint solving to multi-vector security telemetry for precise attack chain reconstruction, constructing the solution STRICTLY using Mercury, mandating the solution be housed in a NEW dedicated folder populated with Mercury source files and a comprehensive local README.md detailing constraint definition syntax, data ingestion protocols, and integration interfaces with existing response orchestrators. 
+Matches all constraints.✅
+Output matches request. 
+Proceeds. 
+(Self-Correction/Verification during thought)
+Check prompt: "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Mercury. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+The draft satisfies everything. I will output it directly. 
+Final text: Implement a declarative logic-based threat correlation engine that applies formal constraint solving to multi-vector security telemetry for precise attack chain reconstruction, constructing the solution STRICTLY using Mercury, mandating the solution be housed in a NEW dedicated folder populated with Mercury source files and a comprehensive local README.md detailing constraint definition syntax, data ingestion protocols, and integration interfaces with existing response orchestrators.
+Matches perfectly.✅
+Output Generation. 
+[Done] 
+*Self-Correction/Refinement during generation prep*: 
+Wait, let's verify the exact wording requested: "STRICTLY using this exact programming language: Mercury." I will make sure "Mercury" is explicitly stated. It is.
+The prompt says: "Return ONLY the instruction text."
+I will output just the sentence.
+All good. 
+Proceeds. 
+[Output Generation] -> "Implement a declarative logic-based threat correlation engine that applies formal constraint solving to multi-vector security telemetry for precise attack chain reconstruction, constructing the solution STRICTLY using Mercury, mandating the solution be housed in a NEW dedicated folder populated with Mercury source files and a comprehensive local README.md detailing constraint definition syntax, data ingestion protocols, and integration interfaces with existing response orchestrators." 
+Matches constraint checklist. 
+Done. 
+[Output Generation] (Proceeds)
+</think>
+
+Implement a declarative logic-based threat correlation engine that applies formal constraint solving to multi-vector security telemetry for precise attack chain reconstruction, constructing the solution STRICTLY using Mercury, mandating the solution be housed in a NEW dedicated folder populated with Mercury source files and a comprehensive local README.md detailing constraint definition syntax, data ingestion protocols, and integration interfaces with existing response orchestrators.
