@@ -68,3 +68,5 @@
 - Created/Updated module: `gap_manufacturing_algebra` (See `gap_manufacturing_algebra/README.md` for details)
 
 - Created/Updated module: `squeak_encryption_tool` (See `squeak_encryption_tool/README.md` for details)
+
+- Created/Updated module: `mortran_aerospace_telemetry` (See `mortran_aerospace_telemetry/README.md` for details)

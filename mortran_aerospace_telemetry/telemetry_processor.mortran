@@ -1,0 +1,108 @@
+* Mortran Source: Telemetry Signal Processor
+* Language: Mortran
+* Purpose: Legacy-compatible numerical signal processing for aerospace telemetry
+
+      C -------------------------------------------------------
+      C MODULE: TELEMETRY_PROCESSOR
+      C -------------------------------------------------------
+      
+      INTEGER MAX_SAMPLES
+      PARAMETER (MAX_SAMPLES = 1024)
+
+      REAL*8 SIGNAL(MAX_SAMPLES)
+      REAL*8 FILTER_COEFF(10)
+      REAL*8 OUTPUT(MAX_SAMPLES)
+      REAL*8 SNR_ESTIMATE
+      INTEGER ERR_CODE
+
+      C -------------------------------------------------------
+      C SUBROUTINE: PROCESS_TELEMETRY
+      C -------------------------------------------------------
+
+      SUBROUTINE PROCESS_TELEMETRY(N, IN_SIG, OUT_SIG, NCOEFF, 
+     &                            COEFF, SNR)
+
+      INTEGER N, NCOEFF
+      REAL*8 IN_SIG(*), OUT_SIG(*), COEFF(*)
+      REAL*8 SNR
+
+      C Local Variables
+      INTEGER I, J
+      REAL*8 ACCUM
+      REAL*8 NOISE_POWER
+      REAL*8 SIGNAL_POWER
+
+      C Initialize Output
+      DO I = 1, N
+         OUT_SIG(I) = 0.0D0
+      ENDDO
+
+      C Apply FIR Filter
+      DO I = 1, N
+         ACCUM = 0.0D0
+         DO J = 1, NCOEFF
+            IF (I - J + 1 .GT. 0) THEN
+               ACCUM = ACCUM + IN_SIG(I - J + 1) * COEFF(J)
+            ENDIF
+         ENDDO
+         OUT_SIG(I) = ACCUM
+      ENDDO
+
+      C Calculate Signal Power
+      SIGNAL_POWER = 0.0D0
+      DO I = 1, N
+         SIGNAL_POWER = SIGNAL_POWER + OUT_SIG(I)**2
+      ENDDO
+      SIGNAL_POWER = SIGNAL_POWER / N
+
+      C Estimate Noise Power (Difference between raw and filtered)
+      NOISE_POWER = 0.0D0
+      DO I = 1, N
+         ACCUM = IN_SIG(I) - OUT_SIG(I)
+         NOISE_POWER = NOISE_POWER + ACCUM**2
+      ENDDO
+      NOISE_POWER = NOISE_POWER / N
+
+      C Calculate SNR (Signal-to-Noise Ratio)
+      IF (NOISE_POWER .GT. 1.0D-10) THEN
+         SNR = 10.0D0 * LOG10(SIGNAL_POWER / NOISE_POWER)
+      ELSE
+         SNR = 999.0D0  ! Indicate infinite SNR
+      ENDIF
+
+      RETURN
+      END
+
+      C -------------------------------------------------------
+      C MAIN PROGRAM
+      C -------------------------------------------------------
+
+      PROGRAM MAIN
+
+      INTEGER I
+      REAL*8 TEST_SIG(MAX_SAMPLES)
+      REAL*8 TEST_OUT(MAX_SAMPLES)
+      REAL*8 TEST_COEFF(10)
+      REAL*8 TEST_SNR
+      INTEGER ERR_CODE
+
+      C Initialize Coefficients (Simple Moving Average)
+      DO I = 1, 10
+         TEST_COEFF(I) = 0.1D0
+      ENDDO
+
+      C Initialize Test Signal (Sine Wave + Noise)
+      DO I = 1, MAX_SAMPLES
+         TEST_SIG(I) = SIN(0.1D0 * I) + 0.5D0 * RAND(I)
+      ENDDO
+
+      C Process Telemetry
+      CALL PROCESS_TELEMETRY(MAX_SAMPLES, TEST_SIG, TEST_OUT, 10,
+     &                      TEST_COEFF, TEST_SNR)
+
+      C Output Results
+      WRITE(*,*) 'Processing Complete.'
+      WRITE(*,*) 'Estimated SNR:', TEST_SNR
+
+      STOP
+      END

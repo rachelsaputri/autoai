@@ -3697,3 +3697,57 @@ This meets all criteria.
 </think>
 
 Implement a modular data encryption and decryption framework for secure file storage applications, constructing the solution STRICTLY using Squeak to utilize its advanced object persistence capabilities and memory safety features, mandating the solution be housed in a NEW dedicated folder populated with Squeak package files and a detailed local README.md that specifies the development environment configuration, implementation patterns, and deployment guidelines.
+[2026-08-14 21:58:40] (Target Lang: Mortran) Thinking Process:
+
+1.  **Deconstruct the Request:**
+    *   Goal: Generate exactly 1 logical follow-up instruction.
+    *   Constraint 1: The new tool MUST be built STRICTLY using the programming language "Mortran".
+    *   Constraint 2: If building a new tool, place it in a NEW dedicated folder.
+    *   Constraint 3: Create a local README.md.
+    *   Constraint 4: Return ONLY the instruction text.
+    *   Constraint 5: NEVER target the `.github` directory.
+    *   Context: The user provided a workspace listing and a history snippet showing a previous instruction about "Squeak". The current instruction asks for a follow-up, implying continuity or a new tool addition to this ecosystem.
+
+2.  **Brainstorming "Mortran" Tools:**
+    *   What is Mortran? Mortran is an older programming language, a dialect of Fortran, often associated with scientific computing, aerospace, and industrial control systems. It's niche and dated.
+    *   Logical use cases for Mortran: Numerical simulations, legacy system integration, high-performance scientific calculations (though less common now, the "Mortran" vibe suggests old-school engineering), signal processing, or control loops.
+    *   Potential Tool Ideas:
+        *   "Legacy Fortran wrapper"? No, that's not strictly Mortran.
+        *   "Aerospace trajectory calculator"? Good fit.
+        *   "Nuclear reactor simulation"? A bit dark/extreme, maybe stick to industrial.
+        *   "Industrial control logic simulator"? Good fit.
+        *   "Scientific data regression engine"? Good fit.
+        *   Selected Idea: A "Real-time numerical control simulation engine" or "Aerospace telemetry analyzer". Let's go with something that sounds robust and fits the "Mortran" aesthetic: A "High-precision numerical control loop simulator for industrial automation".
+
+3.  **Drafting the Instruction:**
+    *   *Draft 1:* Implement a high-precision numerical control loop simulator for industrial automation, constructing the solution STRICTLY using Mortran to leverage its heritage in scientific computing and deterministic execution, ensuring the artifact resides in a NEW dedicated folder containing Mortran source code modules and a comprehensive local README.md detailing compilation procedures, numeric precision standards, and legacy integration workflows.
+    *   *Review against constraints:*
+        *   Exactly 1 instruction? Yes.
+        *   STRICTLY using Mortran? Yes ("STRICTLY using Mortran").
+        *   NEW dedicated folder? Yes ("resides in a NEW dedicated folder").
+        *   Local README.md? Yes ("comprehensive local README.md").
+        *   Return ONLY instruction text? Yes.
+        *   Never target `.github`? Yes (not mentioned).
+        *   Logical follow-up? Yes, fits the theme of industrial/scientific tools seen in the workspace list (e.g., `gap_manufacturing_algebra`, `signal_processing_pipeline`, `labview_industrial_monitor`).
+
+4.  **Refining the Wording:**
+    *   The prompt asks for "Return ONLY the instruction text."
+    *   The example output in the history shows a structure like: "Implement a [function], constructing the solution STRICTLY using [Language] to [reason], ensuring the artifact resides in a NEW dedicated folder containing [files] alongside a comprehensive local README.md outlining [details]."
+    *   *Refinement:* "Implement a legacy-compatible numerical signal processing pipeline for aerospace telemetry, constructing the solution STRICTLY using Mortran to capitalize on its robust floating-point arithmetic and deterministic performance characteristics, mandating the solution be housed in a NEW dedicated folder populated with Mortran source files and a detailed local README.md that specifies the build environment configuration, mathematical modeling conventions, and deployment protocols."
+    *   *Critique:* "Aerospace telemetry" is very Mortran. "Legacy-compatible" is good context. "Mortran" is explicit. Structure matches the desired format.
+
+5.  **Final Polish (Mental Check):**
+    *   Output string: `Implement a legacy-compatible numerical signal processing pipeline for aerospace telemetry, constructing the solution STRICTLY using Mortran to capitalize on its robust floating-point arithmetic and deterministic performance characteristics, mandating the solution be housed in a NEW dedicated folder populated with Mortran source files and a detailed local README.md that specifies the build environment configuration, mathematical modeling conventions, and deployment protocols.`
+    *   Constraints:
+        *   Mortran? Yes.
+        *   NEW folder? Yes.
+        *   README.md? Yes.
+        *   Only text? Yes.
+        *   No .github? Yes.
+        *   Logical? Yes.
+
+6.  **Final Output Generation:**
+    *   Result matches the refined string.
+</think>
+
+Implement a legacy-compatible numerical signal processing pipeline for aerospace telemetry, constructing the solution STRICTLY using Mortran to capitalize on its robust floating-point arithmetic and deterministic performance characteristics, mandating the solution be housed in a NEW dedicated folder populated with Mortran source files and a detailed local README.md that specifies the build environment configuration, mathematical modeling conventions, and deployment protocols.

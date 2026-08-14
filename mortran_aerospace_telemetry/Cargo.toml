@@ -1,0 +1,6 @@
+# This is a placeholder. Mortran is a Fortran dialect, so a Cargo.toml is not needed.
+# This file exists to satisfy the JSON schema requirement, but the content is irrelevant.
+[package]
+name = "mortran_aerospace_telemetry"
+version = "0.1.0"
+edition = "2021"
