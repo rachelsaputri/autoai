@@ -76,3 +76,5 @@
 - Created/Updated module: `remediation_orchestrator` (See `remediation_orchestrator/README.md` for details)
 
 - Created/Updated module: `security_posture_comparator` (See `security_posture_comparator/README.md` for details)
+
+- Created/Updated module: `self_healing_tool` (See `self_healing_tool/README.md` for details)
