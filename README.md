@@ -82,3 +82,5 @@
 - Created/Updated module: `secure_bootloader_integrity_verifier` (See `secure_bootloader_integrity_verifier/README.md` for details)
 
 - Created/Updated module: `network_config_auditor` (See `network_config_auditor/README.md` for details)
+
+- Created/Updated module: `threat_3d_visualizer` (See `threat_3d_visualizer/README.md` for details)

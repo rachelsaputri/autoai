@@ -4181,3 +4181,89 @@ Done.
 </think>
 
 Implement a declarative logic-based threat correlation engine that applies formal constraint solving to multi-vector security telemetry for precise attack chain reconstruction, constructing the solution STRICTLY using Mercury, mandating the solution be housed in a NEW dedicated folder populated with Mercury source files and a comprehensive local README.md detailing constraint definition syntax, data ingestion protocols, and integration interfaces with existing response orchestrators.
+[2026-08-14 22:47:02] (Target Lang: MaxScript) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Workspace:** A large list of files and directories representing a complex project structure with many tools (Rust, Python, Go, Haskell, etc.).
+   - **History:** Shows a previous interaction where I generated an instruction for a "declarative logic-based threat correlation engine" using Mercury, following specific constraints.
+   - **Prompt/Instruction:** "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: MaxScript. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+
+2.  **Identify Key Constraints:**
+   - Generate exactly 1 logical follow-up instruction.
+   - MUST explicitly demand the new tool be built STRICTLY using: MaxScript.
+   - If building a new tool: place it in a NEW dedicated folder.
+   - Create a local README.md.
+   - Return ONLY the instruction text.
+   - NEVER target the .github directory.
+
+3.  **Determine Context/Theme:**
+   - The workspace contains security, data processing, network analysis, response orchestration, etc.
+   - MaxScript is primarily used for 3D modeling and animation scripting, typically in Autodesk 3ds Max. It's quite niche compared to the other tools in the workspace.
+   - I need to logically connect MaxScript to the existing workspace or create a plausible new tool that fits the project's theme while adhering to the language constraint. Maybe a "3D infrastructure topology visualizer" or "network security data 3D spatial renderer" or "vulnerability landscape generator". Let's go with a "3D network security topology and vulnerability landscape visualizer".
+   - Wait, the prompt says "logical follow-up instruction". It should logically follow from the previous step or the workspace context. The previous step was about a threat correlation engine. A logical follow-up could be a visualization/rendering tool for the correlated threats in 3D.
+   - I must explicitly state MaxScript.
+   - I must mention a NEW dedicated folder.
+   - I must mention a local README.md.
+   - Return ONLY the instruction text.
+
+4.  **Draft Construction (Mental):**
+   Construct a 3D interactive threat landscape visualizer that renders multi-vector attack chains and network topology data for immersive security monitoring, mandating that the solution be built STRICTLY using MaxScript, housed exclusively in a NEW dedicated folder containing the necessary .ms source files, and accompanied by a detailed local README.md outlining the 3D scene generation logic, data import formats, and rendering pipelines compatible with the existing correlation engine outputs.
+
+5.  **Check Constraints:**
+   - Exactly 1 logical follow-up instruction? Yes.
+   - Explicitly demand MaxScript? Yes ("STRICTLY using MaxScript").
+   - Place in NEW dedicated folder? Yes ("housed exclusively in a NEW dedicated folder").
+   - Create local README.md? Yes ("accompanied by a detailed local README.md").
+   - Return ONLY the instruction text? Yes.
+   - NEVER target .github? Yes, not mentioned or targeted.
+   - Logical follow-up? Connects to the previous threat correlation/engine theme by visualizing the data.
+
+   Let's refine it to ensure it strictly matches the prompt's tone and constraints. The prompt says "STRICTLY using this exact programming language: MaxScript." I will make sure that phrasing is exact or very close. I'll adjust to match the exact requirement: "STRICTLY using MaxScript".
+
+   Draft: Implement a 3D interactive threat landscape visualizer that renders multi-vector attack chains and network topology data for immersive security monitoring, constructing the solution STRICTLY using MaxScript, mandating the code be housed in a NEW dedicated folder populated with .ms script files and a comprehensive local README.md detailing 3D scene generation logic, data import protocols, and integration interfaces with the existing correlation engine outputs.
+
+   Check against constraints:
+   - Exactly 1 instruction? Yes.
+   - Explicitly demand MaxScript? Yes.
+   - NEW dedicated folder? Yes.
+   - local README.md? Yes.
+   - ONLY instruction text? Yes.
+   - No .github? Yes.
+   - Logical follow-up? Yes, follows the threat correlation theme.
+
+   One minor thing: MaxScript is typically used inside 3ds Max, but scripting in it is still valid for the prompt's constraint. The prompt doesn't require it to be realistic in a strict engineering sense, just logical within the project context. I'll keep it focused on 3D visualization/rendering of the security data.
+
+   Let's verify the exact wording requirement: "STRICTLY using this exact programming language: MaxScript." I will use exactly that phrase or very close. The prompt says "explicitly demand that the new tool be built STRICTLY using this exact programming language: MaxScript."
+
+   Refined: Implement a 3D threat topology visualizer that transforms multi-vector security telemetry into immersive spatial representations for intuitive attack chain analysis, constructing the solution STRICTLY using MaxScript, mandating the implementation be placed in a NEW dedicated folder populated with MaxScript source files and a comprehensive local README.md detailing the 3D rendering algorithms, data serialization formats, and integration pathways with the existing correlation engine.
+
+   This meets all constraints. I will output exactly this text. No extra words. Proceed. 
+   Self-Correction/Verification during thought: 
+   Check constraint: "Return ONLY the instruction text." -> I will output just the sentence.
+   Check constraint: "STRICTLY using this exact programming language: MaxScript." -> I'll make sure it's explicitly stated.
+   Check constraint: "NEW dedicated folder and create a local README.md." -> Included.
+   Check constraint: "NEVER target the .github directory." -> Not mentioned.
+   All good. Output matches.✅
+   Output Generation. 
+   [Output] Implement a 3D threat topology visualizer that transforms multi-vector security telemetry into immersive spatial representations for intuitive attack chain analysis, constructing the solution STRICTLY using MaxScript, mandating the implementation be placed in a NEW dedicated folder populated with MaxScript source files and a comprehensive local README.md detailing the 3D rendering algorithms, data serialization formats, and integration pathways with the existing correlation engine. 
+   Matches perfectly. Proceeds. 
+   [Done] 
+   *Self-Correction/Refinement during generation prep*: I'll make sure the phrasing exactly matches the prompt's requirement for explicit demand. The prompt says: "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: MaxScript." I will adjust slightly to ensure it's a direct command matching the tone. "Build a new tool..." or "Implement a new tool...". I'll stick with "Implement a 3D threat topology visualizer..." as it's a clear instruction. It's fine.
+   Final check of the prompt: "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: MaxScript. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+   All constraints met. Output matches.✅
+   Proceeds. 
+   [Output Generation] -> "Implement a 3D threat topology visualizer that transforms multi-vector security telemetry into immersive spatial representations for intuitive attack chain analysis, constructing the solution STRICTLY using MaxScript, mandating the implementation be placed in a NEW dedicated folder populated with MaxScript source files and a comprehensive local README.md detailing the 3D rendering algorithms, data serialization formats, and integration pathways with the existing correlation engine."
+   Done. 
+   [Output] (Proceeds) -> *Outputs exactly the instruction text*
+   *(Note: I will ensure no extra text, quotes, or formatting surrounds it, as per "Return ONLY the instruction text.")*
+   Ready. 
+   [Output Generation] -> Implement a 3D threat topology visualizer that transforms multi-vector security telemetry into immersive spatial representations for intuitive attack chain analysis, constructing the solution STRICTLY using MaxScript, mandating the implementation be placed in a NEW dedicated folder populated with MaxScript source files and a comprehensive local README.md detailing the 3D rendering algorithms, data serialization formats, and integration pathways with the existing correlation engine. 
+   *(Self-Correction/Verification during thought)*: Wait, the prompt says "STRICTLY using this exact programming language: MaxScript." I should probably use the exact phrase "STRICTLY using this exact programming language: MaxScript" or just ensure MaxScript is explicitly demanded. I'll adjust to be safe: "mandating that the new tool be built STRICTLY using this exact programming language: MaxScript, and explicitly instruct to place it in a NEW dedicated folder with a local README.md." Actually, the prompt says "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: MaxScript." I will just write the instruction directly. The previous successful output used "STRICTLY using Mercury". I'll stick to that pattern. It's fine.
+   Final text matches. Outputting. 
+   [Output] Implement a 3D threat topology visualizer that transforms multi-vector security telemetry into immersive spatial representations for intuitive attack chain analysis, constructing the solution STRICTLY using MaxScript, mandating the implementation be placed in a NEW dedicated folder populated with MaxScript source files and a comprehensive local README.md detailing the 3D rendering algorithms, data serialization formats, and integration pathways with the existing correlation engine.✅
+   *(Note: I will output exactly this string.)*
+   Proceeds. 
+   [Done]
+</think>
+
+Implement a 3D threat topology visualizer that transforms multi-vector security telemetry into immersive spatial representations for intuitive attack chain analysis, constructing the solution STRICTLY using MaxScript, mandating the implementation be placed in a NEW dedicated folder populated with MaxScript source files and a comprehensive local README.md detailing the 3D rendering algorithms, data serialization formats, and integration pathways with the existing correlation engine.
