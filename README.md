@@ -57124,3 +57124,54 @@ Ekspansi metodologi ke Neural Tangent Kernel ini didukung oleh pedoman teoritis 
 *   **IEEE Transactions on Information Theory on Kernel Methods in High-Dimensional Geometry:** Sistem mengadopsi kerangka kerja dari jurnal ini mengenai analisis statistik kernel dalam dimensi tinggi. Kami menerapkan prinsip-prinsip mengenai konvergensi spektral kernel Gaussian pada graf acak dan struktur tetap, memastikan bahwa estimasi NTK kita konvergen ke limit teoritis yang diharapkan, sehingga memberikan dasar matematis yang kuat untuk klaim stabilitas spektral. Ini menjamin bahwa batasan stabilitas yang kita hitung bukan hanya empiris, tetapi memiliki jaminan konvergensi asimetotik.
 *   **ACM Conference on Machine Learning (ICML) Guidelines on Theoretical Guarantees for Geometric Deep Learning:** Kami mengintegrasikan best practices dari penelitian ICML terbaru mengenai jaminan teoritis untuk GNN. Secara spesifik, kami menggunakan hasil tentang batas generalisasi untuk model yang beroperasi dalam rejim NTK, memastikan bahwa kesalahan generalisasi model kepatuhan dapat dibatasi secara eksplisit berdasarkan kompleksitas kernel dan ukuran sampel. Hal ini meningkatkan *Reliability* (keandalan) dengan memberikan batas kesalahan yang dapat dipercaya bagi regulator.
 *   **ISO/IEC TR 24029 (Trustworthy AI) - Algorithmic Stability and Determinism:** Integrasi NTK dan Deterministic Topological Inference secara langsung memenuhi persyaratan ketat dari standar ini mengenai stabilitas algoritma. Dengan membuktikan bahwa output model tidak sensitif secara ekstrem terhadap perubahan kecil dalam parameter atau input (stabilitas uniform), sistem menyediakan bukti objektif bahwa proses audit kepatuhan bersifat deterministik dan dapat diaudit ulang. Ini memperkuat *Accountability* (akuntabilitas) dengan mengurangi ketergantungan pada "black box" probabilistik dan meningkatkan transparansi logika inferensi kepatuhan.
+
+
+### 6.9 Sub-bagian Lanjutan: Spectral Alignment Verification for Heterogeneous Model Interoperability
+
+Sebagai kelanjutan dari protokol **Cross-Architecture NTK Transfer**, sistem memperkenalkan lapisan verifikasi tingkat lanjut yang disebut **Spectral Alignment Verification for Heterogeneous Model Interoperability**. Lapisan ini mengatasi tantangan fundamental dalam ekosistem kepatuhan yang dinamis, di mana arsitektur model dapat berganti (misalnya, beralih dari GNN Spektral murni ke GNN Hibrida atau Spatial-aware) tanpa mengganggu konsistensi audit. Metode ini memastikan bahwa embedding dari arsitektur yang berbeda tetap berada dalam manifold kesamaan yang dapat dibandingkan secara matematis, sehingga mencegah distorsi interpretasi kepatuhan yang sering terjadi saat model digantikan atau ditingkatkan versinya tanpa *fine-tuning* ulang.
+
+#### 6.9.1 Eigenvalue Spectrum Normalization Protocol
+
+Inti dari interoperabilitas ini adalah penyelarasan ruang fitur melalui **Eigenvalue Spectrum Normalization**. GNN yang berbeda memproyeksikan graf input ke ruang fitur dengan skala dan orientasi spektral yang berbeda. Untuk menyelaraskan distribusi nilai eigen Laplacian dari graf input antar model heterogen, sistem menerapkan protokol berikut:
+
+1.  **Komputasi Spektral Dasar:** Untuk setiap graf input $G$, sistem menghitung dekomposisi nilai eigen dari Matriks Laplacian Normalized $L_{norm}$, menghasilkan vektor nilai eigen $\lambda = [\lambda_1, \lambda_2, ..., \lambda_n]$.
+2.  **Pencocingan Distribusi Cumulative (CDF Matching):** Sistem memetakan distribusi kumulatif dari nilai eigen model sumber ke model target menggunakan teknik *quantile matching*. Ini memastikan bahwa frekuensi relatif dari mode frekuensi rendah (yang merepresentasikan struktur global/graf besar) dan tinggi (detail lokal/edge) tetap konsisten di kedua ruang fitur.
+3.  **Penormalan Rentang Spektral:** Nilai eigen yang telah dicocokkan dinormalisasi ke rentang $[0, 1]$ yang standar, menghilangkan bias skala yang disebabkan oleh perbedaan densitas graf atau ukuran adjacency matrix antar implementasi model.
+
+Prosedur ini menjamin bahwa meskipun arsitektur internal berbeda, representasi topologis dari "stabilitas" dan "kepatuhan" berada dalam basis yang dapat dibandingkan, menjaga integritas data input sebelum masuk ke lapisan kernel NTK.
+
+#### 6.9.2 Procedural Implementation & CLI Arguments
+
+Implementasi teknis dari protokol ini diakses melalui modul orkestrasi utama. Sistem dirancang untuk beroperasi secara otonom dengan argumen baris perintah berikut yang mengontrol perilaku penyesuaian dan pelaporan:
+
+| Argument | Tipe | Deskripsi |
+| :--- | :--- | :--- |
+| `--heterogeneous_model_registry` | `str` | Path ke file JSON/YAML yang berisi daftar arsitektur model yang terdaftar, beserta profil spektral NTK awal dan metadata arsitektur (misal: `node_dim`, `num_layers`, `pooling_type`). Digunakan untuk lookup metadata cepat selama inisialisasi transfer. |
+| `--spectral_alignment_tolerance` | `float` | Path ke file parameter atau nilai float tunggal yang menentukan ambang batas divergensi spektral maksimum (misal: `0.05`). Jika metrik *Maximum Mean Discrepancy* (MMD) antar spektral melebihi batas ini, protokol penyesuaian otomatis akan diaktifkan. |
+| `--cross_model_mapping_matrix_path` | `str` | Path ke file biner/numpy array yang menyimpan matriks transformasi linear $W_{map}$ yang telah dipelajari. Matriks ini digunakan untuk memetakan output embedding dari model sumber ke ruang fitur bersama dengan model target. Jika tidak ada, matriks akan dihitung secara dinamis selama inisialisasi. |
+| `--output_cross_model_compatibility_report` | `str` | Path output untuk menyimpan laporan kompatibilitas silang dalam format JSON (`cross_model_compatibility_v1.json`). Laporan ini mencakup metrik keselarasan spektral, nilai eigen rata-rata, dan status validasi deterministik. |
+
+#### 6.9.3 Metodologi: Spectral Consistency in Multi-Model Federated Learning
+
+Dalam konteks pembelajaran terdesentralisasi, prinsip **Spectral Consistency** menjadi krusial untuk mencegah *model drift*. Sistem menerapkan mekanisme konsistensi spektral di mana setiap node federasi melaporkan statistik spektral dari sub-graf lokal mereka ke server pusat.
+
+*   **Aggregasi Spektral Robust:** Server pusat tidak hanya menggabungkan bobot model, tetapi juga melakukan rata-rata tertimbang pada distribusi nilai eigen spektral. Ini memastikan bahwa representasi global tetap stabil secara topologis.
+*   **Deteksi Anomali Topologis:** Jika node federasi tertentu melaporkan distribusi spektral yang menyimpang jauh dari median global, sistem menandainya sebagai node berpotensi "bias" atau memiliki arsitektur yang tidak kompatibel, dan membatasi dampaknya pada agregasi model global. Pendekatan ini memperkuat *Reliability* (keandalan) dalam skala besar dengan memastikan konsistensi struktur data di seluruh lanskap distribusi.
+
+#### 6.9.4 Standar dan Kerangka Acuan: Architectural Agnostic Compliance
+
+Integrasi **Spectral Alignment Verification** didukung oleh standar industri yang menekankan interoperabilitas dan portabilitas model AI yang terpercaya:
+
+*   **IEEE P7000 Series on Trustworthy AI (Aligned with Model Interoperability and Portability):** Sistem mengadopsi pedoman IEEE P7000 mengenai transparansi dan portabilitas algoritma. Dengan membuktikan bahwa output kepatuhan tidak bergantung secara kritis pada arsitektur internal spesifik (melalui normalisasi spektral dan mapping linear), sistem memenuhi prinsip **Architectural Agnostic Compliance**. Ini berarti prinsip kepatuhan dan integritas kausal bertahan terlepas dari perubahan implementasi algoritma di balik *black box* layer, memungkinkan organisasi untuk meng-upgrade atau mengganti model tanpa kehilangan kepercayaan historis pada hasil audit.
+*   **ACM SIGKDD Workshop on Machine Learning for Complex Systems (Cross-Architecture Generalization):** Kami mengintegrasikan temuan terbaru mengenai generalisasi lintas-arsitektur. Khususnya, kami menggunakan kerangka kerja *Kernel Alignment* yang diperluas untuk mengukur kemiripan manifolddalam ruang fitur yang ditenun oleh NTK. Hasil ini memastikan bahwa kesalahan generalisasi model kepatuhan tetap dapat dibatasi secara eksplisit, bahkan ketika model sumber dan target memiliki struktur graf atau jenis operasi agregasi yang berbeda. Hal ini meningkatkan *Accountability* (akuntabilitas) dengan menyediakan bukti matematis bahwa perbedaan performa bukanlah akibat dari inkompatibilitas arsitektur, melainkan murni variasi data.
+
+#### 6.9.5 Dynamic Model Swap Verification Engine
+
+Untuk mendukung evolusi teknologi tanpa mengganggu operasi audit, sistem dilengkapi dengan **Dynamic Model Swap Verification Engine (DMOVE)**. Mekanisme ini secara transparan memvalidasi pergantian model produksi dari satu arsitektur ke arsitektur lain dalam lingkungan *hot-swap*.
+
+Prosedur verifikasi berlangsung dalam tiga tahap:
+1.  **Pre-Swap Spectral Profiling:** Sistem menangkap profil spektral lengkap dari model lama ( incumbent) dan menghasilkan embedding dummy untuk dataset validasi historis.
+2.  **Parallel Inference & Deviation Analysis:** Model baru (candidate) dijalankan secara paralel pada subset data yang sama. Sistem menghitung deviasi antar output embedding ($\Delta E$) dan memeriksa apakah deviasi tersebut berada dalam radius ketidakpastian formal yang telah didefinisikan sebelumnya (berdasarkan *spectral alignment tolerance*).
+3.  **Automatic Rollback & Mapping Injection:** Jika $\Delta E$ melebihi ambang batas, sistem secara otomatis menggugurkan pembaruan dan memicu re-kalibrasi matriks pemetaan linear. Jika lolos, matriks pemetaan baru diinkorporasikan ke dalam *registry*, dan logging audit mencatat perubahan arsitektur serta jaminan konsistensi spektralnya.
+
+Dengan demikian, fondasi kepatuhan yang dibangun bukan hanya stabil secara teoretis melalui jaminan NTK, tetapi juga fleksibel secara operasional terhadap evolusi teknologi model masa depan. Ini menjamin keberlanjutan audit jangka panjang di tengah lanskap AI yang dinamis, di mana perubahan arsitektur adalah hal yang inevitable, namun konsistensi hasil tetap adalah keharusan regulasi.
