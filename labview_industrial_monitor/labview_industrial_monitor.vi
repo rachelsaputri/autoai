@@ -1,0 +1,15 @@
+[VI]
+VIStart
+End VIStart
+StartPanel=0
+StartBlockDiagram=1
+[UI]
+FrontPanelWidth=800
+FrontPanelHeight=600
+[BlockDiagram]
+Visible=1
+[Code]
+Version=1.0
+Description=Main Application Entry Point
+End Description
+End Code
