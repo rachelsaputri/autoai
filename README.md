@@ -55551,3 +55551,38 @@ Implementasi FHE dalam arsitektur ini introduces *computational overhead* yang s
 *   **Key Rotation & Compromise Resilience**: Kunci FHE dikemas dengan mekanisme *Shamir's Secret Sharing* yang terdistribusi, memastikan bahwa tidak ada single point of failure dalam manajemen kunci enkripsi, selaras dengan praktik terbaik NIST dan panduan keamanan quantum-safe.
 
 Dengan demikian, sistem ini tidak hanya melindungi data dari ancaman kuantum masa depan, tetapi juga menciptakan fondasi baru untuk kepercayaan digital di mana audit kepatuhan dapat dilakukan secara menyeluruh, akurat, dan privasi-preserving secara simultan.
+
+
+5. **`--mpc_backend_configuration` (Path Konfigurasi Backend Komputasi Aman Multi-Pihak)**:
+    Menunjuk ke file konfigurasi untuk engine komputasi aman multi-pihak (MPC). Backend ini dapat dikonfigurasi untuk menggunakan kerangka kerja seperti TensorFlow Federated atau PySyft, yang mengelola komunikasi kriptografis, penyamaran data (data masking), dan pertukaran pesan antara para pihak yang berpartisipasi. Konfigurasi ini mencakup parameter untuk keamanan komunikasi, optimasi jaringan, dan protokol negosiasi kunci untuk memastikan integritas data selama proses komputasi terdistribusi.
+
+6. **`--threshold_signing_params` (Path Definisi Parameter Tanda Tangan Threshold)**:
+    Berisi definisi kriptografis untuk skema tanda tangan threshold, termasuk algoritma hash berbasis keadaan (stateful hash-based signature schemes) yang direkomendasikan oleh NIST SP 800-208. Parameter ini menentukan ambang batas (`t` dari `n`) auditor yang diperlukan untuk menyetujui dan menandatangani hasil dekripsi, serta parameter keamanan untuk kunci pribadi yang terfragmentasi, memastikan bahwa tidak ada pihak tunggal yang dapat melepaskan data tanpa persetujuan kolektif yang terverifikasi.
+
+7. **`--auditor_quorum_vector` (Path Vektor Bobot Kepercayaan Auditor)**:
+    Menunjuk ke file yang mendefinisikan vektor bobot kepercayaan untuk setiap entitas auditor. Bobot ini dihitung berdasarkan faktor-faktor seperti jenis lisensi regulasi, yurisdiksi hukum, dan riwayat kepatuhan historis. Vektor ini digunakan oleh protokol quorum untuk menentukan apakah kumpulan auditor yang saat ini aktif memenuhi ambang batas kepercayaan yang diperlukan untuk memproses data sensitif dari yurisdiksi tertentu, memungkinkan granularitas kebijakan akses yang dinamis dan berbasis risiko.
+
+8. **`--output_mpc_audit_trail` (Path Log Jejak Audit Terdistribusi)**:
+    Lokasi output untuk log audit terdistribusi yang mencatat setiap partisipasi, pesan kriptografis, dan hasil komputasi MPC tanpa mengungkapkan input individu. Log ini disimpan dalam format `mpc_compliance_v1.json` dan dirancang untuk dapat diaudit secara forensik, memastikan transparansi dalam proses pengambilan keputusan kolektif sambil mempertahankan privasi data di baliknya.
+
+###### Metodologi: Post-Quantum Secure Multi-Party Computation for Decentralized Audit Trails
+
+Sistem ini mengintegrasikan protokol *Secure Multi-Party Computation (MPC)* berbasis kisi (*lattice-based*) dengan infrastruktur *Fully Homomorphic Encryption (FHE)* yang ada. Integrasi ini memungkinkan beberapa auditor independen (misalnya: regulator pemerintah, auditor eksternal, dan pihak ketiga tepercaya) untuk melakukan komputasi bersama pada data terenkripsi tanpa perlu menggabungkan kunci dekripsi mereka ke dalam satu entitas, sehingga menghilangkan risiko *single point of failure* dalam manajemen akses kepatuhan.
+
+1.  **Lattice-Based Secure Multi-Party Computation for High-Sensitivity Data**:
+    Sistem menerapkan MPC berbasis kisi (seperti protokol FROG atau BMR yang dioptimalkan untuk kisi) untuk melindungi data sensitif tingkat tinggi. Pendekatan ini memanfaatkan struktur aljabar dari masalah kisi (LWE) yang tahan terhadap serangan kuantum. Dalam protokol ini, setiap auditor memegang bagian dari kunci dekripsi (share), dan komputasi dilakukan pada data yang telah dienkripsi secara homomorfik. Tidak ada pihak yang dapat mendekripsi data sendirian; hanya ketika cukup banyak bagian kunci yang digabungkan melalui protokol kriptografis yang aman, hasil komputasi yang valid dapat dihasilkan. Ini memastikan bahwa kerahasiaan data tetap terjaga selama seluruh siklus hidup verifikasi, bahkan jika satu atau beberapa auditor disusupi.
+
+2.  **Distributed Trust without Centralized Intermediaries**:
+    Sistem menerapkan prinsip "Kepercayaan Terdistribusi tanpa Perantara Terpusat". Kepatuhan tidak lagi bergantung pada kepercayaan pada satu otoritas pusat atau satu administrator sistem, melainkan pada verifikasi kriptografis terdistribusi. Setiap langkah komputasi divalidasi secara matematis oleh para pihak yang berpartisipasi, menciptakan ekosistem di mana kebenaran kepatuhan emerge dari konsensus kriptografis, bukan dari otoritas administratif. Ini mengurangi risiko penyalahgunaan kekuasaan dan meningkatkan ketahanan sistem terhadap serangan insider.
+
+3.  **NIST SP 800-208 (Recommendation for Stateful Hash-Based Signature Schemes) extended to MPC Integrity**:
+    Sistem mengadopsi standar NIST SP 800-208 untuk tanda tangan digital berbasis hash keadaan, yang telah disesuaikan untuk integritas dalam lingkungan MPC. Tanda tangan ini digunakan untuk memverifikasi keaslian dan non-repudiasi dari setiap kontribusi komputasi dari auditor. Karena tandaangan hash-based tahan terhadap serangan kuantum, sistem ini masa depan-proof dalam hal integritas tanda tangan, memastikan bahwa jejak audit tidak dapat dipalsukan bahkan oleh penyerang dengan kemampuan kuantum.
+
+4.  **ETSI EN 303 645 (Security for Consumer IoT) aligned with Decentralized Identity in Audit Systems**:
+    Sistem menyelaraskan praktik keamanan perangkat IoT (ETSI EN 303 645) dengan identitas terdesentralisasi dalam sistem audit. Setiap auditor diidentifikasi menggunakan identitas terdesentralisasi yang terverifikasi kriptografis, bukan melalui sertifikat tradisional yang dikelola pihak ketiga. Hal ini memastikan bahwa identitas auditor dapat diverifikasi secara langsung dan terpercaya dalam jaringan terdistribusi, mengurangi ketergantungan pada otoritas sertifikat pusat (CA) yang menjadi titik kegagalan tunggal.
+
+5.  **Threshold Decryption for Regulatory Release Protocol**:
+    Prosedur ini secara otomatis mengelola ambang batas dekripsi. Hasil audit yang terenkripsi hanya akan dilepaskan ke publik atau otoritas regulasi ketika jumlah auditor yang memenuhi syarat mencapai *quorum* yang ditentukan oleh smart contract. Smart contract ini memantau status kepatuhan dan mengotomatisasi proses pelepasan data, memastikan bahwa tidak ada data yang dilepaskan tanpa persetujuan kolektif yang valid dan tercatat secara kriptografis.
+
+6.  **Cross-Border Privacy Shield for Auditors**:
+    Sistem ini secara dinamis menyesuaikan protokol pertukaran data antar yurisdiksi untuk mematuhi batasan aliran data lokal, seperti GDPR (Uni Eropa) atau CCPA (California). Mekanisme ini menggunakan kebijakan kepatuhan berbasis atribut yang terintegrasi dengan protokol MPC. Jika data perlu diproses lintas batas, sistem akan memastikan bahwa komputasi terjadi dalam lingkungan yang patuh terhadap hukum lokal yang relevan, sambil mempertahankan validasi kausal global. Ini memungkinkan audit skala global tanpa mengorbankan privasi data sensitif, menciptakan ekosistem kepatuhan yang sepenuhnya terdesentralisasi, tahan terhadap sensor, dan siap untuk audit skala global.
