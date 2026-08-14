@@ -56263,3 +56263,22 @@ Sistem menerapkan arsitektur **Causal GAN Terenkripsi** yang beroperasi sepenuhn
 Berbeda dengan pendekatan konvensional yang menerapkan kendala kausal sebagai pasca-proses, sistem ini mengintegrasikan kendala tersebut langsung ke dalam fungsi kerugian (*loss function*) Generator dalam ruang terenkripsi:
 
 $$ \mathcal{L}_{total} = \lambda_{adv} 
+
+Berikut adalah konten lanjutan untuk dokumentasi `README.md`, dirancang untuk menyelaraskan dengan nada teknis, terstruktur, dan mendalam dari bagian sebelumnya.
+
+***
+
+### 3. Homomorphic Adversarial Robustness Certification via Certified Defenses
+
+Bagian ini mendokumentasikan subsistem **Certified Robustness** yang diintegrasikan secara native ke dalam arsitektur *Homomorphic Causal GAN*. Berbeda dengan pendekatan empiris yang mengandalkan *adversarial training* konvensional (yang hanya memberikan ketahanan statistik tanpa jaminan ketat), subsistem ini menerapkan prinsip **"Certified Defenses berbasis Bola L2"**.
+
+Tujuan utamanya adalah memberikan jaminan matematis bahwa output data sintetis—dan khususnya struktur kausal yang diimputasi—tidak akan berubah drastis terhadap gangguan adversarial kecil (noise yang disengaja) yang diterapkan pada input atau parameter model. Karena komputasi dilakukan sepenuhnya dalam ruang terenkripsi (*Homomorphic Space*), mekanisme sertifikasi ini memastikan bahwa privasi data tidak dikompromikan selama proses verifikasi ketahanan terhadap serangan, baik klasik maupun kuantum.
+
+#### A. Metodologi: Certified Robustness in Encrypted Deep Learning
+
+Sistem mengimplementasikan kerangka kerja **"Certified Robustness in Encrypted Deep Learning"** yang didasarkan pada konsep *L2-Ball Certified Defenses*. Dalam konteks ini, sistem membuktikan bahwa untuk setiap titik data input dalam bola dengan radius $psilon$ (epsilon), output model $f(x)$ tetap berada dalam himpunan kelas atau struktur kausal yang sama.
+
+Prinsip kunci yang diterapkan meliputi:
+
+1.  **Mathematically Guaranteed Data Integrity:**
+    Sistem memverifikasi bahwa fungsi tujuan GAN memenuhi kondisi *Lipschitz continuity* dalam ruang ciphertext. Dengan mengenkripsi parameter model dan gradien menggunakan *Fully Homomorphic Encryption* (FHE), sistem memastikan bahwa transformasi fungsi $f: X ightarrow Y$ bersifat stabil secara matematis. Jika distorsi input kecil ($||\delta||_2 \le psilon$), maka distorsi output juga terbatas ($||f(x+\delta) - f(x)||_2 \le K 
