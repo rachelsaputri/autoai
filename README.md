@@ -53585,3 +53585,69 @@ Algoritma penyesuaian bobot menggunakan fungsi objektif berikut:
 
 $$
 L_{total} = L_{predictive} + \lambda_{cost} 
+
+##### 5.3. Causal Policy Optimization for Autonomous Truth Correction
+
+Dalam arsitektur sistem kepatuhan adaptif, modifikasi struktural graf kausal tidak dapat dipisahkan dari pembaruan epistemik terhadap nilai kebenaran (*truth values*) node. Bagian ini mendefinisikan mekanisme di mana Reinforcement Learning (RL) berbasis **Actor-Critic** mengoordinasikan perubahan topologi dengan koreksi data real-time, memastikan bahwa setiap rewiring graf didahului oleh validasi kausal terhadap konsistensi kebenaran yang dihasilkan.
+
+###### 5.3.1. Actor-Critic Architecture for Causal Dynamics
+
+Sistem mengimplementasikan kerangka kerja *Actor-Critic* di mana:
+*   **Actor Network ($\pi_	heta$):** Mempelajari kebijakan (*policy*) untuk mengusulkan tindakan struktural (penambahan/deletion edge, perubahan arah DAG) dan pembaruan nilai node. Outputnya adalah distribusi probabilitas atas ruang tindakan diskrit (rewiring) dan kontinu (penyesuaian bobot kepercayaan).
+*   **Critic Network ($V_\phi$):** Mengevaluasi nilai keadaan saat ini dengan memprediksi *expected future reward* berdasarkan stabilitas kepatuhan dan akurasi prediksi kontrafaktual.
+
+Fungsi kerugian (*loss function*) untuk pelatihan dikombinasikan antara akurasi prediksi kausal dan stabilitas kebijakan:
+
+$$ L_{RL} = \underbrace{\mathbb{E} [ (R_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t))^2 ]}_{	ext{Critic Loss (TD Error)}} + lpha \underbrace{\mathbb{E} [ -\log \pi_	heta(a_t|s_t) ]}_{	ext{Entropy Regularization}} $$
+
+Di mana:
+*   $R_t$ adalah reward yang ditentukan oleh metrik *Truth Stability Score* dan *Compliance Alignment*.
+*   $\gamma$ adalah faktor diskon.
+*   $lpha$ adalah suhu entropi untuk eksplorasi tetap diperlukan.
+
+###### 5.3.2. Procedure: Counterfactual Impact Assessment (CIA)
+
+Sebelum tindakan *rewiring* atau koreksi kebenaran diterapkan ke lingkungan produksi, sistem menjalankan prosedur **Counterfactual Impact Assessment**. Prosedur ini mensimulasikan dampak hipotetis dari perubahan struktural terhadap keandalan laporan kepatuhan secara keseluruhan.
+
+Langkah-langkah prosedural CIA:
+1.  **Snapshot & Isolation:** Sistem mengambil snapshot keadaan graf kausal saat ini ($G_t$) dan isolasi sub-graf yang terdampak oleh usulan perubahan.
+2.  **Perturbation Injection:** Simulasi dilakukan dengan menerapkan *do-calculus* untuk mengintervensi node tertentu ($X_k$) sesuai dengan usulan rewiring.
+3.  **Propagation Analysis:** Sistem menghitung propagasi dampak melalui persamaan struktural $X_i(t) = f_i(X_{pa(i)}(t), U_i(t), 	heta(t))$ untuk semua descendant nodes.
+4.  **Impact Scoring:** Dihitung metrik *Counterfactual Truth Deviation* (CTD). Jika $CTD > \delta_{threshold}$ (ambang batas deviasi toleransi), tindakan ditolak atau disesuaikan.
+5.  **Strategic Alignment Check:** Verifikasi akhir memastikan bahwa koreksi kebenaran baru tidak bertentangan dengan tujuan strategis keberlanjutan jangka panjang (misalnya, memastikan tidak ada *false negative* pada risiko lingkungan utama).
+
+###### 5.3.3. Configuration Arguments for Causal Policy Optimization
+
+Konfigurasi optimasi kebijakan kausal mendukung argumen berikut untuk penyesuaian hiperparameter:
+
+*   `--causal_lr`: Learning rate untuk jaringan Actor (default: 1e-4).
+*   `--critic_lr`: Learning rate untuk jaringan Critic (default: 1e-3).
+*   `--gamma`: Faktor diskon RL (default: 0.99).
+*   `--epsilon_greedy`: Tingkat eksplorasi awal untuk pencarian ruang aksi (default: 1.0, decayed to 0.01).
+*   `--counterfactual_sim_steps`: Jumlah langkah simulasi untuk setiap penilaian dampak kontrafaktual (default: 500).
+*   `--truth_stability_weight`: Bobot dalam fungsi reward untuk menstabilkan nilai kebenaran node (default: 0.7).
+*   `--regret_bound`: Batas atas untuk *regret* yang dapat ditoleransi selama proses konvergensi kebijakan (default: 100).
+
+###### 5.3.4. Methodology: Causal Reinforcement Learning for Dynamic System Control
+
+Metodologi **Causal Reinforcement Learning (CRL)** untuk kontrol sistem dinamis berbeda dari RL tradisional karena tidak hanya memaksimalkan reward berdasarkan korelasi statistik, tetapi memaksa agen untuk memahami hubungan sebab-akibat yang mendasarinya.
+
+Dalam konteks ini, CRL digunakan untuk:
+1.  **Invariance Learning:** Memastikan bahwa kebijakan yang dipelajari tetap valid meskipun distribusi data input berubah (*distribution shift*), yang kritis untuk lingkungan non-stasioner.
+2.  **Transferability:** Memungkinkan transfer pengetahuan kausal antar modul (misalnya, dari modul sensor IoT ke modul narasi LLM) tanpa perlu pelatihan ulang dari awal.
+3.  **Safe Exploration:** Membatasi eksplorasi kebijakan hanya pada ruang aksi yang diverifikasi aman melalui prosedur CIA, mencegah degradasi sistem yang disebabkan oleh eksplorasi buta.
+
+###### 5.3.5. Standards Alignment: IEEE 7000-3 & ACM FAccT
+
+Implementasi mekanismenya secara eksplisit dirancang untuk mematuhi standar internasional dan pedoman etika algoritmik berikut:
+
+**IEEE 7000-3: Standard Model of Autonomy**
+Sistem ini memenuhi kriteria **Level 4 (High Automation)** dalam konteks transparansi kausal. Model otomatisasi di sini bukan hanya "otomatis", tetapi "dapat dipertanggungjawabkan" (*accountable*). Setiap koreksi kebenaran otonom disertai dengan jejak audit kausal (*causal traceability*) yang menjelaskan mengapa node tertentu diubah, memenuhi persyaratan IEEE 7000-3 untuk *systemic traceability* dan *human-in-the-loop oversight readiness*. Sistem menyediakan interpretasi sebab-akibat yang dapat dipahami oleh manusia (*human-interpretable causal explanations*), memungkinkan auditor untuk menelusuri logika di balik keputusan otonom.
+
+**ACM FAccT Guidelines for Algorithmic Accountability in Evolving Environments**
+Dalam konteks pedoman *Fairness, Accountability, and Transparency (FAccT)*, mekanisme koreksi kebenaran adaptif ini menanggapi tantangan **Algorithmic Drift**.
+*   **Accountability:** Melalui *Counterfactual Impact Assessment*, sistem menyediakan bukti empiris bahwa perubahan algoritma tidak menyebabkan bias sistematis terhadap modulitas tertentu.
+*   **Transparency:** Struktur DAG yang diadaptasi disimpan sebagai artefak versi, memungkinkan rekonstruksi lengkap keputusan kausal pada titik waktu tertentu.
+*   **Fairness:** Dengan memantau *causal weight adjustment* secara real-time, sistem mendeteksi dan mengoreksi bias yang muncul secara dinamis, memastikan bahwa nilai kebenaran tidak didistorsi oleh bias data historis yang berubah seiring waktu.
+
+Dengan mengintegrasikan CRL yang selaras dengan standar IEEE 7000-3 dan pedoman ACM FAccT, sistem tidak hanya beradaptasi terhadap perubahan, tetapi juga menjamin bahwa adaptasi tersebut tetap etis, transparan, dan bertanggung jawab.
