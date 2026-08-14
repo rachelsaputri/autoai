@@ -54324,3 +54324,43 @@ Untuk memaksa model menjaga variasi prediktif yang sehat dan menghindari konverg
 Fungsi loss total $\mathcal{L}_{total}$ dimodifikasi untuk mencakup istilah entropi Shannon $\mathcal{H}$ sebagai penalti regularisasi:
 
 $$ \mathcal{L}_{total} = \mathcal{L}_{CE} + \lambda 
+
+### 3. Bayesian Epistemic Uncertainty Decomposition & Risk-Adjusted Decision Thresholds
+
+Bagian ini mendefinisikan kerangka kerja lanjutan untuk dekomposisi ketidakpastian dan pengelolaan ambang batas keputusan yang disesuaikan dengan risiko. Sistem tidak hanya memprediksi hasil, tetapi secara eksplisit memisahkan sumber ketidakpastian untuk memungkinkan respons manajemen risiko yang presisi dan berbasis data.
+
+#### 3.1. Metodologi: Deep Bayesian Neural Networks (BNNs) for Uncertainty Quantification
+Sistem mengimplementasikan arsitektur **Deep Bayesian Neural Networks** menggunakan teknik *Monte Carlo Dropout* (MC Dropout) yang distandardisasi untuk inference, alih-alih pelatihan penuh posterior Bayesian yang secara komputasi sangat mahal. Pendekatan ini memungkinkan estimasi ketidakpastian yang efisien tanpa mengubah arsitektur jaringan dasar.
+
+*   **Dekomposisi Aleatorik vs. Epistemik:**
+    *   **Aleatoric Uncertainty ($u_{ale}$):** Merepresentasikan kebisingan intrinsik dalam data (noise). Diestimasi melalui parameter distribusi target (misalnya, varians dalam regresi atau entropy dari distribusi Dirichlet dalam klasifikasi). Ketidakpastian ini *irreducible* dan tidak dapat dikurangi dengan lebih banyak data.
+    *   **Epistemic Uncertainty ($u_{epi}$):** Merepresentasikan ketidakpastian model akibat kurangnya data pelatihan atau daerah input yang tidak terlihat (*out-of-distribution*). Diestimasi melalui variasi dalam output logit setelah melakukan inferensi berulang dengan dropout aktif ($N$ forward passes).
+    *   **Rumus Deomposisi:**
+        $$ U_{total} = u_{ale} + u_{epi} $$
+        $$ u_{epi} = rac{1}{N} \sum_{n=1}^{N} \mathcal{D}_{KL}(P_n(y|x) || ar{P}(y|x)) $$
+        Di mana $\mathcal{D}_{KL}$ adalah divergensi Kullback-Leibler antara distribusi dari $n$-th dropout sample dan rata-rata ensemble dropout.
+
+*   **Integrasi dengan Ensemble:**
+    Variance dari prediksi ensemble digunakan sebagai proxy kuat untuk $u_{epl}$. Jika variance tinggi, sistem mengaktifkan protokol "High-Epistemic-Risk", memaksa model untuk menolak pengambilan keputusan otonom atau meminta intervensi manusia.
+
+#### 3.2. Standar Kepatuhan & Governance: ISO/IEC 24027 & IEEE 7000-1
+Sistem dirancang untuk memenuhi standar internasional ketat dalam *Trustworthy AI* dan *Value-Sensitive Design*:
+
+1.  **Alignment with ISO/IEC 24027 (Quantifying Uncertainty):**
+    *   Sistem menyediakan metrik kuantitatif yang dapat ditelusuri untuk ketidakpastian epistemik dan aleatorik, sesuai dengan klause ISO yang mensyaratkan dokumentasi komprehensif mengenai sumber dan besarnya ketidakpastian dalam sistem AI.
+    *   Output kalibrasi memberikan "Confidence Intervals" yang dikalibrasi secara probabilistik, bukan sekadar skor titik, memfasilitasi auditabilitas yang rigor.
+
+2.  **Alignment with IEEE 7000-1 (Process for Addressing Values in Design):**
+    *   Prinsip *Uncertainty-Aware Governance* diterapkan dengan mengintegrasikan metrik ketidakpastian langsung ke dalam logika bisnis. Nilai etika "Kewaspadaan" (*Precaution*) diwujudkan secara teknis melalui mekanisme *Risk-Adjusted Thresholds*.
+    *   Sistem memprioritaskan keselamatan dan keadilan dengan menurunkan bobot keputusan ketika ketidakpastian epistemik melebihi ambang batas toleransi sosial/organisasional.
+
+#### 3.3. Prosedur Teknis: Dynamic Risk-Adjusted Thresholding Protocol
+Prosedur ini secara otomatis menyesuaikan ambang batas kepercayaan (*confidence threshold*) yang diperlukan untuk eksekusi tindakan kritis, berdasarkan profil risiko organisasi dan komposisi ketidakpastian.
+
+*   **Logika Penyesuaian Ambang Batas:**
+    Ambang batas dinamis $T_{risk}$ dihitung sebagai fungsi dari:
+    1.  Tingkat Risiko Tindakan ($R_{action}$): Kategori dampak bisnis (misal: *Low*, *Medium*, *Critical*).
+    2.  Proporsi Ketidakpastian Epistemik ($ho_{epi}$): Rasio $u_{epl}$ terhadap $U_{total}$.
+    3.  Faktor Koreksi Regulatori ($\kappa_{reg}$): Parameter internal yang disesuaikan dengan kebijakan kepatuhan saat ini.
+
+    $$ T_{risk} = T_{base} + (lpha 
