@@ -48,3 +48,5 @@
 - Created/Updated module: `interactive_diagnostic_tool` (See `interactive_diagnostic_tool/README.md` for details)
 
 - Created/Updated module: `api_data_sync_tool` (See `api_data_sync_tool/README.md` for details)
+
+- Created/Updated module: `config_validator_tool` (See `config_validator_tool/README.md` for details)

@@ -2719,3 +2719,56 @@ Implement an interactive diagnostic and visualization tool named `system_status_
 </think>
 
 Implement a robust data transfer and API interaction script named `api_data_sync_tool` that facilitates secure and efficient synchronization between the `anomaly_detector` and `response_orchestrator` services, building the tool STRICTLY using Rust to ensure high-performance concurrent network operations, robust error handling, and type-safe data serialization, ensuring the implementation resides in a new dedicated `api_data_sync_tool` folder containing modular source files and a local `README.md` detailing the transfer protocols, API integration patterns, and reliability mechanisms.
+[2026-08-14 21:25:28] (Target Lang: ) Thinking Process:
+
+1.  **Deconstruct the Request:**
+    *   Goal: Generate exactly 1 logical follow-up instruction.
+    *   Constraint: Must explicitly demand the tool be built STRICTLY using a specific programming language.
+    *   Constraint: If building a new tool, place it in a NEW dedicated folder and create a local `README.md`.
+    *   Constraint: Return ONLY the instruction text.
+    *   Constraint: NEVER target `.github`.
+    *   Context:
+        *   Workspace has various tools.
+        *   History shows a previous instruction was for `api_data_sync_tool` in Rust.
+        *   The workspace lists `api_data_sync_tool` with `Cargo.toml`, `README.md`, and `src` files. This suggests the previous instruction might have been "completed" or is part of the context, but the user is asking for a *new* follow-up.
+        *   The prompt has `Target Lang: ` empty at the end. This is a critical signal. The model needs to infer the language.
+        *   Looking at the workspace: `api_data_sync_tool` exists in the file list. `advanced_web_scraper` exists. `alert_dispatch_engine` exists. `anomaly_detector` exists. `correlation_engine` exists. `deep_packet_inspection_engine` exists. `log_analyzer` exists. `log_metrics_dashboard` exists. `network_analyzer` exists. `packet_analyzer` exists. `response_orchestrator` exists.
+        *   Languages present: Python (`advanced_web_scraper`, `data_processing_utils`, `web_scraper`), Rust (`alert_dispatch_engine`, `anomaly_detector`, `api_data_sync_tool`, `correlation_engine`, `deep_packet_inspection_engine`, `log_analyzer`, `log_metrics_dashboard`, `network_analyzer`, `packet_analyzer`, `response_orchestrator`), Go (`api_rate_limiter`), Shell (`network_analyzer`).
+        *   The previous instruction in the history was for `api_data_sync_tool` in Rust.
+        *   The prompt asks to "Generate exactly 1 logical follow-up instruction".
+        *   The prompt has a blank `Target Lang: `. This usually means the model should fill it or infer it. Since the user is simulating an "Autonomous AI" that builds tools, and the history shows Rust usage, and many components are Rust, Rust is a strong candidate. However, to make a "logical follow-up", I should look at what's missing or what complements the existing ecosystem.
+        *   Existing Rust tools: `alert_dispatch_engine`, `anomaly_detector`, `api_data_sync_tool`, `correlation_engine`, `deep_packet_inspection_engine`, `log_analyzer`, `log_metrics_dashboard`, `network_analyzer`, `packet_analyzer`, `response_orchestrator`.
+        *   Existing Python tools: `advanced_web_scraper`, `data_processing_utils`, `web_scraper`.
+        *   Existing Go tool: `api_rate_limiter`.
+        *   Existing Shell tools: `network_analyzer`.
+        *   A logical follow-up could be a tool that ties these together, or handles a missing piece. Maybe a `config_validator`? Or an `audit_logger`? Or a `cli_interface`?
+        *   Given the `api_data_sync_tool` is in Rust, and `response_orchestrator` is in Rust, and `anomaly_detector` is in Rust, extending the Rust ecosystem makes sense for consistency, especially for high-performance network ops.
+        *   Let's pick a tool name. `config_schema_validator`? `event_stream_handler`? `security_audit_tool`?
+        *   The previous instruction mentioned `api_data_sync_tool` facilitates sync between `anomaly_detector` and `response_orchestrator`.
+        *   A logical follow-up might be to verify the integrity of the data or the configuration of these components. Or perhaps a tool to visualize the metrics from `log_metrics_dashboard`.
+        *   Let's choose `config_validator_tool` to ensure all the Rust tools have valid configurations before running. This is a common need in microservice architectures.
+        *   Language: Rust. It fits the majority of the project structure and allows for strict type checking of configs.
+        *   Structure: New folder `config_validator_tool`, `Cargo.toml`, `README.md`, `src`.
+        *   Instruction text must include: "STRICTLY using Rust", "new dedicated `config_validator_tool` folder", "local README.md".
+
+2.  **Draft the Instruction:**
+    *   *Draft 1:* Implement a configuration validation utility named `config_validator_tool` that checks the integrity and schema compliance of configuration files for the existing Rust-based services, building the tool STRICTLY using Rust to leverage its type system for robust schema definition and efficient file parsing, ensuring the implementation resides in a new dedicated `config_validator_tool` folder containing modular source files and a local `README.md` outlining the supported config formats, validation rules, and exit code semantics.
+    *   *Critique 1:* "STRICTLY using Rust" is present. "new dedicated `config_validator_tool` folder" is present. "local `README.md`" is present. "Return ONLY the instruction text" - need to ensure no preamble. "NEVER target .github" - checked. "Target Lang: " is filled implicitly by the instruction demanding Rust.
+    *   *Refinement 1:* The instruction looks good. It proposes a logical tool (`config_validator_tool`) that fits the Rust-heavy ecosystem. It explicitly demands Rust. It asks for a new folder and README.
+
+3.  **Final Polish (Mental Representation of Output):**
+    *   Output: `Implement a configuration validation utility named `config_validator_tool` that checks the integrity and schema compliance of configuration files for the existing Rust-based services, building the tool STRICTLY using Rust to leverage its type system for robust schema definition and efficient file parsing, ensuring the implementation resides in a new dedicated `config_validator_tool` folder containing modular source files and a local `README.md` outlining the supported config formats, validation rules, and exit code semantics.`
+
+4.  **Final Check against Constraints:**
+    *   1 logical follow-up? Yes.
+    *   Explicitly demand language? Yes ("STRICTLY using Rust").
+    *   New folder? Yes (`config_validator_tool`).
+    *   Local README? Yes.
+    *   Only instruction text? Yes.
+    *   No `.github`? Yes.
+    *   Fits context? Yes, complements the Rust tools.
+
+This seems complete and correct.
+</think>
+
+Implement a configuration validation utility named `config_validator_tool` that checks the integrity and schema compliance of configuration files for the existing Rust-based services, building the tool STRICTLY using Rust to leverage its type system for robust schema definition and efficient file parsing, ensuring the implementation resides in a new dedicated `config_validator_tool` folder containing modular source files and a local `README.md` outlining the supported config formats, validation rules, and exit code semantics.
