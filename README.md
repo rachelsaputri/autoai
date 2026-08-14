@@ -56094,3 +56094,60 @@ python compliance_governance_autonomous_epistemic_fusion_and_multi_modal_truth_v
 *   `--output_graph_inference_report`: (Optional, Default: `./reports/federated_graph_inference_v1.json`) Path untuk menyimpan laporan hasil inferensi. Laporan ini mencakup skor relevansi kausal, jalur kepercayaan terkuat, dan metadata audit zkp untuk setiap langkah perhitungan.
 
 Dengan integrasi ini, organisasi tidak hanya memenuhi tuntutan regulasi data yang semakin ketat, tetapi juga membangun ekosistem analisis yang cerdas, adaptif, dan sepenuhnya mematuhi prinsip kerahasiaan data dalam lingkungan multi-pihak yang kompleks.
+
+
+##### 6.5 Causal Structure Learning via Encrypted Conditional Independence Tests
+
+Untuk beralih dari graf statis yang didefinisikan secara manual ke sistem dinamis yang mampu mempelajari struktur kausal secara otomatis dari data observasi, modul ini mengimplementasikan protokol **Privileged Information-Free Causal Discovery in Encrypted Domains**. Pendekatan ini menghilangkan ketergantungan pada pengetahuan ahli domain (domain expertise) yang sering kali menjadi titik lemah dalam skalabilitas sistem kepatuhan, dengan menggunakan uji independensi bersyarat berbasis statistik yang dioptimalkan untuk data terenkripsi.
+
+###### 6.5.1 Metodologi: HSIC pada Ruang Terenkripsi
+
+Sistem menggunakan *Hilbert-Schmidt Independence Criterion* (HSIC) yang dimodifikasi untuk melakukan uji independensi bersyarat. Berbeda dengan metode tradisional yang memerlukan dekripsi untuk menghitung koherensi statistik, implementasi ini memanfaatkan sifat ortogonalitas operator integral kernel dalam *Reproducing Kernel Hilbert Space* (RKHS) yang dipertahankan di bawah transformasi homomorfik.
+
+1.  **Embedding Kernel Homomorfik:** Vektor fitur dari setiap variabel kausal dipetakan ke ruang RKHS menggunakan kernel Gaussian yang parameternya (bandwidth) dikunci dalam konfigurasi terenkripsi. Operasi penjumlahan dan perkalian kernel dilakukan langsung pada ciphertext, menghasilkan matriks gram terenkripsi yang merepresentasikan dependensi non-linear antar variabel.
+2.  **Uji Independensi Bersyarat Terenkripsi:** Untuk menentukan arah kausalitas antara variabel $X$ dan $Y$ dengan adanya kovariat $Z$, sistem menghitung statistik uji $	ext{HSIC}(X, Y | Z)$ secara homomorfik. Nilai p-value (p-value) diturunkan dari distribusi asimtotik statistik uji tanpa perlu melihat distribusi data asli, sehingga privasi entitas tetap terjaga.
+3.  **Optimasi Sparsitas Struktural:** Dalam lingkungan multi-modal dengan dimensi tinggi, graf kausal cenderung sangat jarang (sparse). Sistem menerapkan prior struktural yang diberikan melalui parameter `--structural_assumption_prior` untuk membatasi pencarian ruang kemungkinan (search space) hanya pada tepi yang memenuhi asumsi sparsitas tertentu, sehingga mengurangi noise statistik dan mencegah penemuan hubungan palsu (*spurious correlations*).
+
+###### 6.5.2 Homomorphic Partial Dependence Plotting (HPDP)
+
+Untuk memenuhi prinsip **Explainable Privacy**, sistem menyediakan mekanisme visualisasi yang memungkinkan pemangku kepentingan non-teknis memahami pengaruh variabel kausal terhadap keluaran model tanpa mengungkap data individual.
+
+Prosedur **Homomorphic Partial Dependence Plotting** bekerja dengan cara:
+1.  **Marginalisasi Aman:** Sistem menghitung nilai ekspektasi model terhadap variabel target sambil memvariasikan satu variabel kausal pada rentang nilai tertentu. Variabel lainnya dimarginalisasi (dirata-ratakan) secara homomorfik.
+2.  **Agregasi Skor Kepercayaan:** Output HPDP bukan merupakan nilai numerik mentah, melainkan agregasi skor kepercayaan kausal yang telah dinormalisasi. Hal ini memastikan bahwa visualisasi mencerminkan kekuatan hubungan kausal yang valid secara statistik, bukan fluktuasi noise dalam data mentah.
+3.  **Interpretasi Regulator:** Regulator dapat menerima ringkasan kausal dalam bentuk grafik HPDP yang menunjukkan sensitivitas keputusan kepatuhan terhadap perubahan parameter kritis, tanpa memerlukan akses ke basis data individu yang sensitif.
+
+###### 6.5.3 Interactive Counterfactual Explanation Engine
+
+Modul ini mengintegrasikan *Interactive Counterfactual Explanation Engine* yang memungkinkan auditor berinteraksi dengan graf kausal secara natural. Auditor dapat mengajukan pertanyaan berbasis kausal seperti *"Apa yang akan terjadi jika variabel X (misalnya: rasio utang terhadap ekuitas) berubah sebesar 10%?"*
+
+Sistem merespons dengan:
+1.  **Simulasi Intervensi Kausal:** Melakukan operasi *do-calculus* pada graf kausal terenkripsi untuk mensimulasikan intervensi pada node X.
+2.  **Propagasi Efek Aman:** Menghitung efek langsung dan tidak langsung terhadap node tujuan (misalnya: risiko kredit default) melalui jalur kausal terenkripsi.
+3.  **Laporan Penjelasan Tuntas:** Menghasilkan penjelasan teks yang menerangkan jalur kausal utama yang menyebabkan perubahan output, disertai dengan tingkat kepercayaan statistik, sehingga keputusan kepatuhan dapat dipertanggungjawabkan secara etis dan teknis.
+
+###### 6.5.4 Kepatuhan Standar dan Kerangka Kerja
+
+Implementasi ini dirancang untuk mematuhi standar internasional terkini dalam kecerdasan buatan yang dapat dipercaya dan interpretabilitas model:
+
+*   **ISO/IEC TR 24029 (Trustworthy AI):** Sistem menerapkan prinsip *transparency* dan *accountability* dengan mencatat setiap langkah pembelajaran struktur graf dan uji independensi dalam log audit terenkripsi, memastikan bahwa proses penemuan kausal dapat diaudit ulang oleh pihak ketiga yang berwenang.
+*   **IEEE P2801 (Model Interpretability in Autonomous Systems):** Modul ini menyediakan metrik kuantitatif untuk interpretabilitas lokal dan global, memastikan bahwa model otonom dapat memberikan alasan yang dapat dipahami manusia (*human-understandable*) untuk setiap keputusan yang diambil, sesuai dengan pedoman standar untuk sistem otonom.
+*   **Prinsip "Explainable Privacy":** Dengan memisahkan antara *data dasar* (yang terenkripsi dan privat) dengan *struktur kausal* (yang diinterpretasikan dan diaudit), sistem mencapai keseimbangan yang langka antara kerahasiaan data dan transparansi algoritma. Penjelasan kepatuhan dihasilkan dalam bentuk ringkasan kausal yang dapat dipahami manusia, tanpa mengungkapkan detail data individu.
+
+###### 6.5.5 Argumen Perintah Tambahan (CLI)
+
+Untuk mengaktifkan fitur pembelajaran struktur kausal dan penemuan otomatis, tambahkan argumen berikut ke dalam skrip orkestrator:
+
+```bash python compliance_governance_autonomous_epistemic_fusion_and_multi_modal_truth_verification_orchestrator.py \
+    --ci_test_statistic_params ./config/ci_params/hsic_kernel_bandwidth.json \
+    --structural_assumption_prior ./config/priors/sparsity_assumptions_v1.json \
+    --interpretability_threshold 0.05 \
+    --output_structure_learning_audit ./reports/causal_structure_audit_v1.json
+```
+
+**Deskripsi Argumen Lanjutan:**
+
+*   `--ci_test_statistic_params`: **(Required)** Path ke file JSON yang mendefinisikan parameter statistik untuk uji independensi bersyarat. Untuk HSIC, ini mencakup `kernel_bandwidth` (untuk menentukan skala lokalitas dalam ruang fitur) dan `num_permutations` (untuk estimasi p-value Monte Carlo). Parameter ini harus dioptimalkan untuk data terenkripsi guna menjaga keseimbangan antara sensitivitas uji dan beban komputasi homomorfik.
+*   `--structural_assumption_prior`: **(Required)** Path ke file JSON yang mendefinisikan prior struktural untuk pembelajaran graf. File ini berisi matriks probabilitas awal atau batasan topologi (misalnya: "Arah kausal tidak boleh membentuk siklus," atau "Variabel X hanya boleh mempengaruhi Y jika Z hadir"). Prior ini sangat krusial dalam kondisi sparsitas tinggi untuk mengurangi ruang pencarian dan meningkatkan akurasi penemuan kausal.
+*   `--interpretability_threshold`: **(Float, Default: 0.05)** Ambang batas signifikansi statistik (p-value) di bawah mana sebuah tepi kausal dianggap valid dan dimasukkan ke dalam graf kausal final. Nilai yang lebih rendah meningkatkan presisi (mengurangi false positives) namun mungkin mengurangi recall (mengabaikan hubungan lemah yang signifikan secara statistik). Parameter ini memungkinkan penyesuaian konservatif sesuai dengan toleransi risiko organisasi.
+*   `--output_structure_learning_audit`: **(Optional, Default: `./reports/causal_structure_audit_v1.json`)** Path untuk menyimpan laporan komprehensif pembelajaran struktur kausal. Laporan ini mencakup matriks adjensi terenkripsi, nilai p-value untuk setiap uji independensi bersyarat, metrik kualitas model (seperti *True Positive Rate* estimasi), serta log verifikasi kepatuhan terhadap standar ISO/IEC 24029 dan IEEE P2801.
