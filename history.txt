@@ -109,3 +109,4 @@ Proceeds.
 </think>
 
 Create a new dedicated folder named 'api_rate_limiter' and implement the automated tools to handle API rate limits within it, ensuring you also create a local README.md inside that folder outlining the architecture.
+[2026-08-14 19:57:08] Focus entirely on this new objective: 'Design custom AI helper scripts for automated dataset cleaning. Include a local README.md for human readability.'. You must write functional code and proper documentation for this task. Workspace: . ./.git ./.github ./CNAME ./README.md ./dataset_cleaner ./dataset_cleaner/README.md ./diagnostic_tool ./diagnostic_tool/__init__.py ./history.txt .
