@@ -54275,3 +54275,25 @@ Implementasi ini dirancang untuk memenuhi standar internasional tertinggi dalam 
     Laporan keluaran (`causal_invariance_verification_v1.json`) menyediakan *audit trail* yang lengkap untuk kepatuhan regulasi, mencakup jejak logika kausal, nilai intervensi kontrafaktual, dan hasil simulasi adversarial. Ini memungkinkan auditor independen untuk memverifikasi bahwa keputusan model didasarkan pada hubungan sebab-akibat yang dapat dipertanggungjawabkan, bukan pada korelasi statistik yang rapuh.
 
 Dengan menggabungkan ketahanan terhadap perturbasi fisik-digital, toleransi kesalahan Byzantine, stabilisasi loop kausal, adaptasi laju pembelajaran yang cerdas, serta validasi invariansi kausal melalui counterfactual probing dan simulasi adversarial, sistem ini menawarkan fondasi epistemik yang tangguh. Pendekatan **Defense in Depth** yang diperluas ini memastikan bahwa integritas kebenaran dijaga tidak hanya dari serangan eksternal, tetapi juga dari degenerasi internal model itu sendiri, menciptakan sistem yang siap menghadapi lanskap ancaman yang terus berevolusi dengan jaminan stabilitas dan keadilan yang terverifikasi secara kausal.
+
+
+### Sub-Bagian Baru: Meta-Cognitive Model Selection & Robustness-Aware Ensemble Pruning
+
+Bagian ini mendefinisikan mekanisme inti dari **Meta-Learning berbasis Cross-Validation Kausal**, yang memungkinkan sistem untuk melakukan seleksi model dinamis dan *pruning* arsitektur secara otomatis. Pendekatan ini bergerak melampaui validasi statistik tradisional dengan mengintegrasikan prinsip **Epistemic Humility** (Rendah Hati Epistemik) ke dalam arsitektur model, memastikan bahwa kepercayaan sistem tidak didasarkan pada kepastian palsu, melainkan pada konsistensi kausal di bawah distribusi yang tidak teramati.
+
+#### 1. Metodologi: Meta-Learning for Distribution-Free Generalization
+
+Sistem menggunakan kerangka kerja meta-learning yang dioptimalkan untuk memaksimalkan invariansi kausal, bukan hanya akurasi empiris. Prosedurnya melibatkan tiga fase kritis:
+
+*   **Meta-Training pada Domain Adversarial:** Setiap sub-model dalam ensemble dilatih tidak hanya pada data asli, tetapi juga pada varian sintetik yang dihasilkan oleh `adversarial_domain_generator`. Fungsi tujuan meta-learning menyeimbangkan dua komponen: minimisasi loss prediktif standar dan maksimalisasi skor invariansi kausal (menggunakan metrik dari `distribution_shift_tolerance_metric`).
+*   **Kausal Cross-Validation (Causal CV):** Alih-alih pembagian data acak, Causal CV membagi data berdasarkan intervensi kausal yang terstruktur. Ini memastikan bahwa setiap fold dalam validasi mewakili variasi struktural yang independen. Sub-model dievaluasi berdasarkan stabilita performanya *melintasi* fold-fold ini. Sub-model yang performanya fluktuatif secara signifikan antar fold, meskipun memiliki akurasi rata-rata tinggi, diindikasikan rentan terhadap *spurious correlations*.
+*   **Epistemic Humility in Model Architecture:** Sistem secara eksplisit mengakui ketidakpastian struktural. Jika sebuah sub-model menunjukkan keraguan tinggi (high entropy) pada area distribusi yang jarang atau adversarial, sistem tidak menganggapnya sebagai kegagalan mutlak, melainkan sebagai sinyal untuk menurunkan bobot (down-weighting) atau menggantinya dengan komponen lain yang lebih robust, menghindari overconfidence yang berbahaya.
+
+#### 2. Prosedur Teknis: Robustness-Weighted Model Averaging & Pruning
+
+Mekanisme ini secara otomatis menyesuaikan kontribusi setiap model dalam ensemble berdasarkan ketahanan terhadap noise adversarial, alih-alih sekadar akurasi historis.
+
+**Algoritma Robustness-Weighted Averaging:**
+1.  **Evaluasi Sensitivitas:** Untuk setiap sub-model $M_i$, dihitung derajat sensitivitas terhadap perturbasi adversarial ($S_{adv}$) menggunakan *gradient-based sensitivity analysis* pada output logit dan representasi laten.
+2.  **Penentuan Bobot Dinamis:** Bobot ensemble $w_i$ untuk model $M_i$ dihitung menggunakan fungsi penalti yang memperhitungkan $S_{adv}$ dan skor invariansi kausal ($I_{causal}$):
+    $$ w_i = rac{xp(lpha 
