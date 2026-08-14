@@ -1,0 +1,8 @@
+package deviations
+
+type Deviation struct {
+    ID          string `json:"id"`
+    Severity    string `json:"severity"`
+    Description string `json:"description"`
+    Remediation string `json:"remediation"`
+}

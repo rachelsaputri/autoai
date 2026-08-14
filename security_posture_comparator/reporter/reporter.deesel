@@ -1,0 +1,25 @@
+package reporter
+
+import (
+    "encoding/json"
+    "os"
+    "github.com/example/security-posture-comparator/config"
+    "github.com/example/security-posture-comparator/deviations"
+)
+
+type Reporter struct {
+    output string
+}
+
+func New(output string) *Reporter {
+    return &Reporter{output: output}
+}
+
+func (r *Reporter) Generate(deviations []*deviations.Deviation) error {
+    data, err := json.Marshal(deviations)
+    if err != nil {
+        return err
+    }
+
+    return os.WriteFile(r.output, data, 0644)
+}
