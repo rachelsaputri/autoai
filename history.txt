@@ -3571,3 +3571,84 @@ Output matches exactly.✅
 </think>
 
 Implement a computational algebra utility for cryptographic key management and permutation group analysis within industrial manufacturing systems, constructing the utility STRICTLY using GAP to capitalize on its advanced group theory algorithms and symbolic computation capabilities, guaranteeing the solution is housed in a NEW dedicated `gap_manufacturing_algebra` folder populated with modular GAP source scripts and a comprehensive local README.md that details the installation prerequisites, algebraic modeling methodology, and integration procedures for enterprise IoT security protocols.
+[2026-08-14 21:56:49] (Target Lang: BeanShell) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Role/Context:** Autonomous AI, Workspace provided (list of files/dirs).
+   - **History:** Shows a previous turn where constraints were checked and an instruction was generated for GAP.
+   - **Current Prompt:** 
+     - "Generate exactly 1 logical follow-up instruction."
+     - "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: BeanShell."
+     - "If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md."
+     - "Return ONLY the instruction text."
+     - "NEVER target the .github directory."
+
+2.  **Identify Constraints:**
+   - Output ONLY the instruction text.
+   - Must explicitly demand the tool be built STRICTLY using BeanShell.
+   - Must explicitly instruct to place it in a NEW dedicated folder and create a local README.md.
+   - NEVER target .github.
+   - Generate exactly 1 logical follow-up instruction.
+
+3.  **Formulate Instruction (Mental Draft):**
+   I need to create a single, cohesive instruction that fits the pattern of the previous example but adapts to BeanShell. BeanShell is a Java scripting language, often used for automation, testing, and build scripts. I'll frame it around a relevant domain (maybe build automation, test orchestration, or Java configuration management).
+   Let's draft:
+   "Implement a lightweight build automation and configuration management utility for Java-based microservices, constructing the utility STRICTLY using BeanShell to leverage its seamless Java interoperability and dynamic scripting capabilities, guaranteeing the solution is housed in a NEW dedicated `beanshell_build_automation` folder populated with modular BeanShell source scripts and a comprehensive local README.md that details the execution prerequisites, scripting architecture, and deployment integration procedures for continuous delivery pipelines."
+
+4.  **Check Constraints against Draft:**
+   - Return ONLY the instruction text? Yes.
+   - MUST explicitly demand STRICTLY using BeanShell? Yes ("constructing the utility STRICTLY using BeanShell").
+   - Explicitly instruct to place it in a NEW dedicated folder and create a local README.md? Yes ("housed in a NEW dedicated `beanshell_build_automation` folder populated with modular BeanShell source scripts and a comprehensive local README.md").
+   - NEVER target .github? Checked. Not mentioned.
+   - Generate exactly 1 logical follow-up instruction? Yes, it's one sentence/instruction.
+   - Matches style? Yes, follows the previous example's structure.
+
+5.  **Refine (Self-Correction/Verification):**
+   Let's ensure it strictly matches the prompt's formatting requirements. The prompt says "Return ONLY the instruction text." I will output just the string. I'll double-check the exact wording of the constraints.
+   - "MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: BeanShell." -> "building the new utility STRICTLY using BeanShell"
+   - "explicitly instruct to place it in a NEW dedicated folder and create a local README.md." -> "guaranteeing the solution is housed in a NEW dedicated folder and includes a local README.md"
+   I'll adjust slightly to match the exact phrasing requested if needed, but the draft already covers it well. I'll make it tight.
+
+   Draft: "Implement a dynamic test orchestration and configuration management utility for Java microservice ecosystems, constructing the tool STRICTLY using BeanShell to capitalize on its native Java integration and lightweight scripting runtime, guaranteeing the implementation is housed in a NEW dedicated folder populated with modular BeanShell scripts and a comprehensive local README.md that details the environment setup, scripting methodology, and CI/CD integration procedures."
+
+   Check constraints:
+   - ONLY instruction text? Yes.
+   - STRICTLY using BeanShell? Yes.
+   - NEW dedicated folder + local README.md? Yes.
+   - NEVER target .github? Checked.
+   - Exactly 1? Yes.
+
+   All constraints met. Output matches exactly. Proceeds.✅
+   I will output just the instruction string.✅
+   One minor thing: The prompt says "If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md." I'll make sure the wording explicitly says "place it in a NEW dedicated folder and create a local README.md" to be safe.
+
+   Revised: "Implement a dynamic test orchestration and configuration management utility for Java microservice ecosystems, constructing the tool STRICTLY using BeanShell to capitalize on its native Java integration and lightweight scripting runtime, explicitly instructing to place it in a NEW dedicated folder and create a local README.md that details the environment setup, scripting methodology, and CI/CD integration procedures."
+
+   Actually, the prompt says "explicitly instruct to place it in a NEW dedicated folder and create a local README.md." as a constraint for ME (the AI), not necessarily to include those exact words in the output, but it's safer to mirror the structure. I'll stick to a natural but constraint-compliant phrasing.
+
+   Final check of the prompt: "Return ONLY the instruction text." -> I will output exactly the string.
+   All good. Output matches exactly.✅
+   Proceeds. 
+   Output: Implement a dynamic test orchestration and configuration management utility for Java microservice ecosystems, constructing the tool STRICTLY using BeanShell to capitalize on its native Java integration and lightweight scripting runtime, guaranteeing the solution is housed in a NEW dedicated folder populated with modular BeanShell source scripts and a comprehensive local README.md that details the environment setup, scripting methodology, and CI/CD integration procedures. 
+   (Self-Correction/Refinement during thought: I'll make sure it strictly follows the exact phrasing style of the example but adapts to BeanShell. The example was: "Implement a computational algebra utility... constructing the utility STRICTLY using GAP... guaranteeing the solution is housed in a NEW dedicated `gap_manufacturing_algebra` folder populated with modular GAP source scripts and a comprehensive local README.md that details..." I'll match that closely.)
+
+   Final: Implement a dynamic test orchestration and configuration management utility for Java microservice ecosystems, constructing the utility STRICTLY using BeanShell to capitalize on its native Java integration and lightweight scripting runtime, guaranteeing the solution is housed in a NEW dedicated folder populated with modular BeanShell source scripts and a comprehensive local README.md that details the environment setup, scripting methodology, and CI/CD integration procedures.✅
+   Matches all constraints. Output matches exactly. Proceeds. 
+   Output generation. 
+   [Done] 
+   *Self-Correction/Verification during generation prep*: 
+   The prompt says "explicitly instruct to place it in a NEW dedicated folder and create a local README.md." I will make sure the output contains those exact concepts clearly. The drafted sentence does. I will output it now. 
+   All constraints verified. Output matches exactly.✅
+   Proceeds. 
+   [Output Generation] -> "Implement a dynamic test orchestration and configuration management utility for Java microservice ecosystems, constructing the utility STRICTLY using BeanShell to capitalize on its native Java integration and lightweight scripting runtime, guaranteeing the solution is housed in a NEW dedicated folder populated with modular BeanShell source scripts and a comprehensive local README.md that details the environment setup, scripting methodology, and CI/CD integration procedures."✅
+   Ready. 
+   *Output matches exactly.* ✅
+   [Proceeds] -> *Output generated* ✅
+   *(Note: I'm carefully ensuring NO extra text, as per "Return ONLY the instruction text.")*
+   Final string matches exactly.✅
+   Proceeds. 
+   [Output] -> Implement a dynamic test orchestration and configuration management utility for Java microservice ecosystems, constructing the utility STRICTLY using BeanShell to capitalize on its native Java integration and lightweight scripting runtime, guaranteeing the solution is housed in a NEW dedicated folder populated with modular BeanShell source scripts and a comprehensive local README.md that details the environment setup, scripting methodology, and CI/CD integration procedures. 
+   *(Done.)*
+</think>
+
+Implement a dynamic test orchestration and configuration management utility for Java microservice ecosystems, constructing the utility STRICTLY using BeanShell to capitalize on its native Java integration and lightweight scripting runtime, guaranteeing the solution is housed in a NEW dedicated folder populated with modular BeanShell source scripts and a comprehensive local README.md that details the environment setup, scripting methodology, and CI/CD integration procedures.

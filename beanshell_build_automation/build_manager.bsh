@@ -1,0 +1,109 @@
+// Beanshell Build Manager & Configuration Tool
+// This script demonstrates a lightweight build automation and configuration management
+// utility for Java-based microservices using BeanShell's dynamic scripting and
+// seamless Java interoperability.
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+
+// Configuration Manager
+class ConfigManager {
+    static Map loadConfig(String filePath) throws Exception {
+        if (!new File(filePath).exists()) {
+            println("Config file not found: " + filePath);
+            return null;
+        }
+        // Simple key-value config loader for demo purposes
+        BufferedReader reader = new BufferedReader(new FileReader(filePath));
+        Map<String, String> config = new HashMap<String, String>();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            if (line.trim().startsWith("#") || line.trim().isEmpty()) continue;
+            String[] parts = line.split("=", 2);
+            if (parts.length == 2) {
+                config.put(parts[0].trim(), parts[1].trim());
+            }
+        }
+        reader.close();
+        return config;
+    }
+
+    static void saveConfig(Map<String, String> config, String filePath) throws Exception {
+        PrintWriter writer = new PrintWriter(new FileWriter(filePath));
+        for (Map.Entry<String, String> entry : config.entrySet()) {
+            writer.println(entry.getKey() + "=" + entry.getValue());
+        }
+        writer.close();
+        println("Configuration saved to " + filePath);
+    }
+}
+
+// Build Orchestrator
+class BuildOrchestrator {
+    static List<String> executeBuildStep(String stepName, List<String> commands) throws Exception {
+        println("\n=== Executing Build Step: " + stepName + " ===");
+        List<String> output = new ArrayList<String>();
+        for (String cmd : commands) {
+            println("> " + cmd);
+            ProcessBuilder pb = new ProcessBuilder("sh", "-c", cmd);
+            pb.redirectErrorStream(true);
+            Process p = pb.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                println(line);
+                output.add(line);
+            }
+            int exitCode = p.waitFor();
+            if (exitCode != 0) {
+                println("ERROR: Step " + stepName + " failed with exit code " + exitCode);
+                throw new Exception("Build step failed: " + stepName);
+            }
+        }
+        println("Step " + stepName + " completed successfully.");
+        return output;
+    }
+
+    static void runPipeline(Map<String, String> config) throws Exception {
+        List<String> compileCmds = new ArrayList<String>();
+        compileCmds.add("javac -d target/classes src/**/*.java");
+        executeBuildStep("COMPILE", compileCmds);
+
+        List<String> testCmds = new ArrayList<String>();
+        testCmds.add("java -cp target/classes:lib/* org.junit.runner.JUnitCore TestSuite");
+        executeBuildStep("TEST", testCmds);
+
+        List<String> packageCmds = new ArrayList<String>();
+        packageCmds.add("jar cf target/app.jar -C target/classes .");
+        executeBuildStep("PACKAGE", packageCmds);
+
+        println("\n=== Build Pipeline Completed Successfully ===");
+    }
+}
+
+// Main Execution
+try {
+    String configFile = "build_config.properties";
+    Map<String, String> config = ConfigManager.loadConfig(configFile);
+    if (config == null) {
+        // Initialize default config if missing
+        Map<String, String> defaultConfig = new HashMap<String, String>();
+        defaultConfig.put("app.name", "beanshell-build-manager");
+        defaultConfig.put("build.dir", "target");
+        defaultConfig.put("src.dir", "src");
+        ConfigManager.saveConfig(defaultConfig, configFile);
+        println("Created default configuration file.");
+    }
+
+    println("Starting Build & Configuration Management Utility...");
+    println("BeanShell Runtime: " + System.getProperty("java.version"));
+    BuildOrchestrator.runPipeline(config == null ? new HashMap<String, String>() : config);
+
+} catch (Exception e) {
+    println("FATAL ERROR: " + e.getMessage());
+    e.printStackTrace();
+    System.exit(1);
+}
