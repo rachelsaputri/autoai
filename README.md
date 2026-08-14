@@ -16,3 +16,5 @@
 - Created/Updated module: `advanced_web_scraper` (See `advanced_web_scraper/README.md` for details)
 
 - Created/Updated module: `data_processing_utils` (See `data_processing_utils/README.md` for details)
+
+- Created/Updated module: `data_viz_toolkit` (See `data_viz_toolkit/README.md` for details)
