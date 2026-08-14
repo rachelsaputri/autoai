@@ -46,7 +46,7 @@ jobs:
               GENERATED_PROMPT="Focus entirely on this new objective: '$RANDOM_TOPIC'. You must write functional code and proper documentation for this task. Workspace: $DIR_STRUCTURE."
             else
               PROMPT_PAYLOAD=$(jq -n \
-                --arg model "MiniMaxAI/MiniMax-M2.7" \
+                --arg model "Qwen3.6-35B-A3B-FP8" \
                 --arg history "$HISTORY_CONTEXT" \
                 --arg dirs "$DIR_STRUCTURE" \
                 '{
@@ -69,7 +69,7 @@ jobs:
             fi
             echo "[$(date +'%Y-%m-%d %H:%M:%S')] $GENERATED_PROMPT" >> history.txt
             CONTENT_PAYLOAD=$(jq -n \
-              --arg model "MiniMaxAI/MiniMax-M2.7" \
+              --arg model "Qwen3.6-35B-A3B-FP8" \
               --arg prompt "$GENERATED_PROMPT" \
               --arg dirs "$DIR_STRUCTURE" \
               '{
