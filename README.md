@@ -296,3 +296,243 @@ Four-tier classification model controls handling requirements:
 - Policy enforcement via infrastructure-as-code templates
 - Continuous compliance scanning with remediation workflows
 - Exportable compliance artifacts for audit evidence packages
+
+
+## Operational Procedures
+
+### Deployment Workflows
+
+The platform employs a GitOps-based deployment model with automated pipeline stages ensuring consistency and traceability across all environments.
+
+**Pipeline Stages:**
+
+| Stage | Purpose | Gate Criteria | Typical Duration |
+|-------|---------|---------------|------------------|
+| Build | Compile artifacts, run unit tests | 100% pass rate on critical tests | 5-10 minutes |
+| Security Scan | Dependency vulnerability check, SAST | Zero critical/high CVEs | 3-5 minutes |
+| Integration Test | API contracts, service communication | 95% coverage, zero blocking issues | 15-30 minutes |
+| Stage Deploy | Pre-production validation | Manual approval from reviewer | 10-15 minutes |
+| Smoke Test | Health checks, core functionality | All endpoints returning 2xx/3xx | 5-10 minutes |
+| Production Deploy | Rolling deployment with canary | Automated if metrics pass | 20-45 minutes |
+
+**Deployment Commands:**
+
+```bash
+# Initiate deployment pipeline
+platform deploy --env staging --version 2.4.1
+
+# Rollback to previous version
+platform rollback --env production --confirm
+
+# Monitor deployment progress
+platform deploy status --follow --env production
+```
+
+**Deployment Policies:**
+
+- All deployments must originate from the `main` branch or release branches
+- Hotfixes require two-engineer approval and automatic post-deployment review
+- Blue-green deployments used for zero-downtime requirements
+- Database migrations executed separately with backward compatibility requirements
+
+### Environment Promotion
+
+Environments follow a strict promotion hierarchy ensuring changes are validated before reaching production systems.
+
+**Environment Tiers:**
+
+- **Development** — Isolated namespace per developer, feature flags enabled, reduced data volumes, rapid iteration cycle
+- **Staging** — Production-equivalent configuration, anonymized data subsets, performance baseline validation
+- **Production** — Full redundancy, encrypted data, real-time monitoring, change advisory board approval for major releases
+
+**Promotion Criteria:**
+
+| Metric | Staging Gate | Production Gate |
+|--------|--------------|------------------|
+| Test Coverage | ≥80% | ≥90% |
+| Critical Bug Count | 0 | 0 |
+| Performance Regression | <5% | <2% |
+| Security Scan | Pass | Pass with zero high/critical |
+| Uptime SLA | N/A | 99.95% (30-day rolling) |
+
+**Promotion Workflow:**
+
+1. Feature complete and code reviewed in development
+2. Automated testing and security validation
+3. Manual QA sign-off in staging environment
+4. Change request submitted to Change Advisory Board (CAB)
+5. Scheduled deployment window assigned
+6. Deployment executed with monitoring active
+7. Post-deployment verification and stakeholder notification
+
+### Monitoring and Alerting Thresholds
+
+Proactive monitoring ensures service reliability and enables rapid issue identification before customer impact.
+
+**Infrastructure Metrics:**
+
+| Metric | Warning Threshold | Critical Threshold | Action |
+|--------|------------------|-------------------|--------|
+| CPU Utilization | >70% for 5 min | >90% for 2 min | Scale horizontally, alert on-call |
+| Memory Usage | >75% for 5 min | >90% for 2 min | Trigger GC, provision additional capacity |
+| Disk Usage | >80% | >95% | Initiate cleanup, alert engineering |
+| Network Throughput | >60% capacity | >85% capacity | Review traffic patterns, scale if sustained |
+
+**Application Metrics:**
+
+| Metric | Warning Threshold | Critical Threshold | Action |
+|--------|------------------|-------------------|--------|
+| Error Rate | >1% for 5 min | >5% for 1 min | Page on-call, begin incident process |
+| Latency (p99) | >500ms | >2000ms | Investigate recent changes, check dependencies |
+| Request Rate | Anomaly detection | Sudden drop >50% | Verify service health, check upstream systems |
+| Availability | <99.9% (hourly) | <99% (hourly) | Begin incident response |
+
+**Alert Channels:**
+
+- **P1 Critical** — PagerDuty immediate wake, SMS + phone call, Slack #incidents channel
+- **P2 High** — PagerDuty during business hours, Slack #alerts channel, email to team
+- **P3 Medium** — Slack #monitoring channel, ticketing system creation
+- **P4 Low** — Daily digest, log aggregation for trend analysis
+
+### Incident Response Playbooks
+
+Standardized playbooks ensure consistent, effective response to service disruptions.
+
+**Severity Definitions:**
+
+- **SEV1 (Critical)** — Complete service outage, data loss, security breach affecting production
+- **SEV2 (High)** — Partial degradation affecting >20% of users, functionality significantly impaired
+- **SEV3 (Medium)** — Minor functionality impact, workaround available, <20% user base affected
+- **SEV4 (Low)** — Cosmetic issues, non-critical bugs, no immediate user impact
+
+**Incident Response Workflow:**
+
+1. **Detection** — Automated alert triggers or user-reported issue via support channel
+2. **Triage** — On-call engineer assesses severity, assigns incident commander for SEV1/SEV2
+3. **Containment** — Immediate actions to prevent further impact (feature flags, traffic rerouting)
+4. **Investigation** — Root cause analysis using logs, metrics, distributed tracing
+5. **Resolution** — Implement fix, validate with canary deployment or feature rollback
+6. **Recovery** — Verify all systems nominal, customer impact remediated
+7. **Post-Incident Review** — Document timeline, root cause, action items within 48 hours
+
+**Communication Protocol:**
+
+| Incident Age | Internal Update | Customer Communication |
+|--------------|-----------------|------------------------|
+| 0-15 minutes | Post in #incidents, begin investigation | Monitoring active, no customer impact identified |
+| 15-30 minutes | Hourly update to stakeholders | Initial acknowledgment if customer-impacting |
+| 30-60 minutes | Detailed status updates | Status page update with ETA for resolution |
+| Post-resolution | Incident post-mortem scheduled | Resolution confirmation on status page |
+
+### Disaster Recovery Procedures
+
+Comprehensive DR procedures minimize recovery time and data loss during catastrophic events.
+
+**Recovery Objectives:**
+
+| Objective | Target | Measured Against |
+|-----------|--------|------------------|
+| Recovery Point Objective (RPO) | 5 minutes for transaction data, 1 hour for analytics | Maximum acceptable data loss |
+| Recovery Time Objective (RTO) | 30 minutes for critical services, 4 hours for full recovery | Time to restore functionality |
+
+**Backup Strategy:**
+
+- **Real-time replication** — Transaction logs streamed to secondary region continuously
+- **Hourly snapshots** — Point-in-time recovery available for last 72 hours
+- **Daily full backups** — Encrypted backups retained for 30 days
+- **Weekly archives** — Long-term retention in cold storage (7 years per compliance)
+
+**Recovery Procedures:**
+
+1. **Declare disaster** — Executive approval, activate DR team, notify stakeholders
+2. **Assess impact** — Determine affected systems, data currency, blast radius
+3. **Initiate failover** — DNS cutover to secondary region, update load balancer configs
+4. **Verify recovery** — Automated health checks validate service functionality
+5. **Resume operations** — Direct traffic to recovered infrastructure
+6. **Plan failback** — Schedule return to primary region after stability confirmed
+
+**DR Testing:**
+
+- Monthly tabletop exercises simulate disaster scenarios
+- Quarterly full DR drill with actual failover execution
+- Annual third-party audit validates recovery procedures
+- All DR tests documented with lessons learned incorporated into procedures
+
+### Maintenance Windows
+
+Scheduled maintenance ensures infrastructure stability while minimizing user disruption.
+
+**Standard Maintenance Windows:**
+
+| Environment | Preferred Window | Duration Limit | Advance Notice |
+|-------------|------------------|----------------|----------------|
+| Development | Any time | 4 hours | None required |
+| Staging | Sunday 02:00-06:00 UTC | 4 hours | 48 hours |
+| Production | Sunday 02:00-06:00 UTC | 4 hours | 5 business days |
+
+**Maintenance Types:**
+
+**Planned Maintenance** — Scheduled upgrades, infrastructure changes, performance optimization
+
+- Requires advance notice per window guidelines
+- Change request with rollback plan mandatory
+- On-call engineer present throughout maintenance
+- Customer notification for any expected downtime
+
+**Emergency Maintenance** — Critical security patches, urgent reliability fixes
+
+- Immediate execution authorized with notification during/after
+- Expedited approval from on-call manager required
+- Post-maintenance review within 24 hours
+
+**Notification Requirements:**
+
+- **72+ hours** — Email notification to all stakeholders
+- **24 hours** — Slack reminder in #announcements and affected service channels
+- **1 hour** — Final reminder with countdown to maintenance start
+- **Post-maintenance** — Confirmation of successful completion
+
+### On-Call Rotation Responsibilities
+
+On-call coverage ensures 24/7 availability with rapid response capabilities.
+
+**Rotation Structure:**
+
+- Primary on-call: First response within 5 minutes, primary investigation and resolution
+- Secondary on-call: Backup response within 10 minutes, escalation point if primary unavailable
+- Engineering manager: Escalation for SEV1 incidents, stakeholder communication authority
+
+**Rotation Schedule:**
+
+- Weekly rotations begin Monday 09:00 UTC
+- Handoff requires explicit acknowledgment and shift summary transfer
+- Minimum 48 hours between assigned rotations for same engineer
+- Holiday/leave coverage pre-arranged with manager approval
+
+**On-Call Engineer Responsibilities:**
+
+| Responsibility | Requirement | Verification |
+|---------------|-------------|--------------|
+| Response Time | Acknowledge alerts within 5 minutes | PagerDuty response tracking |
+| Alert Triage | Initial severity assessment within 10 minutes | Incident creation timestamp |
+| Escalation | Appropriate escalation per severity matrix | Escalation path adherence |
+| Documentation | Real-time incident notes in status page | Post-incident review confirmation |
+| Handoff | Complete shift summary for incoming engineer | Written handoff document |
+
+**On-Call Support:**
+
+- Company-provided laptop and mobile device required
+- Secondary phone line for critical alerts
+- VPN access pre-configured for all environments
+- Documentation and runbooks accessible offline
+- Taxi/ride service reimbursement for urgent office response
+
+**Escalation Matrix:**
+
+| Situation | First Response | Escalation Path |
+|-----------|----------------|-----------------|
+| Alert unacknowledged (5 min) | Primary → Secondary | Secondary → Engineering Manager |
+| SEV1 incident declared | On-call → Incident Commander | IC → VP Engineering → CTO |
+| Service unavailable (15 min) | Engineering → Customer Success | CS Lead → VP Customer Success |
+| Data breach suspected | On-call → Security team | Security Lead → CISO → Legal |
+| Media inquiry | Do not respond | PR team → VP Marketing → CEO |
