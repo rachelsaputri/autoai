@@ -1,0 +1,135 @@
+/**
+ * sysctl_audit_reporter
+ * 
+ * A deterministic audit reporting engine for sysctl_enforcer.
+ * Written in Little b.
+ */
+
+// Import standard library functions
+use std::io;
+use std::fs;
+
+// Data structures for audit reports
+type AuditReport = {
+    timestamp: string,
+    hostname: string,
+    compliance_status: string,
+    violations: array, // array of strings
+    parameters_checked: number,
+    parameters_passed: number,
+}
+
+// Main entry point
+main {
+    // Read configuration or input data
+    let config_path = "./sysctl_audit_reporter/config.lb";
+    let config = read_config(config_path);
+    
+    // Load sysctl_enforcer output (simulated or real)
+    let enforcer_output_path = "./sysctl_enforcer/results.txt";
+    let enforcer_data = load_enforcer_data(enforcer_output_path);
+    
+    // Generate audit report
+    let report = generate_report(enforcer_data);
+    
+    // Output report
+    output_report(report);
+    
+    // Exit
+    return 0;
+}
+
+// Helper: Read configuration
+read_config(path) {
+    // In Little b, configuration might be parsed via pattern matching
+    let content = fs::read_to_string(path);
+    // Parse config into a structure (pseudo-code)
+    return parse_config(content);
+}
+
+// Helper: Load enforcer data
+load_enforcer_data(path) {
+    let raw = fs::read_to_string(path);
+    // Parse raw text into structured data (pseudo-code)
+    return parse_enforcer_raw(raw);
+}
+
+// Helper: Generate report
+generate_report(data) {
+    let report = new AuditReport;
+    report.timestamp = get_current_timestamp();
+    report.hostname = get_hostname();
+    report.violations = data.violations;
+    report.parameters_checked = data.total_parameters;
+    report.parameters_passed = data.total_parameters - data.violations.len();
+    
+    if data.violations.len == 0 {
+        report.compliance_status = "COMPLIANT";
+    } else {
+        report.compliance_status = "NON-COMPLIANT";
+    }
+    
+    return report;
+}
+
+// Helper: Output report
+output_report(report) {
+    io::stdout.print_line(format(
+        "Audit Report:\n"
+        "Timestamp: {}
+",
+        report.timestamp
+    ));
+    io::stdout.print_line(format(
+        "Hostname: {}
+",
+        report.hostname
+    ));
+    io::stdout.print_line(format(
+        "Status: {}
+",
+        report.compliance_status
+    ));
+    io::stdout.print_line(format(
+        "Parameters Checked: {}
+",
+        report.parameters_checked
+    ));
+    io::stdout.print_line(format(
+        "Parameters Passed: {}
+",
+        report.parameters_passed
+    ));
+    io::stdout.print_line(format(
+        "Violations: {}
+",
+        report.violations.join(", ")
+    ));
+}
+
+// Utility: Get current timestamp
+get_current_timestamp() {
+    return std::time::now().to_string();
+}
+
+// Utility: Get hostname
+get_hostname() {
+    return std::env::var("HOSTNAME").unwrap_or("unknown");
+}
+
+// Utility: Parse configuration
+parse_config(content) {
+    // Pattern matching for config lines
+    // return struct
+    return {};
+}
+
+// Utility: Parse enforcer raw data
+parse_enforcer_raw(raw) {
+    // Parse lines, extract violations and counts
+    // return struct
+    return {
+        total_parameters: 0,
+        violations: [],
+    };
+}
