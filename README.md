@@ -175,3 +175,124 @@ All modules emit structured telemetry data for operational visibility:
 - **Health checks**: Component-level status endpoints for orchestration systems
 
 The self-maintenance controller aggregates telemetry into actionable alerts and automated remediation workflows.
+
+
+## Security and Authentication
+
+The platform implements defense-in-depth security measures across all layers, ensuring data protection, access control, and regulatory compliance for enterprise deployments.
+
+### API Key Management
+
+API authentication uses rotating credentials with configurable expiration policies:
+
+| Key Type | Scope | Default TTL | Rotation Policy |
+|----------|-------|-------------|-----------------|
+| Ingest Keys | Write-only document submission | 90 days | Automatic via secret manager |
+| Query Keys | Read-only knowledge retrieval | 30 days | Manual or automated |
+| Admin Keys | Full system access | 14 days | Mandatory rotation |
+| Service Keys | Inter-service communication | 180 days | Certificate-based rotation |
+
+Keys are stored as salted hashes in the credential vault and transmitted only via TLS 1.3. The platform integrates with external secret management systems (HashiCorp Vault, AWS Secrets Manager, Azure Key Vault) for centralized key lifecycle management. Emergency key revocation triggers immediate session termination and cached credential invalidation.
+
+### Role-Based Access Control
+
+Access permissions follow a hierarchical role model with granular resource-level controls:
+
+**Built-in Roles:**
+- **Viewer** — Query access to approved knowledge domains, read-only graph exploration
+- **Contributor** — Document submission, feedback submission, limited configuration access
+- **Operator** — Pipeline management, maintenance task execution, metric observation
+- **Administrator** — Full configuration access, user management, audit log access
+- **Auditor** — Read-only access to audit logs and compliance reports (no write permissions)
+
+Custom role definitions support attribute-based policies combining user attributes (department, clearance level), resource attributes (data classification, source sensitivity), and environmental factors (access time, IP address ranges). Policy evaluation uses deny-by-default logic with explicit allow rules evaluated in priority order.
+
+### Encryption Standards
+
+All data undergoes encryption protection appropriate to its state:
+
+**Data in Transit:**
+- TLS 1.3 mandatory for all API endpoints and WebSocket connections
+- mTLS enforced for inter-service communication with certificate pinning
+- Perfect forward secrecy enabled via ephemeral key exchange (X25519)
+- Strong cipher suites only: AES-256-GCM, ChaCha20-Poly1305
+
+**Data at Rest:**
+- AES-256-GCM encryption for all stored documents, embeddings, and graph data
+- Per-tenant encryption keys with customer-managed key (CMK) support
+- Encrypted search indexes using deterministic encryption with salt propagation
+- Secure deletion via cryptographic key destruction (certified to NIST 800-88 standards)
+
+**Key Hierarchy:**
+```
+Master Key (HSM-protected)
+├── Tenant Keys (derived via HKDF)
+│   ├── Document Keys
+│   ├── Index Keys
+│   └── Graph Keys
+└── Audit Keys (independent rotation)
+```
+
+### Rate Limiting Policies
+
+API endpoints enforce consumption limits to prevent abuse and ensure fair resource allocation:
+
+| Endpoint Category | Default Limit | Burst Allowance | Window |
+|-------------------|---------------|-----------------|--------|
+| Document Ingest | 100 requests/min | 25 requests | Sliding |
+| Knowledge Query | 500 requests/min | 100 requests | Sliding |
+| Graph Exploration | 200 requests/min | 50 requests | Sliding |
+| Feedback Submission | 300 requests/min | 75 requests | Sliding |
+| Admin Operations | 50 requests/min | 10 requests | Fixed |
+
+Rate limit headers (`X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`) inform clients of current allocation. Exceeded limits return HTTP 429 with `Retry-After` guidance. Configurable rate limit rules support tenant-specific thresholds and temporary limit increases for planned workloads.
+
+### Audit Logging Requirements
+
+Comprehensive audit trails capture all security-relevant events for compliance and forensics:
+
+**Captured Events:**
+- Authentication attempts (success/failure with source attribution)
+- Authorization decisions (permission grants and denials)
+- Data access events (documents queried, graph traversals performed)
+- Configuration changes (who changed what and when)
+- Administrative actions (user management, key operations)
+- Export and deletion operations (data handling compliance)
+
+**Log Format:** Structured JSON with immutable write-once storage and cryptographic integrity markers (hash chaining). Logs include:
+- Timestamp (UTC, microsecond precision)
+- Actor identity (user/service account, session ID)
+- Action type and classification
+- Resource affected (type, identifier, owner)
+- Outcome and error codes when applicable
+- Source context (IP address, user agent, geographic region)
+
+Log retention aligns with compliance requirements (default 365 days, configurable to 7 years for regulated industries). Automated log shipping to SIEM systems (Splunk, Elastic, Azure Sentinel) uses encrypted streaming with delivery guarantees.
+
+### Compliance Considerations
+
+The platform supports common regulatory frameworks through built-in controls and documentation:
+
+**Data Residency:**
+- Configurable deployment regions for sovereignty requirements
+- Cross-region replication with explicit data flow controls
+- Edge processing options for latency-sensitive jurisdictions
+
+**Regulatory Alignment:**
+- **GDPR**: Data minimization, purpose limitation, right to erasure with cascading deletion
+- **HIPAA**: Business Associate Agreements (BAAs), PHI handling procedures, access controls
+- **SOC 2 Type II**: Annual audit reports, continuous monitoring, incident response procedures
+- **ISO 27001**: Information security management system (ISMS) alignment, risk assessment framework
+
+**Data Classification:**
+Four-tier classification model controls handling requirements:
+1. **Public** — No access controls, encrypted transport only
+2. **Internal** — Authentication required, audit logged
+3. **Confidential** — Role-based access, enhanced logging, watermarking
+4. **Restricted** — Explicit need-to-know, MFA required, full chain-of-custody tracking
+
+**Compliance Automation:**
+- Automated Data Protection Impact Assessments (DPIAs)
+- Policy enforcement via infrastructure-as-code templates
+- Continuous compliance scanning with remediation workflows
+- Exportable compliance artifacts for audit evidence packages
