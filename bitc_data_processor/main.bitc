@@ -1,0 +1,35 @@
+import "core::io";
+import "core::result";
+import "core::option";
+import "pipeline";
+import "transformer";
+
+fn main(): Void {
+    let input_data: &String = "sample,data,with|pipes,for|testing";
+    io::println("Starting BitC Data Processor...");
+    
+    let pipeline_result: Result<ProcessedData, String> = process_data(input_data);
+    
+    match pipeline_result {
+        Ok(data) => {
+            io::println("Processing complete. Success.");
+            io::println("Transformed record: {}", data);
+        },
+        Err(e) => {
+            io::println("Processing failed with error: {}", e);
+        }
+    }
+    io::println("Terminating.");
+}
+
+fn process_data(input: &String): Result<ProcessedData, String> {
+    let validated = validate_input(input)?;
+    let transformed = transformer::apply_rules(validated)?;
+    Ok(ProcessedData { raw: input, clean: transformed, status: "COMPLETE" })
+}
+
+struct ProcessedData {
+    raw: &String,
+    clean: String,
+    status: &str,
+}
