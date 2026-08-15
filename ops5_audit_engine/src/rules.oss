@@ -1,0 +1,89 @@
+; OPS5 Security Audit Engine - Production Rules
+; Rule set for classifying and remediating security incidents
+
+; Rule 1: Authentication Failure Analysis
+; Detects multiple failed logins and flags for brute-force
+(RULE BRUTE-FORCE-DETECT
+  (PATTERN (AUDIT-ENTRY (EVENT-ID FAILED-LOGIN) (USER ?u) (ATTEMPTS > 5) (MINUTES < 10))
+           (AUDIT-ENTRY (EVENT-ID FAILED-LOGIN) (USER ?u))
+           (AUDIT-ENTRY (EVENT-ID FAILED-LOGIN) (USER ?u))
+           (AUDIT-ENTRY (EVENT-ID FAILED-LOGIN) (USER ?u))
+           (AUDIT-ENTRY (EVENT-ID FAILED-LOGIN) (USER ?u)))
+  (THEN
+    (PRINT-TO-SCREEN "WARNING: Possible brute-force attack on user " ?u)
+    (ADD-TO-WM (SECURITY-ALERT (SEVERITY HIGH) (TYPE BRUTE-FORCE) (TARGET ?u)))
+    (RESET-MATCH-CYCLES)
+  )
+)
+
+; Rule 2: Privilege Escalation Check
+; Detects unauthorized sudo or root access
+(RULE PRIV-ESC-CHECK
+  (PATTERN (AUDIT-ENTRY (EVENT-ID PRIVILEGE-CHANGE) (USER ?u) (NEW-PERMS (CONTAINS ROOT)))
+           (NOT (AUDIT-ENTRY (EVENT-ID ADMIN-AUTHORIZATION) (USER ?u))))
+  (THEN
+    (PRINT-TO-SCREEN "ALERT: Unauthorized privilege escalation by " ?u)
+    (ADD-TO-WM (SECURITY-ALERT (SEVERITY CRITICAL) (TYPE PRIV-ESC) (TARGET ?u)))
+    (ADD-TO-WM (REMEDIATION-REQ (ACTION LOCK-ACCOUNT) (TARGET ?u)))
+  )
+)
+
+; Rule 3: Compliance Drift Detection
+; Checks for deviations from baseline configuration
+(RULE COMPLIANCE-DRIFT
+  (PATTERN (CONFIG-CHECK (BASELINE ?b) (CURRENT ?c) (DEVIATION ?d))
+           (NOT (REMEDIATION-REQ (ACTION RESOLVE-DRIFT) (TARGET ?b))))
+  (THEN
+    (PRINT-TO-SCREEN "ALERT: Configuration drift detected on baseline " ?b)
+    (ADD-TO-WM (SECURITY-ALERT (SEVERITY MEDIUM) (TYPE COMPLIANCE-DRIFT) (TARGET ?b)))
+    (ADD-TO-WM (REMEDIATION-REQ (ACTION APPLY-BASELINE) (TARGET ?b)))
+  )
+)
+
+; Rule 4: Automated Remediation Execution
+; Processes pending remediation requests
+(RULE REMEDIATE-INCIDENT
+  (PATTERN (REMEDIATION-REQ (ACTION LOCK-ACCOUNT) (TARGET ?t))
+           (NOT (LOCKED-STATUS (TARGET ?t))))
+  (THEN
+    (PRINT-TO-SCREEN "Executing remediation: Locking account " ?t)
+    (ADD-TO-WM (LOCKED-STATUS (TARGET ?t)))
+    (ADD-TO-WM (REMEDIATION-COMPLETE (TARGET ?t) (STATUS SUCCESS)))
+  )
+)
+
+; Rule 5: Network Anomaly Flagging
+; Detects unusual outbound traffic patterns
+(RULE NETWORK-ANOMALY
+  (PATTERN (TRAFFIC-LOG (DIRECTION OUTBOUND) (BYTES > 1000000) (DURATION < 60))
+           (TRAFFIC-LOG (DIRECTION OUTBOUND) (BYTES > 1000000) (DURATION < 60)))
+  (THEN
+    (PRINT-TO-SCREEN "WARNING: Possible data exfiltration detected")
+    (ADD-TO-WM (SECURITY-ALERT (SEVERITY HIGH) (TYPE DATA-EXFIL) (TARGET SYSTEM)))
+    (ADD-TO-WM (REMEDIATION-REQ (ACTION BLOCK-IP) (TARGET SOURCE-IP)))
+  )
+)
+
+; Rule 6: System Health & Uptime Verification
+; Ensures critical security services are active
+(RULE SERVICE-HEALTH-CHECK
+  (PATTERN (SERVICE-STATE (NAME SECURITY-DAEMON) (STATUS INACTIVE)))
+  (THEN
+    (PRINT-TO-SCREEN "CRITICAL: Security daemon is inactive")
+    (ADD-TO-WM (SECURITY-ALERT (SEVERITY CRITICAL) (TYPE SERVICE-DOWN) (TARGET SECURITY-DAEMON)))
+    (ADD-TO-WM (REMEDIATION-REQ (ACTION RESTART-SERVICE) (TARGET SECURITY-DAEMON)))
+  )
+)
+
+; Rule 7: Log Aggregation & Reporting
+; Generates summary when multiple alerts exist
+(RULE GENERATE-REPORT
+  (PATTERN (SECURITY-ALERT (SEVERITY HIGH))
+           (SECURITY-ALERT (SEVERITY CRITICAL))
+           (NOT (REPORT-GENERATED (TIMESTAMP ?ts))))
+  (THEN
+    (PRINT-TO-SCREEN "Generating compliance and security report")
+    (ADD-TO-WM (REPORT-GENERATED (TIMESTAMP (CURRENT-TIME)) (FORMAT JSON)))
+    (RESET-MATCH-CYCLES)
+  )
+)

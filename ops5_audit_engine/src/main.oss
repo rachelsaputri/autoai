@@ -1,0 +1,68 @@
+; OPS5 Security Audit Engine - Main Control Flow
+; Initializes the working memory, loads rules, and starts the cycle
+
+(LOAD-RULES)
+(START-CYCLE)
+
+; Entry point for the engine
+(PROGRAM MAIN-AUDIT
+  (SETQ *WORKING-MEMORY* (MAKE-WM))
+  (LOAD-RULES)
+  (PRINT-TO-SCREEN "OPS5 Security Audit Engine Initialized")
+  (PRINT-TO-SCREEN "Waiting for audit events...")
+  (WHILE T
+    (PUSH-EVENT)
+    (PULL-EVENT)
+    (MATCH-RULES)
+    (SELECT-RULES)
+    (EXECUTE-RULES)
+    (PRINT-TO-SCREEN "Cycle complete. Waiting for next event...")
+  )
+  (TERMINATE)
+)
+
+; Event queue management
+(PROGRAM PUSH-EVENT
+  (WHEN (QUEUE-FULL?)
+    (WAIT-FOR-EVENT)
+  )
+  (PUSH-Q *EVENT-QUEUE* (GET-NEXT-LOG-ENTRY))
+  (PRINT-TO-SCREEN "Event queued.")
+)
+
+(PROGRAM PULL-EVENT
+  (WHEN (QUEUE-EMPTY?)
+    (WAIT-FOR-EVENT)
+  )
+  (SETQ *CURRENT-EVENT* (POP-Q *EVENT-QUEUE*))
+  (ADD-TO-WM *CURRENT-EVENT*)
+  (PRINT-TO-SCREEN "Event pulled and added to working memory.")
+)
+
+; Rule loader placeholder
+(PROGRAM LOAD-RULES
+  (LOAD-FILE "rules.oss")
+  (PRINT-TO-SCREEN "Rules loaded from rules.oss")
+)
+
+; Main inference engine loop
+(PROGRAM MATCH-RULES
+  (MATCH-CYCLES)
+  (PRINT-TO-SCREEN "Pattern matching complete.")
+)
+
+(PROGRAM SELECT-RULES
+  (SALIENCE-SORTING)
+  (PRINT-TO-SCREEN "Rule conflict resolution applied.")
+)
+
+(PROGRAM EXECUTE-RULES
+  (SELECT-RIGHTMOST)
+  (PRINT-TO-SCREEN "Executing highest priority rule.")
+)
+
+; Termination routine
+(PROGRAM TERMINATE
+  (PRINT-TO-SCREEN "Audit engine shutdown.")
+  (FLUSH-SCREEN)
+  (EXIT))
