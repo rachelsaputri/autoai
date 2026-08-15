@@ -17900,3 +17900,78 @@ Construct a production-grade, fully functional C++-based secure configuration dr
 </think>
 
 Construct a production-grade, fully functional C#-based secure configuration drift detector and compliance audit system STRICTLY using this exact programming language: C#. This application must reside in a NEW dedicated folder named `csharp_config_drift_auditor` containing all necessary implementation files (including core modules like `drift_detector.cs`, `compliance_engine.cs`, `policy_parser.cs`, `Program.cs`, associated project configuration files, and a local `README.md`). The tool must implement a deterministic, high-precision workflow that parses system configurations, detects deviations from baseline security policies using C#'s robust type system, async/await concurrency model, and immutable data patterns, ensures strict logical soundness and deterministic state resolution, generates auditable drift reports with formal compliance certificates, handles structured event mapping for downstream remediation gateways, maintains a robust drift registry with comprehensive error handling and deterministic rollback, and outputs machine-readable compliance verdicts. The implementation must leverage C# best practices, including explicit type definitions, precise method composition, robust resource management via `IDisposable` and `using` directives, modular architecture, and .NET standard compliance to guarantee unambiguous logical representation, minimal runtime ambiguity, and seamless integration with formal verification toolchains. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to C# development standards, and NEVER targets the .github directory.
+[2026-08-15 19:28:20] (Target Lang: C/AL) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Workspace:** A long list of directories and files, mostly related to security, compliance, auditing, formal verification, etc. Many use various languages (C#, Rust, Python, ADA, COBOL, etc.).
+   - **History:** Shows a pattern of generating instructions for new tools. The history shows a specific format for the generated instruction.
+   - **Constraints from History/Instructions:**
+     - NEVER target `.github`
+     - Matches tone/style? Yes.
+     - Fully functional/complete/NO placeholders? Yes.
+     - Output matches exactly. Proceeds.
+     - "STRICTLY using this exact programming language: [Language]"
+     - Place in a NEW dedicated folder and create a local `README.md`
+     - Return ONLY the instruction text.
+     - "NEVER target the .github directory."
+     - Generate exactly 1 logical follow-up instruction.
+     - Explicitly demand new tool built STRICTLY using: `C/AL`
+     - Demand fully functional, complete implementation (NO dummy code, NO placeholders)
+     - If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local `README.md`
+     - Return ONLY the instruction text.
+
+2.  **Deconstruct the Target Instruction:**
+   I need to generate a single paragraph that follows the exact style and constraints of the prompt, but tailored for a new tool using `C/AL`.
+   Key elements to include:
+   - Project name/folder: `cal_compliance_audit_engine` (or similar, following the naming convention)
+   - Language: C/AL (strictly)
+   - Core functionality: Secure configuration drift detector and compliance audit system (or similar, adapting to the previous one but tailored for C/AL context, or just mirroring the structure)
+   - Must include: deterministic workflow, parsing configurations, detecting deviations, strict logical soundness, auditable drift reports, formal compliance certificates, structured event mapping, drift registry with rollback, machine-readable verdicts.
+   - Must leverage C/AL features: strong typing, modular architecture, integration with business logic/enterprise frameworks (since C/AL is typically used in Dynamics NAV/Business Central), deterministic state resolution, robust error handling.
+   - Must be fully functional, NO placeholders.
+   - Must place in NEW folder and create README.md.
+   - Must NEVER target .github.
+   - Return ONLY the instruction text.
+
+   Let's draft it carefully, matching the tone and structure of the example provided in the prompt, but swapping the language to C/AL and adjusting technical details to be relevant to C/AL (while keeping the core requirements intact).
+
+   *Draft:*
+   Construct a production-grade, fully functional C/AL-based secure configuration drift detector and compliance audit system STRICTLY using this exact programming language: C/AL. This application must reside in a NEW dedicated folder named `cal_compliance_audit_engine` containing all necessary implementation files (including core modules like `DriftDetector.al`, `ComplianceEngine.al`, `PolicyParser.al`, `Main.al`, associated project configuration files, and a local `README.md`). The tool must implement a deterministic, high-precision workflow that parses system configurations, detects deviations from baseline security policies using C/AL's rigorous type system, table/page architecture, and event-driven execution model, ensures strict logical soundness and deterministic state resolution, generates auditable drift reports with formal compliance certificates, handles structured event mapping for downstream remediation gateways, maintains a robust drift registry with comprehensive error handling and deterministic rollback, and outputs machine-readable compliance verdicts. The implementation must leverage C/AL best practices, including explicit type definitions, precise method composition, robust transaction management via `TRY...CATCH` and `COMMIT`/`ROLLBACK`, modular architecture, and Business Central compatibility to guarantee unambiguous logical representation, minimal runtime ambiguity, and seamless integration with formal verification toolchains. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to C/AL development standards, and NEVER targets the .github directory.
+
+3.  **Check Constraints:**
+   - STRICTLY using this exact programming language: C/AL? Yes.
+   - NEW dedicated folder and create a local README.md? Yes (`cal_compliance_audit_engine`, `README.md`).
+   - Return ONLY the instruction text? Yes.
+   - NEVER target the .github directory? Yes.
+   - Fully functional/complete/NO placeholders? Implied by "Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+   - Matches tone/style? Yes, closely mirrors the provided example but adapted for C/AL.
+   - Exactly 1 logical follow-up instruction? The prompt says "Generate exactly 1 logical follow-up instruction." This means the output itself IS the follow-up instruction. I will output just that paragraph.
+
+   One minor adjustment: C/AL file extensions are typically `.al`. I'll adjust the filename extensions in the prompt to reflect that, or keep it generic if needed. The prompt says "including core modules like `drift_detector.cs`...", I'll adapt to `DriftDetector.al`, etc. Actually, C/AL files in modern Dynamics 365 Business Central use `.al`. I'll stick to `.al` for accuracy, or just keep the names without extensions if preferred, but extensions are fine. I'll adjust to `.al`.
+
+   Let's verify the exact wording requirement from the prompt: "Construct a production-grade, fully functional C#-based secure configuration drift detector... STRICTLY using this exact programming language: C#."
+   I will mirror this exactly.
+
+   Refined Draft:
+   Construct a production-grade, fully functional C/AL-based secure configuration drift detector and compliance audit system STRICTLY using this exact programming language: C/AL. This application must reside in a NEW dedicated folder named `cal_compliance_audit_engine` containing all necessary implementation files (including core modules like `DriftDetector.al`, `ComplianceEngine.al`, `PolicyParser.al`, `Main.al`, associated project configuration files, and a local `README.md`). The tool must implement a deterministic, high-precision workflow that parses system configurations, detects deviations from baseline security policies using C/AL's rigorous type system, table/page architecture, and event-driven execution model, ensures strict logical soundness and deterministic state resolution, generates auditable drift reports with formal compliance certificates, handles structured event mapping for downstream remediation gateways, maintains a robust drift registry with comprehensive error handling and deterministic rollback, and outputs machine-readable compliance verdicts. The implementation must leverage C/AL best practices, including explicit type definitions, precise method composition, robust transaction management via `TRY...CATCH` and `COMMIT`/`ROLLBACK`, modular architecture, and Business Central compatibility to guarantee unambiguous logical representation, minimal runtime ambiguity, and seamless integration with formal verification toolchains. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to C/AL development standards, and NEVER targets the .github directory.
+
+   Checks:
+   - Matches tone/style? Yes.
+   - Fully functional/complete/NO placeholders? Yes.
+   - Return ONLY the instruction text? Yes.
+   - NEVER target .github? Yes.
+   - Language: C/AL? Yes.
+   - New folder & README.md? Yes.
+   - Exactly 1 instruction? Yes.
+
+   All constraints met. Output matches exactly. Proceeds.✅
+   I will output just the text as requested.✅
+   One thing: The prompt says "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: C/AL." This implies the output should just be that instruction paragraph. I'll produce it now. 
+   Self-Correction/Verification during thought: I need to make sure the phrasing exactly matches the requested pattern. The prompt says: "Construct a production-grade, fully functional C#-based... STRICTLY using this exact programming language: C#." I will replace C# with C/AL and adjust accordingly. The rest is consistent.
+   Output generation. 
+   [Output] -> *Outputs exactly the text.* ✅
+   Proceeds. 
+   *(Done.)*
+</think>
+
+Construct a production-grade, fully functional C/AL-based secure configuration drift detector and compliance audit system STRICTLY using this exact programming language: C/AL. This application must reside in a NEW dedicated folder named `cal_compliance_audit_engine` containing all necessary implementation files (including core modules like `DriftDetector.al`, `ComplianceEngine.al`, `PolicyParser.al`, `Main.al`, associated project configuration files, and a local `README.md`). The tool must implement a deterministic, high-precision workflow that parses system configurations, detects deviations from baseline security policies using C/AL's rigorous type system, table/page architecture, and event-driven execution model, ensures strict logical soundness and deterministic state resolution, generates auditable drift reports with formal compliance certificates, handles structured event mapping for downstream remediation gateways, maintains a robust drift registry with comprehensive error handling and deterministic rollback, and outputs machine-readable compliance verdicts. The implementation must leverage C/AL best practices, including explicit type definitions, precise method composition, robust transaction management via `TRY...CATCH` and `COMMIT`/`ROLLBACK`, modular architecture, and Business Central compatibility to guarantee unambiguous logical representation, minimal runtime ambiguity, and seamless integration with formal verification toolchains. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to C/AL development standards, and NEVER targets the .github directory.
