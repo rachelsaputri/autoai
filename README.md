@@ -134,3 +134,5 @@
 - Created/Updated module: `averest_formal_policy_verifier` (See `averest_formal_policy_verifier/README.md` for details)
 
 - Created/Updated module: `policy_effectiveness_analyzer` (See `policy_effectiveness_analyzer/README.md` for details)
+
+- Created/Updated module: `api_traffic_analyzer` (See `api_traffic_analyzer/README.md` for details)
