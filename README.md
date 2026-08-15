@@ -384,3 +384,5 @@
 - Created/Updated module: `chip8_compliance_orchestrator` (See `chip8_compliance_orchestrator/README.md` for details)
 
 - Created/Updated module: `chomski_compliance_orchestrator` (See `chomski_compliance_orchestrator/README.md` for details)
+
+- Created/Updated module: `chuck_compliance_telemetry_engine` (See `chuck_compliance_telemetry_engine/README.md` for details)
