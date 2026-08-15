@@ -296,3 +296,5 @@
 - Created/Updated module: `fsharp_asset_integrity_auditor` (See `fsharp_asset_integrity_auditor/README.md` for details)
 
 - Created/Updated module: `mesa_compliance_agent_simulator` (See `mesa_compliance_agent_simulator/README.md` for details)
+
+- Created/Updated module: `autocoder_compliance_dashboard` (See `autocoder_compliance_dashboard/README.md` for details)

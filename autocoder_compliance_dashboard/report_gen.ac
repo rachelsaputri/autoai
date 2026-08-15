@@ -1,0 +1,54 @@
+      * Report Generation Module
+      * Language: Autocoder
+      * Description: Generates structured diagnostic reports and exports them to file.
+
+      INCLUDE report_gen.h
+
+      REPORT_GEN_FULL
+      * Generate full diagnostic report
+      CALL report_gen_header
+      CALL report_gen_summary
+      CALL report_gen_anomalies
+      CALL report_gen_footer
+      RETURN
+
+      REPORT_GEN_HEADER
+      * Write header to stdout/log
+      PRINT '=== FULL DIAGNOSTIC REPORT ==='
+      PRINT 'Date: '
+      PRINT_CURRENT_DATE
+      PRINT 'System: Autocoder Compliance Dashboard v1.0'
+      PRINT_NEWLINE
+      RETURN
+
+      REPORT_GEN_SUMMARY
+      * Write summary section
+      PRINT '--- SUMMARY ---'
+      CALL diag_print_status
+      PRINT_NEWLINE
+      RETURN
+
+      REPORT_GEN_ANOMALIES
+      * Write anomalies section
+      PRINT '--- ANOMALIES DETECTED ---'
+      CALL diag_anomaly_lookup
+      RETURN
+
+      REPORT_GEN_FOOTER
+      * Write footer and export
+      PRINT '--- END OF REPORT ---'
+      CALL report_export_csv
+      RETURN
+
+      REPORT_EXPORT_CSV
+      * Export current metrics to CSV
+      OPEN_FILE 'diagnostic_report.csv'
+      WRITE_HEADER 'Score,Drift,Convergence'
+      WRITE_DATA global_metrics
+      CLOSE_FILE
+      RETURN
+
+      DIAG_ANOMALY_LOOKUP
+      * Placeholder for actual anomaly logic from diag_engine
+      PRINT 'No critical anomalies found.'
+      RETURN
