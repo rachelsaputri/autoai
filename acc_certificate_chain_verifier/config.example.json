@@ -1,0 +1,25 @@
+{
+  "trust_roots": [
+    "/etc/ssl/certs/ca-certificates.crt"
+  ],
+  "monitored_paths": [
+    "/etc/ssl/certs",
+    "/etc/apache2/ssl",
+    "/var/lib/docker/certs"
+  ],
+  "audit_path": "/var/log/acc_cert_verifier/audit.log",
+  "pending_path": "/var/run/acc_cert_verifier/pending",
+  "error_log_path": "/var/log/acc_cert_verifier/errors.log",
+  "alert_endpoint": "http://127.0.0.1:9200/api/v1/alerts",
+  "monitor_interval": 3600,
+  "warning_threshold": 30,
+  "critical_threshold": 7,
+  "policy_max_chain_length": 4,
+  "policy_required_eku": [
+    "serverAuth",
+    "clientAuth"
+  ],
+  "policy_valid_start": 1609459200,
+  "policy_valid_end": 4102444800,
+  "policy_constraint_level": "Strict"
+}

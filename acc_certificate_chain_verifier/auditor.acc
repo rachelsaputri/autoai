@@ -1,0 +1,62 @@
+// auditor.acc
+// Machine-readable audit trail generation and SIEM ingestion
+
+include config
+
+datastruct AuditLogger {
+    logFile: FileDescriptor
+    flushInterval: Int
+}
+
+datastruct AuditEntry {
+    type: String
+    subject: String
+    result: Bool
+    details: Json
+    timestamp: Time
+}
+
+function newAuditLogger(path: String) -> AuditLogger {
+    var fd: FileDescriptor = openFile(path, "a")
+    return AuditLogger(fd, 60)
+}
+
+function writeAuditEntry(logger: AuditLogger, entry: AuditEntry) {
+    var record: Json = toJson({
+        "type": entry.type,
+        "subject": entry.subject,
+        "result": entry.result,
+        "details": entry.details,
+        "timestamp": entry.timestamp,
+        "format_version": 1
+    })
+    var line: String = toJson(record) + "\n"
+    writeLine(logger.logFile, line)
+}
+
+function flushAudit(logger: AuditLogger) {
+    syncFile(logger.logFile)
+}
+
+function formatValidationAudit(result: ValidationResult) -> AuditEntry {
+    var details: Json = toJson({
+        "chain_length": result.depth,
+        "error": result.error,
+        "validated_at": getCurrentTime()
+    })
+    return AuditEntry("chain_validation", result.chain.subject.subjectName, result.success, details, getCurrentTime())
+}
+
+function formatAlertAudit(alert: AlertEntry) -> AuditEntry {
+    var details: Json = toJson({
+        "days_remaining": alert.daysRemaining,
+        "severity": alert.severity
+    })
+    return AuditEntry("expiration_alert", alert.certSubject, alert.severity == "Warning", details, alert.timestamp)
+}
+
+export newAuditLogger
+export writeAuditEntry
+export flushAudit
+export formatValidationAudit
+export formatAlertAudit

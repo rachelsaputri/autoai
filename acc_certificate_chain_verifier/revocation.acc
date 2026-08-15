@@ -1,0 +1,89 @@
+// revocation.acc
+// Automated revocation status checking across distributed CAs
+
+include config
+
+datastruct CRLDistribution {
+    url: String
+    lastChecked: Time
+    isUpToDate: Bool
+}
+
+datastruct OCSPResponder {
+    url: String
+    timeout: Int
+    lastStatus: RevocationStatus
+}
+
+type RevocationStatus = Good | Revoked | Unknown
+
+function checkRevocationStatus(cert: Certificate, endpoints: List<CRLDistribution>, responders: List<OCSPResponder>) -> RevocationStatus {
+    var crlStatus: RevocationStatus = checkCRL(cert, endpoints)
+    if crlStatus == Revoked {
+        return Revoked
+    }
+    
+    var ocspStatus: RevocationStatus = checkOCSP(cert, responders)
+    if ocspStatus == Revoked {
+        return Revoked
+    }
+    
+    if crlStatus == Unknown and ocspStatus == Unknown {
+        return Unknown
+    }
+    
+    return Good
+}
+
+function checkCRL(cert: Certificate, endpoints: List<CRLDistribution>) -> RevocationStatus {
+    var issuerHash: Hash = sha256(cert.issuerPublicKey)
+    for each ep in endpoints {
+        var crl: CRL = downloadCRL(ep.url)
+        if crl != null {
+            if crl.containsRevokedSerial(cert.serialNumber) {
+                return Revoked
+            }
+        }
+    }
+    return Good
+}
+
+function checkOCSP(cert: Certificate, responders: List<OCSPResponder>) -> RevocationStatus {
+    for each resp in responders {
+        var req: Json = buildOCSPRequest(cert)
+        var respBody: Json = sendOcspQuery(resp.url, req, resp.timeout)
+        if respBody != null {
+            return parseOcspResponse(respBody)
+        }
+    }
+    return Unknown
+}
+
+function buildOCSPRequest(cert: Certificate) -> Json {
+    return toJson({"type": "check", "cert_serial": cert.serialNumber, "issuer_hash": sha256(cert.issuerPublicKey)})
+}
+
+function sendOcspQuery(url: String, req: Json, timeout: Int) -> Json {
+    var resp: HttpResponse = httpPost(url, toJson(req), timeout)
+    if resp.status == 200 {
+        return resp.body
+    }
+    return null
+}
+
+function parseOcspResponse(body: Json) -> RevocationStatus {
+    var statusStr: String = body["cert_status"]
+    if statusStr == "good" {
+        return Good
+    } else if statusStr == "revoked" {
+        return Revoked
+    }
+    return Unknown
+}
+
+export checkRevocationStatus
+export checkCRL
+export checkOCSP
+export buildOCSPRequest
+export sendOcspQuery
+export parseOcspResponse
