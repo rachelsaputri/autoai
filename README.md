@@ -246,3 +246,5 @@
 - Created/Updated module: `jovial_policy_enforcement_gateway` (See `jovial_policy_enforcement_gateway/README.md` for details)
 
 - Created/Updated module: `ada_intrusion_detection_system` (See `ada_intrusion_detection_system/README.md` for details)
+
+- Created/Updated module: `scala_federated_incident_coordinator` (See `scala_federated_incident_coordinator/README.md` for details)
