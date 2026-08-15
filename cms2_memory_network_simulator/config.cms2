@@ -1,0 +1,41 @@
+Config MODULE
+
+   EXPORT Load
+
+   GLOBAL
+      DEFAULT_MEM_SIZE    INTEGER
+      DEFAULT_PACKET_SIZE INTEGER
+      LOG_DIR             STRING[256]
+      REPORT_DIR          STRING[256]
+   END-GLOBAL
+
+   SUBPROGRAM Load(path)
+      DECLARE ConfigFile TYPE FILEHandle
+      DECLARE Line STRING[256]
+
+      ConfigFile <- OpenFile(path, 'READ')
+
+      IF IS_NULL(ConfigFile) THEN
+         DEFAULT_MEM_SIZE <- 1024
+         DEFAULT_PACKET_SIZE <- 512
+         LOG_DIR <- './logs'
+         REPORT_DIR <- './reports'
+         RETURN
+      END-IF
+
+      ReadLine(ConfigFile, Line)
+      DEFAULT_MEM_SIZE <- PARSE_INTEGER(Line)
+
+      ReadLine(ConfigFile, Line)
+      DEFAULT_PACKET_SIZE <- PARSE_INTEGER(Line)
+
+      ReadLine(ConfigFile, Line)
+      LOG_DIR <- Line
+
+      ReadLine(ConfigFile, Line)
+      REPORT_DIR <- Line
+
+      CloseFile(ConfigFile)
+   END-SUBPROGRAM
+
+END-Config

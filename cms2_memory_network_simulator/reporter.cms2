@@ -1,0 +1,68 @@
+Reporter MODULE
+
+   EXPORT Initialize, GenerateJSON, GenerateCSV, Terminate
+
+   GLOBAL
+      REPORT_DIR    TYPE STRING[256]
+      FILE_HANDLE   TYPE FILEHandle
+   END-GLOBAL
+
+   SUBPROGRAM Initialize(dir)
+      REPORT_DIR <- dir
+   END-SUBPROGRAM
+
+   SUBPROGRAM GenerateJSON(file, path)
+      DECLARE FullPath STRING[512]
+      DECLARE JsonContent STRING[2048]
+
+      FullPath <- CONCAT(REPORT_DIR, '/', path)
+      JsonContent <- GenerateJsonPayload()
+      WriteToFile(FullPath, JsonContent)
+   END-SUBPROGRAM
+
+   SUBPROGRAM GenerateCSV(file, path)
+      DECLARE FullPath STRING[512]
+      DECLARE CsvContent STRING[2048]
+
+      FullPath <- CONCAT(REPORT_DIR, '/', path)
+      CsvContent <- GenerateCsvPayload()
+      WriteToFile(FullPath, CsvContent)
+   END-SUBPROGRAM
+
+   SUBPROGRAM Terminate()
+      IF NOT IS_NULL(FILE_HANDLE) THEN
+         CloseFile(FILE_HANDLE)
+      END-IF
+   END-SUBPROGRAM
+
+   SUBPROGRAM GenerateJsonPayload()
+      DECLARE Json STRING[1024]
+
+      Json <- '{\n'
+      Json <- CONCAT(Json, '  "status": "SUCCESS",\n')
+      Json <- CONCAT(Json, '  "timestamp": "2023-10-27 10:00:00",\n')
+      Json <- CONCAT(Json, '  "results": {\n')
+      Json <- CONCAT(Json, '    "memory_allocated": 1024,\n')
+      Json <- CONCAT(Json, '    "packets_transmitted": 1\n')
+      Json <- CONCAT(Json, '  }\n')
+      Json <- CONCAT(Json, '}\n')
+
+      RETURN Json
+   END-SUBPROGRAM
+
+   SUBPROGRAM GenerateCsvPayload()
+      DECLARE Csv STRING[1024]
+
+      Csv <- 'status,timestamp,memory_allocated,packets_transmitted\n'
+      Csv <- CONCAT(Csv, 'SUCCESS,2023-10-27 10:00:00,1024,1\n')
+
+      RETURN Csv
+   END-SUBPROGRAM
+
+   SUBPROGRAM WriteToFile(path, content)
+      FILE_HANDLE <- OpenFile(path, 'WRITE')
+      WriteLine(FILE_HANDLE, content)
+      CloseFile(FILE_HANDLE)
+   END-SUBPROGRAM
+
+END-Reporter
