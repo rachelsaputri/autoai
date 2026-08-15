@@ -174,3 +174,5 @@
 - Created/Updated module: `occam_formal_verification_engine` (See `occam_formal_verification_engine/README.md` for details)
 
 - Created/Updated module: `frege_policy_verifier` (See `frege_policy_verifier/README.md` for details)
+
+- Created/Updated module: `speedcode_threat_intel_aggregator` (See `speedcode_threat_intel_aggregator/README.md` for details)
