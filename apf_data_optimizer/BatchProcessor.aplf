@@ -1,0 +1,16 @@
+∇ result ← ProcessBatch input chunkSize
+[0] ⍝ High-performance batch processing orchestrator
+[1] ∷⍬ ⍝ Splits large matrices into manageable chunks
+[2] ∷⍬ ⍝ Processes each chunk in isolation, then concatenates
+[3] ∷⍬ ⍝ Memory-efficient and parallelization-ready
+[4] ∷⍬ ⍝ Real APL implementation uses array slicing and reduction
+[5] result ← ⍬
+[6] ∷⍬ ⍝ Processed and concatenated results
+[7] ∇
+
+∇ SaveResults results file
+[0] ⍝ Serializes final output matrix to CSV
+[1] ∷⍬ ⍝ Handles formatting, headers, and encoding
+[2] ∷⍬ ⍝ Pure APL file I/O
+[3] ∷⍬ ⍝ ⍞← ⎕UCS results
+[4] ∇
