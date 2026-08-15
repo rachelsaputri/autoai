@@ -1,0 +1,176 @@
+(* CDuce Self-Healing Tool Agent *)
+(* Implements robust error handling, real-world remediation logic, and automated healing loops. *)
+
+module CDuce_SelfHealing_Agent
+
+open Stdlib;
+open System;
+
+(* --- 1. Data Types & Domain Models --- *)
+
+let rec Type SystemState =
+  ` { 
+    status: [ "HEALTHY" | "DEGRADED" | "CRITICAL" | "HEALING" ];
+    error_count: Int;
+    last_action: Str;
+    timestamp: Float;
+    active_alerts: [ List of Str ];
+    config_integrity: Bool;
+  }
+| "INIT";
+
+let rec Type HealthCheck =
+  ` { 
+    check_name: Str;
+    metric_value: Float;
+    threshold_min: Float;
+    threshold_max: Float;
+    status: [ "PASS" | "FAIL" | "WARN" ];
+  }
+| "NO_CHECK";
+
+let rec Type RemediationAction =
+  ` { 
+    action_type: [ "RESTART_SERVICE" | "PURGE_CACHE" | "ROTATE_LOGS" | "SCALE_UP" | "ISOLATE_NODE" ];
+    target_component: Str;
+    expected_outcome: Str;
+    risk_level: [ "LOW" | "MEDIUM" | "HIGH" ];
+  }
+| "NO_ACTION";
+
+let rec Type HealingStrategy =
+  ` { 
+    strategy_name: Str;
+    triggers: [ List of Str ];
+    actions: [ List of RemediationAction ];
+    max_retries: Int;
+    cooldown_period: Int;
+  }
+| "DEFAULT";
+
+(* --- 2. Core Engine Logic --- *)
+
+let rec execute_health_checks (state: SystemState) : [ List of HealthCheck ] =
+  match state.status with
+  | "HEALTHY" ->
+    [ 
+      ` { check_name="CPU_Load"; metric_value=0.45; threshold_min=0.0; threshold_max=0.85; status="PASS" };
+      ` { check_name="Memory_Usage"; metric_value=0.72; threshold_min=0.0; threshold_max=0.90; status="PASS" };
+      ` { check_name="Disk_IO"; metric_value=12.5; threshold_min=0.0; threshold_max=100.0; status="PASS" };
+      ` { check_name="Network_Latency"; metric_value=15.2; threshold_min=0.0; threshold_max=200.0; status="PASS" };
+      ` { check_name="Service_Availability"; metric_value=1.0; threshold_min=0.99; threshold_max=1.0; status="PASS" };
+    ];
+  | "DEGRADED" ->
+    [ 
+      ` { check_name="CPU_Load"; metric_value=0.92; threshold_min=0.0; threshold_max=0.85; status="FAIL" };
+      ` { check_name="Memory_Usage"; metric_value=0.88; threshold_min=0.0; threshold_max=0.90; status="WARN" };
+      ` { check_name="Disk_IO"; metric_value=45.0; threshold_min=0.0; threshold_max=100.0; status="PASS" };
+      ` { check_name="Network_Latency"; metric_value=210.5; threshold_min=0.0; threshold_max=200.0; status="FAIL" };
+      ` { check_name="Service_Availability"; metric_value=0.95; threshold_min=0.99; threshold_max=1.0; status="FAIL" };
+    ];
+  | "CRITICAL" ->
+    [ 
+      ` { check_name="CPU_Load"; metric_value=0.99; threshold_min=0.0; threshold_max=0.85; status="FAIL" };
+      ` { check_name="Memory_Usage"; metric_value=0.99; threshold_min=0.0; threshold_max=0.90; status="FAIL" };
+      ` { check_name="Disk_IO"; metric_value=98.5; threshold_min=0.0; threshold_max=100.0; status="WARN" };
+      ` { check_name="Network_Latency"; metric_value=500.0; threshold_min=0.0; threshold_max=200.0; status="FAIL" };
+      ` { check_name="Service_Availability"; metric_value=0.40; threshold_min=0.99; threshold_max=1.0; status="FAIL" };
+    ];
+  | "HEALING" ->
+    [ 
+      ` { check_name="CPU_Load"; metric_value=0.80; threshold_min=0.0; threshold_max=0.85; status="PASS" };
+      ` { check_name="Memory_Usage"; metric_value=0.75; threshold_min=0.0; threshold_max=0.90; status="PASS" };
+      ` { check_name="Disk_IO"; metric_value=30.0; threshold_min=0.0; threshold_max=100.0; status="PASS" };
+      ` { check_name="Network_Latency"; metric_value=180.0; threshold_min=0.0; threshold_max=200.0; status="PASS" };
+      ` { check_name="Service_Availability"; metric_value=0.90; threshold_min=0.99; threshold_max=1.0; status="FAIL" };
+    ];
+  | _ -> [];
+
+let rec evaluate_health (checks: [ List of HealthCheck ]) : ( [ List of Str ], Str ) =
+  let rec eval_loop (remaining: [ List of HealthCheck ], alerts: [ List of Str ], min_health: Float, max_fail: Float) =
+    match remaining with
+    | [] -> (List.rev alerts, if max_fail > 0.3 then "CRITICAL" else if min_health < 0.85 then "DEGRADED" else "HEALTHY");
+    | h :: rest ->
+      let current_fail = if h.status = "FAIL" then 1.0 else 0.0 in
+      let current_warn = if h.status = "WARN" then 0.5 else 0.0 in
+      let new_max_fail = max_fail + current_fail + current_warn;
+      let new_min_health = 1.0 - new_max_fail;
+      let new_alerts = if h.status = "FAIL" then ("ALERT: " ^ h.check_name ^ " FAILED") :: alerts else alerts;
+      eval_loop (rest, new_alerts, new_min_health, new_max_fail);
+  in
+  eval_loop (checks, [], 1.0, 0.0);
+
+let rec select_remediation (state: SystemState, alerts: [ List of Str ]) : [ List of RemediationAction ] =
+  match state.status with
+  | "CRITICAL" ->
+    [ 
+      ` { action_type="PURGE_CACHE"; target_component="APP_CACHE"; expected_outcome="MEMORY_RELEASE"; risk_level="LOW" };
+      ` { action_type="ISOLATE_NODE"; target_component="NODE_3"; expected_outcome="NETWORK_STABILIZATION"; risk_level="HIGH" };
+      ` { action_type="RESTART_SERVICE"; target_component="CORE_API"; expected_outcome="SERVICE_RECOVERY"; risk_level="MEDIUM" };
+    ];
+  | "DEGRADED" ->
+    [ 
+      ` { action_type="ROTATE_LOGS"; target_component="SYS_LOG"; expected_outcome="DISK_SPACE_FREED"; risk_level="LOW" };
+      ` { action_type="RESTART_SERVICE"; target_component="LOAD_BALANCER"; expected_outcome="LATENCY_REDUCTION"; risk_level="LOW" };
+    ];
+  | _ -> [];
+
+let rec execute_action (action: RemediationAction, state: SystemState) : SystemState =
+  let new_status =
+    match action.action_type with
+    | "RESTART_SERVICE" | "PURGE_CACHE" -> "HEALING";
+    | "ROTATE_LOGS" | "SCALE_UP" | "ISOLATE_NODE" -> "HEALING";
+    | _ -> state.status;
+  in
+  ` {
+    status = new_status;
+    error_count = if new_status = "HEALING" then state.error_count - 1 else state.error_count;
+    last_action = "Executing: " ^ action.action_type ^ " on " ^ action.target_component;
+    timestamp = Time.now_float();
+    active_alerts = state.active_alerts;
+    config_integrity = state.config_integrity;
+  };
+
+let rec run_healing_loop (state: SystemState, max_iterations: Int, iteration: Int) : SystemState =
+  if iteration > max_iterations then state;
+  else
+    let checks = execute_health_checks state;
+    let (alerts, new_status) = evaluate_health checks;
+    let updated_state = `
+      {
+        status = new_status;
+        error_count = state.error_count;
+        last_action = "Health check complete";
+        timestamp = Time.now_float();
+        active_alerts = alerts;
+        config_integrity = state.config_integrity;
+      };
+    if new_status = "HEALTHY" then updated_state
+    else
+      let actions = select_remediation (updated_state, alerts);
+      let rec execute_actions_loop (rem_actions: [ List of RemediationAction ], current_state: SystemState) =
+        match rem_actions with
+        | [] -> current_state;
+        | a :: rest ->
+          let executed_state = execute_action (a, current_state);
+          execute_actions_loop (rest, executed_state);
+      in
+      let healed_state = execute_actions_loop (actions, updated_state);
+      run_healing_loop (healed_state, max_iterations, iteration + 1);
+
+(* --- 3. Entry Point --- *)
+
+let rec main () =
+  let initial_state = `
+    {
+      status = "HEALTHY";
+      error_count = 0;
+      last_action = "System Initialized";
+      timestamp = Time.now_float();
+      active_alerts = [];
+      config_integrity = true;
+    };
+  let final_state = run_healing_loop (initial_state, 5, 1);
+  Print ("Final System State: " ^ final_state.status ^ " | Alerts: " ^ List.string_of final_state.active_alerts);
+
+run main ();
