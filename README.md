@@ -256,3 +256,5 @@
 - Created/Updated module: `aimms_security_risk_optimizer` (See `aimms_security_risk_optimizer/README.md` for details)
 
 - Created/Updated module: `autoit_windows_security_auditor` (See `autoit_windows_security_auditor/README.md` for details)
+
+- Created/Updated module: `pascal_formal_policy_verifier` (See `pascal_formal_policy_verifier/README.md` for details)

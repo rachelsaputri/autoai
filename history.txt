@@ -12956,3 +12956,55 @@ Construct a production-grade, fully functional AIMMS-based Autonomous Security P
 </think>
 
 Construct a production-grade, fully functional AutoIt-based Windows Security Configuration Auditor STRICTLY using this exact programming language: AutoIt. This application must reside in a NEW dedicated folder named `autoit_windows_security_auditor` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement automated checking of critical Windows registry security parameters, service dependency auditing, and baseline compliance scoring. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+[2026-08-15 13:41:42] (Target Lang: Object Pascal) Thinking process:
+
+1.  **Deconstruct the Request:**
+    *   Goal: Generate exactly 1 logical follow-up instruction.
+    *   Context: Previous instruction was about an AutoIt Windows Security Configuration Auditor.
+    *   Constraint 1: New tool must be built STRICTLY using Object Pascal.
+    *   Constraint 2: Place it in a NEW dedicated folder.
+    *   Constraint 3: Create a local README.md.
+    *   Constraint 4: Return ONLY the instruction text.
+    *   Constraint 5: NEVER target the .github directory.
+    *   Constraint 6: "Logical follow-up" implies a theme connection to security/auditing/verification, similar to the previous turn.
+
+2.  **Brainstorming the Follow-up Tool:**
+    *   *Theme:* Security, auditing, configuration, compliance.
+    *   *Language:* Object Pascal (Delphi/Lazarus style).
+    *   *Idea 1:* A GUI-based security dashboard? A bit generic.
+    *   *Idea 2:* A network protocol analyzer? Good fit for Pascal, but maybe too low-level.
+    *   *Idea 3:* A formal policy verifier? Previous history mentions "formal_policy_verifier" folders. This feels consistent with the "a0_formal_verifier" and "averest_formal_policy_verifier" items in the workspace list. Object Pascal is good for static analysis and verification tools.
+    *   *Idea 4:* A compliance drift detector? "cesil_compliance_drift_detector" exists. Maybe a Pascal version?
+    *   *Idea 5:* A secure bootloader validator? "secure_bootloader_integrity_verifier" exists.
+    *   *Best Fit:* A "Formal Policy Verifier" or "Compliance Audit Engine" seems very strong. Object Pascal is often used for robust, static systems. Let's go with a "Formal Policy Verification Engine" to align with the "formal" theme in the workspace list (a0, abset, averest, candle, frege, godel, idris, napier88, occam, oxml, racket...). This suggests the workspace has a strong bias toward formal methods and policy verification.
+    *   *Selected Concept:* Object Pascal-based Formal Policy Verification Engine.
+    *   *Folder Name:* `pascal_formal_policy_verifier` or `delphi_security_policy_engine`. Let's use `pascal_formal_policy_verifier` for clarity.
+
+3.  **Drafting the Instruction Text:**
+    *   *Structure:* Construct a production-grade, fully functional [Description] STRICTLY using this exact programming language: Object Pascal. This application must reside in a NEW dedicated folder named [Folder] containing all necessary source files and a comprehensive local README.md. The tool must definitively implement [Features]. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+    *   *Description:* Object Pascal-based Formal Policy Verification Engine.
+    *   *Folder:* `pascal_formal_policy_verifier`.
+    *   *Features:* Parsing formal policy definitions (e.g., in a custom or standard format), checking for logical contradictions, verifying constraints against system states, generating verification reports.
+    *   *Refinement:* "Construct a production-grade, fully functional Object Pascal-based Formal Policy Verification Engine STRICTLY using this exact programming language: Object Pascal. This application must reside in a NEW dedicated folder named `pascal_formal_policy_verifier` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement parsing of formal policy specifications, static analysis for logical consistency checks, constraint satisfaction verification against defined system invariants, and generation of structured compliance verification reports. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+
+4.  **Review against Constraints:**
+    *   *Logical follow-up?* Yes, connects to the security/audit theme and the formal verification trend in the workspace.
+    *   *Language:* Object Pascal? Yes.
+    *   *New folder?* Yes (`pascal_formal_policy_verifier`).
+    *   *Local README.md?* Yes.
+    *   *Only instruction text?* Yes.
+    *   *No .github?* Yes.
+    *   *Exactly 1 instruction?* Yes.
+    *   *Return ONLY instruction text?* Yes.
+
+5.  **Final Polish (Style Check):**
+    *   The prompt history shows a specific style. The draft matches that style well.
+    *   "Construct a production-grade, fully functional Object Pascal-based Formal Policy Verification Engine STRICTLY using this exact programming language: Object Pascal. This application must reside in a NEW dedicated folder named `pascal_formal_policy_verifier` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement parsing of formal policy specifications, static analysis for logical consistency checks, constraint satisfaction verification against defined system invariants, and generation of structured compliance verification reports. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+
+6.  **Final Output Construction:**
+    *   Result: `Construct a production-grade, fully functional Object Pascal-based Formal Policy Verification Engine STRICTLY using this exact programming language: Object Pascal. This application must reside in a NEW dedicated folder named `pascal_formal_policy_verifier` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement parsing of formal policy specifications, static analysis for logical consistency checks, constraint satisfaction verification against defined system invariants, and generation of structured compliance verification reports. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).`
+
+This looks solid.
+</think>
+
+Construct a production-grade, fully functional Object Pascal-based Formal Policy Verification Engine STRICTLY using this exact programming language: Object Pascal. This application must reside in a NEW dedicated folder named `pascal_formal_policy_verifier` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement parsing of formal policy specifications, static analysis for logical consistency checks, constraint satisfaction verification against defined system invariants, and generation of structured compliance verification reports. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
