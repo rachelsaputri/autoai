@@ -6893,3 +6893,64 @@ Construct a Low-Level Binary Integrity & Signature Verifier built STRICTLY using
 </think>
 
 Construct a Secure Infrastructure Compliance & Drift Auditor built STRICTLY using this exact programming language: Rlab. This tool must reside in a NEW dedicated folder named `rlab_compliance_drift_auditor` containing the necessary source files and a detailed local README.md. The application must continuously monitor system configurations and network policy states, calculate deviation metrics, and simulate remediation strategies to detect security drift in real-time. It should leverage control-theory-based state estimation and signal processing techniques to filter noise from audit logs, generate drift alerts, and output compliance scores. Document the mathematical model for drift detection, the Rlab implementation architecture, data ingestion pipelines, and integration guidelines for the broader security orchestration framework.
+[2026-08-15 05:40:19] (Target Lang: SASL) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Context:** The user provides a directory listing, a history log showing a previous instruction/response pattern, and a final prompt.
+   - **Final Prompt:** "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: SASL. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+   - **Constraints:**
+     - Generate exactly 1 logical follow-up instruction.
+     - MUST explicitly demand the new tool be built STRICTLY using SASL.
+     - If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md.
+     - Return ONLY the instruction text.
+     - NEVER target the .github directory.
+     - Follow the pattern/style of the previous example in the history.
+
+2.  **Deconstruct Constraints:**
+   - "exactly 1 logical follow-up instruction" -> One paragraph/sentence that serves as the prompt/instruction.
+   - "STRICTLY using this exact programming language: SASL" -> Must use this exact phrasing or very close to it.
+   - "NEW dedicated folder" & "local README.md" -> Must explicitly mention creating a new folder and a README.
+   - "Return ONLY the instruction text." -> No extra words, no markdown formatting unless part of the instruction itself, just the raw text.
+   - "NEVER target the .github directory." -> Avoid mentioning .github.
+   - Contextual alignment: The previous example was about a "Secure Infrastructure Compliance & Drift Auditor" in Rlab. A logical follow-up could be about a related security/audit tool, perhaps focusing on threat intelligence, log aggregation, or policy enforcement, but built in SASL. SASL (Simple Authentication and Security Layer) is typically a protocol, but in this fictional/AI context, it's treated as a programming language. I'll treat it as a language for the tool.
+
+   Let's craft a follow-up instruction that logically follows the drift auditor. Maybe a "Threat Intelligence Correlation & Automated Response Framework" or "Network Traffic Anomaly Classifier" or "Policy Enforcement & Audit Trail Verifier". I'll go with a "Dynamic Policy Enforcement & Audit Trail Verifier" to keep it in the security/audit domain.
+
+   Draft:
+   Construct a Dynamic Policy Enforcement & Audit Trail Verifier built STRICTLY using this exact programming language: SASL. This tool must reside in a NEW dedicated folder named `sasl_policy_enforcer` containing the necessary source files and a detailed local README.md. The application must continuously validate access control policies against live system states, compute enforcement confidence metrics, and generate cryptographic audit trails to verify compliance adherence. It should leverage formal verification techniques and pattern-matching algorithms to identify policy violations, simulate enforcement actions, and output compliance verification reports. Document the logical framework for policy validation, the SASL implementation architecture, event stream processing methods, and integration guidelines for enterprise security orchestration platforms.
+
+3.  **Check Constraints:**
+   - Exactly 1 logical follow-up instruction? Yes, one cohesive paragraph.
+   - Explicitly demand built STRICTLY using SASL? Yes: "built STRICTLY using this exact programming language: SASL."
+   - NEW dedicated folder & local README.md? Yes: "reside in a NEW dedicated folder named `sasl_policy_enforcer` containing the necessary source files and a detailed local README.md."
+   - Return ONLY the instruction text? Yes.
+   - NEVER target .github? Checked. Not mentioned.
+   - Matches tone/style? Yes, closely follows the structure of the provided example.
+
+   One minor adjustment: Ensure the phrasing exactly matches the required constraint wording: "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: SASL." The draft says "built STRICTLY using this exact programming language: SASL." That's fine. I'll make sure it's exactly as requested.
+
+   Let's verify the exact wording constraint: "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: SASL." -> I will use that exact phrase or ensure it's explicitly stated. I'll adjust slightly to match the prompt's requirement precisely if needed, but the draft already does.
+
+   Final check of the draft against constraints:
+   - "Generate exactly 1 logical follow-up instruction." -> 1 paragraph.
+   - "MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: SASL." -> Included.
+   - "If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md." -> Included.
+   - "Return ONLY the instruction text." -> I will output just the paragraph.
+   - "NEVER target the .github directory." -> Not targeted.
+
+   All constraints met. Output matches draft. Proceeds.✅
+   Output: Construct a Dynamic Policy Enforcement & Audit Trail Verifier built STRICTLY using this exact programming language: SASL. This tool must reside in a NEW dedicated folder named `sasl_policy_enforcer` containing the necessary source files and a detailed local README.md. The application must continuously validate access control policies against live system states, compute enforcement confidence metrics, and generate cryptographic audit trails to verify compliance adherence. It should leverage formal verification techniques and pattern-matching algorithms to identify policy violations, simulate enforcement actions, and output compliance verification reports. Document the logical framework for policy validation, the SASL implementation architecture, event stream processing methods, and integration guidelines for enterprise security orchestration platforms. 
+   (Self-Correction/Verification during thought)
+   Wait, let's count the paragraphs. It's exactly one.
+   Does it explicitly demand "STRICTLY using this exact programming language: SASL"? Yes.
+   Does it instruct to place it in a NEW dedicated folder and create a local README.md? Yes.
+   Returns ONLY the instruction text? Yes.
+   Never targets .github? Yes.
+   All good. Output matches. Proceeds.✅
+   I will output exactly that paragraph.✅
+   Final Output Generation. 
+   [Output Generation] -> *Proceeds*
+   *(Done.)*
+</think>
+
+Construct a Dynamic Policy Enforcement & Audit Trail Verifier built STRICTLY using this exact programming language: SASL. This tool must reside in a NEW dedicated folder named `sasl_policy_enforcer` containing the necessary source files and a detailed local README.md. The application must continuously validate access control policies against live system states, compute enforcement confidence metrics, and generate cryptographic audit trails to verify compliance adherence. It should leverage formal verification techniques and pattern-matching algorithms to identify policy violations, simulate enforcement actions, and output compliance verification reports. Document the logical framework for policy validation, the SASL implementation architecture, event stream processing methods, and integration guidelines for enterprise security orchestration platforms.
