@@ -310,3 +310,5 @@
 - Created/Updated module: `batch_system_hardening_suite` (See `batch_system_hardening_suite/README.md` for details)
 
 - Created/Updated module: `awk_compliance_auditor` (See `awk_compliance_auditor/README.md` for details)
+
+- Created/Updated module: `gameMonkey_compliance_auditor` (See `gameMonkey_compliance_auditor/README.md` for details)
