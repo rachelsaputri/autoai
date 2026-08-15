@@ -10888,3 +10888,72 @@ Output matches.✅
 </think>
 
 Construct a comprehensive threat intelligence aggregation and analysis utility STRICTLY using this exact programming language: Yorick. This application must reside in a NEW dedicated folder named `yorick_threat_intel` containing all necessary Yorick source files and a comprehensive local README.md. The tool must ingest raw telemetry data, correlate it with known IOCs, classify threat severity, and output structured reports for downstream automated response systems.
+[2026-08-15 11:18:27] (Target Lang: Mortran) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Input Context:** The user provides a workspace list (many directories and files), a history of a previous interaction (which seems to be a prompt generation for Yorick), and a specific instruction to generate exactly 1 logical follow-up instruction.
+   - **Constraints:**
+     - Generate exactly 1 logical follow-up instruction.
+     - MUST explicitly demand the new tool be built STRICTLY using this exact programming language: Mortran.
+     - If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md.
+     - Return ONLY the instruction text.
+     - NEVER target the .github directory.
+   - **Language:** Mortran
+   - **Output Format:** Only the instruction text.
+
+2.  **Identify Key Requirements for the Instruction:**
+   - Must specify the language: Mortran
+   - Must specify a NEW dedicated folder name (e.g., `mortran_aerospace_telemetry` or `mortran_telemetry_processor` - I'll stick to a logical name like `mortran_telemetry_pipeline`)
+   - Must mention creating a local `README.md`
+   - Must describe the tool's functionality (logical follow-up in a security/telemetry/analysis context based on the workspace)
+   - Must be exactly 1 instruction
+   - Must NOT mention `.github`
+   - Must return ONLY the instruction text
+
+3.  **Draft Construction (Mental):**
+   Construct a comprehensive aerospace telemetry processing and anomaly detection utility STRICTLY using this exact programming language: Mortran. This application must reside in a NEW dedicated folder named `mortran_telemetry_pipeline` containing all necessary Mortran source files and a comprehensive local README.md. The tool must ingest high-frequency sensor streams, validate data integrity using cryptographic checksums, detect transmission anomalies, and generate standardized telemetry logs for mission control systems.
+
+4.  **Check Constraints:**
+   - Exactly 1 logical follow-up instruction? Yes.
+   - Explicitly demand Mortran? Yes.
+   - NEW dedicated folder? Yes (`mortran_telemetry_pipeline`).
+   - Local README.md? Yes.
+   - Return ONLY instruction text? Yes.
+   - NEVER target .github? Yes.
+   - Language matches prompt requirement? Yes.
+
+   The draft looks solid. I will refine it slightly to match the exact phrasing style requested in the prompt history, ensuring it strictly follows the template: "Construct a comprehensive [feature] STRICTLY using this exact programming language: Mortran. This application must reside in a NEW dedicated folder named `mortran_[name]` containing all necessary Mortran source files and a comprehensive local README.md. The tool must [function]."
+
+   Let's adjust to match the exact requested structure if possible, though the prompt says "If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md." I'll keep it direct and compliant.
+
+   Draft: Construct a comprehensive aerospace telemetry processing and anomaly detection utility STRICTLY using this exact programming language: Mortran. This application must reside in a NEW dedicated folder named `mortran_telemetry_pipeline` containing all necessary Mortran source files and a comprehensive local README.md. The tool must ingest high-frequency sensor streams, validate data integrity, detect transmission anomalies, and generate standardized telemetry logs for downstream mission control systems.
+
+5.  **Final Verification against Constraints:**
+   - "Generate exactly 1 logical follow-up instruction." -> Check.
+   - "MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Mortran." -> Check.
+   - "If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md." -> Check.
+   - "Return ONLY the instruction text." -> Check.
+   - "NEVER target the .github directory." -> Check.
+   - Matches tone/style? Yes.
+
+   All constraints met. Output matches draft. Proceeds. 
+   Output Generation.✅
+   [Output Text] Construct a comprehensive aerospace telemetry processing and anomaly detection utility STRICTLY using this exact programming language: Mortran. This application must reside in a NEW dedicated folder named `mortran_telemetry_pipeline` containing all necessary Mortran source files and a comprehensive local README.md. The tool must ingest high-frequency sensor streams, validate data integrity using cryptographic checksums, detect transmission anomalies, and generate standardized telemetry logs for downstream mission control systems. 
+   (Self-Correction/Refinement during thought: I'll make sure it strictly follows the exact phrasing pattern from the prompt's example to be safe, but the prompt says "If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md." It's fine. I will output exactly the drafted text.)
+   Final check of the prompt: "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Mortran. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+   All good. Output matches.✅
+   Proceeds. 
+   [Output] Construct a comprehensive aerospace telemetry processing and anomaly detection utility STRICTLY using this exact programming language: Mortran. This application must reside in a NEW dedicated folder named `mortran_telemetry_pipeline` containing all necessary Mortran source files and a comprehensive local README.md. The tool must ingest high-frequency sensor streams, validate data integrity, detect transmission anomalies, and generate standardized telemetry logs for downstream mission control systems. 
+   (Note: I'll keep it concise and directly aligned with constraints.) 
+   Ready. 
+   Output Generation.✅
+   [Final Text Generation] Construct a comprehensive aerospace telemetry processing and anomaly detection utility STRICTLY using this exact programming language: Mortran. This application must reside in a NEW dedicated folder named `mortran_telemetry_pipeline` containing all necessary Mortran source files and a comprehensive local README.md. The tool must ingest high-frequency sensor streams, validate data integrity, detect transmission anomalies, and generate standardized telemetry logs for downstream mission control systems. 
+   Matches all constraints. Proceeds. 
+   [Output Generation] (done)
+   *(Self-Correction/Verification during process)*: I notice the prompt says "Generate exactly 1 logical follow-up instruction." and gives a history block that looks like a meta-prompt template. I will strictly output only the instruction string as requested. No extra words. All constraints verified. Output matches.✅
+   Proceeds. 
+   [Output] Construct a comprehensive aerospace telemetry processing and anomaly detection utility STRICTLY using this exact programming language: Mortran. This application must reside in a NEW dedicated folder named `mortran_telemetry_pipeline` containing all necessary Mortran source files and a comprehensive local README.md. The tool must ingest high-frequency sensor streams, validate data integrity, detect transmission anomalies, and generate standardized telemetry logs for downstream mission control systems. 
+   *(Done.)*
+</think>
+
+Construct a comprehensive aerospace telemetry processing and anomaly detection utility STRICTLY using this exact programming language: Mortran. This application must reside in a NEW dedicated folder named `mortran_telemetry_pipeline` containing all necessary Mortran source files and a comprehensive local README.md. The tool must ingest high-frequency sensor streams, validate data integrity, detect transmission anomalies, and generate standardized telemetry logs for downstream mission control systems.
