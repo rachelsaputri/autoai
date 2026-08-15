@@ -322,3 +322,5 @@
 - Created/Updated module: `coral66_config_drift_auditor` (See `coral66_config_drift_auditor/README.md` for details)
 
 - Created/Updated module: `nasm_kernel_security_agent` (See `nasm_kernel_security_agent/README.md` for details)
+
+- Created/Updated module: `bertrand_diagnostic_tool` (See `bertrand_diagnostic_tool/README.md` for details)

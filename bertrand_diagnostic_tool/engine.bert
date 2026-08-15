@@ -1,0 +1,130 @@
+// ============================================================================
+// engine.bert
+// Core Diagnostic Engine: Metric collection, aggregation, and reporting.
+// ============================================================================
+
+module Engine;
+
+import System;
+import Metrics;
+import Logging;
+
+// ============================================================================
+// Type Definitions
+// ============================================================================
+type DiagMetric = {
+    label: string;
+    raw_value: float;
+    unit: string;
+    status: enum { HEALTHY, WARNING, CRITICAL }
+};
+
+type DiagnosticReport = {
+    timestamp: int;
+    metrics: list(DiagMetric);
+    summary: string
+};
+
+// ============================================================================
+// Global Configuration & State
+// ============================================================================
+var global_report: DiagnosticReport = {
+    timestamp = current_time(),
+    metrics = [],
+    summary = "Pending initial scan..."
+};
+
+// ============================================================================
+// Metric Collection Functions
+// ============================================================================
+
+fun collect_cpu_metrics() -> list(DiagMetric) =
+    let
+        utilization = System.cpu_usage();
+        load_avg = System.load_average();
+    in
+        [
+            DiagMetric { label = "CPU Utilization", raw_value = utilization, unit = "%", status = check_threshold(utilization, 70.0, 90.0) },
+            DiagMetric { label = "System Load (1m)", raw_value = load_avg, unit = "x", status = check_threshold(load_avg, 2.0, 4.0) }
+        ];
+    end;
+
+fun collect_memory_metrics() -> list(DiagMetric) =
+    let
+        total_mem = System.total_memory_bytes();
+        free_mem = System.free_memory_bytes();
+        used_pct = 100.0 - (100.0 * free_mem) / total_mem;
+    in
+        [
+            DiagMetric { label = "Memory Utilization", raw_value = used_pct, unit = "%", status = check_threshold(used_pct, 80.0, 95.0) },
+            DiagMetric { label = "Available Memory", raw_value = free_mem, unit = "bytes", status = if free_mem < 1048576 then CRITICAL else HEALTHY end }
+        ];
+    end;
+
+fun collect_disk_metrics() -> list(DiagMetric) =
+    let
+        disk_usage = System.disk_usage("/");
+        inodes_free = System.inodes_free();
+    in
+        [
+            DiagMetric { label = "Disk Utilization (/)", raw_value = disk_usage.percentage, unit = "%", status = check_threshold(disk_usage.percentage, 85.0, 95.0) },
+            DiagMetric { label = "Free Inodes", raw_value = float(inodes_free), unit = "count", status = if inodes_free < 1000 then CRITICAL else HEALTHY end }
+        ];
+    end;
+
+// ============================================================================
+// Threshold & Status Logic
+// ============================================================================
+fun check_threshold(value: float, warn_thresh: float, crit_thresh: float) -> enum { HEALTHY, WARNING, CRITICAL } =
+    if value >= crit_thresh then CRITICAL
+    else if value >= warn_thresh then WARNING
+    else HEALTHY
+    end;
+
+// ============================================================================
+// Core Engine Functions
+// ============================================================================
+
+fun run_full_diagnostic_scan() -> DiagnosticReport =
+    let
+        cpu_data = collect_cpu_metrics();
+        mem_data = collect_memory_metrics();
+        disk_data = collect_disk_metrics();
+        all_metrics = cpu_data @ mem_data @ disk_data;
+        
+        critical_count = list_length(filter (fun m -> m.status = CRITICAL end, all_metrics));
+        warning_count = list_length(filter (fun m -> m.status = WARNING end, all_metrics));
+        
+        summary_msg = if critical_count > 0 then "CRITICAL: System health compromised." 
+                      else if warning_count > 0 then "WARNING: Degraded performance detected."
+                      else "HEALTHY: All systems nominal."
+                      end;
+    in
+        global_report.timestamp = current_time();
+        global_report.metrics = all_metrics;
+        global_report.summary = summary_msg;
+        global_report
+    end;
+
+fun get_report() -> DiagnosticReport =
+    global_report;
+
+fun log_scan_to_file(report: DiagnosticReport, filepath: string) -> bool =
+    let
+        log_entry = string_format("Scan completed at %d | Summary: %s\nMetrics: %s\n", report.timestamp, report.summary, list_to_string(map metric_to_string, report.metrics));
+    in
+        File.write(filepath, log_entry, true); // Append mode
+        true
+    end;
+
+fun metric_to_string(m: DiagMetric) -> string =
+    string_format("%s: %.2f %s [%s]", m.label, m.raw_value, m.unit, enum_to_string(m.status));
+
+fun enum_to_string(e: enum { HEALTHY, WARNING, CRITICAL }) -> string =
+    match e with
+        HEALTHY -> "OK"
+        | WARNING -> "WARN"
+        | CRITICAL -> "CRIT"
+    end;
+
+end module Engine;
