@@ -376,3 +376,5 @@
 - Created/Updated module: `ch_security_policy_enforcer` (See `ch_security_policy_enforcer/README.md` for details)
 
 - Created/Updated module: `./interactive_diagnostic_tool` (See `./interactive_diagnostic_tool/README.md` for details)
+
+- Created/Updated module: `chef_compliance_automator` (See `chef_compliance_automator/README.md` for details)
