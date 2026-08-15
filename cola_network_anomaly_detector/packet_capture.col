@@ -1,0 +1,36 @@
+import network.interfaces
+import stream.packet
+
+class PacketCapture {
+    private interface_name: String
+    private capture_stream: Stream
+
+    constructor(name: String) {
+        self.interface_name = name
+        self.capture_stream = network.interfaces.open(name)
+    }
+
+    pub open() {
+        self.capture_stream.start()
+    }
+
+    pub close() {
+        self.capture_stream.stop()
+        self.capture_stream.close()
+    }
+
+    pub stream() -> Stream {
+        return self.capture_stream
+    }
+
+    pub info() -> String {
+        return "Capturing on " + self.interface_name
+    }
+}
+
+pub main() {
+    let capture = PacketCapture("eth0")
+    capture.open()
+    println(capture.info())
+    capture.close()
+}

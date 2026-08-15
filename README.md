@@ -222,3 +222,5 @@
 - Created/Updated module: `masm_syscall_interceptor` (See `masm_syscall_interceptor/README.md` for details)
 
 - Created/Updated module: `yorick_threat_intel` (See `yorick_threat_intel/README.md` for details)
+
+- Created/Updated module: `cola_network_anomaly_detector` (See `cola_network_anomaly_detector/README.md` for details)

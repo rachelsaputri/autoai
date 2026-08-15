@@ -1,0 +1,39 @@
+import io.file
+import json.serialization
+
+type Alert {
+    timestamp: String
+    source_ip: String
+    anomaly_score: Float
+    description: String
+}
+
+class ReportGenerator {
+    private alerts: List<Alert>
+
+    constructor() {
+        self.alerts = []
+    }
+
+    pub add_alert(alert: Alert) {
+        self.alerts.push(alert)
+    }
+
+    pub generate_report(output_path: String) {
+        let json_content = json.serialize(self.alerts)
+        io.file.write(output_path, json_content)
+        println("Report saved to " + output_path)
+    }
+
+    pub print_summary() {
+        print("Total Alerts: " + self.alerts.size())
+    }
+}
+
+pub main() {
+    let generator = ReportGenerator()
+    let alert = Alert("2023-10-27", "192.168.1.1", 3.5, "High packet rate detected")
+    generator.add_alert(alert)
+    generator.generate_report("report.json")
+    generator.print_summary()
+}
