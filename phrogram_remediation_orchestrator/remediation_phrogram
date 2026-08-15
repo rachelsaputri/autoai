@@ -1,0 +1,241 @@
+// Phrogram Source: Remediation Orchestrator Core
+// Architecture: Deterministic Instruction Scheduling
+// Purpose: Execute safe configuration drift corrections and validate post-remediation states.
+
+// ============================================================================
+// SECTION: SYSTEM DEFINITIONS & STRUCTURES
+// ============================================================================
+
+// Define structured types for remediation payload management.
+// Emphasizes explicit buffer management and memory safety.
+
+STRUCT RemediationPayload 
+    RECORD
+        audit_code   : INT32,           // Identifier for the specific audit finding.
+        remediation_id : INT32,         // Unique identifier for this remediation task.
+        severity     : INT32,           // Priority level (e.g., 1=Critical, 2=High).
+        payload_data : BINARY(256),     // The corrective configuration or script data.
+        state_flags  : INT32,           // Bitmask for execution state (e.g., pending, running, completed, rolled_back).
+        checksum     : INT32            // Integrity check for payload_data.
+    END_RECORD
+END_STRUCT
+
+// Define the execution queue structure.
+// Implements explicit buffer management to prevent buffer overflows.
+
+REMEDIATION_QUEUE : ARRAY(100, 00) OF RemediationPayload;
+QUEUE_HEAD       : INT32 DEFAULT 0;
+QUEUE_TAIL       : INT32 DEFAULT 0;
+QUEUE_COUNT      : INT32 DEFAULT 0;
+
+// ============================================================================
+// SECTION: STATE MACHINE DEFINITIONS
+// ============================================================================
+
+// States for deterministic state-transition logic.
+// Ensures rollback safety and predictable execution flow.
+
+STATE_ENUM RemediationStates
+    STATE_INIT,           // 0: Initialization
+    STATE_QUEUED,         // 1: Awaiting execution
+    STATE_EXECUTING,      // 2: Currently running
+    STATE_COMPLETED,      // 3: Successful execution
+    STATE_FAILED,         // 4: Execution failure
+    STATE_ROLLBACK_PENDING, // 5: Rollback required
+    STATE_ROLLBACK_IN_PROGRESS, // 6: Rollback executing
+    STATE_ROLLBACK_COMPLETED,   // 7: Rollback successful
+    STATE_TERMINATED      // 8: Orchestrator shutdown
+END_ENUM
+
+// ============================================================================
+// SECTION: INSTRUCTION SET EXTENSIONS
+// ============================================================================
+
+// Custom opcodes for remediation commands.
+// These extend the standard Phrogram instruction set to handle specific security operations.
+
+// INSTRUCTION: LOAD_REMEDIATION_QUEUE
+// Purpose: Loads queued remediation payloads into registers for processing.
+// Syntax: LOAD_REMEDIATION_QUEUE [Queue_Index]
+//   Queue_Index: Index in the REMEDIATION_QUEUE array.
+LOAD_REMEDIATION_QUEUE
+    MOV [REG_A], [Queue_Index]      // Load index into Register A
+    LEA [REG_B], [REMEDIATION_QUEUE, REG_A] // Load effective address of payload
+    MOV [REG_C], [REG_B]            // Copy address to Register C for payload access
+    RET
+END_INSTRUCTION
+
+// INSTRUCTION: EXECUTE_PAYLOAD
+// Purpose: Executes the remediation payload, handling I/O synchronization.
+// Syntax: EXECUTE_PAYLOAD [Reg_Payload_Address]
+EXECUTE_PAYLOAD
+    MOV [REG_PAYLOAD], [Reg_Payload_Address] // Store payload address
+    // Call structured I/O handler
+    CALL HANDLE_REMEDIATION_IO
+    // Validate checksum
+    CALC_CHECKSUM [REG_PAYLOAD]
+    CMP [REG_CHECKSUM_RESULT], [REG_PAYLOAD+250] // Compare calculated vs stored checksum
+    JNE PAYLOAD_INTEGRITY_ERROR
+    // Update state flags
+    UPDATE_STATE_FLAGS [EXECUTING]
+    RET
+END_INSTRUCTION
+
+// INSTRUCTION: PERFORM_ROLLBACK
+// Purpose: Executes safe rollback logic based on previous state.
+// Syntax: PERFORM_ROLLBACK [Reg_Rollback_Data]
+PERFORM_ROLLBACK
+    MOV [REG_ROLLBACK], [Reg_Rollback_Data]
+    // Ensure state is safe for rollback
+    CHECK_ROLLBACK_SAFETY
+    // Execute rollback instructions
+    CALL APPLY_ROLLBACK_SCRIPT
+    // Validate post-rollback state
+    VALIDATE_POST_ROLLBACK
+    UPDATE_STATE_FLAGS [ROLLBACK_COMPLETED]
+    RET
+END_INSTRUCTION
+
+// ============================================================================
+// SECTION: CORE ORCHESTRATION LOGIC
+// ============================================================================
+
+// Main execution loop
+MAIN_ROUTINE
+    INITIALIZE_SYSTEM
+    LOAD_CONFIG
+    JUMP PROCESS_QUEUE
+
+// Process the remediation queue with deterministic scheduling
+PROCESS_QUEUE
+    CHECK_QUEUE_EMPTY
+    JZ QUEUE_IS_EMPTY
+    
+    // Dequeue next item
+    LOAD_QUEUE_ITEM [QUEUE_HEAD]
+    INC [QUEUE_HEAD]
+    DEC [QUEUE_COUNT]
+    
+    // Validate item integrity before execution
+    VALIDATE_QUEUE_ITEM
+    JNE VALIDATION_FAILED
+    
+    // Execute remediation
+    EXECUTE_PAYLOAD [REG_C]
+    JNE EXECUTION_FAILED
+    
+    // Update state to completed
+    UPDATE_STATE_FLAGS [COMPLETED]
+    LOG_SUCCESS [REMEDIATION_ID]
+    JUMP PROCESS_QUEUE
+
+QUEUE_IS_EMPTY
+    CHECK_TERMINATION_SIGNAL
+    JNZ SYSTEM_SHUTDOWN
+    
+    // Enter safe idle state with periodic wake-up
+    IDLE_STATE
+    JUMP PROCESS_QUEUE
+
+EXECUTION_FAILED
+    // Transition to rollback state
+    UPDATE_STATE_FLAGS [ROLLBACK_PENDING]
+    PERFORM_ROLLBACK [REG_C]
+    JNE ROLLBACK_FAILED
+    
+    LOG_FAILURE [REMEDIATION_ID]
+    JUMP PROCESS_QUEUE
+
+ROLLBACK_FAILED
+    // Critical failure: Log and halt
+    LOG_CRITICAL_FAILURE
+    HALT_SYSTEM
+
+// ============================================================================
+// SECTION: I/O & REPORTING
+// ============================================================================
+
+// Structured I/O handling for remediation commands.
+// Implements I/O channel synchronization.
+
+HANDLE_REMEDIATION_IO
+    // Open I/O channel
+    OPEN_CHANNEL [REMEDIATION_LOG]
+    // Write execution start event
+    WRITE_EVENT [START_EVENT]
+    // Execute payload via I/O
+    EXECUTE_IO_PAYLOAD [REG_PAYLOAD]
+    // Write execution end event
+    WRITE_EVENT [END_EVENT]
+    // Close I/O channel
+    CLOSE_CHANNEL [REMEDIATION_LOG]
+    RET
+
+// Payload validation logic.
+VALIDATE_QUEUE_ITEM
+    // Check severity bounds
+    CMP [SEVERITY], 0
+    JL INVALID_SEVERITY
+    CMP [SEVERITY], 10
+    JG INVALID_SEVERITY
+    
+    // Check payload data integrity
+    CALC_CHECKSUM [REG_C]
+    CMP [REG_CHECKSUM_RESULT], [REG_C+250]
+    JNE INVALID_CHECKSUM
+    
+    // Check state flags for re-entrancy
+    TEST [STATE_FLAGS], [PENDING_BIT]
+    JNZ NOT_PENDING
+    
+    VALID_PASSED
+    JMP VALIDATE_SUCCESS
+
+INVALID_SEVERITY
+    INVALID_PASSED
+    JMP VALIDATE_FAIL
+
+INVALID_CHECKSUM
+    INVALID_PASSED
+    JMP VALIDATE_FAIL
+
+NOT_PENDING
+    INVALID_PASSED
+    JMP VALIDATE_FAIL
+
+VALIDATE_SUCCESS
+    MOV [RESULT], 1
+    RET
+
+VALIDATE_FAIL
+    MOV [RESULT], 0
+    RET
+
+// ============================================================================
+// SECTION: REGRESSION TESTING & DEPLOYMENT
+// ============================================================================
+
+// Regression testing strategies for execution safety.
+// (Documentation only - integrated into build/test suite)
+//
+// 1. Deterministic Replay: Run the same remediation queue multiple times
+//    to ensure identical state transitions and checksums.
+// 2. Fault Injection: Simulate I/O failures and rollback scenarios to
+//    verify error handling and state recovery.
+// 3. Boundary Testing: Test queue limits (head/tail wrap-around) and
+//    maximum payload sizes.
+// 4. Integration Testing: Validate integration with PL360 audit pipeline
+//    by simulating audit code payloads and verifying report generation.
+
+// Deployment guidelines for integrating with the legacy PL360 audit pipeline.
+//
+// 1. Configuration: Set up the PL360 audit endpoint to stream remediation
+//    queues to the Phrogram orchestrator's input channel.
+// 2. Synchronization: Ensure I/O channel synchronization is enabled to
+//    prevent race conditions during concurrent audit processing.
+// 3. Monitoring: Deploy the structured reporting module to track
+//    remediation success rates and rollback frequencies.
+// 4. Safety: Enable explicit buffer management flags to prevent
+//    memory corruption during high-volume remediation bursts.
+
+END_MAIN_ROUTINE
