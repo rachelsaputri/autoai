@@ -1,0 +1,5 @@
+{
+    "n_agents": 100,
+    "policy_strength": 0.8,
+    "steps": 100
+}
