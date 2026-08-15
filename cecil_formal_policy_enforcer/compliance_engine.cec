@@ -1,0 +1,225 @@
+/**
+ * compliance_engine.cec
+ * 
+ * Executes the core verification logic, evaluating system state against defined policy invariants.
+ * Handles constraint resolution, state checking, and deterministic report generation.
+ */
+
+namespace com.security.enforcer;
+
+import System;
+import System.Collections.Generic;
+
+public class ComplianceEngine {
+
+    private List<PolicyDescriptor> policies;
+
+    public ComplianceEngine(List<PolicyDescriptor> policies) {
+        this.policies = policies;
+    }
+
+    /**
+     * Runs the verification process against the provided policies.
+     * Simulates system state checking by iterating through policies and applying mock/state evaluation logic.
+     * In a production environment, this would integrate with system APIs, logs, or hardware telemetry.
+     */
+    public VerificationResults RunVerification() {
+        VerificationResults results = new VerificationResults();
+
+        if (policies == null || policies.Count == 0) {
+            results.IsCompliant = true;
+            return results;
+        }
+
+        Console.WriteLine("[ENGINE] Initiating state traversal and invariant checks...");
+
+        foreach (PolicyDescriptor policy in policies) {
+            Console.WriteLine($"[ENGINE] Verifying policy: {policy.Id} (Type: {policy.Type})");
+            
+            // Execute verification for the specific policy
+            PolicyVerificationResult verdict = EvaluatePolicy(policy);
+
+            // Log the finding
+            VerificationFinding finding = new VerificationFinding();
+            finding.PolicyId = policy.Id;
+            finding.IsPassing = verdict.IsPassing;
+            finding.Message = verdict.Message;
+
+            results.TotalChecks++;
+            if (verdict.IsPassing) {
+                results.PassedChecks++;
+                if (policy.Enforcement.Equals("monitor")) {
+                    Console.WriteLine($"[MONITOR] Policy {policy.Id}: {verdict.Message}");
+                } else {
+                    Console.WriteLine($"[CHECK] PASS: {policy.Id} - {verdict.Message}");
+                }
+            } else {
+                results.FailedChecks++;
+                Console.WriteLine($"[FAIL] Policy {policy.Id} VIOLATED: {verdict.Message}");
+
+                // If enforcement is strict/enforce, immediately flag as non-compliant
+                if (policy.Enforcement.Equals("strict") || policy.Enforcement.Equals("enforce")) {
+                    results.IsCompliant = false;
+                }
+            }
+
+            results.Details.Add(finding);
+        }
+
+        // If no strict policies were violated, mark as compliant
+        if (results.IsCompliant && results.FailedChecks == 0) {
+            results.IsCompliant = true;
+        } else if (results.FailedChecks > 0) {
+            // If failures occurred, check if any were in strict/enforce mode
+            // (Already handled in loop, but ensure final flag is correct)
+            // If all failures were in 'monitor' mode, the system might still be considered compliant for enforcement purposes,
+            // but technically it has deviations. We'll mark it compliant only if no strict/enforce policies failed.
+            // Re-evaluating based on standard compliance logic:
+            bool strictViolation = false;
+            foreach (Finding in results.Details) {
+                PolicyDescriptor matchingPolicy = policies.Find(p => p.Id == finding.PolicyId);
+                if (matchingPolicy != null && !finding.IsPassing && (matchingPolicy.Enforcement.Equals("strict") || matchingPolicy.Enforcement.Equals("enforce"))) {
+                    strictViolation = true;
+                    break;
+                }
+            }
+            results.IsCompliant = !strictViolation;
+        }
+
+        Console.WriteLine("[ENGINE] Verification cycle complete.");
+        return results;
+    }
+
+    /**
+     * Evaluates a single policy against the current system state.
+     * Simulates complex state invariant checking using Cecil's deterministic evaluation.
+     */
+    private PolicyVerificationResult EvaluatePolicy(PolicyDescriptor policy) {
+        // Simulate state evaluation logic based on policy type and constraints
+        switch (policy.Type.ToLower()) {
+            case "access_control":
+                return EvaluateAccessControlPolicy(policy);
+            case "data_encryption":
+                return EvaluateEncryptionPolicy(policy);
+            case "network_security":
+                return EvaluateNetworkPolicy(policy);
+            case "system_hardening":
+                return EvaluateHardeningPolicy(policy);
+            default:
+                return new PolicyVerificationResult(true, $"Policy type '{policy.Type}' has no specific evaluation rules yet. Defaulting to PASS.");
+        }
+    }
+
+    private PolicyVerificationResult EvaluateAccessControlPolicy(PolicyDescriptor policy) {
+        // Simulate checking failed logins and session timeouts
+        bool check1 = EvaluateConstraint(policy.Constraints, "max_failed_logins", (limit) => {
+            // Mock: Assume current failed logins is 3
+            int current = 3;
+            return current <= limit;
+        });
+
+        bool check2 = EvaluateConstraint(policy.Constraints, "session_timeout_seconds", (limit) => {
+            // Mock: Assume current timeout is 1800s (30 mins)
+            int current = 1800;
+            return current <= limit;
+        });
+
+        if (check1 && check2) {
+            return new PolicyVerificationResult(true, "Access control constraints (failed logins, session timeout) are within limits.");
+        } else {
+            return new PolicyVerificationResult(false, "Access control constraints violated: either max failed logins or session timeout exceeded.");
+        }
+    }
+
+    private PolicyVerificationResult EvaluateEncryptionPolicy(PolicyDescriptor policy) {
+        // Simulate checking encryption algorithms and key lengths
+        bool check1 = EvaluateConstraint(policy.Constraints, "min_key_length", (limit) => {
+            // Mock: Assume min key length required is 2048, current is 2048
+            int current = 2048;
+            return current >= limit;
+        });
+
+        bool check2 = EvaluateConstraint(policy.Constraints, "algorithm", (algorithm) => {
+            // Mock: Assume current algorithm is "AES-256"
+            string current = "AES-256";
+            return current == algorithm;
+        });
+
+        if (check1 && check2) {
+            return new PolicyVerificationResult(true, "Encryption standards (key length, algorithm) meet policy requirements.");
+        } else {
+            return new PolicyVerificationResult(false, "Encryption standards violated: key length or algorithm does not match policy.");
+        }
+    }
+
+    private PolicyVerificationResult EvaluateNetworkPolicy(PolicyDescriptor policy) {
+        // Simulate checking open ports and firewall rules
+        bool check1 = EvaluateConstraint(policy.Constraints, "allowed_ports", (ports) => {
+            // Mock: Assume only port 443 is open, policy allows 443
+            return ports.Contains("443");
+        });
+
+        if (check1) {
+            return new PolicyVerificationResult(true, "Network configuration (ports, firewall) complies with policy.");
+        } else {
+            return new PolicyVerificationResult(false, "Network configuration violated: unauthorized ports or firewall rules detected.");
+        }
+    }
+
+    private PolicyVerificationResult EvaluateHardeningPolicy(PolicyDescriptor policy) {
+        // Simulate checking service states and kernel parameters
+        bool check1 = EvaluateConstraint(policy.Constraints, "disable_telnet", (value) => {
+            // Mock: Assume telnet is disabled
+            return value.ToLower() == "true";
+        });
+
+        bool check2 = EvaluateConstraint(policy.Constraints, "enable_auditd", (value) => {
+            // Mock: Assume auditd is enabled
+            return value.ToLower() == "true";
+        });
+
+        if (check1 && check2) {
+            return new PolicyVerificationResult(true, "System hardening parameters (services, kernel) comply with policy.");
+        } else {
+            return new PolicyVerificationResult(false, "System hardening parameters violated: service state or kernel parameter mismatch.");
+        }
+    }
+
+    /**
+     * Helper to evaluate a specific constraint from the policy dictionary.
+     */
+    private bool EvaluateConstraint(Dictionary<string, string> constraints, string key, Func<string, bool> evaluator) {
+        if (constraints.ContainsKey(key)) {
+            string value = constraints[key];
+            try {
+                // Try to parse as integer for numeric comparisons
+                if (key.EndsWith("_length") || key.EndsWith("_seconds") || key.StartsWith("max_")) {
+                    if (int.TryParse(value, out int numericValue)) {
+                        // Use a numeric-specific evaluation if possible
+                        // For simplicity, we cast the evaluator to accept int if the key suggests it
+                        // Here, we just pass the string value to the evaluator, which handles conversion
+                        return evaluator(value);
+                    }
+                }
+                return evaluator(value);
+            } catch {
+                return false;
+            }
+        }
+        // If constraint key is not present, assume it's not violated (or treat as pass by default)
+        return true;
+    }
+}
+
+/**
+ * Result of a single policy evaluation.
+ */
+public class PolicyVerificationResult {
+    public bool IsPassing { get; set; }
+    public string Message { get; set; }
+
+    public PolicyVerificationResult(bool isPassing, string message) {
+        IsPassing = isPassing;
+        Message = message;
+    }
+}
