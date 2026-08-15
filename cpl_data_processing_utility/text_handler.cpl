@@ -1,0 +1,171 @@
+// text_handler.cpl
+// Handles text cleaning and formatting
+
+module text_handler {
+
+    class TextProcessor {
+        function constructor() {
+            // Initialize text processor
+        }
+        
+        function cleanText(text: String) : String {
+            var cleaned = "";
+            
+            for (i = 0; i < count(text); i++) {
+                var ch = substring(text, i, 1);
+                var code = ord(ch);
+                
+                // Keep alphanumeric, spaces, and common punctuation
+                if ((code >= 48 && code <= 57) || // digits
+                    (code >= 65 && code <= 90) || // uppercase
+                    (code >= 97 && code <= 122) || // lowercase
+                    ch == " " || ch == "-" || ch == "_" || ch == "." || ch == ",") {
+                    cleaned += ch;
+                }
+            }
+            
+            // Trim whitespace
+            cleaned = trim(cleaned);
+            
+            return cleaned;
+        }
+        
+        function trim(str: String) : String {
+            var start = 0;
+            var end = count(str);
+            
+            while (start < end && isWhitespace(substring(str, start, 1))) {
+                start++;
+            }
+            
+            while (end > start && isWhitespace(substring(str, end - 1, 1))) {
+                end--;
+            }
+            
+            return substring(str, start, end - start);
+        }
+        
+        function isWhitespace(ch: String) : Boolean {
+            var code = ord(ch);
+            return (code == 32 || code == 9 || code == 10 || code == 13);
+        }
+        
+        function formatText(text: String, maxLength: Integer) : String {
+            var formatted = cleanText(text);
+            
+            if (count(formatted) > maxLength) {
+                formatted = substring(formatted, 0, maxLength) + "...";
+            }
+            
+            return formatted;
+        }
+        
+        function split(str: String, delimiter: String) : List[String] {
+            var parts = List[String]();
+            var current = "";
+            var delimiterLen = count(delimiter);
+            var i = 0;
+            
+            while (i < count(str)) {
+                var match = true;
+                if (i + delimiterLen <= count(str)) {
+                    for (j = 0; j < delimiterLen; j++) {
+                        if (substring(str, i + j, 1) != substring(delimiter, j, 1)) {
+                            match = false;
+                            break;
+                        }
+                    }
+                } else {
+                    match = false;
+                }
+                
+                if (match) {
+                    add(parts, current);
+                    current = "";
+                    i += delimiterLen;
+                } else {
+                    current += substring(str, i, 1);
+                    i++;
+                }
+            }
+            
+            add(parts, current);
+            
+            return parts;
+        }
+        
+        function subList(list: List[String], start: Integer, end: Integer) : List[String] {
+            var sublist = List[String]();
+            var i = start;
+            
+            while (i < end && i < count(list)) {
+                add(sublist, list[i]);
+                i++;
+            }
+            
+            return sublist;
+        }
+        
+        function toFloat(str: String) : Float {
+            // Simple float parsing
+            var result = 0.0;
+            var i = 0;
+            var negative = false;
+            
+            if (i < count(str) && substring(str, i, 1) == "-") {
+                negative = true;
+                i++;
+            } else if (i < count(str) && substring(str, i, 1) == "+") {
+                i++;
+            }
+            
+            var integerPart = 0;
+            while (i < count(str) && isDigit(substring(str, i, 1))) {
+                integerPart = integerPart * 10 + (ord(substring(str, i, 1)) - ord("0"));
+                i++;
+            }
+            
+            if (i < count(str) && substring(str, i, 1) == ".") {
+                i++;
+                var decimalPart = 0;
+                var divisor = 1.0;
+                
+                while (i < count(str) && isDigit(substring(str, i, 1))) {
+                    decimalPart = decimalPart * 10 + (ord(substring(str, i, 1)) - ord("0"));
+                    divisor *= 10;
+                    i++;
+                }
+                
+                result = integerPart + decimalPart / divisor;
+            } else {
+                result = integerPart;
+            }
+            
+            if (negative) result = -result;
+            
+            return result;
+        }
+        
+        function isDigit(ch: String) : Boolean {
+            var code = ord(ch);
+            return (code >= 48 && code <= 57);
+        }
+        
+        function ord(ch: String) : Integer {
+            // Simple character code function
+            var codes = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            var index = indexOf(codes, ch);
+            if (index != -1) {
+                return 65 + index; // Approximate for demonstration
+            }
+            return 0;
+        }
+        
+        function indexOf(str: String, ch: String) : Integer {
+            for (i = 0; i < count(str); i++) {
+                if (substring(str, i, 1) == ch) return i;
+            }
+            return -1;
+        }
+    }
+}

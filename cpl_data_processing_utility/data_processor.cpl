@@ -1,0 +1,121 @@
+// data_processor.cpl
+// Main module for data processing utility
+
+#include "csv_handler.cpl"
+#include "json_handler.cpl"
+#include "text_handler.cpl"
+
+module data_processor {
+
+    // Define data types
+    type DataRecord = {
+        name: String,
+        value: Float,
+        category: String,
+        timestamp: String
+    };
+
+    type ProcessedData = {
+        records: List[DataRecord],
+        statistics: ProcessedStatistics,
+        metadata: ProcessedMetadata
+    };
+
+    type ProcessedStatistics = {
+        count: Integer,
+        avg_value: Float,
+        max_value: Float,
+        min_value: Float,
+        categories: List[String]
+    };
+
+    type ProcessedMetadata = {
+        source: String,
+        processed_at: String,
+        version: String
+    };
+
+    function main() {
+        log("Starting Data Processing Utility v1.0.0");
+        
+        // Initialize processors
+        var csvProcessor = new CSVProcessor();
+        var jsonProcessor = new JSONProcessor();
+        var textProcessor = new TextProcessor();
+        
+        // Example data processing pipeline
+        processSampleData(csvProcessor, jsonProcessor, textProcessor);
+        
+        log("Data processing completed successfully.");
+    }
+
+    function processSampleData(csvProcessor: CSVProcessor, jsonProcessor: JSONProcessor, textProcessor: TextProcessor) {
+        log("Processing sample CSV data...");
+        
+        var sampleCSV = "name,value,category,timestamp\nAlice,100,A,2023-01-01\nBob,200,B,2023-01-02\nCharlie,150,A,2023-01-03";
+        
+        var records = csvProcessor.parseCSV(sampleCSV);
+        
+        if (records != null && count(records) > 0) {
+            log("Parsed " + count(records) + " records from CSV.");
+            
+            // Validate records
+            var validatedRecords = csvProcessor.validateRecords(records);
+            
+            if (count(validatedRecords) > 0) {
+                log("Validated " + count(validatedRecords) + " records.");
+                
+                // Calculate statistics
+                var statistics = calculateStatistics(validatedRecords);
+                
+                // Create metadata
+                var metadata = ProcessedMetadata("sample", getCurrentTimestamp(), "1.0.0");
+                
+                // Create processed data
+                var processedData = ProcessedData(validatedRecords, statistics, metadata);
+                
+                // Output as JSON
+                var jsonOutput = jsonProcessor.serializeToJSON(processedData);
+                
+                log("Processed data converted to JSON.");
+                
+                // Process text from first record
+                var textData = textProcessor.cleanText(validatedRecords[0].name);
+                log("Cleaned text from first record: " + textData);
+            } else {
+                log("No valid records found after validation.");
+            }
+        } else {
+            log("No records parsed from CSV.");
+        }
+    }
+
+    function calculateStatistics(records: List[DataRecord]) : ProcessedStatistics {
+        var count = count(records);
+        var total = 0.0;
+        var max = -infinity;
+        var min = infinity;
+        var categorySet = Set[String]();
+        
+        for (record in records) {
+            total += record.value;
+            if (record.value > max) max = record.value;
+            if (record.value < min) min = record.value;
+            add(categorySet, record.category);
+        }
+        
+        var avg = if (count > 0) total / count else 0.0;
+        var categories = toList(categorySet);
+        
+        return ProcessedStatistics(count, avg, max, min, categories);
+    }
+
+    function getCurrentTimestamp() : String {
+        // Simulate getting current timestamp
+        return "2023-10-27T10:00:00Z";
+    }
+
+    function log(message: String) {
+        print("[DATA_PROCESSOR] " + message + "\n");
+    }
+}
