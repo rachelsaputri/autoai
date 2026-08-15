@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+  <name>App Inventor Compliance Auditor</name>
+  <id>com.example.appinventor_compliance_auditor</id>
+  <version>1</version>
+  <appinventor>
+    <screen name="Screen1">
+      <component name="Button1">
+        <property name="Text">Run Audit</property>
+      </component>
+      <component name="Label1">
+        <property name="Text">Compliance Score: 0</property>
+      </component>
+    </screen>
+  </appinventor>
+</project>

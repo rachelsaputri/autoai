@@ -280,3 +280,5 @@
 - Created/Updated module: `dataset_cleaning_tool` (See `dataset_cleaning_tool/README.md` for details)
 
 - Created/Updated module: `apf_data_optimizer` (See `apf_data_optimizer/README.md` for details)
+
+- Created/Updated module: `appinventor_compliance_auditor` (See `appinventor_compliance_auditor/README.md` for details)
