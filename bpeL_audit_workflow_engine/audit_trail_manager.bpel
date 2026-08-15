@@ -1,0 +1,43 @@
+<process name="auditTrailManager" targetNamespace="http://example.com/audit-trail-manager" xmlns="http://docs.oasis-open.org/wsbpel/2.0/process/executable" xmlns:audit="http://example.com/audit-trail-manager" xmlns:client="http://example.com/audit-workflow/client" xmlns:ns1="http://example.com/audit-trail-manager/ns1">
+  <import location="audit_trail_manager.wsdl" importType="http://schemas.xmlsoap.org/wsdl/" location="audit_trail_manager.wsdl" namespace="http://example.com/audit-trail-manager"/>
+
+  <variables>
+    <variable name="inputMessage" messageType="audit:auditTrailRequest"/>
+    <variable name="auditTrailStatus" messageType="client:auditTrailStatus"/>
+    <variable name="outputMessage" messageType="audit:auditTrailResponse"/>
+  </variables>
+
+  <sequence name="audit-trail-sequence">
+    <assign name="assign-input">
+      <copy>
+        <from variable="inputMessage" part="payload"/>
+        <to variable="outputMessage" part="payload"/>
+      </copy>
+    </assign>
+
+    <invoke name="logAuditTrail" portType="audit:AuditTrailPortType" operation="log" inputVariable="inputMessage" outputVariable="outputMessage">
+      <input>
+        <copy>
+          <from variable="inputMessage" part="payload"/>
+          <to variable="outputMessage" part="payload"/>
+        </copy>
+      </input>
+    </invoke>
+
+    <reply name="reply-audit-trail" portType="audit:AuditTrailPortType" operation="logResponse" variable="outputMessage"/>
+  </sequence>
+
+  <faultHandlers>
+    <catch faultName="ns1:AuditTrailFault">
+      <sequence name="handle-audit-trail-fault">
+        <assign name="handle-audit-trail-fault-assign">
+          <copy>
+            <from expression="'Error logging audit trail'"/>
+            <to variable="outputMessage" part="payload"/>
+          </copy>
+        </assign>
+        <reply name="reply-audit-trail-fault" portType="audit:AuditTrailPortType" operation="logResponse" variable="outputMessage"/>
+      </sequence>
+    </catch>
+  </faultHandlers>
+</process>
