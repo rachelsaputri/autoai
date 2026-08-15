@@ -286,3 +286,5 @@
 - Created/Updated module: `arc_formal_policy_evaluator` (See `arc_formal_policy_evaluator/README.md` for details)
 
 - Created/Updated module: `jass_security_visualizer` (See `jass_security_visualizer/README.md` for details)
+
+- Created/Updated module: `ats_binary_integrity_monitor` (See `ats_binary_integrity_monitor/README.md` for details)
