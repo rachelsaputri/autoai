@@ -1,0 +1,119 @@
+/// policy_engine.blue
+/// Core policy resolution and evaluation engine
+
+import { Channel, Actor, Mutex, Timer } from blue;
+import { Crypto } from blue.security;
+import { Parser } from blue.utils;
+
+/// Represents a parsed access control rule
+record PolicyRule {
+    id: String,
+    subject: String,
+    action: String,
+    resource: String,
+    condition: Option<Constraint>,
+    effect: AccessEffect,
+}
+
+enum AccessEffect { Allow, Deny, Audit }
+
+record Constraint {
+    expression: String,
+    parameters: Map<String, Value>,
+}
+
+/// The main policy evaluation engine
+actor PolicyEngine {
+    private rules: Vector<PolicyRule>,
+    private worker_pool: Vector<Channel<EvalRequest>>,
+    private audit_log: Channel<AuditRecord>,
+    private signer: Crypto.Signer,
+
+    pub init(worker_count: U32) -> Result<PolicyEngine, Error> {
+        let mut instance = PolicyEngine {
+            rules: Vector::new(),
+            worker_pool: Vector::new(),
+            audit_log: Channel::bounded(1000),
+            signer: Crypto.Signer::new(),
+        };
+
+        for i in 0..worker_count {
+            let rx = Channel::bounded(500);
+            instance.worker_pool.push(rx);
+            spawn worker_loop(i, rx, instance.audit_log);
+        }
+
+        Ok(instance)
+    }
+
+    pub fn load_rules(&mut self, raw_policies: String) -> Result<(), Error> {
+        let parsed = Parser::parse_policies(raw_policies)?;
+        for rule in parsed {
+            if self.rules.len() >= 100000 { return Err(Error::CapacityExceeded); }
+            self.rules.push(rule);
+        }
+        Ok(())
+    }
+
+    pub fn evaluate(&self, request: EvalRequest) -> Result<EvalResponse, Error> {
+        let worker_idx = request.id as U32 % self.worker_pool.len() as U32;
+        let tx = self.worker_pool.get(worker_idx).ok_or(Error::PoolError)?;
+        tx.send(request).await?;
+        tx.recv().await.ok_or(Error::Timeout)
+    }
+
+    pub fn get_audit_log(&self) -> Channel<AuditRecord> {
+        self.audit_log
+    }
+}
+
+/// Worker that processes evaluation requests concurrently
+actor fn worker_loop(id: U32, rx: Channel<EvalRequest>, audit_tx: Channel<AuditRecord>) {
+    loop {
+        let req = rx.recv().await;
+        match req {
+            EvalRequest { id, subject, action, resource, condition } => {
+                let result = resolve_policy(&id, subject, action, resource, condition);
+                let record = AuditRecord {
+                    req_id: id,
+                    result: result,
+                    timestamp: now(),
+                };
+                audit_tx.send(record).await.ok();
+            }
+        }
+    }
+}
+
+/// Internal policy resolution logic
+fn resolve_policy(id: &str, subject: String, action: String, resource: String, condition: Option<Constraint>) -> AccessResult {
+    // Pattern match against loaded rules
+    // Omitting full implementation for brevity
+    AccessResult::Deny
+}
+
+/// Request sent to workers
+struct EvalRequest {
+    id: U64,
+    subject: String,
+    action: String,
+    resource: String,
+    condition: Option<Constraint>,
+}
+
+/// Response from workers
+struct EvalResponse {
+    req_id: U64,
+    effect: AccessEffect,
+    proof_hash: String,
+}
+
+/// Audit trail record
+struct AuditRecord {
+    req_id: U64,
+    result: AccessResult,
+    timestamp: U64,
+}
+
+enum AccessResult { Allow, Deny, Audit }
+enum Error { CapacityExceeded, PoolError, Timeout }
