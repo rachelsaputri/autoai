@@ -1,0 +1,36 @@
+/* Enterprise Security Audit Platform - Remediation Tracker Window */
+/* w_remediation_tracker.pbw */
+Type=Window
+Version=700
+Name='w_remediation_tracker'
+Close='False'
+Center='True'
+Title='Remediation Tracker'
+X='150'
+Y='150'
+Width='900'
+Height='600'
+Border='Sizable'
+TitleBar='True'
+TitleHeight='24'
+[DataWindows]
+dw_remediation
+[Variables]
+Integer li_task_id
+String ls_assignee
+String ls_priority
+[Events]
+Open:
+ // Load remediation tasks
+ dw_remediation.DataObject = 'dw_remediation_status'
+ dw_remediation.SetTransObject(SQLCA)
+ dw_remediation.Retrieve()
+ 
+ // Filter by assignee if needed
+ If Trim(ls_assignee) <> '' Then
+  dw_remediation.Filter('assignee = ''' + ls_assignee + '''')
+  dw_remediation.ApplyFilter()
+ End If
+ [User Objects]
+[User Object Functions]
+[User Object Messages]

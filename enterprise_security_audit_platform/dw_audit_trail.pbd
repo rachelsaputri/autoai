@@ -1,0 +1,14 @@
+/* Enterprise Security Audit Platform - Audit Trail DataWindow */
+/* dw_audit_trail.pbd */
+DataWindow(table=select sql='SELECT * FROM vw_audit_trail' caching='True' update=No)'UpdateTable':'audit_trail'
+Version=700
+Name='dw_audit_trail'
+[Columns]
+col_1: event_id, Integer
+col_2: event_type, Char
+col_3: user_id, Char
+col_4: timestamp, DateTime
+col_5: details, Char
+[User Objects]
+[User Object Functions]
+[User Object Messages]

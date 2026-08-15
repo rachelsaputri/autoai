@@ -1,0 +1,26 @@
+/* Enterprise Security Audit Platform - Security Audit Engine Object */
+/* nvo_security_audit.pbd */
+UserObject
+Version=700
+Name='nvo_security_audit'
+[Variables]
+DatabaseProfileObject dpo_database
+Integer ii_connection_status
+[Functions]
+Function Boolean of_set_database(String as_dbms, String as_server, String as_dbname, String as_user, String as_password)
+Function Boolean of_connect()
+Function Boolean of_disconnect()
+Function DataWindow of_get_trail_window()
+Function Boolean of_ingest_security_logs(String as_log_source)
+Function Boolean of_validate_configuration(String as_config_path)
+[Events]
+Open:
+ dpo_database.DBMS = 'MSS'
+ dpo_database.ServerName = 'localhost'
+ dpo_database.Database = 'SecurityDB'
+ dpo_database.LogId = 'sa'
+ dpo_database.LogPass = 'password'
+ dpo_database.AutoCommit = False
+ ii_connection_status = 0
+ [User Object Functions]
+[User Object Messages]

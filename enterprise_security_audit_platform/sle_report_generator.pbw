@@ -1,0 +1,8 @@
+/* Enterprise Security Audit Platform - Report Generator Service Library */
+/* sle_report_generator.pbw */
+Type=ServiceLibrary
+Version=700
+Name='sle_report_generator'
+[Service Objects]
+[Service Object Functions]
+[Service Object Messages]

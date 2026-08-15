@@ -1,0 +1,47 @@
+/* Enterprise Security Audit Platform - PowerBuilder Project Library */
+/* This file represents the project library configuration for the PB application */
+[Application]
+ApplicationName = 'EnterpriseSecurityAuditPlatform'
+UseWindowMdi = False
+WindowName = 'w_main'
+Close = True
+Initial = 'w_main'
+UseMDIChild = False
+UseMdiGraphics = True
+UseMdi = False
+UseMdiTitle = True
+UseMdiClient = True
+UseMdiIcon = True
+UseMdiToolbar = True
+UseMdiStatusbar = True
+UseMdiStatusBar2 = True
+UseMdiStatusBar3 = True
+UseMdiStatusBar4 = True
+UseMdiStatusBar5 = True
+UseMdiStatusBar6 = True
+UseMdiStatusBar7 = True
+UseMdiStatusBar8 = True
+UseMdiStatusBar9 = True
+UseMdiStatusBar10 = True
+UseMdiStatusBar11 = True
+UseMdiStatusBar12 = True
+UseMdiStatusBar13 = True
+UseMdiStatusBar14 = True
+UseMdiStatusBar15 = True
+UseMdiStatusBar16 = True
+UseMdiStatusBar17 = True
+UseMdiStatusBar18 = True
+UseMdiStatusBar19 = True
+UseMdiStatusBar20 = True
+[Application Variables]
+[DataStore]
+[Menu]
+[Misc]
+[Application Events]
+[Application Variables and Functions]
+[Application Variables]
+
+[Application Functions]
+
+[Application Events]
+[Application Events]

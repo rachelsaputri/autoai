@@ -1,0 +1,29 @@
+/* Enterprise Security Audit Platform - User Management Window */
+/* w_user_management.pbw */
+Type=Window
+Version=700
+Name='w_user_management'
+Close='True'
+Center='True'
+Title='User Management'
+X='250'
+Y='250'
+Width='700'
+Height='500'
+Border='Sizable'
+TitleBar='True'
+TitleHeight='24'
+[DataWindows]
+dw_user_list
+[Variables]
+String ls_username
+String ls_role
+Boolean lb_is_active
+[Events]
+Open:
+ dw_user_list.DataObject = 'sle_user_management/dw_user_list'
+ dw_user_list.SetTransObject(SQLCA)
+ dw_user_list.Retrieve()
+ [User Objects]
+[User Object Functions]
+[User Object Messages]

@@ -1,0 +1,30 @@
+/* Enterprise Security Audit Platform - Audit Trail Window */
+/* w_audit_trail.pbw */
+Type=Window
+Version=700
+Name='w_audit_trail'
+Close='False'
+Center='True'
+Title='Audit Trail'
+X='150'
+Y='150'
+Width='1000'
+Height='700'
+Border='Sizable'
+TitleBar='True'
+TitleHeight='24'
+[DataWindows]
+dw_trail
+[Variables]
+DateTime dt_start_date
+DateTime dt_end_date
+String ls_filter_criteria
+[Events]
+Open:
+ // Load audit trail data
+ dw_trail.DataObject = 'dw_audit_trail'
+ dw_trail.SetTransObject(SQLCA)
+ dw_trail.Retrieve(dt_start_date, dt_end_date, ls_filter_criteria)
+ [User Objects]
+[User Object Functions]
+[User Object Messages]

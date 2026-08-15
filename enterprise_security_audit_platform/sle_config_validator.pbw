@@ -1,0 +1,8 @@
+/* Enterprise Security Audit Platform - Configuration Validator Service Library */
+/* sle_config_validator.pbw */
+Type=ServiceLibrary
+Version=700
+Name='sle_config_validator'
+[Service Objects]
+[Service Object Functions]
+[Service Object Messages]

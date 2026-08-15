@@ -1,0 +1,8 @@
+/* Enterprise Security Audit Platform - User Management Service Library */
+/* sle_user_management.pbw */
+Type=ServiceLibrary
+Version=700
+Name='sle_user_management'
+[Service Objects]
+[Service Object Functions]
+[Service Object Messages]

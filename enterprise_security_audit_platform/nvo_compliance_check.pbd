@@ -1,0 +1,20 @@
+/* Enterprise Security Audit Platform - Compliance Check Object */
+/* nvo_compliance_check.pbd */
+UserObject
+Version=700
+Name='nvo_compliance_check'
+[Variables]
+String as_standards_list
+Integer ii_compliance_score
+[Functions]
+Function Boolean of_load_standards(String as_standards)
+Function Integer of_calculate_score(String as_standard_type)
+Function DataWindow of_get_report_window()
+Function Boolean of_run_compliance_check(String as_policy_id)
+Function Boolean of_generate_report(Integer ai_report_id, String as_format)
+[Events]
+Open:
+ as_standards_list = ''
+ ii_compliance_score = 0
+ [User Object Functions]
+[User Object Messages]

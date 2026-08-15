@@ -1,0 +1,72 @@
+/* Enterprise Security Audit Platform - Main Window Source */
+/* w_main.pbw */
+Type=Window
+Version=700
+Name='w_main'
+Close='True'
+Center='True'
+Title='Enterprise Security Audit Platform'
+X='100'
+Y='100'
+Width='1000'
+Height='700'
+Menu='m_main'
+StatusBar='True'
+Toolbar='True'
+Border='Sizable'
+Icon='icon_security_shield.ico'
+TitleBar='True'
+TitleHeight='24'
+MenuHeight='24'
+StatusBarHeight='24'
+ToolbarHeight='24'
+[Menu]
+m_main
+[Menu Items]
+1. File
+   1.1 New Audit
+   1.2 Import Log
+   1.3 Export Report
+   1.4 Exit
+2. View
+   2.1 Compliance Dashboard
+   2.2 Remediation Tracker
+   2.3 Audit Trail
+   2.4 Security Metrics
+3. Tools
+   3.1 Configuration Validator
+   3.2 User Management
+   3.3 System Settings
+4. Help
+   4.1 About
+   4.2 Documentation
+[User Objects]
+[Variables]
+DataWindow dw_security_metrics
+DataWindow dw_compliance_report
+DataWindow dw_remediation_status
+DataWindow dw_audit_trail
+nvo_security_audit inv_audit_engine
+nvo_remediation_task inv_remediation
+nvo_compliance_check inv_compliance
+nvo_security_alert inv_alerts
+[Events]
+Open:
+ inv_audit_engine = Create nvo_security_audit
+ inv_remediation = Create nvo_remediation_task
+ inv_compliance = Create nvo_compliance_check
+ inv_alerts = Create nvo_security_alert
+ 
+ inv_audit_engine.of_set_database('MSS', 'localhost', 'SecurityDB', 'sa', 'password')
+ inv_compliance.of_load_standards('ISO27001, NIST, HIPAA')
+ 
+ dw_security_metrics = inv_alerts.of_get_metrics_window()
+ dw_compliance_report = inv_compliance.of_get_report_window()
+ dw_remediation_status = inv_remediation.of_get_status_window()
+ dw_audit_trail = inv_audit_engine.of_get_trail_window()
+ 
+ // Set initial view
+ m_view_compliance_dashboard.Checked = True
+ [User Objects]
+[User Object Functions]
+[User Object Messages]

@@ -1,0 +1,14 @@
+/* Enterprise Security Audit Platform - Compliance Report DataWindow */
+/* dw_compliance_report.pbd */
+DataWindow(table=select sql='SELECT * FROM vw_compliance_report' caching='True' update=No)'UpdateTable':'compliance_report'
+Version=700
+Name='dw_compliance_report'
+[Columns]
+col_1: standard_name, Char
+col_2: control_id, Char
+col_3: status, Char
+col_4: last_audited, DateTime
+col_5: score, Decimal
+[User Objects]
+[User Object Functions]
+[User Object Messages]

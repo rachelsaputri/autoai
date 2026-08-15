@@ -156,3 +156,5 @@
 - Created/Updated module: `oxml_compliance_framework` (See `oxml_compliance_framework/README.md` for details)
 
 - Created/Updated module: `plex_security_orchestrator` (See `plex_security_orchestrator/README.md` for details)
+
+- Created/Updated module: `enterprise_security_audit_platform` (See `enterprise_security_audit_platform/README.md` for details)

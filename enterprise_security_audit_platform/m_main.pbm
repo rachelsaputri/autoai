@@ -1,0 +1,26 @@
+/* Enterprise Security Audit Platform - Main Menu */
+/* m_main.pbm */
+Type=Menu
+Version=700
+Name='m_main'
+[Menu Items]
+m_File: File
+m_NewAudit: 1. New Audit
+m_ImportLog: 2. Import Log
+m_ExportReport: 3. Export Report
+m_Exit: 4. Exit
+m_View: View
+m_ComplianceDashboard: 1. Compliance Dashboard
+m_RemediationTracker: 2. Remediation Tracker
+m_AuditTrail: 3. Audit Trail
+m_SecurityMetrics: 4. Security Metrics
+m_Tools: Tools
+m_ConfigValidator: 1. Configuration Validator
+m_UserManagement: 2. User Management
+m_SystemSettings: 3. System Settings
+m_Help: Help
+m_About: 1. About
+m_Documentation: 2. Documentation
+[User Objects]
+[User Object Functions]
+[User Object Messages]

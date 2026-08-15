@@ -1,0 +1,15 @@
+/* Enterprise Security Audit Platform - Remediation Status DataWindow */
+/* dw_remediation_status.pbd */
+DataWindow(table=select sql='SELECT * FROM vw_remediation_status' caching='True' update=Yes)'UpdateTable':'remediation_status'
+Version=700
+Name='dw_remediation_status'
+[Columns]
+col_1: task_id, Integer
+col_2: description, Char
+col_3: assignee, Char
+col_4: priority, Char
+col_5: due_date, DateTime
+col_6: status, Char
+[User Objects]
+[User Object Functions]
+[User Object Messages]

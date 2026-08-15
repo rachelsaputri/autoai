@@ -1,0 +1,27 @@
+/* Enterprise Security Audit Platform - Configuration Validator Window */
+/* w_config_validator.pbw */
+Type=Window
+Version=700
+Name='w_config_validator'
+Close='True'
+Center='True'
+Title='Configuration Validator'
+X='200'
+Y='200'
+Width='600'
+Height='400'
+Border='Sizable'
+TitleBar='True'
+TitleHeight='24'
+[DataWindows]
+dw_validation_results
+[Variables]
+String ls_config_file_path
+String ls_validation_policy
+Integer li_validation_result
+[Events]
+Open:
+ dw_validation_results.DataObject = 'dw_compliance_report'
+ [User Objects]
+[User Object Functions]
+[User Object Messages]

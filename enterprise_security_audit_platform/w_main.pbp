@@ -1,0 +1,20 @@
+/* Enterprise Security Audit Platform - Main Window */
+/* w_main.pbp */
+Version=700
+Type=0
+File=enterprise_security_audit_platform\w_main.pbw
+File=enterprise_security_audit_platform\w_compliance_dashboard.pbw
+File=enterprise_security_audit_platform\w_remediation_tracker.pbw
+File=enterprise_security_audit_platform\w_audit_trail.pbw
+File=enterprise_security_audit_platform\sle_security_log.pbl
+File=enterprise_security_audit_platform\sle_user_management.pbl
+File=enterprise_security_audit_platform\sle_report_generator.pbl
+File=enterprise_security_audit_platform\sle_config_validator.pbl
+File=enterprise_security_audit_platform\dw_compliance_report.pbd
+File=enterprise_security_audit_platform\dw_audit_trail.pbd
+File=enterprise_security_audit_platform\dw_remediation_status.pbd
+File=enterprise_security_audit_platform\dw_security_metrics.pbd
+File=enterprise_security_audit_platform\nvo_security_audit.pbd
+File=enterprise_security_audit_platform\nvo_remediation_task.pbd
+File=enterprise_security_audit_platform\nvo_compliance_check.pbd
+File=enterprise_security_audit_platform\nvo_security_alert.pbd

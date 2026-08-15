@@ -1,0 +1,25 @@
+/* Enterprise Security Audit Platform - Remediation Task Object */
+/* nvo_remediation_task.pbd */
+UserObject
+Version=700
+Name='nvo_remediation_task'
+[Variables]
+DatabaseProfileObject dpo_database
+Integer ii_task_queue_count
+[Functions]
+Function Boolean of_assign_task(Integer ai_task_id, String as_assignee)
+Function Boolean of_update_status(Integer ai_task_id, String as_status)
+Function DataWindow of_get_status_window()
+Function Integer of_get_pending_tasks()
+Function Boolean of_escalate_task(Integer ai_task_id)
+[Events]
+Open:
+ dpo_database.DBMS = 'MSS'
+ dpo_database.ServerName = 'localhost'
+ dpo_database.Database = 'SecurityDB'
+ dpo_database.LogId = 'sa'
+ dpo_database.LogPass = 'password'
+ dpo_database.AutoCommit = False
+ ii_task_queue_count = 0
+ [User Object Functions]
+[User Object Messages]

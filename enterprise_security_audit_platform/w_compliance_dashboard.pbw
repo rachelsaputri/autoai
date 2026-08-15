@@ -1,0 +1,33 @@
+/* Enterprise Security Audit Platform - Compliance Dashboard Window */
+/* w_compliance_dashboard.pbw */
+Type=Window
+Version=700
+Name='w_compliance_dashboard'
+Close='False'
+Center='True'
+Title='Compliance Dashboard'
+X='150'
+Y='150'
+Width='800'
+Height='500'
+Border='Sizable'
+TitleBar='True'
+TitleHeight='24'
+[DataWindows]
+dw_metrics
+[Variables]
+Integer li_compliance_score
+String ls_standard_type
+[Events]
+Open:
+ // Load compliance metrics
+ li_compliance_score = inv_compliance.of_calculate_score(ls_standard_type)
+ dw_metrics.DataObject = 'dw_security_metrics'
+ dw_metrics.SetTransObject(SQLCA)
+ dw_metrics.Retrieve()
+ 
+ // Update score display
+ uo_scorebar.SetPostFix('Compliance: ' + String(li_compliance_score) + '%')
+ [User Objects]
+[User Object Functions]
+[User Object Messages]

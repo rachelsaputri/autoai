@@ -7428,3 +7428,48 @@ Construct a Declarative Security Orchestration & Automated Response Platform bui
 </think>
 
 Construct a Declarative Security Orchestration & Automated Response Platform built STRICTLY using this exact programming language: PLEX. This application must reside in a NEW dedicated folder named `plex_security_orchestrator` containing all necessary source files and a comprehensive local README.md. Leverage PLEX’s rule-based processing capabilities to architect a dynamic threat response system that analyzes security events, correlates incident data, and executes automated mitigation workflows with high precision. The tool must implement a strict event-driven architecture to ingest telemetry streams, utilize declarative logic gates to enforce deterministic containment strategies, and automatically generate incident reports with execution timestamps. Document the rule-based orchestration architecture, the event correlation methodology for rapid response, PLEX-specific implementation techniques for security automation, and deployment guidelines for real-time threat mitigation pipelines.
+[2026-08-15 06:31:41] (Target Lang: PowerBuilder) Thinking Process:
+
+1.  **Deconstruct the Request:**
+    *   Goal: Generate exactly 1 logical follow-up instruction.
+    *   Constraint: Must explicitly demand the new tool be built STRICTLY using the exact programming language: PowerBuilder.
+    *   Constraint: If building a new tool, explicitly instruct to place it in a NEW dedicated folder.
+    *   Constraint: If building a new tool, explicitly instruct to create a local README.md.
+    *   Constraint: Return ONLY the instruction text.
+    *   Constraint: NEVER target the `.github` directory.
+    *   Context: The user provided a workspace list and a history. The history shows a previous instruction about creating a "Declarative Security Orchestration & Automated Response Platform" in PLEX within `plex_security_orchestrator`. The current instruction is a follow-up to that theme or a new security tool.
+
+2.  **Brainstorming the Follow-up Tool:**
+    *   The previous tool was about "Security Orchestration & Automated Response" in PLEX.
+    *   A logical follow-up could be related to compliance, auditing, data protection, or visualization within the security domain.
+    *   Since the language must be PowerBuilder, I need to think of a tool that fits PowerBuilder's strengths or just a security-themed tool that could be written in PowerBuilder. PowerBuilder is often associated with enterprise apps, data access, and GUIs.
+    *   Ideas: "Enterprise Security Compliance Auditor", "Vulnerability Management Dashboard", "Identity Access Management (IAM) Configuration Manager", "Security Incident Ticketing System".
+    *   Let's pick "Enterprise Security Compliance Audit & Remediation Tracker". This fits well with the previous "Orchestration" tool. One orchestrates, the other tracks/audits compliance.
+    *   Folder name: `enterprise_security_compliance_tracker` or `pb_security_compliance_audit`. Let's go with `security_compliance_audit_trail` or `enterprise_security_audit_platform`. `enterprise_security_audit_platform` sounds robust.
+
+3.  **Drafting the Instruction Text:**
+    *   *Language:* "built STRICTLY using this exact programming language: PowerBuilder."
+    *   *Folder:* "reside in a NEW dedicated folder named `enterprise_security_audit_platform`".
+    *   *README:* "containing all necessary source files and a comprehensive local README.md."
+    *   *Functionality:* "architect a comprehensive security audit and remediation tracking system that monitors regulatory compliance, manages audit trails, and generates detailed compliance reports." "Leverage PowerBuilder's data window capabilities to visualize complex security metrics and interface with backend databases for real-time threat logging." "Implement automated workflows for assigning remediation tasks to security analysts based on detected vulnerabilities."
+    *   *Documentation requirements:* "Document the architecture of the audit framework, the integration strategy for security data ingestion, PowerBuilder-specific techniques for secure data handling, and deployment guidelines for enterprise security operations."
+
+    *   *Refining the draft:*
+        "Construct an Enterprise Security Compliance Audit & Remediation Tracker built STRICTLY using this exact programming language: PowerBuilder. This application must reside in a NEW dedicated folder named `enterprise_security_audit_platform` containing all necessary source files and a comprehensive local README.md. Leverage PowerBuilder's robust data manipulation and reporting features to architect a centralized system that ingests security audit logs, validates configurations against industry standards, and automates the generation of compliance reports. The tool must implement a secure workflow engine to manage remediation tickets, enforce role-based access controls for audit data, and provide real-time dashboards for security posture visualization. Document the data integration architecture, the compliance validation methodology, PowerBuilder-specific implementation techniques for security automation, and deployment guidelines for integrating the platform into existing enterprise security operations."
+
+4.  **Review against Constraints:**
+    *   *Exactly 1 logical follow-up?* Yes, one instruction block.
+    *   *Explicitly demand PowerBuilder?* Yes ("built STRICTLY using this exact programming language: PowerBuilder").
+    *   *NEW dedicated folder?* Yes (`enterprise_security_audit_platform`).
+    *   *Local README.md?* Yes ("comprehensive local README.md").
+    *   *Return ONLY instruction text?* Yes, the output should just be the text.
+    *   *NEVER target .github?* The text doesn't mention `.github`.
+    *   *Logical follow-up?* Yes, follows the security theme, moves from orchestration to auditing/tracking, fits the ecosystem.
+
+5.  **Final Polish (Mental Representation of Output):**
+    "Construct an Enterprise Security Compliance Audit & Remediation Tracker built STRICTLY using this exact programming language: PowerBuilder. This application must reside in a NEW dedicated folder named `enterprise_security_audit_platform` containing all necessary source files and a comprehensive local README.md. Leverage PowerBuilder's robust data manipulation and reporting features to architect a centralized system that ingests security audit logs, validates configurations against industry standards, and automates the generation of compliance reports. The tool must implement a secure workflow engine to manage remediation tickets, enforce role-based access controls for audit data, and provide real-time dashboards for security posture visualization. Document the data integration architecture, the compliance validation methodology, PowerBuilder-specific implementation techniques for security automation, and deployment guidelines for integrating the platform into existing enterprise security operations."
+
+    This looks solid. It matches the style of the example in the prompt ("Construct a... built STRICTLY using..."). It meets all constraints.
+</think>
+
+Construct an Enterprise Security Compliance Audit & Remediation Tracker built STRICTLY using this exact programming language: PowerBuilder. This application must reside in a NEW dedicated folder named `enterprise_security_audit_platform` containing all necessary source files and a comprehensive local README.md. Leverage PowerBuilder's robust data manipulation and reporting features to architect a centralized system that ingests security audit logs, validates configurations against industry standards, and automates the generation of compliance reports. The tool must implement a secure workflow engine to manage remediation tickets, enforce role-based access controls for audit data, and provide real-time dashboards for security posture visualization. Document the data integration architecture, the compliance validation methodology, PowerBuilder-specific implementation techniques for security automation, and deployment guidelines for integrating the platform into existing enterprise security operations.

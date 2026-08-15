@@ -1,0 +1,8 @@
+/* Enterprise Security Audit Platform - Security Log Service Library */
+/* sle_security_log.pbw */
+Type=ServiceLibrary
+Version=700
+Name='sle_security_log'
+[Service Objects]
+[Service Object Functions]
+[Service Object Messages]

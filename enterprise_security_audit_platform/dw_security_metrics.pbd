@@ -1,0 +1,13 @@
+/* Enterprise Security Audit Platform - Security Metrics DataWindow */
+/* dw_security_metrics.pbd */
+DataWindow(table=select sql='SELECT * FROM vw_security_metrics' caching='True' update=No)'UpdateTable':'security_metrics'
+Version=700
+Name='dw_security_metrics'
+[Columns]
+col_1: security_level, Integer
+col_2: alert_count, Integer
+col_3: risk_score, Decimal
+col_4: timestamp, DateTime
+[User Objects]
+[User Object Functions]
+[User Object Messages]

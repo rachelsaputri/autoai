@@ -1,0 +1,18 @@
+/* Enterprise Security Audit Platform - Security Alert Object */
+/* nvo_security_alert.pbd */
+UserObject
+Version=700
+Name='nvo_security_alert'
+[Variables]
+Integer ii_active_alerts
+[Functions]
+Function DataWindow of_get_metrics_window()
+Function Boolean of_process_alert(Integer ai_alert_id, String as_type)
+Function Integer of_get_alert_count()
+Function Boolean of_notify_security_team(String as_alert_message)
+Function Boolean of_escalate_alert(Integer ai_alert_id)
+[Events]
+Open:
+ ii_active_alerts = 0
+ [User Object Functions]
+[User Object Messages]
