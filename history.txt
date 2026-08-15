@@ -15599,3 +15599,46 @@ Construct a production-grade, fully functional Csound-based Secure Audio Data Sa
 </think>
 
 Construct a production-grade, fully functional AWK-based Secure Compliance Policy Auditor & Log Sanitizer strictly using this exact programming language: AWK. This application must reside in a NEW dedicated folder named `awk_compliance_auditor` containing all necessary implementation files defining the core text-processing routines, compliance verification logic, secure log sanitization workflows, and automated audit reporting alongside a comprehensive local `README.md`. The tool must definitively leverage AWK's powerful pattern-matching and field-processing capabilities to efficiently parse and analyze system logs, detect non-compliant configurations or security anomalies against strict policy baselines, and execute safe remediation reporting while maintaining full backward compatibility and operational stability. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to POSIX AWK syntax and constraints, and NEVER targets the `.github` directory.
+[2026-08-15 15:59:53] (Target Lang: Axum) The user wants a follow-up instruction for generating a new tool using the Axum framework (Rust).
+Constraints:
+- Generate exactly 1 logical follow-up instruction.
+- Must explicitly demand the new tool be built STRICTLY using Axum.
+- Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+- If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md.
+- Return ONLY the instruction text.
+- NEVER target the `.github` directory.
+- Must be logical/follow-up based on the workspace/context (security/compliance/audit theme).
+
+I will craft an instruction that builds a RESTful API service using Axum for automated policy enforcement or compliance reporting, as it fits the security/compliance domain.
+Structure of the instruction:
+- Demand building a production-grade, fully functional Axum-based [Tool Name] strictly using Axum.
+- Place it in a NEW dedicated folder named `[folder_name]`.
+- Contain all necessary implementation files (Cargo.toml, src/).
+- Include a comprehensive local README.md.
+- Define core capabilities (e.g., REST endpoints, middleware, secure authentication, compliance checking).
+- Demand fully functional, complete implementation (NO dummy code, NO placeholders).
+- Ensure self-contained, strictly adheres to Rust/Axum best practices.
+- NEVER target the `.github` directory.
+- Return ONLY the instruction text.
+
+Let's draft it carefully.
+"Construct a production-grade, fully functional Axum-based Real-Time Compliance Policy Enforcement Gateway strictly using the Axum web framework for Rust. This application must reside in a NEW dedicated folder named `axum_compliance_gateway` containing all necessary implementation files (including `Cargo.toml`, source modules, and configuration) defining the core HTTP routing, secure middleware chains, real-time policy validation logic, and automated enforcement workflows alongside a comprehensive local `README.md`. The tool must definitively leverage Axum's type-safe routing, async task handling, and built-in extraction capabilities to efficiently accept configuration payloads, validate them against active security baselines, enforce automated remediation triggers, and return structured JSON compliance reports while maintaining full backward compatibility and operational stability. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to modern Rust and Axum best practices, and NEVER targets the `.github` directory."
+
+Check constraints:
+- Exactly 1 logical follow-up instruction? Yes.
+- Explicitly demand built STRICTLY using Axum? Yes.
+- Demand fully functional, complete implementation (NO dummy code, NO placeholders)? Yes.
+- NEW dedicated folder + local README.md? Yes.
+- Return ONLY the instruction text? Yes.
+- NEVER target `.github`? Yes.
+- Fits workspace theme? Yes, continues the compliance/security audit theme.
+
+The draft matches all constraints perfectly. I will output it exactly as requested. No extra text.
+Proceed. 
+Self-Correction/Verification during thought: I need to make sure the phrasing exactly matches the required tone and constraints. The prompt says "Return ONLY the instruction text." I will output just the paragraph.
+All good. Output matches draft.✅
+Proceeds. 
+[Output Generation] -> *Proceeds.*
+</think>
+
+Construct a production-grade, fully functional Axum-based Real-Time Compliance Policy Enforcement Gateway strictly using the Axum web framework for Rust. This application must reside in a NEW dedicated folder named `axum_compliance_gateway` containing all necessary implementation files (including `Cargo.toml`, source modules, and configuration) defining the core HTTP routing, secure middleware chains, real-time policy validation logic, and automated enforcement workflows alongside a comprehensive local `README.md`. The tool must definitively leverage Axum's type-safe routing, async task handling, and built-in extraction capabilities to efficiently accept configuration payloads, validate them against active security baselines, enforce automated remediation triggers, and return structured JSON compliance reports while maintaining full backward compatibility and operational stability. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to modern Rust and Axum best practices, and NEVER targets the `.github` directory.
