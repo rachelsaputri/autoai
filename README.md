@@ -392,3 +392,5 @@
 - Created/Updated module: `cilk_parallel_compliance_scanner` (See `cilk_parallel_compliance_scanner/README.md` for details)
 
 - Created/Updated module: `clist_mainframe_compliance_engine` (See `clist_mainframe_compliance_engine/README.md` for details)
+
+- Created/Updated module: `clojure_mainframe_compliance_engine` (See `clojure_mainframe_compliance_engine/README.md` for details)
