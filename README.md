@@ -150,3 +150,5 @@
 - Created/Updated module: `blue_formal_policy_engine` (See `blue_formal_policy_engine/README.md` for details)
 
 - Created/Updated module: `mapper_ss7_security_auditor` (See `mapper_ss7_security_auditor/README.md` for details)
+
+- Created/Updated module: `hlsl_parallel_threat_detection_engine` (See `hlsl_parallel_threat_detection_engine/README.md` for details)

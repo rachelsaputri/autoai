@@ -7284,3 +7284,54 @@ Construct a Safety-Critical Telemetry Integrity Verifier & Hard Real-Time Fault 
 </think>
 
 Construct a MAP Protocol Signaling Integrity Auditor & SS7 Security Validator built STRICTLY using this exact programming language: MAPPER. This application must reside in a NEW dedicated folder named `mapper_ss7_security_auditor` containing all necessary source files and a comprehensive local README.md. Leverage MAPPER’s telecommunications signaling paradigms and deterministic service control logic to architect a cycle-precise packet inspection pipeline that continuously monitors mobile and fixed-line signaling streams against strict protocol compliance and security thresholds. The tool must implement a formal state-machine verifier to detect signaling spoofing and route manipulation, utilize static analysis to enforce hard real-time processing constraints, and automatically generate compliance-ready audit logs with timestamped cryptographic checksums. Document the deterministic signaling validation model, the static verification pipeline for protocol integrity, MAPPER-specific implementation strategies for telecom infrastructure, and deployment guidelines for mobile network operators and critical communication gateways.
+[2026-08-15 06:02:08] (Target Lang: HLSL) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Context:** The user provides a workspace directory listing and a history of a previous interaction where an instruction was generated for a MAPPER language tool.
+   - **Current Request:** "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: HLSL. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+   - **Constraints:**
+     - Generate exactly 1 logical follow-up instruction.
+     - MUST explicitly demand the tool be built STRICTLY using HLSL.
+     - Must instruct to place it in a NEW dedicated folder and create a local README.md.
+     - Return ONLY the instruction text.
+     - NEVER target .github.
+     - Follow the pattern/style of the previous instruction (telecom/security/auditing theme, formal state machines, static analysis, compliance logs, etc., but adapted for HLSL if possible, or just a coherent technical instruction).
+
+2.  **Identify Key Requirements for the Output:**
+   - Language: HLSL (High-Level Shader Language) - typically used for GPU programming, graphics, but can be adapted to parallel computing, signal processing, or high-throughput data validation in a creative/technical context.
+   - Folder: NEW dedicated folder (I'll name it something like `hlsl_gpu_accelerated_signaling_analyzer` or `hlsl_parallel_threat_detection_engine` or `hlsl_high_throughput_packet_filter`)
+   - README: Must be included in the folder instructions.
+   - Content: Must describe the tool's functionality, align with the security/auditing/telecom theme from the prompt history, and include specific technical requirements (state-machine verifier, static analysis, compliance logs, deployment guidelines).
+   - Format: Return ONLY the instruction text.
+
+3.  **Draft Construction (Mental Refinement):**
+   Construct a High-Throughput GPU-Accelerated Packet Validation Engine & Parallel Threat Detection System built STRICTLY using this exact programming language: HLSL. This application must reside in a NEW dedicated folder named `hlsl_parallel_threat_detection_engine` containing all necessary source files and a comprehensive local README.md. Leverage HLSL’s compute shader paradigms and massive parallel processing architecture to architect a sub-microsecond packet inspection pipeline that continuously monitors network traffic against strict protocol compliance and anomaly thresholds. The tool must implement a formal parallel state-machine verifier to detect traffic spoofing and route manipulation, utilize static compilation analysis to enforce deterministic execution bounds, and automatically generate compliance-ready audit logs with timestamped cryptographic checksums. Document the parallelized validation model, the static verification pipeline for throughput integrity, HLSL-specific implementation strategies for high-performance network appliances, and deployment guidelines for enterprise firewalls and critical communication gateways.
+
+4.  **Check Constraints:**
+   - Exactly 1 logical follow-up instruction? Yes.
+   - Explicitly demand built STRICTLY using HLSL? Yes: "built STRICTLY using this exact programming language: HLSL."
+   - NEW dedicated folder + local README.md? Yes: "NEW dedicated folder named `hlsl_parallel_threat_detection_engine` containing all necessary source files and a comprehensive local README.md."
+   - Return ONLY the instruction text? Yes.
+   - NEVER target .github? Checked. Not mentioned.
+   - Matches tone/structure of previous? Yes, follows the exact template but adapts to HLSL's domain (GPU compute, parallel processing, compute shaders) while keeping the security/auditing theme.
+
+   One minor adjustment: Ensure it strictly matches the requested phrasing pattern if possible, but the prompt says "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: HLSL." The draft does this perfectly.
+
+   I will output exactly the drafted text. No extra words, no greetings, no explanations.
+
+   Final check of the draft against constraints:
+   - "Construct a ... built STRICTLY using this exact programming language: HLSL." -> Matches.
+   - "NEW dedicated folder named `...` containing all necessary source files and a comprehensive local README.md." -> Matches.
+   - Technical content aligns with HLSL + security/auditing theme.
+   - Only instruction text returned.
+
+   Ready. Output matches draft.✅
+   Proceeds. 
+   Output generation. 
+   [Output]: Construct a High-Throughput GPU-Accelerated Packet Validation Engine & Parallel Threat Detection System built STRICTLY using this exact programming language: HLSL. This application must reside in a NEW dedicated folder named `hlsl_parallel_threat_detection_engine` containing all necessary source files and a comprehensive local README.md. Leverage HLSL’s compute shader paradigms and massive parallel processing architecture to architect a sub-microsecond packet inspection pipeline that continuously monitors network traffic against strict protocol compliance and anomaly thresholds. The tool must implement a formal parallel state-machine verifier to detect traffic spoofing and route manipulation, utilize static compilation analysis to enforce deterministic execution bounds, and automatically generate compliance-ready audit logs with timestamped cryptographic checksums. Document the parallelized validation model, the static verification pipeline for throughput integrity, HLSL-specific implementation strategies for high-performance network appliances, and deployment guidelines for enterprise firewalls and critical communication gateways. 
+   (Self-Correction/Verification during thought): The prompt says "Generate exactly 1 logical follow-up instruction." The draft is exactly one paragraph/instruction. It meets all constraints. I will output it exactly.✅
+   Output matches. Proceeds.✅
+   *(Done.)*
+</think>
+
+Construct a High-Throughput GPU-Accelerated Packet Validation Engine & Parallel Threat Detection System built STRICTLY using this exact programming language: HLSL. This application must reside in a NEW dedicated folder named `hlsl_parallel_threat_detection_engine` containing all necessary source files and a comprehensive local README.md. Leverage HLSL’s compute shader paradigms and massive parallel processing architecture to architect a sub-microsecond packet inspection pipeline that continuously monitors network traffic against strict protocol compliance and anomaly thresholds. The tool must implement a formal parallel state-machine verifier to detect traffic spoofing and route manipulation, utilize static compilation analysis to enforce deterministic execution bounds, and automatically generate compliance-ready audit logs with timestamped cryptographic checksums. Document the parallelized validation model, the static verification pipeline for throughput integrity, HLSL-specific implementation strategies for high-performance network appliances, and deployment guidelines for enterprise firewalls and critical communication gateways.
