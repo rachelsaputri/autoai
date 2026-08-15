@@ -16928,3 +16928,48 @@ Construct a production-grade, fully functional automated configuration drift det
 
 Construct a production-grade, fully functional automated configuration drift detection and remediation orchestrator strictly using this exact programming language: Boo. This application must reside in a NEW dedicated folder named `boo_config_drift_orchestrator` containing all necessary implementation files (including a core `main.boo`, `drift_detector.boo`, `remediation_engine.boo`, and a local `README.md`). The tool must implement a comprehensive autonomous workflow that continuously scans target environments, compares live states against baseline configurations using strict operational validation rules, and executes deterministic patching routines. The implementation must leverage Boo's object-oriented architecture and modular design to ensure reliable execution, secure state transitions, and professional-grade operational logging. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Boo development standards, and NEVER targets the `.github` directory.
 [2026-08-15 17:58:47] (Target Lang: Boomerang) Create a complete, fully functional utility for data processing in a new folder. You MUST write it strictly in Boomerang. Absolutely NO dummy code or placeholders. Include a local README.md.
+[2026-08-15 18:00:59] (Target Lang: Bourne shell) Thinking Process:
+1.  **Analyze the Request:**
+    *   Goal: Generate exactly 1 logical follow-up instruction.
+    *   Mandatory Language: Bourne shell.
+    *   Quality: Fully functional, complete implementation (NO dummy code, NO placeholders).
+    *   Structure: Place in a NEW dedicated folder, create a local README.md.
+    *   Output: ONLY the instruction text.
+    *   Constraint: NEVER target the `.github` directory.
+    *   Context: Workspace has many tools, including `system_orchestrator` which has `.sh` files, but the user wants a *new* tool strictly in Bourne shell. The prompt explicitly says "strictly using this exact programming language: Bourne shell."
+
+2.  **Deconstruct the Constraint Checklist & Confidence Score:**
+    *   1 logical follow-up instruction? Yes.
+    *   Strictly Bourne shell? Yes.
+    *   Fully functional/complete/NO dummy code? Yes, I will demand this in the output text.
+    *   NEW dedicated folder? Yes, I will specify a folder name.
+    *   Local README.md? Yes.
+    *   ONLY instruction text? Yes.
+    *   NEVER target `.github`? Yes, I will explicitly mention this or just avoid it.
+    *   Confidence Score: 5/5.
+
+3.  **Drafting the Instruction:**
+    *   *Language Check:* "Bourne shell" is the requirement.
+    *   *Folder Name:* `sh_config_audit_tool` or `bourne_system_hardening_suite`. Let's go with `sh_system_audit_tool`.
+    *   *Content:* Create a tool that does something useful in the context of security/audit since the workspace is full of those. Maybe `sh_security_audit_tool`.
+    *   *Drafting text:* "Construct a production-grade, fully functional automated security audit and baseline verification tool strictly using this exact programming language: Bourne shell. This application must reside in a NEW dedicated folder named `sh_security_audit_tool` containing all necessary implementation files (including a core `main.sh`, `audit_modules.sh`, `report_generator.sh`, and a local `README.md`). The tool must implement a comprehensive autonomous workflow that systematically inspects system configurations, validates file permissions, checks user account states, and generates detailed compliance reports against security baselines. The implementation must utilize robust error handling, POSIX-compliant syntax, modular script design, and professional-grade logging mechanisms to ensure reliable execution in diverse environments. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Bourne shell development standards, and NEVER targets the `.github` directory."
+
+4.  **Refining and Polishing (Self-Correction/Simulation):**
+    *   *Critique:* The draft looks solid. It asks for a new folder, reads a README, uses strict Bourne shell, demands no dummy code, and outputs only the instruction.
+    *   *Tone:* Direct, demanding, professional. Matches the style of previous examples in the prompt history.
+    *   *Specifics:* `main.sh`, `audit_modules.sh`, etc. are good placeholders for file names, but the instruction tells the AI to create them.
+    *   *Check against "Bourne shell":* The prompt says "Bourne shell". I used "Bourne shell". Perfect.
+    *   *Check against "NEW dedicated folder":* `sh_security_audit_tool` is new.
+    *   *Check against "local README.md":* Included.
+    *   *Check against "NO dummy code":* Included.
+    *   *Check against "NEVER target .github":* Included.
+
+5.  **Final Output Construction:**
+    *   Text: "Construct a production-grade, fully functional automated system configuration audit and baseline enforcement utility strictly using this exact programming language: Bourne shell. This application must reside in a NEW dedicated folder named `sh_system_audit_tool` containing all necessary implementation files (including a core `main.sh`, `config_parser.sh`, `audit_engine.sh`, `reporter.sh`, and a local `README.md`). The tool must implement a comprehensive, deterministic workflow that parses system configuration files, validates settings against strict security baselines using robust pattern matching and logical comparisons, and outputs structured compliance reports. The implementation must leverage Bourne shell best practices, including POSIX compliance, robust error trapping, modular function architecture, and secure temporary file handling to guarantee reliability and portability across environments. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Bourne shell development standards, and NEVER targets the `.github` directory."
+
+    *   *Review:* "Bourne shell" is the language. "sh_system_audit_tool" is the folder. "README.md" is present. "NO dummy code" is present. "NEVER target .github" is present. "Return ONLY the instruction text" applies to the final output.
+
+    *   Result matches all criteria.
+</think>
+
+Construct a production-grade, fully functional automated system configuration audit and baseline enforcement utility strictly using this exact programming language: Bourne shell. This application must reside in a NEW dedicated folder named `sh_system_audit_tool` containing all necessary implementation files (including a core `main.sh`, `config_parser.sh`, `audit_engine.sh`, `reporter.sh`, and a local `README.md`). The tool must implement a comprehensive, deterministic workflow that parses system configuration files, validates settings against strict security baselines using robust pattern matching and logical comparisons, and outputs structured compliance reports. The implementation must leverage Bourne shell best practices, including POSIX compliance, robust error trapping, modular function architecture, and secure temporary file handling to guarantee reliability and portability across environments. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Bourne shell development standards, and NEVER targets the `.github` directory.
