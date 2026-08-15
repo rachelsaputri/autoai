@@ -308,3 +308,5 @@
 - Created/Updated module: `nesl_parallel_compliance_detector` (See `nesl_parallel_compliance_detector/README.md` for details)
 
 - Created/Updated module: `batch_system_hardening_suite` (See `batch_system_hardening_suite/README.md` for details)
+
+- Created/Updated module: `awk_compliance_auditor` (See `awk_compliance_auditor/README.md` for details)
