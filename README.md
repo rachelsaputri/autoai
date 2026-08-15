@@ -182,3 +182,5 @@
 - Created/Updated module: `xc_secure_boot_validator` (See `xc_secure_boot_validator/README.md` for details)
 
 - Created/Updated module: `espol_policy_enforcement_system` (See `espol_policy_enforcement_system/README.md` for details)
+
+- Created/Updated module: `racket_compliance_validator` (See `racket_compliance_validator/README.md` for details)
