@@ -7532,3 +7532,38 @@ Construct an Enterprise Security Compliance Audit & Remediation Tracker built ST
 </think>
 
 Construct an Autonomous Threat Hunter & Response Orchestrator built STRICTLY using this exact programming language: PPL. This application must reside in a NEW dedicated folder named `ppl_autonomous_threat_hunter` containing all necessary source files and a comprehensive local README.md. Leverage PPL's capabilities to design a system that autonomously ingests threat intelligence feeds, correlates indicators of compromise (IOCs), and triggers automated containment actions based on risk scoring. The tool must implement a decision engine for response prioritization, support integration with existing SIEM tools via API, and provide detailed logging for audit trails. Document the threat correlation methodology, PPL-specific implementation patterns for automation, API integration strategies, and deployment guidelines for integrating the threat hunter into active defense operations.
+[2026-08-15 06:36:45] (Target Lang: Mesa) Thinking Process:
+
+1.  **Deconstruct the user's request:**
+    *   Goal: Generate exactly 1 logical follow-up instruction.
+    *   Constraint 1: The new tool must be built STRICTLY using the language: Mesa.
+    *   Constraint 2: If building a new tool, place it in a NEW dedicated folder.
+    *   Constraint 3: Create a local README.md.
+    *   Constraint 4: Return ONLY the instruction text.
+    *   Constraint 5: NEVER target the .github directory.
+    *   Context: The user provided a file tree and a history of previous instructions. The history shows a pattern: "Construct an [Tool Name]... built STRICTLY using [Language]... folder [Name]... README.md... [Functionality description]."
+
+2.  **Brainstorming the Follow-up Instruction:**
+    *   *Language:* Mesa.
+    *   *Folder Name:* Needs to be new. Looking at the file tree, `ppl_autonomous_threat_hunter` exists. The previous history mentions `ppl_autonomous_threat_hunter`. A logical follow-up might be related to the existing structure or a new module. Common Mesa applications are multi-agent systems, simulations, or orchestration. Let's suggest something related to agent coordination or simulation based on Mesa's nature.
+    *   *Tool Name Idea:* `mesa_multi_agent_response_simulator` or `mesa_agent_coordination_framework`. Let's go with `mesa_multi_agent_response_simulator` as it complements the "Autonomous Threat Hunter & Response Orchestrator" from the history. The hunter makes decisions; this simulator tests the response logic using agents.
+    *   *Functionality:* Mesa is good for agent-based modeling. The tool could simulate multi-agent incident response coordination. It should ingest scenarios, deploy agents (security analysts, bots), and evaluate response efficacy.
+    *   *Drafting the text:* "Construct a Multi-Agent Response Simulation Framework built STRICTLY using this exact programming language: Mesa. This application must reside in a NEW dedicated folder named `mesa_multi_agent_response_simulator` containing all necessary source files and a comprehensive local README.md. Leverage Mesa's agent-based modeling capabilities to design a simulation environment where autonomous security agents coordinate incident response strategies. The system must define agent behaviors for threat detection, remediation, and communication, implement a simulation loop to evaluate response efficacy under varying attack scenarios, and provide metrics on agent collaboration efficiency. Document the agent interaction patterns, Mesa-specific implementation details for simulation loops, scenario generation methods, and guidelines for validating simulated response performance against real-world benchmarks."
+
+3.  **Review against constraints:**
+    *   *Mesa mentioned?* Yes ("built STRICTLY using this exact programming language: Mesa").
+    *   *New folder?* Yes (`mesa_multi_agent_response_simulator`).
+    *   *README.md?* Yes.
+    *   *Only instruction text?* Yes.
+    *   *No .github?* Yes.
+    *   *Logical follow-up?* Yes, fits the theme of security automation/response but adds simulation/agent coordination which fits Mesa.
+    *   *Language strictness?* Yes.
+
+4.  **Final Polish (Mental Representation of Output):**
+    `Construct a Multi-Agent Response Simulation Framework built STRICTLY using this exact programming language: Mesa. This application must reside in a NEW dedicated folder named `mesa_multi_agent_response_simulator` containing all necessary source files and a comprehensive local README.md. Leverage Mesa's agent-based modeling capabilities to design a simulation environment where autonomous security agents coordinate incident response strategies. The system must define agent behaviors for threat detection, remediation, and communication, implement a simulation loop to evaluate response efficacy under varying attack scenarios, and provide metrics on agent collaboration efficiency. Document the agent interaction patterns, Mesa-specific implementation details for simulation loops, scenario generation methods, and guidelines for validating simulated response performance against real-world benchmarks.`
+
+5.  **Final Output Construction:**
+    The output matches the drafted text. It is a single instruction, strictly follows the language requirement, defines the folder, mentions README, avoids .github, and is logical.
+</think>
+
+Construct a Multi-Agent Response Simulation Framework built STRICTLY using this exact programming language: Mesa. This application must reside in a NEW dedicated folder named `mesa_multi_agent_response_simulator` containing all necessary source files and a comprehensive local README.md. Leverage Mesa's agent-based modeling capabilities to design a simulation environment where autonomous security agents coordinate incident response strategies. The system must define agent behaviors for threat detection, remediation, and communication, implement a simulation loop to evaluate response efficacy under varying attack scenarios, and provide metrics on agent collaboration efficiency. Document the agent interaction patterns, Mesa-specific implementation details for simulation loops, scenario generation methods, and guidelines for validating simulated response performance against real-world benchmarks.
