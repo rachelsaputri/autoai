@@ -1,0 +1,184 @@
+/*
+ * main.yor - Yorick Threat Intelligence Aggregator
+ * 
+ * This script orchestrates the ingestion, correlation, and reporting
+ * of threat intelligence data.
+ */
+
+procedure main(argc, argv)
+{
+  if (argc < 3) {
+    print "Usage: yorick main.yor <telemetry_file> <ioc_database_dir>"
+    return
+  }
+
+  telemetry_path = argv[1]
+  ioc_db_path = argv[2]
+
+  // Initialize the threat engine
+  engine = ThreatEngine()
+
+  // Load IOCs
+  print "Loading IOCs from: " + ioc_db_path
+  ioc_list = LoadIOCs(ioc_db_path)
+  if (length(ioc_list) == 0) {
+    print "Error: No IOCs loaded. Aborting."
+    return
+  }
+
+  // Ingest Telemetry
+  print "Ingesting telemetry from: " + telemetry_path
+  raw_data = IngestTelemetry(telemetry_path)
+  print "Ingested " + length(raw_data) + " data points."
+
+  // Run Correlation
+  print "Starting correlation analysis..."
+  findings = CorrelateRawData(raw_data, ioc_list)
+  print "Found " + length(findings) + " potential threats."
+
+  // Classify Severity
+  print "Classifying threat severity..."
+  classified_threats = ClassifySeverity(findings)
+
+  // Generate Reports
+  print "Generating structured reports..."
+  GenerateJSONReport(classified_threats, "threat_report.json")
+  GenerateCSVReport(classified_threats, "threat_report.csv")
+
+  print "Analysis complete. Reports generated."
+}
+
+/*
+ * ThreatEngine: Manages internal state and configuration
+ */
+function ThreatEngine()
+  engine = struct("ioc_map", {}, "confidence_threshold", 0.75)
+  return engine
+end
+
+/*
+ * LoadIOCs: Reads and parses IOC files from the specified directory
+ */
+function LoadIOCs(path)
+  ioc_files = dir(path)
+  ioc_list = {
+
+  for (i = 1; i <= length(ioc_files); i++) {
+    if (strstr(ioc_files[i], ".ioc") !< 0 || strstr(ioc_files[i], ".txt") !< 0) {
+      current_file = path + "/" + ioc_files[i]
+      raw_iocs = read(current_file)
+      for (j = 1; j <= length(raw_iocs); j++) {
+        if (length(raw_iocs[j]) > 0) {
+          ioc_list = ioc_list, raw_iocs[j]
+        }
+      }
+    }
+  }
+
+  return ioc_list
+end
+
+/*
+ * IngestTelemetry: Reads raw telemetry data from a file
+ */
+function IngestTelemetry(path)
+  // In a real scenario, this might parse JSON, XML, or specific binary formats
+  // Here we assume a line-delimited format with pipe separators
+  lines = read(path)
+  data_points = {}
+  
+  for (i = 1; i <= length(lines); i++) {
+    fields = split(lines[i], "|")
+    if (length(fields) >= 3) {
+      dp = {
+        "source": fields[1],
+        "indicator": fields[2],
+        "timestamp": fields[3],
+        "metadata": fields[4] if length(fields) > 4 else ""
+      }
+      data_points = data_points, dp
+    }
+  }
+  return data_points
+end
+
+/*
+ * CorrelateRawData: Matches telemetry indicators against the IOC list
+ */
+function CorrelateRawData(data_points, ioc_list)
+  findings = {}
+  // Simple hash-based lookup for performance
+  ioc_map = {
+  for (i = 1; i <= length(ioc_list); i++) {
+    ioc_map[ioc_list[i]] = 1
+  }
+
+  for (i = 1; i <= length(data_points); i++) {
+    indicator = data_points[i].indicator
+    if (ioc_map[indicator]) {
+      finding = struct("data", data_points[i], "ioc_match", indicator)
+      findings = findings, finding
+    }
+  }
+  return findings
+end
+
+/*
+ * ClassifySeverity: Assigns a severity score based on frequency and confidence
+ */
+function ClassifySeverity(findings)
+  classified = {}
+  // For demonstration, we assign a base score and increase based on matches
+  for (i = 1; i <= length(findings); i++) {
+    f = findings[i]
+    severity = 0
+    
+    // Simple heuristic: base severity + length of metadata
+    base = 3
+    if (length(f.data.metadata) > 10) base = base + 2
+    
+    f.data.severity = base
+    f.data.score = base * 10
+    classified = classified, f
+  }
+  return classified
+end
+
+/*
+ * GenerateJSONReport: Outputs findings to a JSON file
+ */
+function GenerateJSONReport(findings, output_path)
+  // Yorick doesn't have a built-in JSON encoder, so we construct the string manually
+  // In a production environment, this would use a more robust serialization
+  f = create(output_path)
+  print f "["
+  for (i = 1; i <= length(findings); i++) {
+    f = findings[i]
+    print f "  {"
+    print f "    \"indicator\": \"" + f.data.indicator + "\","
+    print f "    \"source\": \"" + f.data.source + "\","
+    print f "    \"severity\": " + str(f.data.severity) + ","
+    print f "    \"score\": " + str(f.data.score)
+    if (i < length(findings)) {
+      print f "  },"
+    } else {
+      print f "  }"
+    }
+  }
+  print f "]"
+  close(f)
+end
+
+/*
+ * GenerateCSVReport: Outputs findings to a CSV file
+ */
+function GenerateCSVReport(findings, output_path)
+  f = create(output_path)
+  print f "indicator,source,severity,score"
+  for (i = 1; i <= length(findings); i++) {
+    f = findings[i]
+    // Escape commas in strings if necessary
+    print f "" + f.data.indicator + "," + f.data.source + "," + str(f.data.severity) + "," + str(f.data.score)
+  }
+  close(f)
+end
