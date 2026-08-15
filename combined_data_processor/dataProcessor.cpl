@@ -1,0 +1,48 @@
+MODULE dataProcessor;
+
+FUNCTION process() RETURNS List<String>;
+    INPUT = loadInput();
+    VALIDATED = validate(INPUT);
+    PROCESSED = transform(VALIDATED);
+    RETURN saveOutput(PROCESSED);
+END FUNCTION;
+
+FUNCTION loadInput() RETURNS List<String>;
+    // Load data from input files
+    RETURN ['data1', 'data2', 'data3'];
+END FUNCTION;
+
+FUNCTION validate(data: List<String>) RETURNS List<String>;
+    // Validate data against schema
+    RESULT = NEW List<String>();
+    FOR item IN data
+        IF isValid(item)
+            RESULT.add(item);
+        ELSE
+            LOG('Invalid data: ' + item);
+        END IF;
+    END FOR;
+    RETURN RESULT;
+END FUNCTION;
+
+FUNCTION isValid(data: String) RETURNS Boolean;
+    // Simple validation check
+    RETURN data != null AND data.length() > 0;
+END FUNCTION;
+
+FUNCTION transform(data: List<String>) RETURNS List<String>;
+    // Transform data
+    RESULT = NEW List<String>();
+    FOR item IN data
+        RESULT.add(item.upper());
+    END FOR;
+    RETURN RESULT;
+END FUNCTION;
+
+FUNCTION saveOutput(data: List<String>) RETURNS List<String>;
+    // Save output to files
+    LOG('Saving output: ' + data);
+    RETURN data;
+END FUNCTION;
+
+END MODULE;

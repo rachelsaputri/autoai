@@ -404,3 +404,5 @@
 - Created/Updated module: `coldc_formal_policy_enforcer` (See `coldc_formal_policy_enforcer/README.md` for details)
 
 - Created/Updated module: `./objectlogo_diagnostic_tool` (See `./objectlogo_diagnostic_tool/README.md` for details)
+
+- Created/Updated module: `combined_data_processor` (See `combined_data_processor/README.md` for details)
