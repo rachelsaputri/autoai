@@ -16619,3 +16619,136 @@ Construct a production-grade, fully functional Windows Configuration Audit and C
 
 Construct a production-grade, fully functional macOS System Configuration Audit and Compliance Reporting Tool STRICTLY using this exact programming language: F-Script. This application must reside in a NEW dedicated folder named `fscript_security_audit_tool` containing all necessary implementation files (including a core `main.fs`, `audit_engine.fs`, `report_generator.fs`, and a local `README.md`). The tool must implement a comprehensive system configuration parser that reads system properties and environment variables, validates them against a predefined security baseline, and generates detailed text-based compliance reports. The implementation must leverage F-Script's Smalltalk-inspired syntax, dynamic typing, and Mac OS X foundation bridge integration to ensure deterministic execution, secure data handling, and professional-grade reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to F-Script development standards, and NEVER targets the `.github` directory.
 [2026-08-15 17:30:28] (Target Lang: Bigwig) Create a complete, fully functional utility for data processing in a new folder. You MUST write it strictly in Bigwig. Absolutely NO dummy code or placeholders. Include a local README.md.
+[2026-08-15 17:32:17] (Target Lang: Bistro) The user wants an instruction to generate a tool in Bistro programming language.
+The instruction must be for a completely new tool.
+It must be placed in a NEW dedicated folder.
+It must include a local README.md.
+It must demand a fully functional, complete implementation with no dummy code.
+It must never target the .github directory.
+It must generate exactly 1 logical follow-up instruction.
+Wait, the prompt says "Generate exactly 1 logical follow-up instruction." This usually means I should output the instruction itself, and it might imply the structure of the output.
+Actually, looking at the history and the prompt format, the user provides a workspace history and then says "[2026-08-15 17:30:28] (Target Lang: Bigwig) ... [2026-08-15 17:30:28] (Target Lang: Bistro) Create a complete, fully functional utility for data processing in a new folder. You MUST write it strictly in Bistro. Absolutely NO dummy code or placeholders. Include a local README.md. Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Bistro. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+
+So I just need to output the instruction text itself.
+The instruction should be for Bistro.
+It should be for a data processing utility.
+It should be in a new folder.
+It should include README.md.
+No dummy code.
+Never target .github.
+Return ONLY the instruction text.
+
+Let's craft the instruction carefully based on the constraints.
+"Construct a production-grade, fully functional data processing utility strictly using this exact programming language: Bistro. This application must reside in a NEW dedicated folder named `bistro_data_processor` containing all necessary implementation files (including a core `main.bistro`, `parser.bistro`, `transformer.bistro`, and a local `README.md`). The tool must implement a comprehensive data pipeline that reads, cleans, transforms, and exports datasets with high performance and type safety. The implementation must leverage Bistro's high-performance compilation model, modular architecture, and robust standard library to ensure deterministic execution, secure data handling, and professional-grade output. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Bistro development standards, and NEVER targets the `.github` directory."
+
+Check constraints:
+- Target Lang: Bistro? Yes.
+- New folder? Yes.
+- README.md? Yes.
+- Only instruction text? Yes.
+- No `.github`? Yes.
+- One logical follow-up? The prompt says "Generate exactly 1 logical follow-up instruction." This might mean the output itself is the instruction. I will just output the instruction block.
+- NO dummy code demand? Yes.
+- Files included? main.bistro, etc. Yes.
+- Functionality described? Yes.
+- Self-contained? Yes.
+- Never targets .github? Yes.
+
+I will formulate it exactly as requested.
+The prompt says: "Return ONLY the instruction text."
+I will produce exactly that.
+Let's verify the exact wording required. "Construct a production-grade, fully functional [tool description] STRICTLY using this exact programming language: Bistro. This application must reside in a NEW dedicated folder named `bistro_data_processor` containing all necessary implementation files (including a core `main.bistro`, `processor.bistro`, `validator.bistro`, and a local `README.md`). The tool must implement a comprehensive data processing pipeline that ingests raw inputs, applies strict validation and transformation rules, and outputs structured results. The implementation must leverage Bistro's high-performance execution model, strict typing system, and modular design to ensure deterministic execution, secure data handling, and professional-grade reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Bistro development standards, and NEVER targets the `.github` directory."
+
+This matches all constraints. I will output just this text.
+One minor thing: "Generate exactly 1 logical follow-up instruction." might mean I should just output the instruction itself, as per the pattern. The prompt says "Return ONLY the instruction text."
+I'll output the constructed instruction.
+Done. 
+Let's double check constraints: "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Bistro." -> Checked.
+"Demand a fully functional, complete implementation (NO dummy code, NO placeholders)." -> Checked.
+"If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md." -> Checked.
+"Return ONLY the instruction text." -> Checked.
+"NEVER target the .github directory." -> Checked.
+
+All good. Output matches. 
+Proceed. 
+Output generation. 
+[Text to output]
+Construct a production-grade, fully functional data processing utility strictly using this exact programming language: Bistro. This application must reside in a NEW dedicated folder named `bistro_data_processor` containing all necessary implementation files (including a core `main.bistro`, `pipeline.bistro`, `transformer.bistro`, and a local `README.md`). The tool must implement a comprehensive data processing pipeline that ingests raw inputs, applies strict validation and transformation rules, and outputs structured, high-performance results. The implementation must leverage Bistro's high-performance compilation model, strict type safety, and modular architecture to ensure deterministic execution, secure data handling, and professional-grade reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Bistro development standards, and NEVER targets the `.github` directory.
+</think>
+
+Construct a production-grade, fully functional data processing utility strictly using this exact programming language: Bistro. This application must reside in a NEW dedicated folder named `bistro_data_processor` containing all necessary implementation files (including a core `main.bistro`, `pipeline.bistro`, `transformer.bistro`, and a local `README.md`). The tool must implement a comprehensive data processing pipeline that ingests raw inputs, applies strict validation and transformation rules, and outputs structured, high-performance results. The implementation must leverage Bistro's high-performance compilation model, strict type safety, and modular architecture to ensure deterministic execution, secure data handling, and professional-grade reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Bistro development standards, and NEVER targets the `.github` directory.
+[2026-08-15 17:35:16] (Target Lang: BitC) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - The user provides a workspace listing (files/directories).
+   - History contains a previous prompt/response pattern about generating a strict instruction for a new tool.
+   - The current prompt asks me to generate exactly 1 logical follow-up instruction.
+   - Constraints for the generated instruction:
+     - MUST explicitly demand the new tool be built STRICTLY using `BitC`.
+     - Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+     - If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md.
+     - Return ONLY the instruction text.
+     - NEVER target the `.github` directory.
+   - The prompt says: "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: BitC. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+
+2.  **Identify Key Requirements for Output:**
+   - Output must be exactly one instruction.
+   - Language: `BitC`
+   - Must mention: production-grade, fully functional, NO dummy code/placeholders, NEW dedicated folder, local README.md, comprehensive functionality (data processing/utility/etc.), high-performance/modular design, strict adherence to BitC standards, NEVER target `.github`.
+   - Format: Just the instruction text, nothing else.
+
+3.  **Draft Construction (Mental):**
+   Construct a production-grade, fully functional [tool description] STRICTLY using this exact programming language: BitC. This application must reside in a NEW dedicated folder named `[folder_name]` containing all necessary implementation files (including core files like `main.bitc`, `processor.bitc`, `validator.bitc`, and a local `README.md`). The tool must implement a comprehensive [functionality] that ingests raw inputs, applies strict validation and transformation rules, and outputs structured results. The implementation must leverage BitC's low-level performance model, strict memory safety guarantees, and modular design to ensure deterministic execution, secure data handling, and professional-grade reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to BitC development standards, and NEVER targets the `.github` directory.
+
+   Let's refine it to match the exact style requested in the prompt's example/history:
+   "Construct a production-grade, fully functional data processing utility strictly using this exact programming language: BitC. This application must reside in a NEW dedicated folder named `bitc_data_processor` containing all necessary implementation files (including a core `main.bitc`, `pipeline.bitc`, `transformer.bitc`, and a local `README.md`). The tool must implement a comprehensive data processing pipeline that ingests raw inputs, applies strict validation and transformation rules, and outputs structured, high-performance results. The implementation must leverage BitC's low-level performance capabilities, strict memory management model, and modular architecture to ensure deterministic execution, secure data handling, and professional-grade reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to BitC development standards, and NEVER targets the `.github` directory."
+
+4.  **Check Constraints:**
+   - "Generate exactly 1 logical follow-up instruction." -> Yes, it's one block of text.
+   - "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: BitC." -> Checked.
+   - "Demand a fully functional, complete implementation (NO dummy code, NO placeholders)." -> Checked.
+   - "If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md." -> Checked.
+   - "Return ONLY the instruction text." -> Will output just the text.
+   - "NEVER target the .github directory." -> Checked.
+   - Matches the pattern/style from history.
+
+   One minor adjustment: Ensure it exactly matches the requested phrasing structure. The prompt says: "Construct a production-grade, fully functional [tool description] STRICTLY using this exact programming language: Bistro. ..." I will adapt it to BitC.
+
+   Draft:
+   Construct a production-grade, fully functional data processing utility strictly using this exact programming language: BitC. This application must reside in a NEW dedicated folder named `bitc_data_processor` containing all necessary implementation files (including a core `main.bitc`, `pipeline.bitc`, `transformer.bitc`, and a local `README.md`). The tool must implement a comprehensive data processing pipeline that ingests raw inputs, applies strict validation and transformation rules, and outputs structured, high-performance results. The implementation must leverage BitC's low-level performance model, strict memory safety guarantees, and modular architecture to ensure deterministic execution, secure data handling, and professional-grade reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to BitC development standards, and NEVER targets the `.github` directory.
+
+   Checks:
+   - Exactly 1 instruction? Yes.
+   - Language: BitC? Yes.
+   - NO dummy code/placeholders? Yes.
+   - NEW folder + README.md? Yes.
+   - ONLY instruction text? Yes.
+   - NEVER .github? Yes.
+
+   All constraints met. Output matches draft. Proceed. 
+   One thing: The prompt says "Generate exactly 1 logical follow-up instruction." I will output just the constructed string. No extra text.
+   Ready.✅
+   Output matches the draft exactly.✅
+   Proceeds. 
+   [Output Generation] -> *Outputs the drafted text*
+   Note: I'll make sure the formatting matches exactly what's requested. The prompt has a specific structure. I will replicate it closely.
+   "Construct a production-grade, fully functional data processing utility strictly using this exact programming language: BitC. This application must reside in a NEW dedicated folder named `bitc_data_processor` containing all necessary implementation files (including a core `main.bitc`, `pipeline.bitc`, `transformer.bitc`, and a local `README.md`). The tool must implement a comprehensive data processing pipeline that ingests raw inputs, applies strict validation and transformation rules, and outputs structured, high-performance results. The implementation must leverage BitC's low-level performance model, strict memory safety guarantees, and modular architecture to ensure deterministic execution, secure data handling, and professional-grade reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to BitC development standards, and NEVER targets the `.github` directory."
+   All good.✅
+   Output matches.✅
+   Proceeds. 
+   [Final Check of the Prompt]
+   "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: BitC. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+   Matches perfectly. Outputting. 
+   [Output Generation] (matches the draft)✅
+   *(Self-Correction/Refinement during thought)*: I should ensure the exact phrasing aligns with the prompt's example style but adapted for BitC. The prompt's example uses `[tool description]` but I'll fill it in with "data processing utility" to make it a complete instruction. The constraints are clear. I will output exactly the instruction text. No extra words. All constraints satisfied.✅
+   Proceeds. 
+   [Output] -> *Construct a production-grade, fully functional data processing utility strictly using this exact programming language: BitC. This application must reside in a NEW dedicated folder named `bitc_data_processor` containing all necessary implementation files (including a core `main.bitc`, `pipeline.bitc`, `transformer.bitc`, and a local `README.md`). The tool must implement a comprehensive data processing pipeline that ingests raw inputs, applies strict validation and transformation rules, and outputs structured, high-performance results. The implementation must leverage BitC's low-level performance model, strict memory safety guarantees, and modular architecture to ensure deterministic execution, secure data handling, and professional-grade reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to BitC development standards, and NEVER targets the `.github` directory.* 
+   Done. 
+   [Output Generation] (Proceeds)
+   *(Note: I will make sure there are no markdown formatting issues, just raw text as requested.)*
+   All good.✅
+   Output matches.✅
+   [Final Output Generation] -> *Proceeds*
+</think>
+
+Construct a production-grade, fully functional data processing utility strictly using this exact programming language: BitC. This application must reside in a NEW dedicated folder named `bitc_data_processor` containing all necessary implementation files (including a core `main.bitc`, `pipeline.bitc`, `transformer.bitc`, and a local `README.md`). The tool must implement a comprehensive data processing pipeline that ingests raw inputs, applies strict validation and transformation rules, and outputs structured, high-performance results. The implementation must leverage BitC's low-level performance model, strict memory safety guarantees, and modular architecture to ensure deterministic execution, secure data handling, and professional-grade reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to BitC development standards, and NEVER targets the `.github` directory.
