@@ -136,3 +136,5 @@
 - Created/Updated module: `policy_effectiveness_analyzer` (See `policy_effectiveness_analyzer/README.md` for details)
 
 - Created/Updated module: `api_traffic_analyzer` (See `api_traffic_analyzer/README.md` for details)
+
+- Created/Updated module: `squeak_encryption_tool` (See `squeak_encryption_tool/README.md` for details)
