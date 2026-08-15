@@ -178,3 +178,5 @@
 - Created/Updated module: `speedcode_threat_intel_aggregator` (See `speedcode_threat_intel_aggregator/README.md` for details)
 
 - Created/Updated module: `averest_policy_compliance_auditor` (See `averest_policy_compliance_auditor/README.md` for details)
+
+- Created/Updated module: `xc_secure_boot_validator` (See `xc_secure_boot_validator/README.md` for details)
