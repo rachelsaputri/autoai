@@ -13520,3 +13520,55 @@ This looks solid.
 </think>
 
 Construct a production-grade, fully functional Small Basic-based Security Audit Scanner STRICTLY using this exact programming language: Small Basic. This application must reside in a NEW dedicated folder named `sb_security_audit_scanner` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement file integrity verification, configuration compliance checking, permission analysis, and automated vulnerability reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+[2026-08-15 14:27:53] (Target Lang: Alice) Thinking Process:
+
+1.  **Deconstruct the Request:**
+    *   Goal: Generate exactly 1 logical follow-up instruction.
+    *   Constraint 1: New tool MUST be built STRICTLY using `Alice`.
+    *   Constraint 2: Demand fully functional, complete implementation (NO dummy code, NO placeholders).
+    *   Constraint 3: Place new tool in a NEW dedicated folder.
+    *   Constraint 4: Create a local README.md.
+    *   Constraint 5: Return ONLY the instruction text.
+    *   Constraint 6: NEVER target `.github`.
+    *   Context: Workspace has many security-related tools. `sb_security_audit_scanner` was just discussed/created in the history.
+
+2.  **Analyze Context & Language (`Alice`):**
+    *   `Alice` is often associated with Alice 3, an educational programming environment for teaching object-oriented programming concepts, or potentially a niche language/tool. In the context of "security toolkit" and "production-grade", Alice might be a slight outlier, but the user *explicitly* demanded `Alice`.
+    *   I need to propose a tool that makes sense for `Alice` or at least fits the security theme requested by the user's pattern. `Alice` is great for visualization, simulation, and educational aspects.
+    *   *Idea:* Alice is often used for 3D modeling and simulation. A security tool in Alice could be a "3D Security Posture Visualizer" or "Network Topology Intrusion Simulator".
+    *   *Selected Tool:* Alice-based 3D Network Intrusion Simulation and Visualization Tool. This leverages Alice's strengths (3D, simulation) and fits the security theme.
+
+3.  **Draft the Instruction:**
+    *   *Draft 1:* Construct a production-grade, fully functional Alice-based 3D Network Intrusion Simulation and Visualization Tool STRICTLY using this exact programming language: Alice. This application must reside in a NEW dedicated folder named `alice_security_simulator` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement 3D network topology rendering, real-time threat simulation, dynamic visualization of attack vectors, and educational reporting on breach scenarios. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+
+4.  **Review against Constraints:**
+    *   *Logical Follow-up?* Yes. The history shows `sb_security_audit_scanner`. A visualization/simulation tool complements a scanner by providing insights into the results.
+    *   *Target .github?* No.
+    *   *Language Alice?* Yes.
+    *   *New Folder?* Yes (`alice_security_simulator`).
+    *   *README.md?* Yes.
+    *   *Only instruction text?* Yes.
+    *   *NO dummy code?* Included in the demand.
+    *   *Features implemented?* 3D rendering, simulation, visualization, reporting.
+
+5.  **Refine Text (Style Matching):**
+    *   The user's example style is: "Construct a production-grade, fully functional [Language]-based [Tool Name] STRICTLY using this exact programming language: [Language]. This application must reside in a NEW dedicated folder named `[folder_name]` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement [Feature 1], [Feature 2], [Feature 3], and [Feature 4]. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+    *   *Refinement:* "Construct a production-grade, fully functional Alice-based 3D Network Intrusion Simulation and Visualization Tool STRICTLY using this exact programming language: Alice. This application must reside in a NEW dedicated folder named `alice_security_simulator` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement 3D network topology rendering, real-time threat simulation, dynamic visualization of attack vectors, and educational reporting on breach scenarios. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+
+6.  **Final Output Construction:**
+    *   Result matches Draft 1/Refinement.
+    *   Text: `Construct a production-grade, fully functional Alice-based 3D Network Intrusion Simulation and Visualization Tool STRICTLY using this exact programming language: Alice. This application must reside in a NEW dedicated folder named `alice_security_simulator` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement 3D network topology rendering, real-time threat simulation, dynamic visualization of attack vectors, and educational reporting on breach scenarios. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).`
+
+7.  **Final Polish Check:**
+    *   Does it mention `.github`? No.
+    *   Does it mention `Alice`? Yes.
+    *   Does it mention `alice_security_simulator`? Yes.
+    *   Does it mention `README.md`? Yes.
+    *   Does it demand features? Yes.
+    *   Does it demand no placeholders? Yes.
+    *   Is it a single instruction? Yes.
+
+This looks correct.
+</think>
+
+Construct a production-grade, fully functional Alice-based 3D Network Intrusion Simulation and Visualization Tool STRICTLY using this exact programming language: Alice. This application must reside in a NEW dedicated folder named `alice_security_simulator` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement 3D network topology rendering, real-time threat simulation, dynamic visualization of attack vectors, and educational reporting on breach scenarios. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
