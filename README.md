@@ -372,3 +372,5 @@
 - Created/Updated module: `stateflow_interactive_diagnostic_tool` (See `stateflow_interactive_diagnostic_tool/README.md` for details)
 
 - Created/Updated module: `cg_compliance_telemetry_engine` (See `cg_compliance_telemetry_engine/README.md` for details)
+
+- Created/Updated module: `ch_security_policy_enforcer` (See `ch_security_policy_enforcer/README.md` for details)
