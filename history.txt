@@ -17229,3 +17229,75 @@ Proceeds.
 </think>
 
 Construct a production-grade, fully functional formal policy specification engine and constraint validator strictly using this exact programming language: PDL. This application must reside in a NEW dedicated folder named `pdl_formal_policy_specification_engine` containing all necessary implementation files (including a core `main.pdl`, `rule_engine.pdl`, `constraint_validator.pdl`, `policy_spec.pdl`, corresponding documentation files, and a local `README.md`). The tool must implement a deterministic, high-precision workflow that defines complex security policies using formal notation, validates logical consistency across policy sets, generates executable compliance constraints, handles structured data mapping for audit trails, maintains a robust specification registry with comprehensive error handling, and outputs machine-readable policy definitions. The implementation must leverage PDL best practices, including strict logical structuring, precise algorithmic flow, robust state management, modular architecture, and standard notation compliance to guarantee unambiguous policy representation, minimal ambiguity, and seamless translation to the enforcement layer. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to PDL development standards, and NEVER targets the .github directory.
+[2026-08-15 18:55:35] (Target Lang: Fortress) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Role:** Autonomous AI
+   - **Workspace:** A long list of directories and files representing a complex project structure focused on security auditing, compliance, formal verification, policy enforcement, etc.
+   - **History:** Shows a pattern of generating follow-up instructions. The last instruction generated was about creating a PDL-based formal policy specification engine.
+   - **Constraint:** "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Fortress. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+   - **Output Requirement:** ONLY the instruction text. No extra text, no markdown formatting unless it's part of the instruction itself (but the prompt says "Return ONLY the instruction text.").
+
+2.  **Identify Key Constraints for Output:**
+   - Exactly 1 logical follow-up instruction.
+   - MUST explicitly demand the new tool be built STRICTLY using the exact programming language: `Fortress`.
+   - If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local `README.md`.
+   - Return ONLY the instruction text.
+   - NEVER target the `.github` directory.
+   - Must match the tone/style of previous instructions (production-grade, fully functional, detailed workflow requirements, strict adherence to language standards, NO dummy code, self-contained, etc.).
+
+3.  **Draft Construction (Mental Refinement):**
+   I need to craft a single, comprehensive instruction that matches the style of the example but uses `Fortress` instead of `PDL`. I'll incorporate the required elements:
+   - Name/Location: `new fortress security policy verifier` (or similar, matching the workspace theme) in a NEW dedicated folder.
+   - Language: STRICTLY `Fortress`.
+   - Components: core files, documentation, README.md.
+   - Functionality: production-grade, formal verification, policy validation, compliance checking, robust error handling, structured data mapping, specification registry, machine-readable outputs.
+   - Language standards: Fortress best practices (declarative semantics, formal type safety, strict logical structuring, modular architecture).
+   - Constraints: NO dummy code/placeholder, self-contained, NEVER target `.github`.
+   - Return ONLY the instruction text.
+
+   Let's draft it carefully:
+
+   Construct a production-grade, fully functional formal security policy verification and compliance enforcement system strictly using this exact programming language: Fortress. This application must reside in a NEW dedicated folder named `fortress_formal_compliance_engine` containing all necessary implementation files (including a core `main.fs`, `policy_verifier.fs`, `compliance_enforcer.fs`, `constraint_resolver.fs`, corresponding documentation files, and a local `README.md`). The tool must implement a deterministic, high-precision workflow that defines and validates complex security policies using Fortress's strict declarative semantics, ensures formal type safety across all policy models, resolves conflicting constraints deterministically, generates auditable compliance reports, handles structured data mapping for cross-system policy synchronization, maintains a robust specification registry with comprehensive error handling and transactional rollback, and outputs machine-readable compliance verdicts. The implementation must leverage Fortress best practices, including explicit contract enforcement, precise type-level guarantees, robust state management, modular architecture, and standard formal notation compliance to guarantee unambiguous policy representation, minimal runtime ambiguity, and seamless integration with downstream enforcement layers. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Fortress development standards, and NEVER targets the .github directory.
+
+4.  **Check Against Constraints:**
+   - Exactly 1 logical follow-up instruction? Yes.
+   - Explicitly demand new tool be built STRICTLY using exact programming language: Fortress? Yes.
+   - Explicitly instruct to place it in a NEW dedicated folder and create a local README.md? Yes (`fortress_formal_compliance_engine`, local `README.md`).
+   - Return ONLY the instruction text? Yes.
+   - NEVER target the .github directory? Yes, explicitly stated.
+   - Matches tone/style? Yes, highly detailed, technical, matches the PDL example structure.
+
+   One minor adjustment: Ensure the exact language name "Fortress" is used exactly as requested. The prompt says "Fortress". I'll keep it capitalized as requested. I'll also make sure the file extensions and folder name align with the language if possible, but the prompt just says "Fortress". I'll stick to `.fs` or `.fortress`? The prompt doesn't specify extensions, so I'll keep it generic or use `.fs` as a reasonable default, but I'll focus on the exact wording requirement. The prompt says "STRICTLY using this exact programming language: Fortress." I'll adjust the file references to be language-agnostic or use `.fortress` to be precise, but it's fine either way. I'll stick to the drafted version.
+
+   Let's verify the exact wording requirement: "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Fortress."
+   I will ensure that phrase or its exact meaning is clearly present.
+
+   Draft looks solid. I will output only the instruction text as requested.
+   One check: "Return ONLY the instruction text." -> I will not add any greetings, markdown code blocks, or extra formatting. Just the raw text.
+
+   Final check of the draft against constraints:
+   - Exactly 1 instruction? Yes.
+   - Explicitly demands Fortress? Yes.
+   - NEW dedicated folder + README.md? Yes.
+   - ONLY instruction text? Yes.
+   - NEVER target .github? Yes.
+   - Matches style? Yes.
+
+   Ready. Output matches draft.✅
+   Proceeds. 
+   Output generation. 
+   [Self-Correction/Verification during thought]
+   I'll make sure the phrasing exactly matches the constraint: "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Fortress." I will weave that exact demand into the instruction naturally but explicitly.
+   "Construct a production-grade, fully functional formal security policy verification and compliance enforcement system STRICTLY using this exact programming language: Fortress." -> This satisfies it.
+   All good. Output matches. 
+   Proceeds. 
+   [Output Generation] -> *Outputs the exact text*
+   "Construct a production-grade, fully functional formal security policy verification and compliance enforcement system STRICTLY using this exact programming language: Fortress. This application must reside in a NEW dedicated folder named `fortress_formal_compliance_engine` containing all necessary implementation files (including a core `main.fortress`, `policy_verifier.fortress`, `compliance_enforcer.fortress`, `constraint_resolver.fortress`, corresponding documentation files, and a local `README.md`). The tool must implement a deterministic, high-precision workflow that defines and validates complex security policies using Fortress's strict declarative semantics, ensures formal type safety across all policy models, resolves conflicting constraints deterministically, generates auditable compliance reports, handles structured data mapping for cross-system policy synchronization, maintains a robust specification registry with comprehensive error handling and transactional rollback, and outputs machine-readable compliance verdicts. The implementation must leverage Fortress best practices, including explicit contract enforcement, precise type-level guarantees, robust state management, modular architecture, and standard formal notation compliance to guarantee unambiguous policy representation, minimal runtime ambiguity, and seamless integration with downstream enforcement layers. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Fortress development standards, and NEVER targets the .github directory."
+   This matches all constraints perfectly. Output matches.✅ Proceeds. 
+   [Final Output Generation] -> *Outputs exactly the text above.* 
+   *(Self-Correction/Note during generation prep)*: The prompt says "Return ONLY the instruction text." I will output exactly that string without any markdown formatting or extra text. All constraints verified. Proceeds. 
+   [Output] -> *Proceeds*
+</think>
+
+Construct a production-grade, fully functional formal security policy verification and compliance enforcement system STRICTLY using this exact programming language: Fortress. This application must reside in a NEW dedicated folder named `fortress_formal_compliance_engine` containing all necessary implementation files (including a core `main.fortress`, `policy_verifier.fortress`, `compliance_enforcer.fortress`, `constraint_resolver.fortress`, corresponding documentation files, and a local `README.md`). The tool must implement a deterministic, high-precision workflow that defines and validates complex security policies using Fortress's strict declarative semantics, ensures formal type safety across all policy models, resolves conflicting constraints deterministically, generates auditable compliance reports, handles structured data mapping for cross-system policy synchronization, maintains a robust specification registry with comprehensive error handling and transactional rollback, and outputs machine-readable compliance verdicts. The implementation must leverage Fortress best practices, including explicit contract enforcement, precise type-level guarantees, robust state management, modular architecture, and standard formal notation compliance to guarantee unambiguous policy representation, minimal runtime ambiguity, and seamless integration with downstream enforcement layers. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Fortress development standards, and NEVER targets the .github directory.

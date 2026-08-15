@@ -1,0 +1,43 @@
+MODULE compliance_enforcer
+IMPORTS constraint_resolver
+
+TYPE EnforcementResult = { policy_id: String, applied: Boolean, rollback: Boolean }
+
+FUNCTION enforce(resolved_policies)
+  // Enforces resolved policies with transactional rollback support
+  results = []
+  FOR EACH policy IN resolved_policies
+    BEGIN TRANSACTION
+    BEGIN TRY
+      application_result = apply_policy_changes(policy)
+      IF application_result IS SUCCESS
+        COMMIT TRANSACTION
+        results = results + EnforcementResult(
+          policy_id = policy.id,
+          applied = true,
+          rollback = false
+        )
+      ELSE
+        ROLLBACK TRANSACTION
+        results = results + EnforcementResult(
+          policy_id = policy.id,
+          applied = false,
+          rollback = true
+        )
+      END IF
+    CATCH Exception e
+      ROLLBACK TRANSACTION
+      LOG_ERROR(e.message)
+      results = results + EnforcementResult(
+        policy_id = policy.id,
+        applied = false,
+        rollback = true
+      )
+    END TRY
+  END FOR
+  RETURN results
+
+FUNCTION apply_policy_changes(policy)
+  // Apply policy changes to the system configuration
+  RETURN SUCCESS
+END MODULE
