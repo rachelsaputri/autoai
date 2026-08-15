@@ -1,0 +1,60 @@
+; audit_registry.ch8 - CHIP-8 Audit Registry
+; This file implements the audit registry for the compliance orchestrator.
+
+; Audit Registry Memory Map
+; 0x500: Audit Log
+; 0x501: Audit Log Length
+; 0x502: Audit Log Buffer
+; 0x503: Audit Log Output
+
+; Audit Registry Initialization
+AUDIT_REGISTRY_INIT:
+    ; Initialize audit registry registers and memory
+    LD V0, 0x00
+    LD (0x500), V0
+    LD V0, 0x00
+    LD (0x501), V0
+    LD V0, 0x00
+    LD (0x502), V0
+    LD V0, 0x00
+    LD (0x503), V0
+    RET
+
+; Log Audit Transaction
+LOG_AUDIT_TRANSACTION:
+    ; Log an audit transaction to the audit registry
+    ; Load transaction data from memory at I
+    LD V0, (I)
+    LD V1, (I)
+    LD V2, (I)
+    LD V3, (I)
+
+    ; Store transaction data in audit log
+    LD I, 0x502
+    LD (I), V0
+    INC I
+    LD (I), V1
+    INC I
+    LD (I), V2
+    INC I
+    LD (I), V3
+    INC I
+
+    ; Update audit log length
+    LD V0, (0x501)
+    ADD V0, 0x04
+    LD (0x501), V0
+    RET
+
+; Output Audit Registry
+OUTPUT_AUDIT_REGISTRY:
+    ; Output the audit registry
+    ; Load audit log from memory at 0x502
+    LD I, 0x502
+
+    ; Output audit log
+    ; For now, assume the audit log is already generated and stored in memory
+    LD V0, (I)
+    RET
+
+; End of audit_registry.ch8
