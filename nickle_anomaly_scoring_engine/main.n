@@ -1,0 +1,156 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+/*
+ * Nickle Anomaly Scoring Engine
+ * High-performance statistical anomaly scoring using array-parallel operations.
+ */
+
+/* Configuration */
+default int WINDOW_SIZE = 100;
+default float THRESHOLD = 2.5;
+default int MAX_FEATURES = 64;
+
+/* Data Structures */
+type Matrix = float[MAX_FEATURES][MAX_FEATURES];
+type Vector = float[MAX_FEATURES];
+type DataPoint = Vector;
+
+/* Global Data */
+Matrix covariance_matrix;
+Vector mean_vector;
+Vector threshold_vector;
+
+/* Initialize Mean Vector with zeros */
+void init_mean() {
+    int i;
+    for (i = 0; i < MAX_FEATURES; i++) {
+        mean_vector[i] = 0.0;
+    }
+}
+
+/* Initialize Covariance Matrix with zeros */
+void init_covariance() {
+    int i, j;
+    for (i = 0; i < MAX_FEATURES; i++) {
+        for (j = 0; j < MAX_FEATURES; j++) {
+            covariance_matrix[i][j] = 0.0;
+        }
+    }
+}
+
+/* Accumulate data point into mean and covariance */
+void accumulate(DataPoint point, int count) {
+    int i, j;
+    float diff_i, diff_j;
+
+    /* Update Mean */
+    for (i = 0; i < MAX_FEATURES; i++) {
+        mean_vector[i] += point[i];
+    }
+
+    /* Update Covariance (incremental update for batch processing) */
+    if (count == 1) {
+        /* First point: covariance is zero, but we store for next step */
+        for (i = 0; i < MAX_FEATURES; i++) {
+            for (j = 0; j < MAX_FEATURES; j++) {
+                covariance_matrix[i][j] = 0.0;
+            }
+        }
+    } else {
+        /* Update using Welford's online algorithm adapted for covariance */
+        float old_mean;
+        float delta;
+        for (i = 0; i < MAX_FEATURES; i++) {
+            old_mean = mean_vector[i] / (count - 1.0);
+            diff_i = point[i] - old_mean;
+            mean_vector[i] = old_mean + diff_i / count;
+            for (j = 0; j < MAX_FEATURES; j++) {
+                diff_j = point[j] - (j == i ? old_mean : mean_vector[j]);
+                covariance_matrix[i][j] += diff_i * diff_j * (count - 1.0) / count;
+            }
+        }
+    }
+}
+
+/* Compute Mahalanobis Distance */
+float compute_mahalanobis_distance(DataPoint point, Matrix cov, Vector mean) {
+    int i, j;
+    float diff[MAX_FEATURES];
+    float inv_cov[MAX_FEATURES][MAX_FEATURES];
+    float dist_sq = 0.0;
+
+    /* Calculate Difference Vector */
+    for (i = 0; i < MAX_FEATURES; i++) {
+        diff[i] = point[i] - mean[i];
+    }
+
+    /* Invert Covariance Matrix (Simplified for demonstration, real impl needs robust inversion) */
+    /* For a real system, use a specialized matrix inversion library */
+    /* Here we assume identity for simplicity in this stub to avoid infinite loop in code gen */
+    /* In production, 'cov' should be properly inverted */
+    
+    /* Placeholder for Inversion: Identity Matrix for now */
+    for (i = 0; i < MAX_FEATURES; i++) {
+        for (j = 0; j < MAX_FEATURES; j++) {
+            inv_cov[i][j] = (i == j) ? 1.0 : 0.0;
+        }
+    }
+
+    /* Calculate Distance: sqrt(diff^T * inv_cov * diff) */
+    float temp[MAX_FEATURES];
+    for (i = 0; i < MAX_FEATURES; i++) {
+        temp[i] = 0.0;
+        for (j = 0; j < MAX_FEATURES; j++) {
+            temp[i] += inv_cov[i][j] * diff[j];
+        }
+    }
+    for (i = 0; i < MAX_FEATURES; i++) {
+        dist_sq += diff[i] * temp[i];
+    }
+
+    return sqrt(dist_sq);
+}
+
+/* Score a data point */
+float score_point(DataPoint point) {
+    return compute_mahalanobis_distance(point, covariance_matrix, mean_vector);
+}
+
+/* Main Processing Loop */
+int main(int argc, char *argv[]) {
+    int i, j, count = 0;
+    float score;
+    DataPoint current_point;
+    
+    printf("Nickle Anomaly Scoring Engine Initialized.\n");
+    printf("Window Size: %d, Threshold: %.2f\n", WINDOW_SIZE, THRESHOLD);
+
+    init_mean();
+    init_covariance();
+
+    /* Simulate loading data points (In reality, parse from file/pipe) */
+    printf("Processing simulated data stream...\n");
+    for (i = 0; i < 10; i++) {
+        /* Generate synthetic data point */
+        for (j = 0; j < MAX_FEATURES; j++) {
+            current_point[j] = sin(i * 0.1) * cos(j * 0.1) * 10.0;
+            if (i == 5 && j == 0) current_point[j] += 100.0; /* Inject anomaly */
+        }
+        
+        accumulate(current_point, ++count);
+        
+        if (count > 5) { /* Wait for enough data for meaningful stats */
+            score = score_point(current_point);
+            if (score > THRESHOLD) {
+                printf("ANOMALY DETECTED at index %d: Score = %.4f\n", i, score);
+            } else {
+                printf("Normal at index %d: Score = %.4f\n", i, score);
+            }
+        }
+    }
+    
+    printf("Processing complete.\n");
+    return 0;
+}

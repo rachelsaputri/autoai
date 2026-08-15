@@ -192,3 +192,5 @@
 - Created/Updated module: `enterprise_hardware_compliance_bridge` (See `enterprise_hardware_compliance_bridge/README.md` for details)
 
 - Created/Updated module: `mainframe_config_auditor` (See `mainframe_config_auditor/README.md` for details)
+
+- Created/Updated module: `nickle_anomaly_scoring_engine` (See `nickle_anomaly_scoring_engine/README.md` for details)
