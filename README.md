@@ -364,3 +364,5 @@
 - Created/Updated module: `self_healing_tool` (See `self_healing_tool/README.md` for details)
 
 - Created/Updated module: `cecil_formal_policy_enforcer` (See `cecil_formal_policy_enforcer/README.md` for details)
+
+- Created/Updated module: `cel_formal_audit_system` (See `cel_formal_audit_system/README.md` for details)

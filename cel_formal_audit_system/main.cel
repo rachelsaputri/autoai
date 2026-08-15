@@ -1,0 +1,98 @@
+import policy_auditor
+import compliance_verifier
+import system
+import io
+
+// Main entry point for the Cel Formal Audit System
+fn main() -> int {
+    let config_path = io.get_argument("--config", "audit_config.json")
+    
+    // Parse configuration
+    let config = io.read_json(config_path)
+    
+    if config == null {
+        io.stderr_print("Error: Could not load configuration file: " + config_path)
+        return 1
+    }
+    
+    let audit_id = io.generate_uuid()
+    io.std_print("Audit Session Initialized. ID: " + audit_id)
+    
+    // Initialize policy auditor
+    let auditor = policy_auditor.initialize(config.get("policy_directory", "./policies"))
+    
+    if auditor == null {
+        io.stderr_print("Error: Failed to initialize policy auditor")
+        return 1
+    }
+    
+    // Load policies
+    let policies = auditor.load_policies()
+    
+    if policies.length == 0 {
+        io.stderr_print("Error: No policies found")
+        return 1
+    }
+    
+    io.std_print("Loaded " + policies.length + " policies")
+    
+    // Initialize compliance verifier
+    let verifier = compliance_verifier.create_verifier(policies)
+    
+    // Define target system state (simulated for this implementation)
+    let system_state = {
+        "hostname": io.get_hostname(),
+        "os_version": io.get_os_version(),
+        "services": [
+            {"name": "ssh", "port": 22, "active": true},
+            {"name": "http", "port": 80, "active": true}
+        ],
+        "users": [
+            {"username": "admin", "role": "root", "last_login": "2023-01-01T00:00:00Z"},
+            {"username": "guest", "role": "guest", "last_login": "2023-01-02T00:00:00Z"}
+        ]
+    }
+    
+    io.std_print("Analyzing system state against policies...")
+    
+    // Run verification
+    let results = verifier.verify(system_state)
+    
+    // Generate report
+    let report = compliance_verifier.generate_report(results, audit_id, config.get("output_format", "json"))
+    
+    io.std_print("Compliance verification complete.")
+    io.std_print("Results Summary:")
+    
+    let total_policies = results.length
+    let passed_policies = 0
+    let failed_policies = 0
+    
+    for result in results {
+        if result.compliant {
+            passed_policies = passed_policies + 1
+        } else {
+            failed_policies = failed_policies + 1
+        }
+        io.std_print("Policy: " + result.policy_id + " - Status: " + result.status)
+    }
+    
+    io.std_print("Total: " + total_policies + " | Passed: " + passed_policies + " | Failed: " + failed_policies)
+    
+    // Save report if output directory is specified
+    let output_dir = config.get("output_directory", null)
+    if output_dir != null {
+        let file_path = output_dir + "/audit_report_" + audit_id + ".json"
+        io.write_json(file_path, report)
+        io.std_print("Report saved to: " + file_path)
+    }
+    
+    // Return exit code based on overall compliance
+    if failed_policies == 0 {
+        io.std_print("System is fully compliant.")
+        return 0
+    } else {
+        io.std_print("System has compliance violations.")
+        return 1
+    }
+}

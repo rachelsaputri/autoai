@@ -18428,3 +18428,46 @@ Proceeds.
 </think>
 
 Construct a production-grade, fully functional Cecil-based formal policy verification and autonomous compliance enforcement system STRICTLY using this exact programming language: Cecil. This application must reside in a NEW dedicated folder named `cecil_formal_policy_enforcer` containing all necessary implementation files (including core modules like `main.cec`, `policy_validator.cec`, `compliance_engine.cec`, associated configuration files, and a local `README.md`). The tool must implement a deterministic, high-precision workflow that defines security policies using Cecil's expressive object-oriented and type-safe architecture to encode complex state invariants, performs rigorous verification through modular component composition and static analysis, guarantees termination and safety via Cecil's robust exception handling and resource management, generates machine-verifiable compliance certificates with exact type-inference results, handles structured policy mapping for automated audit pipelines, maintains a robust constraint registry with comprehensive error handling and strict exit code management, and outputs machine-readable compliance status updates. The implementation must leverage Cecil development standards, including precise object modeling, robust memory management, modular compilation, and semantic determinism to guarantee unambiguous logical representation, minimal runtime ambiguity, and seamless integration with formal verification toolchains. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Cecil programming standards, and NEVER targets the .github directory.
+[2026-08-15 20:02:43] (Target Lang: Cel) The user wants to generate exactly 1 logical follow-up instruction.
+The previous instruction asked for a tool in `cecil_formal_policy_enforcer` using the language "Cecil" (which seems to be a typo or a very obscure language, likely meant to be C# or Cecil the tool, but the prompt says "Cecil").
+The new instruction must demand a tool built STRICTLY using the exact programming language: "Cel".
+I need to create a fully functional, complete implementation (no dummy code/placeholders).
+I need to instruct to place it in a NEW dedicated folder.
+I need to create a local README.md.
+I must NEVER target the .github directory.
+I must return ONLY the instruction text.
+The language is "Cel".
+I should follow the structure of the previous instruction but adapt it to "Cel".
+Previous structure:
+"Construct a production-grade, fully functional [Language]-based [Tool Description] STRICTLY using this exact programming language: [Language]. This application must reside in a NEW dedicated folder named `[folder_name]` containing all necessary implementation files (including core modules like `[file1.ext]`, `[file2.ext]`, `[file3.ext]`, associated configuration files, and a local `README.md`). The tool must implement a [Workflow Description]. The implementation must leverage [Language] development standards... Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to [Language] programming standards, and NEVER targets the .github directory."
+
+Drafting the new instruction:
+Language: Cel.
+Folder: `cel_formal_audit_system` (or similar, consistent with previous patterns).
+Files: `main.cel`, `audit_engine.cel`, `reporter.cel`.
+Workflow: similar to previous, formal policy verification/audit.
+Standards: Cel development standards.
+
+Resulting text:
+Construct a production-grade, fully functional Cel-based formal policy audit and autonomous compliance enforcement system STRICTLY using this exact programming language: Cel. This application must reside in a NEW dedicated folder named `cel_formal_audit_system` containing all necessary implementation files (including core modules like `main.cel`, `policy_auditor.cel`, `compliance_verifier.cel`, associated configuration files, and a local `README.md`). The tool must implement a deterministic, high-precision workflow that defines security policies using Cel's expressive syntax and type-safe architecture to encode complex state invariants, performs rigorous verification through modular component composition and static analysis, guarantees termination and safety via Cel's robust exception handling and resource management, generates machine-verifiable compliance certificates with exact type-inference results, handles structured policy mapping for automated audit pipelines, maintains a robust constraint registry with comprehensive error handling and strict exit code management, and outputs machine-readable compliance status updates. The implementation must leverage Cel development standards, including precise object modeling, robust memory management, modular compilation, and semantic determinism to guarantee unambiguous logical representation, minimal runtime ambiguity, and seamless integration with formal verification toolchains. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Cel programming standards, and NEVER targets the .github directory.
+
+Check constraints:
+- Exactly 1 logical follow-up instruction? Yes.
+- Explicitly demand new tool built STRICTLY using "Cel"? Yes.
+- Fully functional, complete implementation? Yes, demanded.
+- No dummy code? Yes, demanded.
+- NEW dedicated folder? Yes, `cel_formal_audit_system`.
+- Local README.md? Yes.
+- Return ONLY the instruction text? Yes.
+- NEVER target .github? Yes.
+
+The text looks good. I will output it exactly.
+One minor check: "Cel" might be a typo for "C" or "Scala", but the prompt says "Cel", so I must use "Cel".
+The folder name should probably be `cel_formal_policy_audit` or similar. I'll stick to `cel_formal_audit_system`.
+Files: `main.cel`, `policy_auditor.cel`, `compliance_verifier.cel`.
+All matches.
+Ready. 
+Output matches draft.✅
+</think>
+
+Construct a production-grade, fully functional Cel-based formal policy audit and autonomous compliance enforcement system STRICTLY using this exact programming language: Cel. This application must reside in a NEW dedicated folder named `cel_formal_audit_system` containing all necessary implementation files (including core modules like `main.cel`, `policy_auditor.cel`, `compliance_verifier.cel`, associated configuration files, and a local `README.md`). The tool must implement a deterministic, high-precision workflow that defines security policies using Cel's expressive syntax and type-safe architecture to encode complex state invariants, performs rigorous verification through modular component composition and static analysis, guarantees termination and safety via Cel's robust exception handling and resource management, generates machine-verifiable compliance certificates with exact type-inference results, handles structured policy mapping for automated audit pipelines, maintains a robust constraint registry with comprehensive error handling and strict exit code management, and outputs machine-readable compliance status updates. The implementation must leverage Cel development standards, including precise object modeling, robust memory management, modular compilation, and semantic determinism to guarantee unambiguous logical representation, minimal runtime ambiguity, and seamless integration with formal verification toolchains. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Cel programming standards, and NEVER targets the .github directory.

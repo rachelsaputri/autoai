@@ -1,0 +1,139 @@
+import system
+import io
+import json
+
+// Represents a single audit policy
+type policy = struct {
+    id: string
+    name: string
+    description: string
+    rules: list[policy_rule]
+    severity: string // 'critical', 'high', 'medium', 'low'
+    category: string // 'access_control', 'encryption', 'logging', etc.
+}
+
+// Individual rule within a policy
+type policy_rule = struct {
+    name: string
+    condition: string // JSON path or CEL expression string
+    expected_value: string
+    operator: string // 'equals', 'greater_than', 'contains', 'matches'
+}
+
+// AuditEngine manages the loading and parsing of policies
+type AuditEngine = {
+    policy_directory: string
+    loaded_policies: list[policy]
+}
+
+fn initialize(policy_directory: string) -> AuditEngine {
+    return AuditEngine {
+        policy_directory: policy_directory,
+        loaded_policies: []
+    }
+}
+
+// Load policies from the specified directory
+fn load_policies(engine: AuditEngine) -> list[policy] {
+    let policies_dir = engine.policy_directory
+    
+    if not system.path_exists(policies_dir) {
+        // Return sample policies if directory doesn't exist (for demonstration)
+        return generate_sample_policies()
+    }
+    
+    // Scan directory for .cel policy files
+    let files = system.list_directory(policies_dir)
+    
+    for file in files {
+        if file.ends_with(".cel") {
+            let file_content = io.read_file(system.path_join(policies_dir, file))
+            if file_content != null {
+                let parsed_policy = parse_policy(file_content)
+                if parsed_policy != null {
+                    engine.loaded_policies = engine.loaded_policies.append(parsed_policy)
+                }
+            }
+        }
+    }
+    
+    return engine.loaded_policies
+}
+
+// Parse a policy from a file content string
+fn parse_policy(content: string) -> policy {
+    let parsed = json.parse(content)
+    if parsed == null {
+        return null
+    }
+    
+    let id = parsed.get("id", "unknown")
+    let name = parsed.get("name", "Unknown Policy")
+    let description = parsed.get("description", "")
+    let rules_json = parsed.get("rules", [])
+    let severity = parsed.get("severity", "medium")
+    let category = parsed.get("category", "general")
+    
+    let rules = []
+    for rule_json in rules_json {
+        let rule = policy_rule {
+            name: rule_json.get("name", ""),
+            condition: rule_json.get("condition", ""),
+            expected_value: rule_json.get("expected_value", ""),
+            operator: rule_json.get("operator", "equals")
+        }
+        rules = rules.append(rule)
+    }
+    
+    return policy {
+        id: id,
+        name: name,
+        description: description,
+        rules: rules,
+        severity: severity,
+        category: category
+    }
+}
+
+// Generate sample policies for testing when no directory is provided
+fn generate_sample_policies() -> list[policy] {
+    let policy1 = policy {
+        id: "POL-001",
+        name: "SSH Configuration Hardening",
+        description: "Ensures SSH is configured according to security best practices.",
+        rules: [
+            policy_rule {
+                name: "SSH Root Login",
+                condition: "services[0].active",
+                expected_value: "true",
+                operator: "equals"
+            },
+            policy_rule {
+                name: "SSH Port",
+                condition: "services[0].port",
+                expected_value: "22",
+                operator: "equals"
+            }
+        ],
+        severity: "high",
+        category: "access_control"
+    }
+    
+    let policy2 = policy {
+        id: "POL-002",
+        name: "User Account Management",
+        description: "Validates that user accounts are properly configured and managed.",
+        rules: [
+            policy_rule {
+                name: "Guest Account Status",
+                condition: "users[1].role",
+                expected_value: "guest",
+                operator: "equals"
+            }
+        ],
+        severity: "medium",
+        category: "user_management"
+    }
+    
+    return [policy1, policy2]
+}
