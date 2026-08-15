@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simulink_model name="Stateflow Interactive Diagnostic Tool" version="1.0">
+  <blocks>
+    <block type="Stateflow Chart" name="diagnostic_chart">
+      <parameters>
+        <parameter name="StateflowChartFile" value="diagnostic_chart.sf" />
+        <parameter name="ExecutionPolicy" value="SingleTasking" />
+      </parameters>
+      <inputs>
+        <input name="systemState" type="signal" />
+        <input name="securityEvents" type="signal" />
+        <input name="policyRules" type="signal" />
+      </inputs>
+      <outputs>
+        <output name="complianceStatus" type="signal" />
+        <output name="diagnosticSeverity" type="signal" />
+        <output name="systemAlert" type="signal" />
+      </outputs>
+    </block>
+    <block type="Input" name="input_systemState">
+      <parameters>
+        <parameter name="SignalType" value="double" />
+      </parameters>
+    </block>
+    <block type="Input" name="input_securityEvents">
+      <parameters>
+        <parameter name="SignalType" value="double" />
+      </parameters>
+    </block>
+    <block type="Input" name="input_policyRules">
+      <parameters>
+        <parameter name="SignalType" value="double" />
+      </parameters>
+    </block>
+    <block type="Output" name="output_complianceStatus">
+      <parameters>
+        <parameter name="SignalType" value="double" />
+      </parameters>
+    </block>
+    <block type="Output" name="output_diagnosticSeverity">
+      <parameters>
+        <parameter name="SignalType" value="double" />
+      </parameters>
+    </block>
+    <block type="Output" name="output_systemAlert">
+      <parameters>
+        <parameter name="SignalType" value="double" />
+      </parameters>
+    </block>
+    <block type="SubSystem" name="DiagnosticLogic">
+      <subblocks>
+        <block type="Stateflow Chart" name="policy_engine">
+          <parameters>
+            <parameter name="StateflowChartFile" value="policy_engine.sf" />
+          </parameters>
+        </block>
+        <block type="Stateflow Chart" name="state_monitor">
+          <parameters>
+            <parameter name="StateflowChartFile" value="state_monitor.sf" />
+          </parameters>
+        </block>
+      </subblocks>
+    </block>
+  </blocks>
+  <connections>
+    <connection from="input_systemState" to="diagnostic_chart.systemState" />
+    <connection from="input_securityEvents" to="diagnostic_chart.securityEvents" />
+    <connection from="input_policyRules" to="diagnostic_chart.policyRules" />
+    <connection from="diagnostic_chart.complianceStatus" to="output_complianceStatus" />
+    <connection from="diagnostic_chart.diagnosticSeverity" to="output_diagnosticSeverity" />
+    <connection from="diagnostic_chart.systemAlert" to="output_systemAlert" />
+  </connections>
+</simulink_model>
