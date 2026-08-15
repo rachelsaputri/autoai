@@ -1,0 +1,100 @@
+// alef_system_auditor/auditor.af
+// A lightweight process auditor and telemetry gateway in Alef.
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <string.h>
+
+// Global Configuration
+char *logpath = "/var/log/security/alef_audit.log";
+int stream_mode = 0;
+
+// Data Structures for Telemetry
+struct procinfo {
+    int pid;
+    int uid;
+    int state;
+    char name[64];
+};
+
+// Error handling macro
+#define DIE(fmt, args...) do { fprintf(stderr, "Error: " fmt "\n", ##args); exit(1); } while(0)
+
+// Function to read current process list from /proc
+int scan_processes(struct procinfo *procs, int max_procs) {
+    int fd, nread;
+    char buf[1024];
+    int i = 0;
+
+    fd = open("/proc/kinfo", O_RDONLY);
+    if (fd < 0) {
+        // Fallback for systems without /proc/kinfo or different structure
+        // In a real Alef/Plan9 context, we might use readfd or similar.
+        // Here we simulate the logic for the audit tool.
+        return 0;
+    }
+
+    while ((nread = read(fd, buf, sizeof(buf)-1)) > 0) {
+        if (i >= max_procs) break;
+        // Simplified parsing logic
+        procs[i].pid = i; // Placeholder
+        strcpy(procs[i].name, "unknown");
+        i++;
+    }
+    close(fd);
+    return i;
+}
+
+// Function to detect anomalies (Privilege Escalation/Injection)
+void check_anomaly(struct procinfo *proc) {
+    if (proc->uid == 0 && strcmp(proc->name, "systemd") != 0 && strcmp(proc->name, "init") != 0) {
+        // Flag non-system processes running as root
+        printf("ALERT: Privilege escalation suspected. PID: %d, Name: %s, UID: %d\n", 
+               proc->pid, proc->name, proc->uid);
+        fflush(stdout);
+    }
+}
+
+// Main Entry Point
+void main(int argc, char *argv[]) {
+    int fd;
+    int loop = 1;
+    struct procinfo procs[1024];
+    int nprocs;
+    int i;
+
+    // Parse Arguments (Simplified)
+    if (argc > 1) {
+        if (strcmp(argv[1], "--stream") == 0) stream_mode = 1;
+        if (argc > 2) {
+            // Could handle log path or target directory here
+        }
+    }
+
+    // Open Log File
+    fd = open(logpath, OWRite|OAppend|OCreat, 0640);
+    if (fd < 0) {
+        DIE("Could not open log file: %s", logpath);
+    }
+
+    while (loop) {
+        nprocs = scan_processes(procs, 1024);
+        
+        for (i = 0; i < nprocs; i++) {
+            check_anomaly(&procs[i]);
+        }
+
+        if (stream_mode) {
+            // Stream heartbeat
+            printf("AUDIT_HEARTBEAT: %d processes scanned\n", nprocs);
+            fflush(stdout);
+        }
+
+        // Sleep for 1 second (in real Alef, use sleep or yield)
+        sleep(1);
+    }
+}
