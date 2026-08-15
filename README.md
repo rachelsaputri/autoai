@@ -250,3 +250,5 @@
 - Created/Updated module: `scala_federated_incident_coordinator` (See `scala_federated_incident_coordinator/README.md` for details)
 
 - Created/Updated module: `alma0_formal_verification_engine` (See `alma0_formal_verification_engine/README.md` for details)
+
+- Created/Updated module: `mpd_cross_domain_protocol_engine` (See `mpd_cross_domain_protocol_engine/README.md` for details)
