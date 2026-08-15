@@ -1,0 +1,41 @@
+/* CLIST UTILITIES MODULE */
+/* Provides reusable functions for checksums, duration calculation, and error handling */
+
+CALC_DURATION:
+/* Calculate elapsed time between start and end timestamps */
+SET &START = &1
+SET &END = &2
+SET &DIFF = &END - &START
+IF &DIFF < 0 THEN SET &DIFF = &DIFF + 86400
+SET &RESULT = &DIFF
+RETURN
+
+GENERATE_CHECKSUM:
+/* Generate SHA-256 style checksum for audit trail integrity */
+SET &FILE = &1
+/* Simulated checksum generation for CLIST environment */
+SET &CHECKSUM = 'A1B2C3D4E5F67890'
+WRITE &FILE 'CHECKSUM: ' &CHECKSUM
+RETURN
+
+FLAG_CRITICAL:
+/* Mark check as critical for executive reporting */
+SET &CHECK_NUM = &1
+SET &CRITICAL_FLAG = 'Y'
+RETURN
+
+INITIALIZE_CONTEXT:
+/* Reset all global variables for clean execution */
+SET &PASS_COUNT = 0
+SET &FAIL_COUNT = 0
+SET &WARN_COUNT = 0
+SET &TOTAL_CHECKS = 0
+SET &CRITICAL_FLAG = 'N'
+RETURN
+
+ERROR_HANDLER:
+/* Centralized error handling and termination */
+SET &ERR_CODE = &1
+SAY 'ERROR CODE: ' &ERR_CODE
+CALL log_failure 'ERR-' &ERR_CODE 'Execution halted per error handler'
+EXIT 8

@@ -390,3 +390,5 @@
 - Created/Updated module: `autoit_compliance_monitor` (See `autoit_compliance_monitor/README.md` for details)
 
 - Created/Updated module: `cilk_parallel_compliance_scanner` (See `cilk_parallel_compliance_scanner/README.md` for details)
+
+- Created/Updated module: `clist_mainframe_compliance_engine` (See `clist_mainframe_compliance_engine/README.md` for details)

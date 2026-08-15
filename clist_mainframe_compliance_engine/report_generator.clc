@@ -1,0 +1,41 @@
+/* CLIST REPORT GENERATOR MODULE */
+/* Outputs standardized compliance reports in JSON and CSV formats */
+
+GENERATE_REPORTS:
+/* Initialize report directory */
+SET &REPORT_DIR = &AUDIT_DIR / 'reports'
+
+/* Generate JSON Report */
+CALL write_json_report
+
+/* Generate CSV Report */
+CALL write_csv_report
+
+SAY 'REPORTS GENERATED SUCCESSFULLY'
+RETURN
+
+WRITE_JSON_REPORT:
+SET &JSON_FILE = &REPORT_DIR / 'compliance_report.json'
+WRITE &JSON_FILE '{'
+WRITE &JSON_FILE '  "system_id": "' &SYSID '",'
+WRITE &JSON_FILE '  "audit_date": "' &AUDIT_DATE '",'
+WRITE &JSON_FILE '  "total_checks": ' &TOTAL_CHECKS ',
+WRITE &JSON_FILE '  "passed": ' &PASS_COUNT ',
+WRITE &JSON_FILE '  "failed": ' &FAIL_COUNT ',
+WRITE &JSON_FILE '  "warnings": ' &WARN_COUNT ',
+WRITE &JSON_FILE '  "compliance_score": ' &SCORE ',
+WRITE &JSON_FILE '  "status": "' &STATUS '"'
+WRITE &JSON_FILE '}'
+RETURN
+
+WRITE_CSV_REPORT:
+SET &CSV_FILE = &REPORT_DIR / 'compliance_report.csv'
+WRITE &CSV_FILE 'Check_ID,Status,Message,Severity'
+DO I = 1 TO &TOTAL_CHECKS
+   SET &CHECK_ID = &CHECK_IDS.I
+   SET &STATUS = &CHECK_STATUS.I
+   SET &MESSAGE = &CHECK_MSG.I
+   SET &SEVERITY = &CHECK_SEV.I
+   WRITE &CSV_FILE &CHECK_ID ',' &STATUS ',' &MESSAGE ',' &SEVERITY
+ENDDO
+RETURN
