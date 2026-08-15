@@ -17410,3 +17410,73 @@ Proceeds.
 </think>
 
 Construct a production-grade, fully functional data extraction and parsing utility STRICTLY using this exact programming language: Stata. This application must reside in a NEW dedicated folder named `stata_data_extraction_parser` containing all necessary implementation files (including a core `main.do`, `extractor.do`, `parser.do`, corresponding documentation files, and a local `README.md`). The tool must implement a deterministic, high-precision workflow that defines and parses complex unstructured datasets using Stata's powerful data manipulation and statistical programming logic, ensures strict type-level consistency across all extracted schemas, resolves conflicting data formats deterministically, generates auditable extraction logs, handles structured data mapping for downstream analytics pipelines, maintains a robust extraction registry with comprehensive error handling and transactional rollback, and outputs machine-readable parsing verdicts. The implementation must leverage Stata best practices, including explicit data typing, precise macro and variable expansion guarantees, robust state management, modular architecture, and standard formal semantics compliance to guarantee unambiguous data representation, minimal runtime ambiguity, and seamless integration with downstream data lakes. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Stata development standards, and NEVER targets the .github directory.
+[2026-08-15 19:01:25] (Target Lang: C--) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Role/Context:** Autonomous AI, Workspace contains a huge list of existing tools/projects (mostly compliance, security, formal verification, data processing in various languages like Stata, C--, Rust, Python, etc.).
+   - **History/Previous Output:** The system prompt/history shows a pattern of generating exactly 1 logical follow-up instruction. The last output was a prompt for a Stata-based tool.
+   - **Current Instruction:** "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: C--. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+
+2.  **Identify Key Constraints:**
+   - Generate exactly 1 follow-up instruction.
+   - Language: C-- (explicitly demanded).
+   - Must be a fully functional, complete implementation (NO dummy code/placeholders).
+   - Place in a NEW dedicated folder.
+   - Create a local README.md.
+   - Return ONLY the instruction text.
+   - NEVER target the `.github` directory.
+   - Contextual fit: The workspace contains many security/audit/compliance tools. I should align the new tool with that theme (e.g., formal verification, policy enforcement, secure boot, kernel security, etc.) while strictly adhering to the C-- constraint.
+
+   C-- is a safe subset of C designed for formal verification and compilation to various backends (like LLVM or microcontrollers). It's often used in formal methods, embedded systems, and security-critical code. I'll craft a prompt for a formal verification or security-critical tool that fits well with the existing ecosystem.
+
+   Let's design a tool: A formal policy verifier or secure memory allocator/cryptographic primitive verifier, or a low-level kernel security agent. Given C--'s use in formal verification and safe C compilation, a "formal policy evaluator" or "secure memory isolation engine" fits perfectly. I'll go with a "Low-Level Secure Memory Isolation and Policy Enforcement Engine" or "Formal Security Policy Evaluator". Actually, looking at the existing list, there are many formal verifiers and policy engines. I'll create a "C-- Formal Policy Verification Engine" or "C-- Low-Level Security Audit Gateway". Let's stick to something like `cc_minus_minus_formal_policy_verifier` or `cc_minus_minus_secure_boot_vault`. Actually, the prompt just says C--, not C--. I'll use `cc_minus_minus_formal_policy_verifier` or `c_minus_minus_security_audit_engine`. Let's use `cc_minus_minus_formal_policy_verifier` or just `c--_formal_policy_verifier`. I'll name the folder `cc_minus_minus_formal_policy_verifier` or `c--_secure_memory_engine`. I'll go with `c_minus_minus_formal_policy_verifier` (or `cc_minus_minus_formal_policy_verifier`). Actually, C-- is often written as `C--` or `cc_minus_minus`. I'll just use `c--_formal_policy_verifier`.
+
+   Let's craft the instruction carefully to match the exact wording requested in the prompt, while injecting the specific C-- constraint and project details.
+
+   Structure of the prompt to generate:
+   - Demand fully functional, complete implementation.
+   - Language: C--
+   - Folder: NEW dedicated folder named `[something]`
+   - Include `README.md`
+   - Return ONLY the instruction text.
+   - NEVER target `.github`
+
+   I will draft a prompt that matches the style of the previous one but strictly uses C-- and fits the theme.
+
+   Draft:
+   Construct a production-grade, fully functional formal policy verification and secure execution engine STRICTLY using this exact programming language: C--. This application must reside in a NEW dedicated folder named `c--_formal_policy_verifier` containing all necessary implementation files (including a core `main.cc`, `policy_engine.cc`, `state_machine.cc`, corresponding header files, and a local `README.md`). The tool must implement a deterministic, high-precision workflow that compiles and verifies complex security policies using C--'s safe subset semantics and formal type system, ensures strict memory safety and control-flow integrity across all verified modules, resolves ambiguous policy states deterministically, generates auditable verification logs with formal proofs of correctness, handles structured policy mapping for downstream enforcement gateways, maintains a robust verification registry with comprehensive error handling and deterministic rollback, and outputs machine-readable compliance verdicts. The implementation must leverage C-- best practices, including explicit memory annotations, precise pointer arithmetic guarantees, robust state management, modular architecture, and standard formal semantics compliance to guarantee unambiguous policy representation, minimal runtime ambiguity, and seamless integration with formal verification toolchains. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to C-- development standards, and NEVER targets the .github directory.
+
+3.  **Check Constraints:**
+   - Exactly 1 logical follow-up instruction? Yes.
+   - Explicitly demands C--? Yes ("STRICTLY using this exact programming language: C--").
+   - Fully functional, complete implementation (NO dummy code)? Yes.
+   - NEW dedicated folder? Yes (`c--_formal_policy_verifier`).
+   - Create local README.md? Yes.
+   - Return ONLY the instruction text? Yes.
+   - NEVER target .github? Yes.
+   - Fits workspace theme? Yes, formal verification/policy engine.
+   - Matches tone/style? Yes, very similar to the Stata one but adapted for C--.
+
+   One minor thing: C-- files typically use `.cc` or `.c` extensions, but I'll stick to generic descriptions or standard `.cc`/`.c` as needed. The prompt says "corresponding documentation files, and a local README.md". I'll adjust the file extensions to match C-- conventions if needed, but it's fine as is. I'll make sure the exact phrasing matches the requirement.
+
+   Let's verify the exact wording requested: "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: C--. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+
+   I will output exactly the crafted prompt. No extra text. Ensure it's a single paragraph/instruction as requested.
+
+   Final check of the draft:
+   "Construct a production-grade, fully functional formal policy verification and secure execution engine STRICTLY using this exact programming language: C--. This application must reside in a NEW dedicated folder named `c--_formal_policy_verifier` containing all necessary implementation files (including a core `main.cc`, `policy_engine.cc`, `state_machine.cc`, corresponding header files, and a local `README.md`). The tool must implement a deterministic, high-precision workflow that compiles and verifies complex security policies using C--'s safe subset semantics and formal type system, ensures strict memory safety and control-flow integrity across all verified modules, resolves ambiguous policy states deterministically, generates auditable verification logs with formal proofs of correctness, handles structured policy mapping for downstream enforcement gateways, maintains a robust verification registry with comprehensive error handling and deterministic rollback, and outputs machine-readable compliance verdicts. The implementation must leverage C-- best practices, including explicit memory annotations, precise pointer arithmetic guarantees, robust state management, modular architecture, and standard formal semantics compliance to guarantee unambiguous policy representation, minimal runtime ambiguity, and seamless integration with formal verification toolchains. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to C-- development standards, and NEVER targets the .github directory."
+
+   Matches all constraints. Proceeds. 
+   Output matches exactly.✅
+   One detail: C-- is often denoted as `C--` or `cc_minus_minus`. I'll keep it as `C--`. The prompt says "C--". I'll use that exactly.
+   All good. Output matches draft. 
+   Proceeds. 
+   [Output Generation] -> *Outputs exactly the text above.*
+   *(Self-Correction/Verification during thought)*: I need to make sure I don't add any markdown formatting if not requested, but the prompt says "Return ONLY the instruction text." I'll just output the raw text. The draft is ready.✅
+   Output matches. 
+   Proceeds. 
+   [Final Output Generation] -> *Outputs exactly the text above.* 
+   *(Done.)*
+</think>
+
+Construct a production-grade, fully functional formal policy verification and secure execution engine STRICTLY using this exact programming language: C--. This application must reside in a NEW dedicated folder named `c--_formal_policy_verifier` containing all necessary implementation files (including a core `main.cc`, `policy_engine.cc`, `state_machine.cc`, corresponding header files, and a local `README.md`). The tool must implement a deterministic, high-precision workflow that compiles and verifies complex security policies using C--'s safe subset semantics and formal type system, ensures strict memory safety and control-flow integrity across all verified modules, resolves ambiguous policy states deterministically, generates auditable verification logs with formal proofs of correctness, handles structured policy mapping for downstream enforcement gateways, maintains a robust verification registry with comprehensive error handling and deterministic rollback, and outputs machine-readable compliance verdicts. The implementation must leverage C-- best practices, including explicit memory annotations, precise pointer arithmetic guarantees, robust state management, modular architecture, and standard formal semantics compliance to guarantee unambiguous policy representation, minimal runtime ambiguity, and seamless integration with formal verification toolchains. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to C-- development standards, and NEVER targets the .github directory.
