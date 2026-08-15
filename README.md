@@ -338,3 +338,5 @@
 - Created/Updated module: `fortress_formal_compliance_engine` (See `fortress_formal_compliance_engine/README.md` for details)
 
 - Created/Updated module: `./obj2_data_extraction_parser` (See `./obj2_data_extraction_parser/README.md` for details)
+
+- Created/Updated module: `./csharp_c_formal_audit` (See `./csharp_c_formal_audit/README.md` for details)

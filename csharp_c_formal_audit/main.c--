@@ -1,0 +1,59 @@
+-- main.c--
+-- Entry point for the C-- Formal Binary Audit Engine
+-- Implements deterministic startup, module initialization, CLI parsing, and orchestration.
+
+import binary_parser
+import security_verifier
+
+module main {
+  
+  type AuditState = { binary_path: string; policy_path: string; status: AuditStatus; result: Option<SecurityVerdict> }
+  type AuditStatus = Running | Parsing | Verifying | Completed | Failed
+  
+  function parse_arguments(args: List<string>): Option<AuditState> {
+    if args.length < 2 {
+      return None
+    }
+    Some { binary_path: args[0], policy_path: args[1], status: Running, result: None }
+  }
+
+  function run_audit(state: AuditState): AuditState {
+    let mut current_state = state
+    
+    -- Phase 1: Binary Parsing
+    current_state = { current_state with status: Parsing }
+    let parsed_data = binary_parser.parse_binary(current_state.binary_path)
+    if parsed_data is None {
+      return { current_state with status: Failed, result: Some(Verdict{ status: "FAIL", reason: "Binary parsing failed" }) }
+    }
+    
+    -- Phase 2: Security Verification
+    current_state = { current_state with status: Verifying }
+    let policy = security_verifier.load_policy(current_state.policy_path)
+    let verdict = security_verifier.verify(parsed_data.unwrap(), policy.unwrap())
+    
+    current_state = { current_state with status: Completed, result: Some(verdict) }
+    return current_state
+  }
+  
+  function main(args: List<string>): int {
+    let state = parse_arguments(args)
+    if state is None {
+      print("Usage: c_formal_audit <binary_path> <policy_path>")
+      return 1
+    }
+    
+    let final_state = run_audit(state.unwrap())
+    
+    match final_state.result {
+      Some(v) => {
+        print_json(v)
+        return if v.status == "PASS" then 0 else 1
+      }
+      None => {
+        print("Audit failed to produce a verdict.")
+        return 2
+      }
+    }
+  }
+}

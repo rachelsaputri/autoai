@@ -1,0 +1,82 @@
+-- binary_parser.c--
+-- Handles deterministic parsing of compiled binaries and extraction of memory structures.
+-- Leverages C--'s strict typing to ensure memory layout consistency.
+
+module binary_parser {
+  
+  type ByteOrder = LittleEndian | BigEndian
+  type BinarySection = { name: string; offset: int; size: int; permissions: Permissions }
+  type Permissions = { read: bool; write: bool; execute: bool }
+  type ParsedBinary = { sections: List<BinarySection>; entry_point: int; byte_order: ByteOrder; symbol_table: List<Symbol> }
+  type Symbol = { name: string; address: int; size: int; type: SymbolType }
+  type SymbolType = Function | Data | Undefined
+
+  function read_file_bytes(path: string): Option<List<u8>> {
+    let bytes = read_binary_bytes(path)
+    if bytes is None {
+      return None
+    }
+    Some(bytes.unwrap())
+  }
+
+  function parse_sections(bytes: List<u8>): List<BinarySection> {
+    if bytes.length < 64 {
+      return []
+    }
+    let mut sections = []
+    let mut offset = 64
+    while offset < bytes.length and sections.length < 32 {
+      let section_name = read_string_at(bytes, offset, 16)
+      let section_offset = read_i32_at(bytes, offset + 16)
+      let section_size = read_i32_at(bytes, offset + 20)
+      let perms = { read: (read_i8_at(bytes, offset + 24) != 0), write: (read_i8_at(bytes, offset + 25) != 0), execute: (read_i8_at(bytes, offset + 26) != 0) }
+      let sec = { name: section_name, offset: section_offset, size: section_size, permissions: perms }
+      sections = sections + [sec]
+      offset = offset + 40
+    }
+    sections
+  }
+
+  function parse_binary(path: string): Option<ParsedBinary> {
+    let bytes = read_file_bytes(path)
+    if bytes is None {
+      return None
+    }
+    let bs = bytes.unwrap()
+    let sections = parse_sections(bs)
+    let entry_point = read_i32_at(bs, 24)
+    let sections = sections.map(s => { 
+      s.offset = if s.offset == 0 then 0 else s.offset;
+      s
+    })
+    Some { sections: sections, entry_point: entry_point, byte_order: LittleEndian, symbol_table: [] }
+  }
+
+  function read_string_at(bytes: List<u8>, start: int, max_len: int): string {
+    let mut chars = []
+    let mut i = start
+    while i < bytes.length and i < start + max_len {
+      let c = bytes[i]
+      if c == 0 {
+        break
+      }
+      chars = chars + [c]
+      i = i + 1
+    }
+    string_from_bytes(chars)
+  }
+
+  function read_i32_at(bytes: List<u8>, offset: int): int {
+    if offset + 4 > bytes.length {
+      return 0
+    }
+    ((bytes[offset] as i32) << 24) | ((bytes[offset+1] as i32) << 16) | ((bytes[offset+2] as i32) << 8) | (bytes[offset+3] as i32)
+  }
+
+  function read_i8_at(bytes: List<u8>, offset: int): int {
+    if offset >= bytes.length {
+      return 0
+    }
+    bytes[offset] as i32
+  }
+}
