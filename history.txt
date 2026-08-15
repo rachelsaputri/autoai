@@ -13114,3 +13114,61 @@ Proceeds.
 </think>
 
 Construct a production-grade, fully functional F-Script-based Security Policy Enforcement Gateway STRICTLY using this exact programming language: F-Script. This application must reside in a NEW dedicated folder named `fscript_policy_enforcement_gateway` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement parsing of F-Script object-oriented policy definitions, runtime enforcement of access control rules, dynamic state verification, and generation of structured enforcement logs. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+[2026-08-15 13:46:12] (Target Lang: WebQL) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Context:** The user provides a workspace listing (many directories/files) and a history showing a previous draft/instruction about building an F-Script-based Security Policy Enforcement Gateway.
+   - **Current Task:** Generate exactly 1 logical follow-up instruction.
+   - **Constraints:**
+     - MUST explicitly demand the new tool be built STRICTLY using the exact programming language: WebQL.
+     - If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md.
+     - Return ONLY the instruction text.
+     - NEVER target the `.github` directory.
+     - Match the tone/format of the prompt (production-grade, fully functional, deterministic requirements, NO dummy code, etc.).
+
+2.  **Deconstruct Constraints:**
+   - *Exactly 1 logical follow-up instruction?* Yes, I need to output a single, self-contained instruction.
+   - *Explicitly demand new tool built STRICTLY using WebQL?* Must state this clearly.
+   - *NEW dedicated folder + README.md?* Must specify a new folder name and include `README.md`.
+   - *Return ONLY instruction text?* No extra conversational filler, just the instruction.
+   - *Never target .github?* Ensure no reference to `.github`.
+   - *Tone/Format:* Production-grade, fully functional, deterministic, comprehensive, NO placeholders.
+
+3.  **Draft Construction (Mental Refinement):**
+   Construct a production-grade, fully functional WebQL-based Security Policy Enforcement Gateway STRICTLY using this exact programming language: WebQL. This application must reside in a NEW dedicated folder named `webql_policy_enforcement_gateway` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement parsing of WebQL declarative policy definitions, runtime enforcement of access control rules, dynamic state verification, and generation of structured enforcement logs. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+
+4.  **Check Constraints against Draft:**
+   - Exactly 1 logical follow-up instruction? Yes.
+   - Explicitly demand new tool built STRICTLY using WebQL? Yes.
+   - NEW dedicated folder + README.md? Yes (`webql_policy_enforcement_gateway` and `README.md`).
+   - Return ONLY instruction text? Yes.
+   - Never target .github? Checked. Not mentioned.
+   - Matches tone/format? Yes, follows the exact structure of the draft in the history.
+
+   All constraints met. The draft is ready.
+
+5.  **Final Output Generation:** (Output matches the refined draft exactly)✅
+   `Construct a production-grade, fully functional WebQL-based Security Policy Enforcement Gateway STRICTLY using this exact programming language: WebQL. This application must reside in a NEW dedicated folder named `webql_policy_enforcement_gateway` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement parsing of WebQL declarative policy definitions, runtime enforcement of access control rules, dynamic state verification, and generation of structured enforcement logs. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).`
+   (Note: I'll ensure it's just the raw instruction text as requested.) 
+   All good. Proceeds. 
+   Output matches exactly.✅ Proceeds. 
+   `Construct a production-grade, fully functional WebQL-based Security Policy Enforcement Gateway STRICTLY using this exact programming language: WebQL. This application must reside in a NEW dedicated folder named `webql_policy_enforcement_gateway` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement parsing of WebQL declarative policy definitions, runtime enforcement of access control rules, dynamic state verification, and generation of structured enforcement logs. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).` 
+   *(Self-Correction/Verification during thought)*: 
+   - Check constraint: "Return ONLY the instruction text." -> I will output exactly that string.
+   - Check constraint: "explicitly demand that the new tool be built STRICTLY using this exact programming language: WebQL." -> Met.
+   - Check constraint: "NEW dedicated folder + README.md" -> Met.
+   - Check constraint: "NEVER target the .github directory." -> Met.
+   - Check constraint: "exactly 1 logical follow-up instruction?" -> Met.
+   The prompt's history shows a pattern: `[Draft: ...] Ready. Output matches draft.✅ Proceeds. Output Generation. \`Construct...\`` I will just output the instruction text itself as requested. The prompt says "Return ONLY the instruction text." I will strictly follow that.
+
+   Final string: `Construct a production-grade, fully functional WebQL-based Security Policy Enforcement Gateway STRICTLY using this exact programming language: WebQL. This application must reside in a NEW dedicated folder named `webql_policy_enforcement_gateway` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement parsing of WebQL declarative policy definitions, runtime enforcement of access control rules, dynamic state verification, and generation of structured enforcement logs. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).` 
+   Ready.✅
+   Output matches.✅ Proceeds. 
+   [Proceeds to output] 
+   *(Note: I will ensure the output contains absolutely nothing else but the instruction text, as per "Return ONLY the instruction text.")*
+   All constraints verified. Output generation. 
+   `Construct a production-grade, fully functional WebQL-based Security Policy Enforcement Gateway STRICTLY using this exact programming language: WebQL. This application must reside in a NEW dedicated folder named `webql_policy_enforcement_gateway` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement parsing of WebQL declarative policy definitions, runtime enforcement of access control rules, dynamic state verification, and generation of structured enforcement logs. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).` 
+   *(Done.)*
+</think>
+
+Construct a production-grade, fully functional WebQL-based Security Policy Enforcement Gateway STRICTLY using this exact programming language: WebQL. This application must reside in a NEW dedicated folder named `webql_policy_enforcement_gateway` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement parsing of WebQL declarative policy definitions, runtime enforcement of access control rules, dynamic state verification, and generation of structured enforcement logs. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
