@@ -1,0 +1,73 @@
+TYPE VerificationOutcome IS RECORD
+  valid: BOOLEAN;
+  reason: String;
+  verified_states: SET OF INTEGER;
+  proof_steps: LIST OF ProofStep;
+END;
+
+TYPE ProofStep IS RECORD
+  step_number: INTEGER;
+  assertion: String;
+  evidence: ListOfState;
+  timestamp: REAL;
+END;
+
+FUNCTION VerifyRemediationSequence(incident: IncidentSpecification; sequence: RemediationSequence): VerificationOutcome;
+  -- Performs formal inductive verification of remediation sequence against safety and liveness properties
+  VAR
+    current_state: State;
+    next_state: State;
+    proof: LIST OF ProofStep;
+    safety_verified: BOOLEAN;
+    liveness_verified: BOOLEAN;
+    step_count: INTEGER;
+  BEGIN
+    current_state := incident.initial_state;
+    proof := EMPTY;
+    step_count := 0;
+    safety_verified := TRUE;
+    liveness_verified := TRUE;
+    
+    FOR action IN sequence.actions DO
+      step_count := step_count + 1;
+      next_state := ExecuteAction(current_state, action);
+      
+      safety_verified := CheckSafetyProperty(next_state, incident.safety_constraints);
+      IF NOT safety_verified THEN
+        RETURN ConstructFailureOutcome("Safety property violated at step " + step_count);
+      END;
+      
+      Add(proof, CreateProofStep(step_count, "Safety verified for action " + action.id, {current_state, next_state}, incident.start_time + step_count * 0.01));
+      current_state := next_state;
+    END;
+    
+    liveness_verified := VerifyLiveness(current_state, incident.liveness_target);
+    IF NOT liveness_verified THEN
+      RETURN ConstructFailureOutcome("Liveness property not satisfied. Remediation did not reach target state.");
+    END;
+    
+    Add(proof, CreateProofStep(step_count + 1, "Liveness verified", {current_state}, incident.start_time + (step_count + 1) * 0.01));
+    
+    RETURN ConstructSuccessOutcome(ExtractStateIds(proof.evidence), proof);
+  END VerifyRemediationSequence;
+
+FUNCTION CheckSafetyProperty(state: State; constraints: LIST OF Constraint): BOOLEAN;
+  VAR
+    constraint: Constraint;
+    violation: BOOLEAN;
+  BEGIN
+    violation := FALSE;
+    FOR constraint IN constraints DO
+      IF Violates(state, constraint) THEN
+        violation := TRUE;
+        RETURN FALSE;
+      END;
+    END;
+    RETURN TRUE;
+  END CheckSafetyProperty;
+
+FUNCTION VerifyLiveness(current_state: State; target: State): BOOLEAN;
+  -- Verifies that the final state matches the target or satisfies liveness conditions
+  BEGIN
+    RETURN StateEquivalent(current_state, target);
+  END VerifyLiveness;

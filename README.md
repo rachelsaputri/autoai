@@ -248,3 +248,5 @@
 - Created/Updated module: `ada_intrusion_detection_system` (See `ada_intrusion_detection_system/README.md` for details)
 
 - Created/Updated module: `scala_federated_incident_coordinator` (See `scala_federated_incident_coordinator/README.md` for details)
+
+- Created/Updated module: `alma0_formal_verification_engine` (See `alma0_formal_verification_engine/README.md` for details)

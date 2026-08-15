@@ -1,0 +1,25 @@
+PROCEDURE Main();
+  -- Entry point for the Alma-0 Formal Verification Engine
+  -- Initializes state-space traversal and policy verification modules
+  VAR
+    incident_spec: IncidentSpecification;
+    remediation_seq: RemediationSequence;
+    verification_result: VerificationOutcome;
+    audit_trail: AuditRecord;
+  BEGIN
+    incident_spec := LoadIncidentSpecification("./data/incident.spec");
+    remediation_seq := LoadRemediationSequence("./data/remediation.seq");
+    
+    verification_result := VerifyRemediationSequence(incident_spec, remediation_seq);
+    
+    IF verification_result.valid THEN
+      audit_trail := GenerateAuditTrail(verification_result);
+      OutputSuccess("Verification passed. Audit trail generated.");
+      ExportAuditTrail(audit_trail);
+    ELSE
+      OutputFailure("Verification failed. Invalid remediation sequence.");
+      OutputDetails(verification_result.reason);
+    END;
+    
+    Shutdown();
+  END Main;

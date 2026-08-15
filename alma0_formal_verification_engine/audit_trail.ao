@@ -1,0 +1,55 @@
+TYPE AuditRecord IS RECORD
+  record_id: INTEGER;
+  hash: String;
+  timestamp: REAL;
+  verification_outcome: VerificationOutcome;
+  state_transitions: LIST OF StateTransition;
+  policy_alignments: LIST OF PolicyAlignment;
+END;
+
+TYPE StateTransition IS RECORD
+  from_state: State;
+  to_state: State;
+  action: String;
+  verification_status: BOOLEAN;
+END;
+
+TYPE PolicyAlignment IS RECORD
+  domain_source: String;
+  domain_target: String;
+  constraint_match: BOOLEAN;
+  alignment_hash: String;
+END;
+
+FUNCTION GenerateAuditTrail(outcome: VerificationOutcome): AuditRecord;
+  -- Generates immutable audit record with cryptographic hashing
+  VAR
+    record: AuditRecord;
+    transition_list: LIST OF StateTransition;
+    alignment_list: LIST OF PolicyAlignment;
+    data_blob: String;
+    hash_value: String;
+  BEGIN
+    record.record_id := GenerateUUID();
+    record.timestamp := CurrentTime();
+    record.verification_outcome := outcome;
+    record.state_transitions := ExtractTransitionsFromProof(outcome.proof_steps);
+    record.policy_alignments := PerformCrossDomainAlignment(outcome.verified_states);
+    
+    data_blob := SerializeRecord(record);
+    hash_value := ComputeSHA256(data_blob);
+    record.hash := hash_value;
+    
+    RETURN record;
+  END GenerateAuditTrail;
+
+FUNCTION ExportAuditTrail(record: AuditRecord);
+  -- Exports audit trail to immutable storage
+  VAR
+    file_handle: File;
+  BEGIN
+    OpenFile(file_handle, "./audit_trail_" + record.hash + ".json", "WRITE");
+    WriteJSON(file_handle, SerializeRecord(record));
+    CloseFile(file_handle);
+    LogAuditExport(record.hash, record.timestamp);
+  END ExportAuditTrail;

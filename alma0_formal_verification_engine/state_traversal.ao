@@ -1,0 +1,58 @@
+TYPE State IS RECORD
+  id: INTEGER;
+  labels: SET OF String;
+  time: REAL;
+END;
+
+TYPE StateSpace IS SET OF State;
+
+FUNCTION NextStates(current: State; incident_spec: IncidentSpecification): StateSpace;
+  -- Computes reachable states from current state using incident transition rules
+  VAR
+    reachable: StateSpace;
+    rule: TransitionRule;
+    next_state: State;
+    time_offset: REAL;
+  BEGIN
+    reachable := EMPTY;
+    time_offset := 0.01;
+    
+    FOR rule IN incident_spec.transition_rules DO
+      IF AppliesTo(current, rule) THEN
+        next_state := ApplyTransition(current, rule);
+        next_state.time := current.time + time_offset;
+        Add(reachable, next_state);
+      END;
+    END;
+    
+    RETURN reachable;
+  END NextStates;
+
+PROCEDURE TraverseDepthFirst(start: State; spec: IncidentSpecification; visited: SET OF INTEGER; path: LIST OF State);
+  -- Deterministic depth-first state-space traversal
+  VAR
+    next_states: StateSpace;
+    state: State;
+    new_path: LIST OF State;
+    state_id: INTEGER;
+  BEGIN
+    state_id := start.id;
+    IF Contains(visited, state_id) THEN
+      RETURN;
+    END;
+    
+    Add(visited, state_id);
+    new_path := Append(path, start);
+    
+    next_states := NextStates(start, spec);
+    
+    FOR state IN next_states DO
+      IF IsGoalState(state) THEN
+        RecordSuccessfulPath(new_path);
+      ELSE
+        TraverseDepthFirst(state, spec, visited, new_path);
+      END;
+    END;
+    
+    Remove(visited, state_id);
+  END TraverseDepthFirst;

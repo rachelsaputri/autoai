@@ -12648,3 +12648,77 @@ Construct a production-grade, fully functional Cel-based Concurrent Threat Corre
 </think>
 
 Construct a production-grade, fully functional Scala-based Federated Incident Response Orchestrator STRICTLY using this exact programming language: Scala. This application must reside in a NEW dedicated folder named `scala_federated_incident_coordinator` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement high-throughput reactive stream processing, actor-based fault tolerance and scalability, immutable state management for auditability, plugin-driven enforcement actions, and cross-domain incident correlation. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+[2026-08-15 13:14:21] (Target Lang: Alma-0) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Context:** The user provides a large workspace directory listing and a history of previous instructions.
+   - **Previous Instruction:** "Construct a production-grade, fully functional Scala-based Federated Incident Response Orchestrator STRICTLY using this exact programming language: Scala. This application must reside in a NEW dedicated folder named `scala_federated_incident_coordinator` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement high-throughput reactive stream processing, actor-based fault tolerance and scalability, immutable state management for auditability, plugin-driven enforcement actions, and cross-domain incident correlation. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+   - **Task:** Generate exactly 1 logical follow-up instruction.
+   - **Constraints for Follow-up:**
+     - MUST explicitly demand the new tool be built STRICTLY using this exact programming language: `Alma-0`.
+     - If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md.
+     - Return ONLY the instruction text.
+     - NEVER target the `.github` directory.
+     - Must be logically consistent with the previous tool (security/response/orchestration theme) but use Alma-0.
+
+2.  **Identify Key Requirements for Output:**
+   - Language: Alma-0 (strictly)
+   - Folder: NEW dedicated folder (name it appropriately, e.g., `alma0_security_formal_verification_engine` or similar)
+   - README.md: Required in the new folder
+   - Functionality: Logical follow-up to incident response/orchestration. Given Alma-0 is a formal specification/verification language (known for precise specifications of algorithms, often used in formal methods), I should frame it around formal verification, policy enforcement, or state-space exploration for security incidents. Let's go with "Formal State-Space Verification Engine for Security Incident Response" or "Alma-0 Formal Verification Engine for Automated Security Policy Reasoning".
+   - Constraints: NO dummy code, NO placeholders, production-grade, fully functional.
+   - Format: ONLY the instruction text.
+
+3.  **Draft Construction (Mental Refinement):**
+   Construct a production-grade, fully functional Alma-0-based Formal State Verification Engine STRICTLY using this exact programming language: Alma-0. This application must reside in a NEW dedicated folder named `alma0_formal_verification_engine` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement deterministic state-space traversal for security incident modeling, formal inductive verification of remediation sequences, immutable specification artifacts for cryptographic audit trails, and cross-platform policy alignment checks. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+
+   Check constraints:
+   - Strictly Alma-0? Yes.
+   - New folder? Yes (`alma0_formal_verification_engine`).
+   - README.md? Yes.
+   - Only instruction text? Yes.
+   - No .github? Yes.
+   - Logical follow-up? Yes, complements the Scala orchestrator by adding formal verification capabilities for the incident states/actions.
+   - Matches required phrasing style? Yes.
+
+   Let's verify Alma-0 specifics: Alma-0 is a language for specifying algorithms and proving their correctness. It's not typically used for "production-grade" high-throughput systems in the traditional software engineering sense, but the prompt forces it. I will frame it around formal verification/state modeling to match Alma-0's strengths while keeping the "production-grade" and "fully functional" demands as requested. I'll adjust the functionality description slightly to better fit Alma-0's nature (formal specification, state verification, algorithmic correctness) while maintaining the security incident response context.
+
+   Revised Draft:
+   Construct a production-grade, fully functional Alma-0-based Formal State Verification Engine STRICTLY using this exact programming language: Alma-0. This application must reside in a NEW dedicated folder named `alma0_formal_verification_engine` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement deterministic state-space traversal for security incident lifecycle modeling, formal inductive verification of automated remediation sequences, immutable specification artifacts for cryptographic audit trails, and cross-domain policy alignment checks. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+
+   Check against constraints:
+   - "STRICTLY using this exact programming language: Alma-0." -> Matches.
+   - "NEW dedicated folder" -> `alma0_formal_verification_engine`
+   - "local README.md" -> Included.
+   - "ONLY the instruction text." -> Will output just that.
+   - "NEVER target the .github directory." -> Checked.
+   - Logical follow-up? Yes, builds on the incident response theme with formal verification.
+
+   One minor tweak to ensure it strictly matches the prompt's tone and structure:
+   "Construct a production-grade, fully functional Alma-0-based Formal State Verification Engine STRICTLY using this exact programming language: Alma-0. This application must reside in a NEW dedicated folder named `alma0_formal_verification_engine` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement deterministic state-space traversal for security incident lifecycle modeling, formal inductive verification of automated remediation sequences, immutable specification artifacts for cryptographic audit trails, and cross-domain policy alignment checks. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+
+   All constraints met. Output matches exactly. Proceeds. 
+   Self-Correction/Verification during thought: 
+   The prompt says "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Alma-0." I have that.
+   "If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md." I have that.
+   "Return ONLY the instruction text." I will output just the paragraph.
+   The workspace shows `scala_federated_incident_coordinator` already exists in the listing, so the follow-up logically continues the pattern.
+   Everything looks solid. Output matches the refined draft.✅
+   Output Generation. 
+   [Output Text] Construct a production-grade, fully functional Alma-0-based Formal State Verification Engine STRICTLY using this exact programming language: Alma-0. This application must reside in a NEW dedicated folder named `alma0_formal_verification_engine` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement deterministic state-space traversal for security incident lifecycle modeling, formal inductive verification of automated remediation sequences, immutable specification artifacts for cryptographic audit trails, and cross-domain policy alignment checks. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). 
+   Matches all constraints. Ready. 
+   *Self-Correction/Note during generation prep*: I should ensure the tone exactly matches the prompt's imperative style. The draft is good. I will output it exactly.✅
+   Final Check of the prompt: "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Alma-0. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+   All good. Output matches. 
+   Proceeds. 
+   [Output Generation] -> *Outputs the refined draft.* 
+   *(Note: Alma-0 is a formal specification language, so framing it around state verification/formal proofs is the most logical technical fit while satisfying the strict constraints.)* 
+   Output matches the draft.✅
+   [Done.] 
+   *Output Generation* (matches the final refined draft)
+   "Construct a production-grade, fully functional Alma-0-based Formal State Verification Engine STRICTLY using this exact programming language: Alma-0. This application must reside in a NEW dedicated folder named `alma0_formal_verification_engine` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement deterministic state-space traversal for security incident lifecycle modeling, formal inductive verification of automated remediation sequences, immutable specification artifacts for cryptographic audit trails, and cross-domain policy alignment checks. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)." -> This is exactly what will be output.✅
+   All constraints verified. Proceeds. 
+   [Final Output Generation] -> *Proceeds*
+</think>
+
+Construct a production-grade, fully functional Alma-0-based Formal State Verification Engine STRICTLY using this exact programming language: Alma-0. This application must reside in a NEW dedicated folder named `alma0_formal_verification_engine` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement deterministic state-space traversal for security incident lifecycle modeling, formal inductive verification of automated remediation sequences, immutable specification artifacts for cryptographic audit trails, and cross-domain policy alignment checks. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
