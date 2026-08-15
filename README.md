@@ -330,3 +330,5 @@
 - Created/Updated module: `linoleum_autonomous_self_healing_autopilot` (See `linoleum_autonomous_self_healing_autopilot/README.md` for details)
 
 - Created/Updated module: `ksh_config_drift_monitor` (See `ksh_config_drift_monitor/README.md` for details)
+
+- Created/Updated module: `bpeL_audit_workflow_engine` (See `bpeL_audit_workflow_engine/README.md` for details)
