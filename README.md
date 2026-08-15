@@ -298,3 +298,5 @@
 - Created/Updated module: `mesa_compliance_agent_simulator` (See `mesa_compliance_agent_simulator/README.md` for details)
 
 - Created/Updated module: `autocoder_compliance_dashboard` (See `autocoder_compliance_dashboard/README.md` for details)
+
+- Created/Updated module: `autoit_windows_security_dashboard` (See `autoit_windows_security_dashboard/README.md` for details)
