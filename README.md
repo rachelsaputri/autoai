@@ -254,3 +254,5 @@
 - Created/Updated module: `mpd_cross_domain_protocol_engine` (See `mpd_cross_domain_protocol_engine/README.md` for details)
 
 - Created/Updated module: `aimms_security_risk_optimizer` (See `aimms_security_risk_optimizer/README.md` for details)
+
+- Created/Updated module: `autoit_windows_security_auditor` (See `autoit_windows_security_auditor/README.md` for details)
