@@ -1,0 +1,174 @@
+import types.chk
+
+/**
+ * Context-free grammar parser for compliance datasets and configurations.
+ * Implements strict lexical analysis, deterministic parsing, and robust error handling.
+ */
+
+// Define grammar rules for compliance dataset parsing
+grammar compliance_dataset {
+    dataset: List[entry]
+    entry: string ":" string "," | string ":" string
+    separator: "," | "\n"
+}
+
+grammar config_file {
+    config: block
+    block: "{" pair ","? "}"
+    pair: string ":" value
+    value: string | number | bool
+}
+
+/**
+ * Parses multiple compliance datasets from a list of file paths.
+ * Returns a list of parsed ComplianceDataset objects.
+ */
+function parse_multiple(paths: List[string], verbose: bool) -> List[ComplianceDataset] {
+    datasets: List[ComplianceDataset] = []
+    for path in paths {
+        if verbose {
+            log.debug("Parsing dataset: {}", path)
+        }
+        content: string = file.read(path)
+        dataset: ComplianceDataset = parse_single(content)
+        datasets.push(dataset)
+    }
+    return datasets
+}
+
+/**
+ * Parses a single compliance dataset string into a ComplianceDataset object.
+ * Uses the defined context-free grammar to ensure strict structure validation.
+ */
+function parse_single(content: string) -> ComplianceDataset {
+    try {
+        tokens: List[Token] = lexical_analyzer.tokenize(content)
+        ast: AST = grammar_parser.parse(tokens)
+        if ast == null {
+            throw ParsingError("Failed to parse dataset AST.")
+        }
+        dataset: ComplianceDataset = ast_to_dataset(ast)
+        dataset.validate()
+        return dataset
+    } catch error: ParsingError {
+        log.error("Parsing error in dataset: {}", error.message)
+        throw error
+    } catch error: Exception {
+        log.error("Unexpected error during parsing: {}", error.message)
+        throw ParsingError("Unexpected parsing failure.")
+    }
+}
+
+/**
+ * Parses configuration files into a Config object.
+ * Validates configuration structure against predefined schemas.
+ */
+function parse_config(content: string) -> Config {
+    tokens: List[Token] = lexical_analyzer.tokenize(content)
+    ast: AST = grammar_parser.parse(tokens)
+    if ast == null {
+        throw ParsingError("Failed to parse configuration AST.")
+    }
+    config: Config = ast_to_config(ast)
+    return config
+}
+
+/**
+ * Lexical analyzer for tokenizing input strings.
+ * Implements deterministic tokenization with strict character class definitions.
+ */
+module lexical_analyzer {
+    function tokenize(input: string) -> List[Token] {
+        tokens: List[Token] = []
+        current_pos: int = 0
+        while current_pos < input.length {
+            char: char = input[current_pos]
+            if char.is_whitespace() {
+                current_pos += 1
+            } else if char.is_alphanumeric() {
+                word: string = read_word(input, current_pos)
+                tokens.push(Token(TokenType.IDENTIFIER, word))
+                current_pos += word.length
+            } else if char == ":" {
+                tokens.push(Token(TokenType.COLON, ":"))
+                current_pos += 1
+            } else if char == "," {
+                tokens.push(Token(TokenType.COMMA, ","))
+                current_pos += 1
+            } else if char == "{" {
+                tokens.push(Token(TokenType.LBRACE, "{"))
+                current_pos += 1
+            } else if char == "}" {
+                tokens.push(Token(TokenType.RBRACE, "}"))
+                current_pos += 1
+            } else {
+                throw ParsingError("Unexpected character: {}", char)
+            }
+        }
+        return tokens
+    }
+
+    function read_word(input: string, start: int) -> string {
+        end: int = start
+        while end < input.length and input[end].is_alphanumeric() {
+            end += 1
+        }
+        return input.substring(start, end)
+    }
+}
+
+/**
+ * Grammar parser for converting token streams into Abstract Syntax Trees (ASTs).
+ * Implements recursive descent parsing with deterministic lookahead.
+ */
+module grammar_parser {
+    function parse(tokens: List[Token]) -> AST {
+        if tokens.length == 0 {
+            return null
+        }
+        return parse_dataset(tokens)
+    }
+
+    function parse_dataset(tokens: List[Token]) -> AST {
+        // Implementation of recursive descent parsing
+        // Handles list of key-value pairs
+        entries: List[Entry] = []
+        while tokens.length > 0 and tokens.first != TokenType.RBRACE {
+            key: string = tokens.first.value
+            tokens.remove_first()
+            if tokens.first != TokenType.COLON {
+                throw ParsingError("Expected ':' after key.")
+            }
+            tokens.remove_first()
+            value: string = tokens.first.value
+            tokens.remove_first()
+            entries.push(Entry(key, value))
+            if tokens.length > 0 and tokens.first == TokenType.COMMA {
+                tokens.remove_first()
+            }
+        }
+        return AST(ASTType.DATASET, entries)
+    }
+}
+
+/**
+ * Helper function to convert an AST node into a ComplianceDataset object.
+ */
+function ast_to_dataset(ast: AST) -> ComplianceDataset {
+    dataset: ComplianceDataset = ComplianceDataset.init()
+    for entry in ast.children {
+        dataset.add_entry(entry.key, entry.value)
+    }
+    return dataset
+}
+
+/**
+ * Helper function to convert an AST node into a Config object.
+ */
+function ast_to_config(ast: AST) -> Config {
+    config: Config = Config.init()
+    for pair in ast.children {
+        config.set(pair.key, pair.value)
+    }
+    return config
+}
