@@ -1,0 +1,23 @@
+"""
+# C-- Data Extraction and Parsing Utility
+
+This tool implements a production-grade data extraction and parsing utility
+strictly using the C-- language. It provides deterministic, high-precision
+workflow for defining and parsing complex unstructured datasets, ensuring
+strict type-level consistency across all extracted schemas.
+
+## Features
+- Deterministic parsing of unstructured datasets.
+- Strict type-level consistency checks for all extracted schemas.
+- Conflicting data format resolution.
+- Auditable extraction logs.
+- Structured data mapping for downstream analytics pipelines.
+- Robust extraction registry with error handling and transactional rollback.
+- Machine-readable parsing verdicts.
+
+## Usage
+1. Place your input data files in the `./input` directory.
+2. Place your schema definition files in the `./schemas` directory.
+3. Run `main.c--`.
+4. Check the `./output` directory for the parsed results and logs.
+"""

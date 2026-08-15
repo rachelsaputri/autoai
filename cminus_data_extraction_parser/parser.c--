@@ -1,0 +1,6 @@
+"""
+# Parser Module (parser.c--)
+
+This module implements the deterministic, high-precision parsing workflow.
+It ensures strict type-level consistency and resolves conflicting formats.
+"""

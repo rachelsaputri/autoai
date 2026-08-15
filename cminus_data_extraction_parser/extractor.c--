@@ -1,0 +1,6 @@
+"""
+# Extractor Module (extractor.c--)
+
+This module handles the core extraction logic, reading raw data and
+initially mapping it to the internal C-- data structures.
+"""
