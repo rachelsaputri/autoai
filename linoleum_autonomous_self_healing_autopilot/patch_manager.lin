@@ -1,0 +1,8 @@
+fn execute_action(action: Action) -> Bool {
+  // Implementation to execute remediation action
+  return true;
+}
+
+fn rollback(action: Action) {
+  // Implementation to rollback a failed action
+}

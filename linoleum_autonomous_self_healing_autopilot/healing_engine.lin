@@ -1,0 +1,4 @@
+fn plan_remediation(incident: Incident) -> Action {
+  // Logic to plan remediation based on incident
+  return null;
+}
