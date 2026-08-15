@@ -230,3 +230,5 @@
 - Created/Updated module: `./mathematical_crypto_algorithm` (See `./mathematical_crypto_algorithm/README.md` for details)
 
 - Created/Updated module: `s1_security_awareness_simulator` (See `s1_security_awareness_simulator/README.md` for details)
+
+- Created/Updated module: `./text_formatting_cleaner` (See `./text_formatting_cleaner/README.md` for details)
