@@ -9340,3 +9340,40 @@ This instruction is ready.
 </think>
 
 Construct a comprehensive security compliance visualization dashboard STRICTLY using this exact programming language: JavaFX Script. This application must reside in a NEW dedicated folder named `java_compliance_dashboard` containing all necessary source files and a comprehensive local README.md. The system must ingest audit data and drift metrics, rendering interactive graphical components such as dynamic compliance scorecards, real-time deviation heatmaps, and policy violation timelines to enable administrators to monitor system security posture through a responsive GUI.
+[2026-08-15 09:36:27] (Target Lang: Net.Data) Thinking process:
+1.  **Deconstruct the user's request:**
+    *   Goal: Generate exactly 1 logical follow-up instruction.
+    *   Constraint: New tool MUST use Net.Data.
+    *   Constraint: New tool must be in a NEW dedicated folder.
+    *   Constraint: Create a local README.md.
+    *   Constraint: Return ONLY the instruction text.
+    *   Constraint: NEVER target .github.
+    *   Context: Previous instruction was about a JavaFX Script compliance dashboard. The workspace has many security/audit tools.
+    *   Implicit Goal: The follow-up should be logical. Since the previous tool was a dashboard (JavaFX), a logical follow-up could be a backend data service, a query tool, a report generator, or a configuration manager that feeds the dashboard or complements it. Net.Data is a database access language/protocol often associated with IBM web servers (like CICS or DB2 WebQuery) for generating dynamic web content from databases. So, a logical tool using Net.Data would be a database-driven report generator, a data export service, or a query interface for the compliance data.
+
+2.  **Drafting the instruction content:**
+    *   *Subject:* Net.Data is used for database access and generating dynamic web pages.
+    *   *Idea:* A "Compliance Data Export and Query Service" or "Audit Report Generator" that pulls data from the databases populated/managed by the other tools and serves it via Net.Data templates.
+    *   *Folder Name:* `net_data_compliance_exporter` or `net_data_audit_query_service`. Let's go with `net_data_audit_query_service`.
+    *   *README:* Must create a local README.md.
+    *   *Text Construction:* "Construct a secure compliance data export and query service STRICTLY using this exact programming language: Net.Data. This application must reside in a NEW dedicated folder named `net_data_audit_query_service` containing all necessary source files and a comprehensive local README.md. The system must connect to the underlying audit databases, execute parameterized queries to retrieve policy violation records and remediation status, and generate dynamic, formatted HTML reports and JSON data feeds via Net.Data templates, ensuring seamless data interoperability for the JavaFX dashboard and external compliance auditors."
+
+3.  **Review against constraints:**
+    *   *Exactly 1 instruction?* Yes.
+    *   *STRICTLY Net.Data?* Yes ("STRICTLY using this exact programming language: Net.Data").
+    *   *NEW dedicated folder?* Yes ("NEW dedicated folder named `net_data_audit_query_service`").
+    *   *Local README.md?* Yes ("comprehensive local README.md").
+    *   *ONLY instruction text?* Yes, the output should be just the text block.
+    *   *NEVER target .github?* Yes, the instruction doesn't mention .github.
+    *   *Logical follow-up?* Yes. The previous tool visualized data; this tool provides the data access/generation layer using Net.Data. It fits the theme of the workspace (security, compliance, audit).
+
+4.  **Final Polish (Mental Representation of Output):**
+    *   Output: `Construct a secure compliance data export and query service STRICTLY using this exact programming language: Net.Data. This application must reside in a NEW dedicated folder named `net_data_audit_query_service` containing all necessary source files and a comprehensive local README.md. The system must connect to the underlying audit databases, execute parameterized queries to retrieve policy violation records and remediation status, and generate dynamic, formatted HTML reports and JSON data feeds via Net.Data templates, ensuring seamless data interoperability for the JavaFX dashboard and external compliance auditors.`
+
+5.  **Final Check:**
+    *   Does it look like the requested format? The user asked for "Return ONLY the instruction text."
+    *   The result is a single paragraph string matching the style of the prompt's context.
+    *   Result matches all constraints.
+</think>
+
+Construct a secure compliance data export and query service STRICTLY using this exact programming language: Net.Data. This application must reside in a NEW dedicated folder named `net_data_audit_query_service` containing all necessary source files and a comprehensive local README.md. The system must connect to the underlying audit databases, execute parameterized queries to retrieve policy violation records and remediation status, and generate dynamic, formatted HTML reports and JSON data feeds via Net.Data templates, ensuring seamless data interoperability for the JavaFX dashboard and external compliance auditors.
