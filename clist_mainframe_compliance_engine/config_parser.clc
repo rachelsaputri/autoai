@@ -1,0 +1,35 @@
+/* CLIST CONFIGURATION PARSER MODULE */
+/* Parses ISPF panels, system parameters, and JCL control blocks */
+
+PARSE_SYSPARM:
+/* Extract system configuration parameters */
+PARM &PARM_LIST = &SYS.PARM
+SET &PARM_COUNT = &PARM_LIST.
+
+DO I = 1 TO &PARM_COUNT
+   SET &CURRENT_PARAM = &PARM_LIST.I
+   SAY 'PARSED PARAM: ' &CURRENT_PARAM
+   CALL store_param &CURRENT_PARAM
+ENDDO
+
+/* Parse JCL JOB statements for compliance */
+DO J = 1 TO 100
+   SET &JCL_STATEMENT = &JCL_LIST.J
+   IF &JCL_STATEMENT = ' ' THEN LEAVE
+   CALL validate_jcl &JCL_STATEMENT
+ENDDO
+
+RETURN
+
+STORE_PARMS:
+/* Store parsed parameters into global audit context */
+SET &AUDIT_CONTEXT.PARMS = &PARM_LIST
+RETURN
+
+VALIDATE_JCL:
+/* Check JCL for non-compliant statements */
+IF &1 CONTAINS '//SYSIN' THEN
+   SAY 'WARNING: SYSIN DETECTED IN JOB CONTROL' 
+   CALL log_warning 'JCL-001' 'SYSIN used in job step'
+ENDIF
+RETURN

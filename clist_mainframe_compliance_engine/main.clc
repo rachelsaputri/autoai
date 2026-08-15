@@ -1,0 +1,43 @@
+/* CLIST MAINFRAME COMPLIANCE ENGINE - MAIN ENTRY POINT */
+/* Initializes audit workflow, coordinates modules, and triggers report generation */
+
+/* Load required subroutines and utilities */
+CALL config_parser
+CALL compliance_checker
+CALL audit_logger
+CALL report_generator
+
+/* Initialize global variables and environment context */
+SET &SYSID = &SYSID.
+SET &AUDIT_DATE = &DATE
+SET &AUDIT_TIME = &TIME
+SET &START_TIME = &TIME
+
+/* Validate execution environment */
+IF &SYSID = ' ' THEN
+   SAY 'ERROR: SYSTEM ID NOT DETECTED. AUDIT TERMINATED.'
+   EXIT 4
+ENDIF
+
+SAY 'MAINFRAME COMPLIANCE ENGINE INITIALIZED'
+SAY 'SYSTEM: ' &SYSID ' | DATE: ' &AUDIT_DATE ' | TIME: ' &AUDIT_TIME
+
+/* Phase 1: Parse System Configuration & Job Control Blocks */
+CALL parse_system_parameters
+
+/* Phase 2: Run Compliance Validation Rules */
+CALL run_compliance_checks
+
+/* Phase 3: Generate Audit Trails & Logs */
+CALL log_audit_trail
+
+/* Phase 4: Output Compliance Reports */
+CALL generate_reports
+
+/* Calculate execution duration */
+CALL calc_duration &START_TIME &AUDIT_TIME &DURATION
+
+/* Final Summary */
+SAY 'AUDIT COMPLETE. DURATION: ' &DURATION ' SECONDS'
+SAY 'REPORTS GENERATED IN: ' &REPORT_DIR
+EXIT 0

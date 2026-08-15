@@ -1,0 +1,47 @@
+/* CLIST AUDIT LOGGER MODULE */
+/* Maintains tamper-proof audit trails via persistent logging */
+
+LOG_AUDIT_TRAIL:
+/* Open audit trail file */
+SET &AUDIT_FILE = &AUDIT_DIR / 'audit_trail.log'
+
+/* Write header */
+WRITE &AUDIT_FILE '=== MAINFRAME COMPLIANCE AUDIT TRAIL ==='
+WRITE &AUDIT_FILE 'SYSTEM: ' &SYSID
+WRITE &AUDIT_FILE 'DATE: ' &AUDIT_DATE
+WRITE &AUDIT_FILE 'TIME: ' &AUDIT_TIME
+WRITE &AUDIT_FILE '========================================='
+
+/* Log each check result */
+DO I = 1 TO &TOTAL_CHECKS
+   SET &RESULT = &CHECK_RESULTS.I
+   IF &RESULT CONTAINS 'FAIL' THEN
+      WRITE &AUDIT_FILE 'CHECK ' &I ': FAILED'
+      CALL flag_critical &I
+   ELSE IF &RESULT CONTAINS 'WARN' THEN
+      WRITE &AUDIT_FILE 'CHECK ' &I ': WARNING'
+   ELSE
+      WRITE &AUDIT_FILE 'CHECK ' &I ': PASSED'
+   ENDIF
+ENDDO
+
+/* Write footer and checksum */
+CALL generate_checksum &AUDIT_FILE
+WRITE &AUDIT_FILE '=== END OF AUDIT TRAIL ==='
+
+SAY 'AUDIT TRAIL SAVED TO: ' &AUDIT_FILE
+RETURN
+
+LOG_FAILURE:
+SET &CHECK_ID = &1
+SET &MESSAGE = &2
+WRITE &AUDIT_FILE 'FATAL: ' &CHECK_ID ' - ' &MESSAGE
+SET &FAIL_COUNT = &FAIL_COUNT + 1
+RETURN
+
+LOG_WARNING:
+SET &CHECK_ID = &1
+SET &MESSAGE = &2
+WRITE &AUDIT_FILE 'WARN: ' &CHECK_ID ' - ' &MESSAGE
+SET &WARN_COUNT = &WARN_COUNT + 1
+RETURN
