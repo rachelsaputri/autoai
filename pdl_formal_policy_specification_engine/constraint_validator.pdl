@@ -1,0 +1,69 @@
+// Constraint Validator Module
+// Validates logical consistency across policy sets and generates constraints.
+
+MODULE ConstraintValidator
+
+IMPORT PolicySpec
+IMPORT RuleEngine
+
+FUNCTION validate_consistency(policies: ARRAY OF PolicySpec.PolicySet) RETURNS BOOLEAN
+    DECLARE conflicts: ARRAY OF (PolicySpec.PolicyRule, PolicySpec.PolicyRule)
+    
+    FOR EACH policy_a IN policies DO
+        FOR EACH policy_b IN policies DO
+            IF policy_a.policy_id != policy_b.policy_id THEN
+                FOR EACH rule_a IN policy_a.rules DO
+                    FOR EACH rule_b IN policy_b.rules DO
+                        IF rule_a.subject = rule_b.subject AND rule_a.resource = rule_b.resource THEN
+                            // Check for logical contradictions (e.g., ALLOW vs DENY for same entity)
+                            IF rule_a.action = PolicySpec.ALLOW AND rule_b.action = PolicySpec.DENY THEN
+                                APPEND (rule_a, rule_b) TO conflicts
+                                LOG_ERROR("Conflict detected: " + rule_a.rule_id + " vs " + rule_b.rule_id)
+                            END IF
+                        END IF
+                    END FOR
+                END FOR
+            END IF
+        END FOR
+    END FOR
+    
+    IF LENGTH(conflicts) > 0 THEN
+        RETURN FALSE
+    END IF
+    
+    RETURN TRUE
+END FUNCTION
+
+FUNCTION generate_constraints(policy_set: PolicySpec.PolicySet) RETURNS ARRAY OF STRING
+    DECLARE constraints: ARRAY OF STRING
+    
+    FOR EACH rule IN policy_set.rules DO
+        DECLARE constraint_str: STRING
+        
+        IF rule.action = PolicySpec.DENY THEN
+            constraint_str = "CONSTRAINT: DENY " + rule.subject + " ON " + rule.resource + " IF " + rule.condition
+        ELSE IF rule.action = PolicySpec.ALLOW THEN
+            constraint_str = "CONSTRAINT: ALLOW " + rule.subject + " ON " + rule.resource + " IF " + rule.condition
+        ELSE
+            constraint_str = "CONSTRAINT: " + rule.action + " " + rule.subject + " ON " + rule.resource
+        END IF
+        
+        APPEND constraint_str TO constraints
+    END FOR
+    
+    RETURN constraints
+END FUNCTION
+
+FUNCTION audit_trail_mapping(policy_set: PolicySpec.PolicySet) RETURNS MAP OF STRING TO STRING
+    DECLARE audit_map: MAP OF STRING TO STRING
+    
+    FOR EACH rule IN policy_set.rules DO
+        DECLARE key: STRING = "policy_rule_" + rule.rule_id
+        DECLARE value: STRING = "Subject: " + rule.subject + ", Action: " + rule.action + ", Resource: " + rule.resource
+        audit_map[key] = value
+    END FOR
+    
+    RETURN audit_map
+END FUNCTION
+
+END MODULE

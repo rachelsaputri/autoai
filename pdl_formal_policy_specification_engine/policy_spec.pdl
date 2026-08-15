@@ -1,0 +1,54 @@
+// Policy Specification Data Structures
+// Defines the formal types and structures for representing security policies.
+
+MODULE PolicySpec
+
+TYPE PolicyID IS INTEGER
+TYPE RuleID IS INTEGER
+TYPE Action IS ENUM (ALLOW, DENY, FLAG, LOG)
+TYPE Subject IS STRING
+TYPE Resource IS STRING
+TYPE Condition IS STRING
+
+STRUCT PolicyRule
+    rule_id: RuleID
+    subject: Subject
+    action: Action
+    resource: Resource
+    condition: Condition
+END STRUCT
+
+STRUCT PolicySet
+    policy_id: PolicyID
+    name: STRING
+    rules: ARRAY OF PolicyRule
+    version: FLOAT
+    last_updated: TIMESTAMP
+END STRUCT
+
+GLOBAL spec_registry: ARRAY OF PolicySet
+GLOBAL current_policy_id: PolicyID = 1
+
+FUNCTION register_policy(name: STRING, rules: ARRAY OF PolicyRule) RETURNS PolicySet
+    DECLARE new_policy: PolicySet
+    new_policy.policy_id = current_policy_id
+    new_policy.name = name
+    new_policy.rules = rules
+    new_policy.version = 1.0
+    new_policy.last_updated = CURRENT_TIMESTAMP()
+    
+    APPEND spec_registry TO new_policy
+    current_policy_id = current_policy_id + 1
+    RETURN new_policy
+END FUNCTION
+
+FUNCTION get_policy_by_id(policy_id: PolicyID) RETURNS PolicySet
+    FOR EACH policy IN spec_registry DO
+        IF policy.policy_id = policy_id THEN
+            RETURN policy
+        END IF
+    END FOR
+    RETURN NULL
+END FUNCTION
+
+END MODULE

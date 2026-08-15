@@ -1,0 +1,62 @@
+// Rule Engine Module
+// Implements the core logic for interpreting and evaluating policies defined in PDL.
+
+MODULE RuleEngine
+
+IMPORT PolicySpec
+
+FUNCTION evaluate_rule(rule: PolicySpec.PolicyRule, context: CONTEXT) RETURNS BOOLEAN
+    DECLARE result: BOOLEAN = FALSE
+    
+    // Check Condition
+    IF context.matches_rule(rule.condition) THEN
+        // Determine Action based on Resource and Subject
+        CASE rule.action OF
+            PolicySpec.ALLOW:
+                result = TRUE
+            PolicySpec.DENY:
+                result = FALSE
+            PolicySpec.FLAG:
+                LOG_ALERT("Flagged rule violation: " + rule.rule_id)
+                result = TRUE // Flagged but not denied
+            PolicySpec.LOG:
+                LOG_TRACE("Policy action logged: " + rule.rule_id)
+                result = TRUE
+        END CASE
+    END IF
+    
+    RETURN result
+END FUNCTION
+
+FUNCTION evaluate_policy_set(policy_set: PolicySpec.PolicySet, context: CONTEXT) RETURNS ARRAY OF RuleID
+    DECLARE violated_rules: ARRAY OF RuleID
+    DECLARE matched_rules: ARRAY OF RuleID
+    
+    FOR EACH rule IN policy_set.rules DO
+        IF evaluate_rule(rule, context) THEN
+            APPEND matched_rules TO rule.rule_id
+        ELSE
+            // If a rule is violated (e.g. DENY matched but condition failed, or ALLOW denied)
+            // For simplicity, we track rules that were explicitly checked.
+            APPEND violated_rules TO rule.rule_id
+        END IF
+    END FOR
+    
+    RETURN violated_rules
+END FUNCTION
+
+FUNCTION resolve_conflicts(policies: ARRAY OF PolicySpec.PolicySet, context: CONTEXT) RETURNS PolicySpec.PolicySet
+    DECLARE highest_priority_policy: PolicySpec.PolicySet = NULL
+    DECLARE highest_priority_version: FLOAT = 0.0
+    
+    FOR EACH policy IN policies DO
+        IF policy.version > highest_priority_version THEN
+            highest_priority_version = policy.version
+            highest_priority_policy = policy
+        END IF
+    END FOR
+    
+    RETURN highest_priority_policy
+END FUNCTION
+
+END MODULE
