@@ -17770,3 +17770,47 @@ Construct a production-grade, fully functional Wolfram Language-based security p
 </think>
 
 Construct a production-grade, fully functional Elm-based secure configuration drift detector and compliance audit system STRICTLY using this exact programming language: Elm. This application must reside in a NEW dedicated folder named `elm_config_drift_auditor` containing all necessary implementation files (including core modules like `drift_detector.elm`, `compliance_engine.elm`, `policy_parser.elm`, associated configuration files, and a local `README.md`). The tool must implement a deterministic, high-precision workflow that parses system configurations, detects deviations from baseline security policies using Elm's robust type system and immutable data structures, ensures strict logical soundness and deterministic state resolution, generates auditable drift reports with formal compliance certificates, handles structured event mapping for downstream remediation gateways, maintains a robust drift registry with comprehensive error handling and deterministic rollback, and outputs machine-readable compliance verdicts. The implementation must leverage Elm best practices, including explicit type definitions, precise function composition, robust immutable state management, modular architecture, and standard functional semantics compliance to guarantee unambiguous logical representation, minimal runtime ambiguity, and seamless integration with formal verification toolchains. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Elm development standards, and NEVER targets the .github directory.
+[2026-08-15 19:24:41] (Target Lang: C++) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Input Context:** The user provides a workspace directory listing (mostly placeholder/example files for various security/audit tools in different languages) and a history of a previous prompt/response cycle.
+   - **Current Prompt:** "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: C++. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+   - **Constraints to Follow:**
+     - Exactly 1 logical follow-up instruction (single cohesive paragraph).
+     - Explicitly demand the tool be built STRICTLY using C++.
+     - Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+     - Instruct to place it in a NEW dedicated folder and create a local README.md.
+     - Return ONLY the instruction text.
+     - NEVER target the .github directory.
+     - Match the tone/style of the example provided in the history.
+
+2.  **Deconstruct Constraints & Requirements:**
+   - **Language:** C++ (STRICTLY)
+   - **Output Format:** Exactly one paragraph/instruction.
+   - **Content:** Must demand a production-grade, fully functional tool. Must specify a new folder name, include core modules/files, describe functionality (drift detection/audit/compliance is a good theme to maintain consistency with the workspace, but I can adapt it to C++ strengths like high performance, systems-level work, or keep the security audit theme).
+   - **Placeholders:** Explicitly forbid dummy code/placeholder.
+   - **Folder/README:** Explicitly demand a NEW dedicated folder and local README.md.
+   - **Exclusion:** NEVER target .github.
+   - **Output:** ONLY the instruction text.
+
+3.  **Draft Construction (Mental Refinement):**
+   Construct a production-grade, fully functional C++-based secure configuration drift detector and compliance audit system STRICTLY using this exact programming language: C++. This application must reside in a NEW dedicated folder named `cpp_config_drift_auditor` containing all necessary implementation files (including core modules like `drift_detector.cpp`, `drift_detector.hpp`, `compliance_engine.cpp`, `compliance_engine.hpp`, `policy_parser.cpp`, `policy_parser.hpp`, associated CMakeLists.txt configuration files, and a local `README.md`). The tool must implement a deterministic, high-precision workflow that parses system configurations, detects deviations from baseline security policies using C++'s robust type system, RAII principles, and modern concurrency features, ensures strict logical soundness and deterministic state resolution, generates auditable drift reports with formal compliance certificates, handles structured event mapping for downstream remediation gateways, maintains a robust drift registry with comprehensive error handling and deterministic rollback, and outputs machine-readable compliance verdicts. The implementation must leverage C++ best practices, including explicit type definitions, precise function composition, robust resource management, modular architecture, and standard library compliance to guarantee unambiguous logical representation, minimal runtime ambiguity, and seamless integration with formal verification toolchains. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to C++ development standards, and NEVER targets the .github directory.
+
+4.  **Constraint Verification:**
+   - Exactly 1 logical follow-up instruction? Yes, one cohesive paragraph.
+   - Explicitly demand built STRICTLY using this exact programming language: C++? Yes.
+   - Place in a NEW dedicated folder and create a local README.md? Yes, `cpp_config_drift_auditor` and local `README.md`.
+   - Return ONLY the instruction text? Yes.
+   - NEVER target the .github directory? Yes, explicitly stated.
+   - Matches tone/style of example? Yes, follows the exact structure and technical depth.
+   - Demand fully functional, complete implementation (NO dummy code, NO placeholders)? Yes, explicitly stated.
+
+   All constraints are met. The draft is ready. I will output it exactly as refined. No extra text.✅
+   One minor adjustment: I'll make sure the wording precisely matches the requested phrasing where mandatory, and keeps the flow natural. The draft looks solid. I will generate it now. 
+   Output matches the draft exactly.✅
+   Proceeds. 
+   [Output Generation] -> *Outputs exactly the text.* 
+   *(Done.)*
+</think>
+
+Construct a production-grade, fully functional C++-based secure configuration drift detector and compliance audit system STRICTLY using this exact programming language: C++. This application must reside in a NEW dedicated folder named `cpp_config_drift_auditor` containing all necessary implementation files (including core modules like `drift_detector.cpp`, `drift_detector.hpp`, `compliance_engine.cpp`, `compliance_engine.hpp`, `policy_parser.cpp`, `policy_parser.hpp`, associated CMakeLists.txt configuration files, and a local `README.md`). The tool must implement a deterministic, high-precision workflow that parses system configurations, detects deviations from baseline security policies using C++'s robust type system, RAII principles, and modern concurrency features, ensures strict logical soundness and deterministic state resolution, generates auditable drift reports with formal compliance certificates, handles structured event mapping for downstream remediation gateways, maintains a robust drift registry with comprehensive error handling and deterministic rollback, and outputs machine-readable compliance verdicts. The implementation must leverage C++ best practices, including explicit type definitions, precise function composition, robust resource management, modular architecture, and standard library compliance to guarantee unambiguous logical representation, minimal runtime ambiguity, and seamless integration with formal verification toolchains. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to C++ development standards, and NEVER targets the .github directory.
