@@ -15316,3 +15316,57 @@ Output matches request.✅ Proceeds.  [Output Generation] -> `Construct a produc
 </think>
 
 Construct a production-grade, fully functional Erlang-based Distributed Policy Enforcement Coordinator strictly using this exact programming language: Erlang. This application must reside in a NEW dedicated folder named `distributed_policy_enforcement_coordinator` containing all necessary implementation files defining the core state distribution logic, policy synchronization mechanisms, fault-tolerant coordination routines, and high-availability consensus algorithms alongside a comprehensive local `README.md`. The tool must definitively implement distributed systems algorithms to synchronize security policies across nodes, validate cluster health, detect and resolve split-brain scenarios, and provide administrators with rigorous guarantees of consistency and fault tolerance. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Erlang syntax and BEAM virtual machine constraints for distributed computing, and NEVER targets the `.github` directory.
+[2026-08-15 15:50:04] (Target Lang: Metacard) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - The user provided a workspace file listing and a history of a prompt/response cycle.
+   - The history shows the user asking for an Erlang-based Distributed Policy Enforcement Coordinator.
+   - The final instruction in the history is: "Construct a production-grade, fully functional Erlang-based Distributed Policy Enforcement Coordinator strictly using this exact programming language: Erlang... NEVER targets the `.github` directory."
+   - The current prompt asks me to: "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Metacard. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+
+2.  **Identify Key Constraints for the Output:**
+   - Generate exactly 1 logical follow-up instruction.
+   - Must explicitly demand the new tool be built STRICTLY using Metacard.
+   - If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md.
+   - Return ONLY the instruction text.
+   - NEVER target the `.github` directory.
+
+3.  **Determine the Subject of the Follow-up Instruction:**
+   - The previous instruction was about an "Erlang-based Distributed Policy Enforcement Coordinator".
+   - A logical follow-up would be a related tool in the same domain (security, policy, distributed systems, compliance, monitoring, etc.) but using Metacard.
+   - I'll choose something like a "Distributed Security Posture Validator" or "Cross-Cluster Policy Drift Detector" or "Metacard-based Security Telemetry Aggregator". Let's go with a "Distributed Security Telemetry Aggregator" or "Metacard-based Compliance Drift Monitor". Actually, the prompt just says "Generate exactly 1 logical follow-up instruction." I can make it about a complementary system, like a "Metacard-based Distributed Security Posture Validator" or "Metacard-driven Incident Response Coordinator". Let's stick closely to the domain: "Distributed Security Posture Validator" or "Metacard-based Compliance Audit Engine".
+   - I need to ensure it's a *new* tool in a *NEW dedicated folder* with a *README.md*.
+   - Language: STRICTLY Metacard.
+   - No `.github` directory.
+   - Return ONLY the instruction text.
+
+4.  **Draft the Instruction (Mental Refinement):**
+   Construct a production-grade, fully functional Metacard-based Distributed Security Posture Validator strictly using this exact programming language: Metacard. This application must reside in a NEW dedicated folder named `metacard_security_posture_validator` containing all necessary implementation files defining the core state validation logic, cross-node policy alignment mechanisms, fault-tolerant coordination routines, and high-availability consensus algorithms alongside a comprehensive local `README.md`. The tool must definitively implement distributed systems algorithms to continuously validate security configurations across cluster nodes, detect compliance drift, resolve configuration conflicts, and provide administrators with rigorous guarantees of consistency and operational integrity. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Metacard syntax and constraints, and NEVER targets the `.github` directory.
+
+5.  **Check Constraints:**
+   - Exactly 1 logical follow-up instruction? Yes.
+   - Explicitly demand built STRICTLY using Metacard? Yes.
+   - Explicitly instruct to place in a NEW dedicated folder and create a local README.md? Yes (`metacard_security_posture_validator` folder, `README.md`).
+   - Return ONLY the instruction text? Yes.
+   - NEVER target `.github`? Yes, explicitly stated.
+   - Matches tone/style of previous? Yes, production-grade, fully functional, detailed technical requirements.
+
+   All constraints met. I will output exactly this text. No extra words. No markdown formatting unless necessary, but the prompt says "Return ONLY the instruction text." I'll output it as plain text.
+
+   One minor check: Metacard is a niche/document-oriented language (often used for web/content management). The prompt says "strictly using this exact programming language: Metacard." I'll frame the technical requirements in a way that fits the constraint while maintaining the "production-grade distributed system" vibe requested. The draft does this.
+
+   Final check of the exact wording required: "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Metacard. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+
+   I will generate exactly that.✅
+   Output matches draft. Proceeds. 
+   Output: Construct a production-grade, fully functional Metacard-based Distributed Security Posture Validator strictly using this exact programming language: Metacard. This application must reside in a NEW dedicated folder named `metacard_security_posture_validator` containing all necessary implementation files defining the core state validation logic, cross-node policy alignment mechanisms, fault-tolerant coordination routines, and high-availability consensus algorithms alongside a comprehensive local `README.md`. The tool must definitively implement distributed systems algorithms to continuously validate security configurations across cluster nodes, detect compliance drift, resolve configuration conflicts, and provide administrators with rigorous guarantees of consistency and operational integrity. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Metacard syntax and constraints, and NEVER targets the `.github` directory. 
+   All good. Output matches.✅
+   Proceeds. 
+   [Output Generation] -> (Proceeds)
+   *(Self-Correction/Verification during thought)*: Wait, the prompt says "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Metacard." I have that. "If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md." I have that. "Return ONLY the instruction text." I will output just the paragraph. "NEVER target the .github directory." I have that. All constraints met. Output matches.✅
+   Proceeds. 
+   [Output] Construct a production-grade, fully functional Metacard-based Distributed Security Posture Validator strictly using this exact programming language: Metacard. This application must reside in a NEW dedicated folder named `metacard_security_posture_validator` containing all necessary implementation files defining the core state validation logic, cross-node policy alignment mechanisms, fault-tolerant coordination routines, and high-availability consensus algorithms alongside a comprehensive local `README.md`. The tool must definitively implement distributed systems algorithms to continuously validate security configurations across cluster nodes, detect compliance drift, resolve configuration conflicts, and provide administrators with rigorous guarantees of consistency and operational integrity. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Metacard syntax and constraints, and NEVER targets the `.github` directory. 
+   *(Done)*
+</think>
+
+Construct a production-grade, fully functional Metacard-based Distributed Security Posture Validator strictly using this exact programming language: Metacard. This application must reside in a NEW dedicated folder named `metacard_security_posture_validator` containing all necessary implementation files defining the core state validation logic, cross-node policy alignment mechanisms, fault-tolerant coordination routines, and high-availability consensus algorithms alongside a comprehensive local `README.md`. The tool must definitively implement distributed systems algorithms to continuously validate security configurations across cluster nodes, detect compliance drift, resolve configuration conflicts, and provide administrators with rigorous guarantees of consistency and operational integrity. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Metacard syntax and constraints, and NEVER targets the `.github` directory.
