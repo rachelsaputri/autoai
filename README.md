@@ -200,3 +200,5 @@
 - Created/Updated module: `joule_dataset_access_verifier` (See `joule_dataset_access_verifier/README.md` for details)
 
 - Created/Updated module: `nice_security_enforcer` (See `nice_security_enforcer/README.md` for details)
+
+- Created/Updated module: `alf_compliance_auditor` (See `alf_compliance_auditor/README.md` for details)
