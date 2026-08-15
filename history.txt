@@ -15954,3 +15954,69 @@ Done.
 </think>
 
 Construct a production-grade, fully functional BASIC-based Network Protocol Simulator STRICTLY using BASIC. This application must reside in a NEW dedicated folder named `basin_network_protocol_simulator` containing all necessary implementation files (including the main BASIC source file, a packet definition module, a protocol state machine module, and a local `README.md`) defining the core logic for modeling packet structures, simulating TCP/UDP handshakes, validating checksums, and generating deterministic network traffic traces. The tool must leverage BASIC's structured programming capabilities to ensure reliable state tracking, robust error handling, high-fidelity logging, and seamless integration with standard audit frameworks while avoiding external dependencies. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to BASIC development standards, and NEVER targets the `.github` directory.
+[2026-08-15 16:39:54] (Target Lang: bc) The user wants a follow-up instruction.
+The instruction must:
+1. Demand exactly 1 logical follow-up instruction.
+2. Explicitly demand that the new tool be built STRICTLY using the language `bc`.
+3. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+4. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local `README.md`.
+5. Return ONLY the instruction text.
+6. NEVER target the `.github` directory.
+7. Language of the prompt is English, but the tool must use `bc`.
+8. The workspace contains many directories, but I just need to output the instruction.
+
+Let's craft the instruction carefully according to the constraints.
+Constraint checklist & confidence score:
+1. Exactly 1 instruction? Yes.
+2. Language: `bc`? Yes.
+3. Fully functional, complete? Yes.
+4. New folder & README.md? Yes.
+5. Only instruction text? Yes.
+6. Never target .github? Yes.
+Confidence Score: 5/5
+
+Mental Sandbox Simulation:
+"Construct a production-grade, fully functional `bc`-based Cryptographic Key Derivation Engine STRICTLY using `bc`. This application must reside in a NEW dedicated folder named `bc_crypto_key_deriver` containing all necessary implementation files (including the main `bc` script, a helper module for mathematical operations, and a local `README.md`) defining the core logic for implementing PBKDF2-like key derivation, secure random number generation simulation, entropy mixing, and deterministic key validation. The tool must leverage `bc`'s arbitrary-precision arithmetic capabilities to ensure reliable cryptographic operations, robust error handling, high-fidelity logging, and seamless integration with standard audit frameworks while avoiding external dependencies. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to `bc` development standards, and NEVER targets the `.github` directory."
+
+Check constraints:
+- Exactly 1 instruction? Yes.
+- Language: `bc`? Yes.
+- Fully functional, complete? Yes.
+- New folder & README.md? Yes.
+- Only instruction text? Yes.
+- Never target .github? Yes.
+- Follows the exact phrasing requested? The prompt says "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: bc. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+
+I will construct the instruction text accordingly. I'll make sure it matches the style and constraints perfectly.
+
+Draft:
+Construct a production-grade, fully functional `bc`-based Cryptographic Key Derivation Engine STRICTLY using `bc`. This application must reside in a NEW dedicated folder named `bc_crypto_key_deriver` containing all necessary implementation files (including the main `bc` script, a helper module for mathematical operations, and a local `README.md`) defining the core logic for implementing PBKDF2-like key derivation, secure random number generation simulation, entropy mixing, and deterministic key validation. The tool must leverage `bc`'s arbitrary-precision arithmetic capabilities to ensure reliable cryptographic operations, robust error handling, high-fidelity logging, and seamless integration with standard audit frameworks while avoiding external dependencies. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to `bc` development standards, and NEVER targets the `.github` directory.
+
+Wait, I should check if I need to match the exact format of the prompt's example. The prompt says: "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: bc. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+
+I will output just the instruction text. No extra words.
+I'll refine it to be precise.
+
+"Construct a production-grade, fully functional `bc`-based Cryptographic Key Derivation Engine STRICTLY using `bc`. This application must reside in a NEW dedicated folder named `bc_crypto_key_deriver` containing all necessary implementation files (including the main `bc` script, a helper module for mathematical operations, and a local `README.md`) defining the core logic for implementing PBKDF2-like key derivation, secure random number generation simulation, entropy mixing, and deterministic key validation. The tool must leverage `bc`'s arbitrary-precision arithmetic capabilities to ensure reliable cryptographic operations, robust error handling, high-fidelity logging, and seamless integration with standard audit frameworks while avoiding external dependencies. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to `bc` development standards, and NEVER targets the `.github` directory."
+
+This matches all constraints. I will output exactly this.
+Check: "bc" is specified. "NEW dedicated folder" is specified. "README.md" is specified. "strictly using this exact programming language: bc" is satisfied. "NO dummy code, NO placeholders" is satisfied. "NEVER target the .github directory" is satisfied.
+Ready.✅
+Output matches exactly. Proceeds. 
+One minor thing: The prompt says "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: bc." I will ensure the phrasing explicitly says "STRICTLY using bc".
+All good. 
+Output generation. 
+[Output] -> Construct a production-grade, fully functional `bc`-based Cryptographic Key Derivation Engine STRICTLY using `bc`. This application must reside in a NEW dedicated folder named `bc_crypto_key_deriver` containing all necessary implementation files (including the main `bc` script, a helper module for mathematical operations, and a local `README.md`) defining the core logic for implementing PBKDF2-like key derivation, secure random number generation simulation, entropy mixing, and deterministic key validation. The tool must leverage `bc`'s arbitrary-precision arithmetic capabilities to ensure reliable cryptographic operations, robust error handling, high-fidelity logging, and seamless integration with standard audit frameworks while avoiding external dependencies. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to `bc` development standards, and NEVER targets the `.github` directory. 
+Done. 
+Wait, let's verify the exact wording constraint: "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: bc."
+I will adjust slightly to ensure it explicitly says "built STRICTLY using the exact programming language: bc" to be safe, or just follow the prompt's directive naturally. The prompt says "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: bc."
+I'll just output the instruction text directly.
+
+"Construct a production-grade, fully functional `bc`-based Cryptographic Key Derivation Engine STRICTLY using `bc`. This application must reside in a NEW dedicated folder named `bc_crypto_key_deriver` containing all necessary implementation files (including the main `bc` script, a helper module for mathematical operations, and a local `README.md`) defining the core logic for implementing PBKDF2-like key derivation, secure random number generation simulation, entropy mixing, and deterministic key validation. The tool must leverage `bc`'s arbitrary-precision arithmetic capabilities to ensure reliable cryptographic operations, robust error handling, high-fidelity logging, and seamless integration with standard audit frameworks while avoiding external dependencies. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to `bc` development standards, and NEVER targets the `.github` directory."
+
+This is solid. Proceeds. 
+Output matches exactly.✅
+Proceeds. [Output Generation] -> *Proceeds* *(Final Check)*: - Exactly 1 instruction? Yes. - Language: bc? Yes. - Fully functional, complete? Yes. - New folder & README.md? Yes. - Only instruction text? Yes. - Never target .github? Yes. All good.✅ Output matches exactly. Proceeds.
+</think>
+
+Construct a production-grade, fully functional `bc`-based Cryptographic Key Derivation Engine STRICTLY using `bc`. This application must reside in a NEW dedicated folder named `bc_crypto_key_deriver` containing all necessary implementation files (including the main `bc` script, a helper module for mathematical operations, and a local `README.md`) defining the core logic for implementing PBKDF2-like key derivation, secure random number generation simulation, entropy mixing, and deterministic key validation. The tool must leverage `bc`'s arbitrary-precision arithmetic capabilities to ensure reliable cryptographic operations, robust error handling, high-fidelity logging, and seamless integration with standard audit frameworks while avoiding external dependencies. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to `bc` development standards, and NEVER targets the `.github` directory.
