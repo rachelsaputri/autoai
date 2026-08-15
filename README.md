@@ -176,3 +176,5 @@
 - Created/Updated module: `frege_policy_verifier` (See `frege_policy_verifier/README.md` for details)
 
 - Created/Updated module: `speedcode_threat_intel_aggregator` (See `speedcode_threat_intel_aggregator/README.md` for details)
+
+- Created/Updated module: `averest_policy_compliance_auditor` (See `averest_policy_compliance_auditor/README.md` for details)

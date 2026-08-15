@@ -8602,3 +8602,76 @@ Construct a decentralized threat intelligence aggregator built STRICTLY using th
 </think>
 
 Construct a centralized security configuration hardener built STRICTLY using this exact programming language: GJ. This application must reside in a NEW dedicated folder named `gj_security_config_hardener` containing all necessary source files and a comprehensive local README.md. Design a deterministic, rule-based module capable of auditing system configurations, identifying deviations from security baselines, and enforcing automated remediation commands. The solution must leverage GJ's strict typing, robust error handling, and efficient compilation model, while providing clear compilation and deployment instructions for seamless integration with the existing enterprise audit infrastructure.
+[2026-08-15 08:42:40] (Target Lang: Averest) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Context:** The user provides a large directory listing of a workspace containing many security, audit, compliance, and analysis tools written in various languages (Rust, Python, Go, Java, C#, C, Haskell, Fortran, Rexx, etc.). There's also a history showing previous interactions/constraints.
+   - **Constraints:**
+     - Generate exactly 1 logical follow-up instruction.
+     - MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Averest.
+     - If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md.
+     - Return ONLY the instruction text.
+     - NEVER target the .github directory.
+   - **Input Text to Process:** The user pasted a previous interaction/output that seems to be a prompt for a GJ tool, followed by the actual instruction: "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Averest. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+
+2.  **Identify Key Requirements for Output:**
+   - Must be exactly one instruction.
+   - Must explicitly state the programming language: Averest.
+   - Must mention a NEW dedicated folder for the tool.
+   - Must mention creating a local README.md.
+   - Must be logical/follow-up to the existing workspace (security/audit theme).
+   - Must NOT target .github.
+   - Must return ONLY the instruction text (no extra words, no markdown outside the instruction if possible, but standard formatting within is fine).
+
+3.  **Draft Construction (Mental Refinement):**
+   I need to craft a prompt that matches the style of the workspace and previous instructions, while strictly adhering to the constraints.
+   *Theme:* The workspace has many audit, compliance, policy verification, and security hardening tools. Averest is likely a formal verification/policy analysis language (based on the existing `averest_formal_policy_verifier`, `averest_memory_network_simulator`, and `.a0`/`.ky` files).
+   *Instruction:* Construct a formal policy compliance auditor built STRICTLY using this exact programming language: Averest. This application must reside in a NEW dedicated folder named `averest_formal_policy_compliance_auditor` containing all necessary source files and a comprehensive local README.md. Design a deterministic, mathematically rigorous module capable of analyzing enterprise security policies, verifying state machine transitions against compliance constraints, and generating formal proofs of policy adherence. The solution must leverage Averest's declarative verification capabilities and precise type system, while providing clear compilation and deployment instructions for seamless integration with the existing enterprise audit infrastructure.
+   *Check constraints:*
+   - Exactly 1 logical follow-up instruction? Yes.
+   - Explicitly demand Averest? Yes.
+   - NEW dedicated folder mentioned? Yes.
+   - Local README.md mentioned? Yes.
+   - Return ONLY the instruction text? Yes.
+   - NEVER target .github? Yes, not mentioned.
+   - Fits workspace theme? Yes, formal policy compliance auditing.
+
+   Let's align it closely with the requested format/style. I'll make it concise and direct.
+   "Construct a formal policy compliance auditor built STRICTLY using this exact programming language: Averest. This application must reside in a NEW dedicated folder named `averest_policy_compliance_auditor` containing all necessary source files and a comprehensive local README.md. Design a deterministic, mathematically rigorous module capable of analyzing enterprise security policies, verifying state transitions against compliance constraints, and generating formal proofs of policy adherence. The solution must leverage Averest's declarative verification capabilities and precise type system, while providing clear compilation and deployment instructions for seamless integration with the existing enterprise audit infrastructure."
+
+   Wait, the prompt says "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Averest." I'll make sure the wording matches that exactly or closely.
+   Let's check the exact phrasing requirement: "built STRICTLY using this exact programming language: Averest." I'll use that exact phrase.
+   Also, ensure it's exactly one instruction.
+   I will output just the paragraph.
+
+   Draft:
+   Construct a centralized policy compliance auditor built STRICTLY using this exact programming language: Averest. This application must reside in a NEW dedicated folder named `averest_policy_compliance_auditor` containing all necessary source files and a comprehensive local README.md. Design a deterministic, formal verification module capable of analyzing enterprise security policies, verifying state transitions against compliance constraints, and generating mathematical proofs of policy adherence. The solution must leverage Averest's declarative verification engine and rigorous type system, while providing clear compilation and deployment instructions for seamless integration with the existing enterprise audit infrastructure.
+
+   Check against constraints:
+   - Exactly 1 logical follow-up instruction? Yes.
+   - Explicitly demand Averest? Yes ("built STRICTLY using this exact programming language: Averest.").
+   - NEW dedicated folder & README.md? Yes.
+   - Return ONLY instruction text? Yes.
+   - Never target .github? Yes.
+   - Fits workspace? Yes, aligns with `averest_formal_policy_verifier` and the overall security/audit theme.
+
+   All constraints met. I will output exactly this text. No extra words. Proceed. 
+   One minor thing: The prompt says "Return ONLY the instruction text." I will output exactly the drafted paragraph. No markdown formatting outside it, but backticks inside are fine. I'll keep it clean.
+   Final check of the draft matches all requirements. Output matches.✅
+   Generating. 
+   [Output Generation] -> *Proceeds* ✅
+   *(Self-Correction/Verification during thought)*: I should ensure the exact phrasing "built STRICTLY using this exact programming language: Averest" is included as requested. The draft has it. I'll output it exactly. No extra text. All good. 
+   Output matches requirement.✅
+   [Output Generation] -> *Proceeds* ✅
+   *(Final Text Generation)*: Construct a centralized policy compliance auditor built STRICTLY using this exact programming language: Averest. This application must reside in a NEW dedicated folder named `averest_policy_compliance_auditor` containing all necessary source files and a comprehensive local README.md. Design a deterministic, formal verification module capable of analyzing enterprise security policies, verifying state transitions against compliance constraints, and generating mathematical proofs of policy adherence. The solution must leverage Averest's declarative verification engine and rigorous type system, while providing clear compilation and deployment instructions for seamless integration with the existing enterprise audit infrastructure.✅
+   Output matches exactly. Proceeds.✅
+   [Done] 
+   *Self-Correction/Note during generation prep*: I'll make sure there's absolutely no extra text, not even a greeting or sign-off. Just the paragraph. The prompt says "Return ONLY the instruction text." I will comply strictly.
+   All constraints verified. Output matches.✅
+   Proceeds. 
+   [Output Generation] -> *Proceeds* ✅
+   *(Final Text Generation)*: Construct a centralized policy compliance auditor built STRICTLY using this exact programming language: Averest. This application must reside in a NEW dedicated folder named `averest_policy_compliance_auditor` containing all necessary source files and a comprehensive local README.md. Design a deterministic, formal verification module capable of analyzing enterprise security policies, verifying state transitions against compliance constraints, and generating mathematical proofs of policy adherence. The solution must leverage Averest's declarative verification engine and rigorous type system, while providing clear compilation and deployment instructions for seamless integration with the existing enterprise audit infrastructure.✅
+   *(Done.)*
+</think>
+
+Construct a centralized policy compliance auditor built STRICTLY using this exact programming language: Averest. This application must reside in a NEW dedicated folder named `averest_policy_compliance_auditor` containing all necessary source files and a comprehensive local README.md. Design a deterministic, formal verification module capable of analyzing enterprise security policies, verifying state transitions against compliance constraints, and generating mathematical proofs of policy adherence. The solution must leverage Averest's declarative verification engine and rigorous type system, while providing clear compilation and deployment instructions for seamless integration with the existing enterprise audit infrastructure.
