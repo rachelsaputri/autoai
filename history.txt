@@ -11518,3 +11518,75 @@ Proceeds. [Output matches exactly.] *(Done.)*
 </think>
 
 Construct a production-grade, fully functional data processing utility STRICTLY using this exact programming language: ABC ALGOL. This application must reside in a NEW dedicated folder named `abc_data_processor` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement automated batch ingestion, schema validation, record transformation, and structured logging. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+[2026-08-15 11:50:09] (Target Lang: ABLE) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - The user provided a workspace list (file/folder tree).
+   - History contains a previous prompt/response about ABC ALGOL.
+   - The actual prompt to follow is at the end: "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: ABLE. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+
+2.  **Identify Key Constraints:**
+   - Generate exactly 1 logical follow-up instruction.
+   - MUST explicitly demand the new tool be built STRICTLY using the exact programming language: ABLE.
+   - Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+   - If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md.
+   - Return ONLY the instruction text.
+   - NEVER target the .github directory.
+
+3.  **Formulate the Instruction:**
+   - Need to follow the exact phrasing style requested.
+   - Language: ABLE
+   - New folder name: `able_audit_trail_analyzer` (or similar, but the prompt doesn't specify a name, I'll pick a logical one like `able_audit_analyzer` or `able_compliance_monitor`)
+   - Must include: NEW dedicated folder, local README.md, fully functional, complete implementation, NO dummy code, NO placeholders.
+   - Structure: "Construct a production-grade, fully functional [tool description] STRICTLY using this exact programming language: ABLE. This application must reside in a NEW dedicated folder named `[folder_name]` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement [features]. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+   - I need to make it a single logical instruction matching the prompt's exact requested phrasing style.
+
+   Let's draft it carefully:
+   "Construct a production-grade, fully functional enterprise security compliance auditor STRICTLY using this exact programming language: ABLE. This application must reside in a NEW dedicated folder named `able_compliance_auditor` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement continuous configuration monitoring, vulnerability scanning, policy alignment verification, and automated remediation workflows. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+
+4.  **Check Constraints:**
+   - Exactly 1 logical follow-up instruction? Yes.
+   - Explicitly demand built STRICTLY using ABLE? Yes.
+   - Demand fully functional, complete implementation (NO dummy code, NO placeholders)? Yes.
+   - Place in NEW dedicated folder & create local README.md? Yes.
+   - Return ONLY the instruction text? Yes.
+   - NEVER target .github? Yes, not mentioned.
+   - Matches prompt style? Yes.
+
+   The prompt says: "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: ABLE. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+
+   I will strictly output just the instruction text as requested. No extra words.
+
+   Draft: Construct a production-grade, fully functional threat intelligence correlation engine STRICTLY using this exact programming language: ABLE. This application must reside in a NEW dedicated folder named `able_threat_intel_engine` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement real-time feed aggregation, cross-reference deduplication, severity scoring, and automated alert dispatch. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+
+   Check against constraints:
+   - 1 instruction? Yes.
+   - STRICTLY using ABLE? Yes.
+   - Fully functional, complete (NO dummy/placeholders)? Yes.
+   - NEW dedicated folder & README.md? Yes.
+   - ONLY instruction text? Yes.
+   - No .github? Yes.
+
+   All constraints met. Output matches exactly. Proceeds. 
+   I will output exactly the drafted text.✅
+   One minor thing: The prompt says "Generate exactly 1 logical follow-up instruction." It's a single sentence/paragraph. I'll keep it tight.
+   "Construct a production-grade, fully functional threat intelligence correlation engine STRICTLY using this exact programming language: ABLE. This application must reside in a NEW dedicated folder named `able_threat_intel_engine` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement real-time feed aggregation, cross-reference deduplication, severity scoring, and automated alert dispatch. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+   Matches perfectly. Output matches exactly. Proceeds. 
+   Output generation. 
+   [Done] 
+   Self-Correction/Verification during thought: 
+   The prompt says "Return ONLY the instruction text." I will strictly output just that paragraph. No extra text. All constraints verified.✅
+   Proceeds. 
+   Output matches exactly.✅
+   [Final Check of the Prompt]: "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: ABLE. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+   All good. Output matches exactly. Proceeds.✅
+   Output Generation.✅
+   `Construct a production-grade, fully functional threat intelligence correlation engine STRICTLY using this exact programming language: ABLE. This application must reside in a NEW dedicated folder named `able_threat_intel_engine` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement real-time feed aggregation, cross-reference deduplication, severity scoring, and automated alert dispatch. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).` -> matches perfectly. 
+   Proceeds.✅
+   [Output Generation] -> *Proceeds.* (Wait, the prompt says "Return ONLY the instruction text." I will just output the instruction itself.)
+   Final string: Construct a production-grade, fully functional threat intelligence correlation engine STRICTLY using this exact programming language: ABLE. This application must reside in a NEW dedicated folder named `able_threat_intel_engine` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement real-time feed aggregation, cross-reference deduplication, severity scoring, and automated alert dispatch. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).✅
+   Done. 
+   Output matches exactly. Proceeds.✅
+</think>
+
+Construct a production-grade, fully functional threat intelligence correlation engine STRICTLY using this exact programming language: ABLE. This application must reside in a NEW dedicated folder named `able_threat_intel_engine` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement real-time feed aggregation, cross-reference deduplication, severity scoring, and automated alert dispatch. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
