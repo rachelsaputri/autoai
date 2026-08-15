@@ -1,0 +1,24 @@
+import types;
+import memory_manager;
+import protocol_simulator;
+import event_loop;
+
+// Main program entry point
+// Initializes the memory manager and network simulator, then runs the event loop.
+
+fn main():
+    MemoryManager mem_manager;
+    NetworkSimulator net_sim;
+    EventLoop loop;
+
+    // Initialize memory manager with a fixed pool size
+    mem_manager.init(1024 * 1024); // 1MB pool
+
+    // Initialize network simulator with a queue size
+    net_sim.init(100);
+
+    // Run the event loop
+    loop.run(&mem_manager, &net_sim);
+
+    return 0;
+end

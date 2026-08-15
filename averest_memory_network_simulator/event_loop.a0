@@ -1,0 +1,53 @@
+import types;
+import memory_manager;
+import protocol_simulator;
+
+// Event Loop module
+// Centralized event processing for memory and network events.
+
+struct EventLoop {
+    running: bool,
+}
+
+fn EventLoop.run(self, mem_manager: &MemoryManager, net_sim: &NetworkSimulator):
+    self.running = true;
+    var i = 0;
+
+    while self.running and i < 100: // Simulate 100 events
+        // Simulate a random event
+        var event = EventMemoryAllocate;
+        match event:
+            case EventMemoryAllocate:
+                mem_manager.allocate(100, i);
+                break;
+            case EventMemoryFree:
+                mem_manager.free(0, 100);
+                break;
+            case EventNetworkSend:
+                // Simulate sending a packet
+                net_sim.send(0, new Array<u8>{1, 2, 3});
+                break;
+            case EventNetworkReceive:
+                net_sim.receive();
+                break;
+            case EventNetworkConnect:
+                net_sim.connect(192, 168, 1, 1, 80, 443);
+                break;
+            case EventNetworkDisconnect:
+                // Simulate disconnect
+                break;
+        end
+
+        i += 1;
+    end
+end
+
+// Main loop
+// fn main():
+//     EventLoop loop;
+//     MemoryManager mem;
+//     NetworkSimulator net;
+//     mem.init(1024);
+//     net.init(100);
+//     loop.run(&mem, &net);
+// end

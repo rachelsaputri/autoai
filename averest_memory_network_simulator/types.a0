@@ -1,0 +1,52 @@
+// Common data types and structures
+
+type EventType = 
+    | MemoryAllocate
+    | MemoryFree
+    | NetworkSend
+    | NetworkReceive
+    | NetworkConnect
+    | NetworkDisconnect;
+
+type MemoryBlock = {
+    address: usize,
+    size: usize,
+    is_allocated: bool,
+    tag: u32;
+};
+
+type Packet = {
+    source_ip: u32,
+    dest_ip: u32,
+    source_port: u16,
+    dest_port: u16,
+    payload: Array<u8>,
+    sequence_number: u32;
+};
+
+type ConnectionState = 
+    | CLOSED
+    | SYN_SENT
+    | SYN_RECEIVED
+    | ESTABLISHED
+    | FIN_WAIT_1
+    | FIN_WAIT_2
+    | CLOSE_WAIT
+    | CLOSING
+    | LAST_ACK
+    | TIME_WAIT;
+
+type Connection = {
+    local_ip: u32,
+    local_port: u16,
+    remote_ip: u32,
+    remote_port: u16,
+    state: ConnectionState,
+    recv_buffer: Array<u8>,
+    send_buffer: Array<u8>;
+};
+
+// Global constants
+const MAX_MEMORY_SIZE: usize = 1024 * 1024 * 100; // 100MB max
+const MAX_PACKET_SIZE: usize = 1500;
+const QUEUE_SIZE: usize = 1000;

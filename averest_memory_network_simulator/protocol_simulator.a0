@@ -1,0 +1,114 @@
+import types;
+
+// Network Simulator module
+// Simulates a simple TCP-like protocol with state transitions.
+
+struct NetworkSimulator {
+    connections: Array<Connection>,
+    packet_queue: Array<Packet>,
+    max_queue_size: usize,
+}
+
+fn NetworkSimulator.init(self, max_queue: usize):
+    self.connections = new Array<Connection>(0);
+    self.packet_queue = new Array<Packet>(0);
+    self.max_queue_size = max_queue;
+end
+
+fn NetworkSimulator.connect(self, local_ip: u32, local_port: u16, remote_ip: u32, remote_port: u16) -> usize:
+    if self.connections.length >= 100: // Max connections
+        return -1;
+    end
+
+    var conn = Connection(local_ip, local_port, remote_ip, remote_port, SYN_SENT, new Array<u8>(0), new Array<u8>(0));
+    self.connections.append(conn);
+    return self.connections.length - 1;
+end
+
+fn NetworkSimulator.send(self, conn_index: usize, payload: Array<u8>):
+    if conn_index < 0 or conn_index >= self.connections.length:
+        return;
+    end
+
+    var conn = self.connections[conn_index];
+    if conn.state != ESTABLISHED and conn.state != FIN_WAIT_1 and conn.state != FIN_WAIT_2:
+        return;
+    end
+
+    // Create packet
+    var pkt = Packet(conn.local_ip, conn.remote_ip, conn.local_port, conn.remote_port, payload, 0);
+    self.packet_queue.append(pkt);
+
+    // Simulate sending
+    if self.packet_queue.length > self.max_queue_size:
+        // Drop oldest packet
+        self.packet_queue.remove(0);
+    end
+end
+
+fn NetworkSimulator.receive(self):
+    // Process received packets
+    while self.packet_queue.length > 0:
+        var pkt = self.packet_queue.remove(0);
+        self.process_packet(pkt);
+    end
+end
+
+fn NetworkSimulator.process_packet(self, pkt: Packet):
+    // Find connection
+    for i in 0 to self.connections.length:
+        var conn = self.connections[i];
+        if conn.local_ip == pkt.dest_ip and conn.local_port == pkt.dest_port:
+            // Update state
+            self.handle_packet(conn, pkt, i);
+            return;
+        end
+    end
+    // If no connection found, ignore or create if SYN
+end
+
+fn handle_packet(self, conn: Connection, pkt: Packet, index: usize):
+    match conn.state:
+        case SYN_SENT:
+            // Expect SYN-ACK
+            if pkt.source_port == conn.remote_port and pkt.dest_port == conn.local_port:
+                conn.state = ESTABLISHED;
+                self.connections[index] = conn;
+            end
+            break;
+        case ESTABLISHED:
+            // Data received
+            conn.recv_buffer = conn.recv_buffer + pkt.payload;
+            break;
+        case FIN_WAIT_1:
+            if pkt.source_port == conn.remote_port and pkt.dest_port == conn.local_port:
+                conn.state = TIME_WAIT;
+                self.connections[index] = conn;
+            end
+            break;
+        case FIN_WAIT_2:
+            conn.state = TIME_WAIT;
+            self.connections[index] = conn;
+            break;
+        case CLOSE_WAIT:
+            conn.state = LAST_ACK;
+            self.connections[index] = conn;
+            break;
+        case CLOSING:
+            conn.state = TIME_WAIT;
+            self.connections[index] = conn;
+            break;
+        case LAST_ACK:
+            conn.state = CLOSED;
+            self.connections.remove(index);
+            break;
+        case TIME_WAIT:
+            // Wait for timeout
+            break;
+        default:
+            break;
+    end
+end
+
+// Verification: Ensure no memory leaks in connections
+// assert self.connections.length <= 100;

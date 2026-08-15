@@ -1,0 +1,76 @@
+import types;
+
+// Memory Manager module
+// Simulates a simple memory allocator with a fixed pool.
+
+struct MemoryManager {
+    pool: Array<u8>,
+    blocks: Array<MemoryBlock>,
+    total_size: usize,
+    used_size: usize,
+}
+
+fn MemoryManager.init(self, size: usize):
+    self.pool = new Array<u8>(size);
+    self.blocks = new Array<MemoryBlock>(0);
+    self.total_size = size;
+    self.used_size = 0;
+end
+
+fn MemoryManager.allocate(self, size: usize, tag: u32) -> usize:
+    if size > self.total_size - self.used_size:
+        return 0; // Out of memory
+    end
+
+    // Find a free block
+    var address = 0;
+    for i in 0 to self.total_size - size:
+        if is_free(self, i, size):
+            address = i;
+            break;
+        end
+    end
+
+    if address == 0 and not is_free(self, 0, size):
+        return 0;
+    end
+
+    // Mark block as allocated
+    var block = MemoryBlock(address, size, true, tag);
+    self.blocks.append(block);
+    self.used_size += size;
+
+    return address;
+end
+
+fn MemoryManager.free(self, address: usize, size: usize):
+    var i = 0;
+    for block in self.blocks:
+        if block.address == address and block.size == size:
+            block.is_allocated = false;
+            self.used_size -= size;
+            self.blocks.remove(i);
+            return;
+        end
+        i += 1;
+    end
+end
+
+fn is_free(self, address: usize, size: usize) -> bool:
+    for block in self.blocks:
+        if block.is_allocated and block.address <= address and block.address + block.size > address:
+            return false;
+        end
+        if block.is_allocated and address + size > block.address and address + size <= block.address + block.size:
+            return false;
+        end
+        if block.is_allocated and address < block.address + block.size and address + size > block.address:
+            return false;
+        end
+    end
+    return true;
+end
+
+// Verification: Ensure memory safety
+// assert self.used_size <= self.total_size;
+// assert for all block in self.blocks: block.is_allocated;

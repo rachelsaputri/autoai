@@ -140,3 +140,5 @@
 - Created/Updated module: `squeak_encryption_tool` (See `squeak_encryption_tool/README.md` for details)
 
 - Created/Updated module: `binary_integrity_verifier` (See `binary_integrity_verifier/README.md` for details)
+
+- Created/Updated module: `averest_memory_network_simulator` (See `averest_memory_network_simulator/README.md` for details)
