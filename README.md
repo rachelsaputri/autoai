@@ -168,3 +168,5 @@
 - Created/Updated module: `phrogram_remediation_orchestrator` (See `phrogram_remediation_orchestrator/README.md` for details)
 
 - Created/Updated module: `epl_compliance_report_generator` (See `epl_compliance_report_generator/README.md` for details)
+
+- Created/Updated module: `batch_remediation_bridge` (See `batch_remediation_bridge/README.md` for details)
