@@ -306,3 +306,5 @@
 - Created/Updated module: `distributed_policy_enforcement_coordinator` (See `distributed_policy_enforcement_coordinator/README.md` for details)
 
 - Created/Updated module: `nesl_parallel_compliance_detector` (See `nesl_parallel_compliance_detector/README.md` for details)
+
+- Created/Updated module: `batch_system_hardening_suite` (See `batch_system_hardening_suite/README.md` for details)
