@@ -1,0 +1,75 @@
+;; Policy Model Definitions for Averest Policy Compliance Auditor
+;; Defines core types, structures, and enumerations for policy representation.
+
+type PolicyType = | COMPLIANCE | SECURITY | ACCESS | DATA_PROTECTION
+type VerificationStatus = | COMPLIANT | NON_COMPLIANT | PARTIAL | UNDETERMINED
+type RuleSeverity = | CRITICAL | HIGH | MEDIUM | LOW
+type StateLabel = String
+type TransitionAction = String
+type ConstraintPredicate = (StateLabel -> Bool)
+
+struct Policy {
+  id: String,
+  name: String,
+  type: PolicyType,
+  version: Float,
+  description: String,
+  effective_date: Date,
+  expiration_date: Date,
+  owner: String,
+  rules: List[Rule],
+  constraints: List[ConstraintPredicate],
+  metadata: Map[String, String]
+}
+
+struct Rule {
+  id: String,
+  name: String,
+  condition: ConstraintPredicate,
+  action: TransitionAction,
+  severity: RuleSeverity,
+  enforcement_level: Int,
+  override_conditions: List[String],
+  audit_trail: List[LogEntry]
+}
+
+struct ConstraintPredicate {
+  name: String,
+  logic: Formula,
+  priority: Int,
+  scope: List[PolicyType]
+}
+
+struct LogEntry {
+  timestamp: DateTime,
+  action: TransitionAction,
+  result: VerificationStatus,
+  details: String,
+  prover_id: String
+}
+
+;; Type aliases for formal logic representation
+type Formula = | ATOM(String) | NOT(Formula) | AND(Formula, Formula) | OR(Formula, Formula) | IMPLIES(Formula, Formula) | FOR_ALL(StateLabel, Formula) | EXISTS(StateLabel, Formula)
+type ProofState = | UNPROVEN | PROVING | PROVEN | DISPROVEN | PARADOX
+type VerificationResult {
+  policy_id: String,
+  status: VerificationStatus,
+  violated_rules: List[String],
+  satisfied_constraints: List[String],
+  proof_certificate: Option[ProofState],
+  execution_time_ms: Float,
+  generated_at: DateTime
+}
+
+;; Export model definitions for compilation
+export Policy
+export Rule
+export ConstraintPredicate
+export LogEntry
+export Formula
+export VerificationResult
+export PolicyType
+export VerificationStatus
+export RuleSeverity
+export StateLabel
+export TransitionAction
