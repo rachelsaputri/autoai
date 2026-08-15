@@ -8675,3 +8675,57 @@ Construct a centralized security configuration hardener built STRICTLY using thi
 </think>
 
 Construct a centralized policy compliance auditor built STRICTLY using this exact programming language: Averest. This application must reside in a NEW dedicated folder named `averest_policy_compliance_auditor` containing all necessary source files and a comprehensive local README.md. Design a deterministic, formal verification module capable of analyzing enterprise security policies, verifying state transitions against compliance constraints, and generating mathematical proofs of policy adherence. The solution must leverage Averest's declarative verification engine and rigorous type system, while providing clear compilation and deployment instructions for seamless integration with the existing enterprise audit infrastructure.
+[2026-08-15 08:43:49] (Target Lang: Idris) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Input Context:** A long list of file paths representing various tools/directories in a workspace. Includes a history section with some internal monologue/notes about generating an instruction for an Averest-based policy compliance auditor.
+   - **Final Instruction in Input:** "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Idris. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+   - **Key Constraints:**
+     - Generate exactly 1 logical follow-up instruction.
+     - MUST explicitly demand the new tool be built STRICTLY using `Idris`.
+     - If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md.
+     - Return ONLY the instruction text.
+     - NEVER target the `.github` directory.
+
+2.  **Identify Core Requirements for Output:**
+   - Must be a single, self-contained instruction.
+   - Must specify `Idris` as the mandatory language.
+   - Must specify a new dedicated folder.
+   - Must specify creating a local `README.md`.
+   - Must be logically connected/follow-up to the previous context (policy compliance/formal verification/security tools).
+   - Must not mention `.github`.
+   - Output must be ONLY the instruction text, nothing else.
+
+3.  **Draft Construction (Mental):**
+   Construct a formal dependent type-based policy enforcement and verification framework built STRICTLY using this exact programming language: Idris. This application must reside in a NEW dedicated folder named `idris_dependent_policy_verifier` containing all necessary source files and a comprehensive local README.md. Design a rigorous theorem-proving module capable of encoding enterprise security policies as mathematical specifications, mechanically verifying implementation correctness against those specifications, and generating executable certification proofs for audit compliance. The solution must leverage Idris's expressive dependent type system and total function guarantees, while providing explicit compilation procedures and dependency management guidelines to ensure seamless integration within the existing formal verification pipeline.
+
+4.  **Check Constraints:**
+   - Exactly 1 logical follow-up instruction? Yes, one paragraph.
+   - Explicitly demand built STRICTLY using `Idris`? Yes: "built STRICTLY using this exact programming language: Idris."
+   - Explicitly instruct to place it in a NEW dedicated folder and create a local README.md? Yes: "reside in a NEW dedicated folder named `idris_dependent_policy_verifier` containing all necessary source files and a comprehensive local README.md."
+   - Return ONLY the instruction text? Yes, I will output just the drafted paragraph.
+   - NEVER target the `.github` directory? Checked. Not mentioned.
+   - Logical follow-up? Yes, continues the theme of formal verification/policy compliance, moving from Averest to Idris (dependent types).
+
+5.  **Refine (Self-Correction/Verification during drafting):**
+   - Check exact phrasing requirement: "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Idris." -> I'll make sure it matches closely or exactly.
+   - Check folder/README requirement: "explicitly instruct to place it in a NEW dedicated folder and create a local README.md." -> Matches.
+   - Check format: "Return ONLY the instruction text." -> I will output exactly the paragraph, no markdown wrapping if possible, or just raw text. The prompt says "Return ONLY the instruction text." I'll output it directly.
+   - I'll ensure the tone matches the previous generated instruction for consistency.
+   - Let's verify the exact wording constraint: "built STRICTLY using this exact programming language: Idris." I will include that exact phrase.
+   - All constraints met.
+
+   Draft:
+   Construct a formal dependent type-based policy enforcement and verification framework built STRICTLY using this exact programming language: Idris. This application must reside in a NEW dedicated folder named `idris_dependent_policy_verifier` containing all necessary source files and a comprehensive local README.md. Design a rigorous theorem-proving module capable of encoding enterprise security policies as mathematical specifications, mechanically verifying implementation correctness against those specifications, and generating executable certification proofs for audit compliance. The solution must leverage Idris's expressive dependent type system and total function guarantees, while providing explicit compilation procedures and dependency management guidelines to ensure seamless integration within the existing formal verification pipeline.
+
+   Matches all constraints. Ready. Output matches exactly.✅
+   Proceeds. 
+   Output generation. 
+   [Note: I will strictly output only the text as requested.] 
+   *Self-Correction/Verification during thought*: The prompt says "Return ONLY the instruction text." I will make sure there are no extra words, greetings, or markdown if possible, but the prompt itself uses markdown in the example. I'll just output the raw paragraph. All good. 
+   Output matches.✅
+   Proceeds. 
+   [Output Generation] -> *Proceeds* ✅
+</think>
+
+Construct a formal dependent type-based policy enforcement and verification framework built STRICTLY using this exact programming language: Idris. This application must reside in a NEW dedicated folder named `idris_dependent_policy_verifier` containing all necessary source files and a comprehensive local README.md. Design a rigorous theorem-proving module capable of encoding enterprise security policies as mathematical specifications, mechanically verifying implementation correctness against those specifications, and generating executable certification proofs for audit compliance. The solution must leverage Idris's expressive dependent type system and total function guarantees, while providing explicit compilation procedures and dependency management guidelines to ensure seamless integration within the existing formal verification pipeline.
