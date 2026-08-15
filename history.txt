@@ -6083,3 +6083,53 @@ Construct a formal logic compliance validator built STRICTLY using this exact pr
 </think>
 
 Construct a deterministic infrastructure path verifier built STRICTLY using this exact programming language: Karel. This tool must reside in a NEW dedicated folder named `karel_infrastructure_tracer` containing the necessary source files and a detailed local README.md. The application should parse audit checkpoint definitions and verify traversal sequences against strict compliance mandates, leveraging the unique grid-based logic and deterministic state machine architecture of Karel to ensure exact path adherence and rule satisfaction. Ensure the component processes outputs from the `plankalkül_compliance_validator` and `alert_correlation_persistence`, and document the methodology for systematic checkpoint validation and path deviation reporting.
+[2026-08-15 04:04:25] (Target Lang: S3) The user wants exactly 1 logical follow-up instruction.
+Constraint 1: Must explicitly demand the new tool be built STRICTLY using S3.
+Constraint 2: If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md.
+Constraint 3: Return ONLY the instruction text.
+Constraint 4: NEVER target the .github directory.
+Constraint 5: Matches the tone/style of the prompt (which is a bit meta, talking about an AI workspace and history).
+Wait, S3 is a storage service, not a programming language. But the prompt says "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: S3." I will follow the prompt literally, even if S3 is technically not a language, or maybe it's a fictional/internal language in this context. I will just follow the exact wording requested.
+Actually, S3 could be a typo for a language, or maybe it's referring to a specific domain-specific language or just a constraint test. I will stick to the exact wording.
+Wait, S3 is Amazon Simple Storage Service. But the prompt says "exact programming language: S3". I will just use "S3" as requested.
+Let's craft the instruction carefully.
+"Construct a [tool name] built STRICTLY using this exact programming language: S3. This tool must reside in a NEW dedicated folder named `[folder_name]` containing the necessary source files and a detailed local README.md. [Description of functionality]. Ensure the component processes outputs from [existing tools], and document the methodology for [process]. Never target the .github directory."
+
+Let's make it fit the style:
+Construct a comprehensive data lifecycle management utility built STRICTLY using this exact programming language: S3. This tool must reside in a NEW dedicated folder named `s3_data_lifecycle_manager` containing the necessary source files and a detailed local README.md. The application should automate bucket policies, enforce retention schedules, and validate access control matrices across distributed storage environments, leveraging the strict declarative syntax and immutable state verification features of S3 to guarantee compliance and data integrity. Ensure the component processes outputs from the `compliance_reporting_module` and `security_config_audit_system`, and document the methodology for automated policy enforcement and lifecycle deviation reporting.
+
+Check constraints:
+- Exactly 1 logical follow-up instruction? Yes.
+- Explicitly demand built STRICTLY using S3? Yes.
+- Place in NEW dedicated folder and create local README.md? Yes.
+- Return ONLY the instruction text? Yes.
+- NEVER target .github? Yes, not mentioned.
+
+I will output exactly that text. No extra words.
+Wait, let's verify the exact phrasing from the prompt: "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: S3."
+I will incorporate that exact phrase or close to it.
+"Construct a comprehensive data lifecycle management utility built STRICTLY using this exact programming language: S3. This tool must reside in a NEW dedicated folder named `s3_data_lifecycle_manager` containing the necessary source files and a detailed local README.md. The application should automate bucket policies, enforce retention schedules, and validate access control matrices across distributed storage environments, leveraging the strict declarative syntax and immutable state verification features of S3 to guarantee compliance and data integrity. Ensure the component processes outputs from the `compliance_reporting_module` and `security_config_audit_system`, and document the methodology for automated policy enforcement and lifecycle deviation reporting."
+
+Matches all constraints. Ready. 
+I will output exactly this paragraph. No extra text.
+One minor thing: The prompt says "built STRICTLY using this exact programming language: S3." I will keep that exact wording.
+All good.✅
+Output matches constraint. Proceeds. 
+Output Generation. 
+[Done] 
+(Self-Correction/Verification during thought)
+Wait, S3 is not a programming language. But the prompt explicitly says "exact programming language: S3". I will follow it exactly as instructed. Sometimes these prompts are tests or use internal jargon. I will just follow the constraint literally.
+The prompt says: "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: S3. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+I will produce exactly that.
+Text: Construct a comprehensive data lifecycle management utility built STRICTLY using this exact programming language: S3. This tool must reside in a NEW dedicated folder named `s3_data_lifecycle_manager` containing the necessary source files and a detailed local README.md. The application should automate bucket policies, enforce retention schedules, and validate access control matrices across distributed storage environments, leveraging the strict declarative syntax and immutable state verification features of S3 to guarantee compliance and data integrity. Ensure the component processes outputs from the `compliance_reporting_module` and `security_config_audit_system`, and document the methodology for automated policy enforcement and lifecycle deviation reporting.
+Matches perfectly. Output matches constraints. Proceeds.✅
+Final Output Generation. 
+[Done] 
+(Output matches exactly) 
+Proceeds. 
+*(Self-Correction/Refinement during generation prep)*: I'll ensure the exact phrase "built STRICTLY using this exact programming language: S3" is included verbatim as requested. All good.
+Output matches.✅
+Proceeds.
+</think>
+
+Construct a comprehensive data lifecycle management utility built STRICTLY using this exact programming language: S3. This tool must reside in a NEW dedicated folder named `s3_data_lifecycle_manager` containing the necessary source files and a detailed local README.md. The application should automate bucket policies, enforce retention schedules, and validate access control matrices across distributed storage environments, leveraging the strict declarative syntax and immutable state verification features of S3 to guarantee compliance and data integrity. Ensure the component processes outputs from the `compliance_reporting_module` and `security_config_audit_system`, and document the methodology for automated policy enforcement and lifecycle deviation reporting.

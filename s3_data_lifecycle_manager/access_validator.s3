@@ -1,0 +1,62 @@
+/* S3 Data Lifecycle Manager - Access Control Validator Module */
+/* Built STRICTLY using S3 */
+
+module AccessValidator;
+
+import { LifecycleContext, Statement, ConditionValue } from main.s3;
+
+// Validate access control matrices against compliance baseline
+function validateAccessMatrix(lifecycleCtx) -> ValidationResult {
+    let complianceMatrix = lifecycleCtx.compliance;
+    let securityBaseline = lifecycleCtx.baseline;
+    
+    let targetPermissions = derivePermissions(complianceMatrix);
+    let currentPermissions = enumerateCurrentPermissions();
+    
+    let valid = true;
+    let deviations = [];
+    
+    // Check for excessive privileges
+    for each perm in currentPermissions {
+        if (isPrivilegeExceeded(perm, targetPermissions)) {
+            valid = false;
+            deviations.add(AccessDeviation {
+                permission: perm,
+                expected: targetPermissions.find(p => p.resource == perm.resource),
+                type: "ExcessivePrivilege"
+            });
+        }
+    }
+    
+    // Check for missing required controls
+    for each required in targetPermissions {
+        let found = currentPermissions.find(p => p.resource == required.resource && p.action == required.action);
+        if (found == null) {
+            valid = false;
+            deviations.add(AccessDeviation {
+                permission: required,
+                expected: required,
+                type: "MissingControl"
+            });
+        }
+    }
+    
+    return ValidationResult {
+        valid: valid,
+        deviations: deviations
+    };
+}
+
+// Generate deviations report
+function generateDeviationsReport(validationResult) -> Report {
+    let report = {
+        timestamp: getCurrentTimestamp(),
+        status: validationResult.valid ? "COMPLIANT" : "NON-COMPLIANT",
+        deviations: validationResult.deviations
+    };
+    
+    // Write immutable report using S3 state verification
+    writeImmutableReport(report);
+    
+    return report;
+}
