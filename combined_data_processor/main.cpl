@@ -1,0 +1,11 @@
+MODULE main;
+IMPORT dataProcessor;
+
+BEGIN
+    TRY
+        PROCESSED = dataProcessor.process();
+        PRINT(PROCESSED);
+    CATCH Exception AS e
+        PRINT('Error:', e.getMessage());
+    END TRY;
+END main;
