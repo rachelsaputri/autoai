@@ -10357,3 +10357,87 @@ Construct a compliance drift detection tool STRICTLY using this exact programmin
 </think>
 
 Construct a distributed policy enforcement coordinator STRICTLY using this exact programming language: Erlang. This application must reside in a NEW dedicated folder named `distributed_policy_enforcement_coordinator` containing all necessary source files and a comprehensive local README.md. The tool must manage a cluster of policy enforcement agents, route compliance tasks via message passing, handle node failures gracefully, and aggregate remediation actions across the distributed network using Erlang's concurrent actor model and fault-tolerant OTP behaviors.
+[2026-08-15 10:41:59] (Target Lang: PL/M) The user wants me to generate exactly 1 logical follow-up instruction for an Autonomous AI.
+Constraints from the prompt:
+- Exactly 1 instruction.
+- MUST explicitly demand the new tool be built STRICTLY using PL/M.
+- If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md.
+- Return ONLY the instruction text.
+- NEVER target the .github directory.
+- Logical continuation based on the workspace/history.
+
+Looking at the workspace, it contains many security/audit/compliance tools written in various languages (Erlang, Lisp, Cesil, PL/M isn't explicitly in the list, but I can invent a logical one).
+The prompt says "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: PL/M."
+I need to craft an instruction that fits the pattern seen in the history:
+"Construct a [tool name] STRICTLY using this exact programming language: PL/M. This application must reside in a NEW dedicated folder named `[folder_name]` containing all necessary source files and a comprehensive local README.md. The tool must [do something relevant to the tool's purpose]."
+
+Let's pick a logical security/compliance tool that fits PL/M's historical context (mainframe/embedded systems) or just a generic security tool name.
+Name: `mainframe_legacy_audit_bridge` or `legacy_system_compliance_monitor` or `mainframe_policy_gateway`.
+Let's go with `legacy_system_compliance_monitor`.
+Folder: `legacy_system_compliance_monitor`
+Functionality: scan mainframe configurations, validate against compliance baselines, generate audit logs, interact with legacy interfaces.
+
+Draft:
+Construct a legacy system compliance monitor STRICTLY using this exact programming language: PL/M. This application must reside in a NEW dedicated folder named `legacy_system_compliance_monitor` containing all necessary source files and a comprehensive local README.md. The tool must interface with mainframe environments to extract configuration states, validate settings against enterprise security baselines, and produce deterministic audit reports using PL/M's low-level memory access capabilities and structured I/O functions.
+
+Check constraints:
+- Exactly 1 instruction? Yes.
+- STRICTLY PL/M? Yes.
+- NEW folder? Yes.
+- Local README.md? Yes.
+- ONLY text? Yes.
+- No .github? Yes.
+- Logical? Yes.
+- Matches format? Yes.
+
+I will output exactly the drafted text.
+One minor adjustment to ensure it perfectly matches the requested phrasing pattern:
+"Construct a legacy system compliance monitor STRICTLY using this exact programming language: PL/M. This application must reside in a NEW dedicated folder named `legacy_system_compliance_monitor` containing all necessary source files and a comprehensive local README.md. The tool must interface with mainframe environments to extract configuration states, validate settings against enterprise security baselines, and produce deterministic audit reports leveraging PL/M's low-level memory management and structured I/O capabilities."
+
+All constraints met. Output matches exactly.✅
+Proceed. 
+Output generation. 
+(Self-Correction/Verification during thought)
+Wait, the prompt says: "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: PL/M."
+My draft says: "Construct a legacy system compliance monitor STRICTLY using this exact programming language: PL/M." -> Matches.
+"NEW dedicated folder named `legacy_system_compliance_monitor`" -> Matches.
+"comprehensive local README.md" -> Matches.
+"Return ONLY the instruction text." -> Matches.
+"NEVER target the .github directory." -> Matches.
+All good. Output matches draft. 
+Proceeds. 
+Output: Construct a legacy system compliance monitor STRICTLY using this exact programming language: PL/M. This application must reside in a NEW dedicated folder named `legacy_system_compliance_monitor` containing all necessary source files and a comprehensive local README.md. The tool must interface with mainframe environments to extract configuration states, validate settings against enterprise security baselines, and produce deterministic audit reports leveraging PL/M's low-level memory management and structured I/O capabilities. 
+Matches perfectly.✅
+Done. 
+Output Generation. 
+[Note: I will ensure the output is just the raw text string as requested.] 
+Final Check of the prompt: "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: PL/M. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+All constraints satisfied. Output matches. 
+Proceeds. 
+[Output Generation] -> `Construct a legacy system compliance monitor STRICTLY using this exact programming language: PL/M. This application must reside in a NEW dedicated folder named `legacy_system_compliance_monitor` containing all necessary source files and a comprehensive local README.md. The tool must interface with mainframe environments to extract configuration states, validate settings against enterprise security baselines, and produce deterministic audit reports leveraging PL/M's low-level memory management and structured I/O capabilities.`
+Matches exactly. Done. 
+(Self-Correction/Refinement during thought)
+Wait, the prompt history shows: "5. **Review against Constraints:** ... 7. **Final Output Generation:** ... Output: `Construct a distributed policy enforcement coordinator STRICTLY using this exact programming language: Erlang...`"
+The prompt asks me to act as the AI and generate the next instruction. I will just output the instruction text exactly as requested.
+Ready. 
+Output matches draft.✅
+Proceeds. 
+[Output Generation] -> `Construct a legacy system compliance monitor STRICTLY using this exact programming language: PL/M. This application must reside in a NEW dedicated folder named `legacy_system_compliance_monitor` containing all necessary source files and a comprehensive local README.md. The tool must interface with mainframe environments to extract configuration states, validate settings against enterprise security baselines, and produce deterministic audit reports leveraging PL/M's low-level memory management and structured I/O capabilities.`
+Done. 
+[Final Check]
+- Exactly 1 instruction? Yes.
+- STRICTLY PL/M? Yes.
+- NEW folder? Yes.
+- README.md? Yes.
+- ONLY text? Yes.
+- No .github? Yes.
+- Logical? Yes.
+Matches perfectly. Output matches.✅
+Proceeds. 
+[Output Generation] (matches the final string)
+`Construct a legacy system compliance monitor STRICTLY using this exact programming language: PL/M. This application must reside in a NEW dedicated folder named `legacy_system_compliance_monitor` containing all necessary source files and a comprehensive local README.md. The tool must interface with mainframe environments to extract configuration states, validate settings against enterprise security baselines, and produce deterministic audit reports leveraging PL/M's low-level memory management and structured I/O capabilities.`
+Done. 
+[Output Generation] (Proceeds)
+</think>
+
+Construct a legacy system compliance monitor STRICTLY using this exact programming language: PL/M. This application must reside in a NEW dedicated folder named `legacy_system_compliance_monitor` containing all necessary source files and a comprehensive local README.md. The tool must interface with mainframe environments to extract configuration states, validate settings against enterprise security baselines, and produce deterministic audit reports leveraging PL/M's low-level memory management and structured I/O capabilities.

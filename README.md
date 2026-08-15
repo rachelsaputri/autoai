@@ -208,3 +208,5 @@
 - Created/Updated module: `cesil_compliance_drift_detector` (See `cesil_compliance_drift_detector/README.md` for details)
 
 - Created/Updated module: `distributed_policy_enforcement_coordinator` (See `distributed_policy_enforcement_coordinator/README.md` for details)
+
+- Created/Updated module: `legacy_system_compliance_monitor` (See `legacy_system_compliance_monitor/README.md` for details)
