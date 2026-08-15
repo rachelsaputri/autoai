@@ -1,0 +1,45 @@
+<xbl:service xmlns:xbl="http://www.w3.org/ns/xbl">
+  <xbl:endpoint id="compliance_bridge_api" path="/api/v1/compliance">
+    <xbl:method name="POST" operation="create_audit_record">
+      <xbl:input type="AuditEvent" />
+      <xbl:output type="AuditEvent" />
+      <xbl:auth>
+        <xbl:machine2machine />
+        <xbl:scope>audit:write</xbl:scope>
+      </xbl:auth>
+    </xbl:method>
+
+    <xbl:method name="GET" operation="get_token_lifecycle">
+      <xbl:input type="token_id: string" />
+      <xbl:output type="token_schema: HardwareToken" />
+      <xbl:auth>
+        <xbl:sso />
+        <xbl:scope>token:read</xbl:scope>
+      </xbl:auth>
+    </xbl:method>
+
+    <xbl:method name="POST" operation="generate_compliance_report">
+      <xbl:input type="report_schema: ComplianceReport" />
+      <xbl:output type="ComplianceReport" />
+      <xbl:auth>
+        <xbl:sso />
+        <xbl:scope>audit:report</xbl:scope>
+      </xbl:auth>
+    </xbl:method>
+
+    <xbl:method name="GET" operation="verify_integrity">
+      <xbl:input type="token_id: string" />
+      <xbl:output type="cryptographic_hash: string" />
+      <xbl:auth>
+        <xbl:machine2machine />
+        <xbl:scope>audit:verify</xbl:scope>
+      </xbl:auth>
+    </xbl:method>
+  </xbl:endpoint>
+
+  <xbl:logging>
+    <xbl:level>TRACE</xbl:level>
+    <xbl:retention>indefinite</xbl:retention>
+    <xbl:immutable>true</xbl:immutable>
+  </xbl:logging>
+</xbl:service>

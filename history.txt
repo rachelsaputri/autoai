@@ -9494,3 +9494,74 @@ This looks solid. It meets all constraints, provides a logical tool name, uses t
 </think>
 
 Construct a physical security token fabrication system STRICTLY using this exact programming language: G-code. This application must reside in a NEW dedicated folder named `hardware_token_cnc_generator` containing all necessary source files and a comprehensive local README.md. The system must generate precise G-code manufacturing instructions for CNC machines to produce hardware security tokens required for air-gapped authentication, ensuring dimensional accuracy and material specifications are strictly encoded for the production of cryptographic hardware roots of trust.
+[2026-08-15 09:54:31] (Target Lang: XBL) The user wants exactly 1 follow-up instruction for an autonomous AI workspace.
+The workspace contains many security-related tools, simulators, and verifiers.
+The instruction must:
+1. Explicitly demand the tool be built STRICTLY using the programming language: XBL (Microsoft's eXtensible Business Language? Or perhaps a fictional/placeholder language? Actually, XBL usually refers to eXtensible Business Language or XML Business Logic, but let's assume it's a specific language name provided by the prompt). Wait, XBL could be eXtensible Business Logic, but let's treat it as a strict constraint. I will just use "XBL" as the language.
+2. Place it in a NEW dedicated folder.
+3. Create a local README.md.
+4. Return ONLY the instruction text.
+5. NEVER target .github.
+6. Fit the workspace theme (security, audit, compliance, hardware, manufacturing, CNC, etc.).
+
+Let's craft an instruction that logically follows the previous one (hardware token fabrication via G-code) and moves into business logic, compliance tracking, or enterprise integration, using XBL.
+XBL (eXtensible Business Language) is often used for enterprise/business data exchange and rules.
+I will frame it around enterprise compliance and audit trail management for the hardware tokens.
+
+Constraint check:
+- Exactly 1 instruction? Yes.
+- STRICTLY use XBL? Yes.
+- NEW folder? Yes.
+- README.md? Yes.
+- ONLY instruction text? Yes.
+- Never target .github? Yes.
+- Logical follow-up? Yes, connects hardware token fabrication to enterprise compliance/audit management.
+
+Draft:
+Construct an enterprise compliance and audit trail management system STRICTLY using this exact programming language: XBL. This application must reside in a NEW dedicated folder named `enterprise_hardware_compliance_bridge` containing all necessary source files and a comprehensive local README.md. The system must define structured business rules and data schemas to track the lifecycle, cryptographic integrity, and regulatory adherence of the physical security tokens produced by the CNC fabrication system, ensuring seamless enterprise-level integration and immutable audit logging for zero-trust hardware supply chains.
+
+Check constraints:
+- Exactly 1 instruction? Yes.
+- STRICTLY XBL? Yes.
+- NEW folder `enterprise_hardware_compliance_bridge`? Yes.
+- README.md? Yes.
+- ONLY instruction text? Yes.
+- Never target .github? Yes.
+- Logical? Yes, bridges the CNC hardware generation to enterprise compliance.
+
+I will output exactly this draft. No extra text.
+Wait, let's verify XBL. It's fine. The prompt says "STRICTLY using this exact programming language: XBL."
+I'll make sure the phrasing matches the prompt's style.
+"Construct an enterprise compliance and audit trail management system STRICTLY using this exact programming language: XBL. This application must reside in a NEW dedicated folder named `enterprise_hardware_compliance_bridge` containing all necessary source files and a comprehensive local README.md. The system must define structured business rules and data schemas to track the lifecycle, cryptographic integrity, and regulatory adherence of the physical security tokens produced by the CNC fabrication system, ensuring seamless enterprise-level integration and immutable audit logging for zero-trust hardware supply chains."
+
+Matches all constraints. Ready.✅
+Output matches exactly.📝
+Proceeds. 
+Self-Correction/Refinement during thought: 
+The prompt says "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: XBL."
+I will ensure the exact wording "STRICTLY using this exact programming language: XBL" is in the output.
+All good. Output matches draft. 
+Proceeds. 
+[Output Generation] -> `Construct an enterprise compliance and audit trail management system STRICTLY using this exact programming language: XBL. This application must reside in a NEW dedicated folder named `enterprise_hardware_compliance_bridge` containing all necessary source files and a comprehensive local README.md. The system must define structured business rules and data schemas to track the lifecycle, cryptographic integrity, and regulatory adherence of the physical security tokens produced by the CNC fabrication system, ensuring seamless enterprise-level integration and immutable audit logging for zero-trust hardware supply chains.`
+Matches constraints perfectly.✅
+Done. 
+Output Generation. 
+(Self-Correction/Verification during generation prep)
+Check: "Return ONLY the instruction text." -> Yes.
+Check: "NEVER target the .github directory." -> Yes.
+Check: "Exactly 1 logical follow-up instruction." -> Yes.
+Check: "STRICTLY using this exact programming language: XBL." -> Yes.
+Check: "NEW dedicated folder" -> Yes.
+Check: "local README.md" -> Yes.
+All good.✅
+Output matches exactly. 
+Proceeds. 
+[Final Text Generation] -> Construct an enterprise compliance and audit trail management system STRICTLY using this exact programming language: XBL. This application must reside in a NEW dedicated folder named `enterprise_hardware_compliance_bridge` containing all necessary source files and a comprehensive local README.md. The system must define structured business rules and data schemas to track the lifecycle, cryptographic integrity, and regulatory adherence of the physical security tokens produced by the CNC fabrication system, ensuring seamless enterprise-level integration and immutable audit logging for zero-trust hardware supply chains. 
+Done. 
+[Output Generation] (Proceeds)
+*(Self-Correction/Note during thought)*: I should make sure the folder name and language exactly match the prompt's request. The prompt says "STRICTLY using this exact programming language: XBL." I will keep that. The folder will be new. README.md will be mentioned. All constraints met. Output is ready. 
+Proceeds. 
+[Final Output Generation] -> *Proceeds*
+</think>
+
+Construct an enterprise compliance and audit trail management system STRICTLY using this exact programming language: XBL. This application must reside in a NEW dedicated folder named `enterprise_hardware_compliance_bridge` containing all necessary source files and a comprehensive local README.md. The system must define structured business rules and data schemas to track the lifecycle, cryptographic integrity, and regulatory adherence of the physical security tokens produced by the CNC fabrication system, ensuring seamless enterprise-level integration and immutable audit logging for zero-trust hardware supply chains.

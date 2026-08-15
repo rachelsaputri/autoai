@@ -1,0 +1,31 @@
+<xbl:definitions xmlns:xbl="http://www.w3.org/ns/xbl">
+  <xbl:schema name="HardwareToken" id="token_schema">
+    <xbl:field name="token_id" type="string" format="uuid" required="true" />
+    <xbl:field name="manufacturer" type="string" required="true" />
+    <xbl:field name="fabrication_batch" type="string" required="true" />
+    <xbl:field name="production_date" type="datetime" required="true" />
+    <xbl:field name="cryptographic_hash" type="hash" algorithm="sha-256" required="true" />
+    <xbl:field name="storage_location" type="string" required="true" />
+    <xbl:field name="compliance_status" type="enum" values="[compliant, non-compliant, pending]" required="true" />
+    <xbl:field name="audit_trail" type="list" required="true" />
+  </xbl:schema>
+
+  <xbl:schema name="AuditEvent" id="audit_schema">
+    <xbl:field name="event_id" type="string" format="uuid" required="true" />
+    <xbl:field name="token_id" type="string" reference="token_schema.token_id" required="true" />
+    <xbl:field name="timestamp" type="datetime" required="true" />
+    <xbl:field name="event_type" type="enum" values="[manufacturing, deployment, audit, remediation, retirement]" required="true" />
+    <xbl:field name="actor" type="string" required="true" />
+    <xbl:field name="details" type="object" required="true" />
+    <xbl:field name="signature" type="hash" algorithm="ecdsa-p256" required="true" />
+  </xbl:schema>
+
+  <xbl:schema name="ComplianceReport" id="report_schema">
+    <xbl:field name="report_id" type="string" format="uuid" required="true" />
+    <xbl:field name="generated_at" type="datetime" required="true" />
+    <xbl:field name="scope" type="string" required="true" />
+    <xbl:field name="regulatory_framework" type="list" values="[ISO27001, NIST800-53, FIPS140-2, PCI-DSS]" required="true" />
+    <xbl:field name="results" type="object" required="true" />
+    <xbl:field name="signed_by" type="string" required="true" />
+  </xbl:schema>
+</xbl:definitions>
