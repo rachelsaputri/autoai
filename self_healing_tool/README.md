@@ -1,29 +1,16 @@
-# Self-Healing Tool
+# Self-Healing Security Tool
 
 ## Overview
-The Self-Healing Tool is designed to handle edge cases and errors in real-time by analyzing system states, detecting anomalies, and automatically applying recovery strategies.
+This tool is designed to automatically detect, analyze, and remediate security issues and system drift in real-time. It provides a robust framework for maintaining system integrity and compliance.
 
 ## Features
-- **Error Detection**: Monitors system inputs and outputs to identify deviations.
-- **Recovery Strategies**: Applies predefined rules to restore normal operation.
-- **Edge Case Handling**: Specialized logic for handling unusual or boundary conditions.
-- **Configurable**: Easily customizable recovery rules via the configuration file.
-
-## File Structure
-- `main.rex`: Entry point of the tool.
-- `recovery_engine.rex`: Core logic for recovery strategies.
-- `error_handler.rex`: Utility functions for error parsing and handling.
-- `config.rex`: Configuration settings for the tool.
+- **Real-time Monitoring**: Continuously monitors system configurations and security events.
+- **Automated Remediation**: Applies fixes for known vulnerabilities and compliance violations.
+- **Drift Detection**: Identifies deviations from the desired security posture.
+- **Audit Logging**: Maintains a detailed log of all actions taken for auditing purposes.
 
 ## Usage
-1. Ensure REX is installed on your system.
-2. Run `main.rex` to start the self-healing process.
-3. Configure recovery rules in `config.rex` as needed.
-
-## Example
+Compile and run the tool using a C# IDE or command line:
+```bash
+csc SelfHealingTool.cs
 ```
-main.rex -c config.rex -d /var/log/system.log
-```
-
-## License
-MIT License
