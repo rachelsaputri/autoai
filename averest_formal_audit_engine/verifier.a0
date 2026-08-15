@@ -1,0 +1,81 @@
+module Verifier;
+
+import StateMachine;
+import ComplianceRules;
+
+type verifier = {
+    state_history: list(int),
+    violations: list(string),
+    total_checks: int
+};
+
+type verification_result = {
+    event: audit_event,
+    rule_triggered: bool,
+    state_valid: bool,
+    violation_details: string
+};
+
+def init(): verifier = {
+    state_history: [],
+    violations: [],
+    total_checks: 0
+};
+
+def verify(audit_log: list(audit_event), ruleset: list(compliance_rule), engine: verifier): list(verification_result) {
+    let results: list(verification_result) = [];
+    let graph: state_graph = StateMachine.build_state_transitions(audit_log);
+    
+    for_each(event in audit_log do
+        let triggered_rule: bool = false;
+        let violation_details: string = "";
+        
+        for_each(rule in ruleset do
+            if ComplianceRules.evaluate_rule(rule, event) then
+                triggered_rule = true;
+                violation_details = "Rule " + int_to_string(rule.rule_id) + " triggered: " + rule.consequence;
+                engine.violations = engine.violations ++ [violation_details];
+            fi;
+        done);
+        
+        let current_state: int = length(engine.state_history);
+        let next_states: list(int) = if map_has_key(graph, current_state) then map_get(graph, current_state) else [] fi;
+        let is_valid: bool = true;
+        
+        for_each(ns in next_states do
+            if not is_valid_path(ns, engine.state_history) then
+                is_valid = false;
+            fi;
+        done);
+        
+        engine.state_history = engine.state_history ++ [current_state];
+        engine.total_checks = engine.total_checks + 1;
+        
+        results = results ++ [{
+            event: event,
+            rule_triggered: triggered_rule,
+            state_valid: is_valid,
+            violation_details: violation_details
+        }];
+    done);
+    
+    return results;
+}
+
+def is_valid_path(state: int, history: list(int)): bool {
+    for_each(h in history do
+        if h = state then
+            return false;
+        fi;
+    done);
+    return true;
+}
+
+def all_passed(results: list(verification_result)): bool {
+    for_each(r in results do
+        if r.rule_triggered or not r.state_valid then
+            return false;
+        fi;
+    done);
+    return true;
+}

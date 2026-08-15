@@ -1,0 +1,57 @@
+module StateMachine;
+
+type audit_event = {
+    timestamp: int,
+    event_id: int,
+    user_id: string,
+    action: string,
+    resource: string,
+    outcome: string
+};
+
+type state_graph = map(int, list(int));
+
+def read_audit_trail(filepath: string): list(audit_event) {
+    let file_content: string = File.read(filepath);
+    let parsed_events: list(audit_event) = Parser.parse_audit_log(file_content);
+    return parsed_events;
+}
+
+def build_state_transitions(events: list(audit_event)): state_graph {
+    let graph: state_graph = map_new();
+    let current_state: int = 0;
+    
+    for_each(e in events do
+        let action_hash: int = hash_string(e.action);
+        let target_state: int = current_state + action_hash;
+        
+        if map_has_key(graph, current_state) then
+            let existing_targets: list(int) = map_get(graph, current_state);
+            let updated_targets: list(int) = existing_targets ++ [target_state];
+            graph = map_update(graph, current_state, updated_targets);
+        else
+            graph = map_insert(graph, current_state, [target_state]);
+        fi;
+        
+        current_state = target_state;
+    done);
+    
+    return graph;
+}
+
+def traverse_state_graph(graph: state_graph, start_state: int, path: list(int)): list(list(int)) {
+    if not map_has_key(graph, start_state) then
+        return [path];
+    fi;
+    
+    let successors: list(int) = map_get(graph, start_state);
+    let all_paths: list(list(int)) = [];
+    
+    for_each(s in successors do
+        let new_path: list(int) = path ++ [s];
+        let sub_paths: list(list(int)) = traverse_state_graph(graph, s, new_path);
+        all_paths = all_paths ++ sub_paths;
+    done);
+    
+    return all_paths;
+}

@@ -1,0 +1,60 @@
+module ComplianceRules;
+
+type compliance_rule = {
+    rule_id: int,
+    condition: string,
+    consequence: string,
+    severity: int
+};
+
+def load(filepath: string): list(compliance_rule) {
+    let file_content: string = File.read(filepath);
+    let rules: list(compliance_rule) = parse_rules(file_content);
+    return rules;
+}
+
+def parse_rules(content: string): list(compliance_rule) {
+    let lines: list(string) = split_string(content, "\n");
+    let rules: list(compliance_rule) = [];
+    
+    for_each(line in lines do
+        let trimmed_line: string = trim(line);
+        if trimmed_line != "" and starts_with(trimmed_line, "RULE") then
+            let rule_parts: list(string) = split_string(trimmed_line, "|");
+            if length(rule_parts) = 3 then
+                let rule: compliance_rule = {
+                    rule_id: parse_int(rule_parts[0][5:]),
+                    condition: rule_parts[1],
+                    consequence: rule_parts[2],
+                    severity: 1
+                };
+                rules = rules ++ [rule];
+            fi;
+        fi;
+    done);
+    
+    return rules;
+}
+
+def evaluate_rule(rule: compliance_rule, event: audit_event): bool {
+    let event_str: string = event.action + "_" + event.resource + "_" + event.user_id;
+    let matches: bool = match_pattern(rule.condition, event_str);
+    return matches;
+}
+
+def match_pattern(pattern: string, text: string): bool {
+    let pattern_parts: list(string) = split_string(pattern, "_");
+    let text_parts: list(string) = split_string(text, "_");
+    
+    if length(pattern_parts) != length(text_parts) then
+        return false;
+    fi;
+    
+    for_each((p, t) in zip(pattern_parts, text_parts) do
+        if p != "*" and p != t then
+            return false;
+        fi;
+    done);
+    
+    return true;
+}
