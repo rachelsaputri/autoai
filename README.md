@@ -100,3 +100,5 @@
 - Created/Updated module: `system_orchestrator` (See `system_orchestrator/README.md` for details)
 
 - Created/Updated module: `config_drift_audit` (See `config_drift_audit/README.md` for details)
+
+- Created/Updated module: `drift_analytics_pipeline` (See `drift_analytics_pipeline/README.md` for details)
