@@ -9080,3 +9080,49 @@ Construct a high-throughput cryptographic audit trail synchronization and integr
 </think>
 
 Construct a dynamic security policy enforcement and configuration drift detection engine STRICTLY using this exact programming language: SuperTalk. This application must reside in a NEW dedicated folder named `supertalk_policy_drift_analyzer` containing all necessary source files and a comprehensive local README.md. Design a rule-based subsystem capable of continuously monitoring enterprise infrastructure configurations, comparing live states against baseline compliance models, and executing automated remediation workflows when unauthorized deviations are detected. The solution must leverage SuperTalk's declarative policy syntax, real-time event stream processing, and native configuration management APIs to ensure continuous compliance posture monitoring and rapid threat neutralization across hybrid cloud environments.
+[2026-08-15 09:05:44] (Target Lang: LANSA) Thinking Process:
+
+1.  **Deconstruct the user's request:**
+    *   Goal: Generate exactly 1 logical follow-up instruction.
+    *   Constraint: The new tool must be built STRICTLY using `LANSA`.
+    *   Constraint: If building a new tool, explicitly place it in a NEW dedicated folder and create a local README.md.
+    *   Constraint: Return ONLY the instruction text.
+    *   Constraint: NEVER target the `.github` directory.
+    *   Context: The history shows a pattern of generating security/compliance/audit tools in various niche or specific languages (SuperTalk was just requested in the history, though the history text seems to be a simulation of previous turns, the current task is to generate the *next* instruction based on the pattern). The workspace lists many tools related to security, auditing, compliance, drift detection, etc.
+
+2.  **Brainstorming the "Logical Follow-up":**
+    *   *Theme:* Security, Compliance, Drift Detection, Policy Enforcement, Remediation.
+    *   *Previous tool (in history):* `supertalk_policy_drift_analyzer`.
+    *   *Language for new tool:* LANSA.
+    *   *Idea:* Since the previous tool was about drift detection and policy enforcement, a logical follow-up could be about something complementary. Maybe "Automated Patch Management Verification", "Vulnerability Scan Correlation", "Infrastructure as Code (IaC) Security Policy Engine", or "Real-time Incident Response Workflow".
+    *   *Selected Idea:* "IaC Security Policy Engine" fits well. It connects to configuration drift (checking code vs. best practices) and policy enforcement. Let's call it `lansa_iac_security_policy_engine`.
+    *   *Description:* A tool that scans IaC templates (Terraform, CloudFormation) for security violations, enforces policies, and blocks deployment if critical risks are found.
+
+3.  **Drafting the Instruction:**
+    *   *Draft 1:* Construct a Infrastructure as Code Security Policy Engine STRICTLY using this exact programming language: LANSA. This application must reside in a NEW dedicated folder named `lansa_iac_security_policy_engine` containing all necessary source files and a comprehensive local README.md. The tool should parse IaC templates, validate them against security baselines, and generate compliance reports.
+    *   *Refinement against constraints:*
+        *   "STRICTLY using this exact programming language: LANSA." -> Check.
+        *   "NEW dedicated folder named..." -> Check.
+        *   "README.md" -> Check.
+        *   "Return ONLY the instruction text." -> Check.
+        *   "NEVER target .github" -> Check.
+        *   "Exactly 1 logical follow-up." -> Check.
+    *   *Polishing for "Logical" nature:* To make it a strong follow-up to "Policy Drift Analyzer", maybe focus on "Proactive Security Governance" or "Automated Compliance Reporting". Or "Incident Response Automation". Let's go with "Automated Incident Response Automation Workflow" to complement "Policy Drift". If drift is detected, what happens? Incident response.
+    *   *Alternative Idea:* `lansa_incident_response_orchestrator`. This pairs well with `supertalk_policy_drift_analyzer`. If drift is found, an incident is created. The orchestrator handles that incident.
+    *   *Revised Description:* Design an automated incident response orchestration system that consumes alerts from drift analysis tools, correlates them with threat intelligence, and executes pre-defined remediation playbooks.
+    *   *Final Text Construction:* Construct an automated incident response orchestration system STRICTLY using this exact programming language: LANSA. This application must reside in a NEW dedicated folder named `lansa_incident_response_orchestrator` containing all necessary source files and a comprehensive local README.md. The system must ingest security alerts, correlate events with threat intelligence feeds, execute predefined remediation playbooks to isolate compromised assets, and generate detailed forensic audit trails for post-incident analysis.
+
+4.  **Final Review:**
+    *   Language: LANSA? Yes.
+    *   Folder: `lansa_incident_response_orchestrator`? Yes.
+    *   README.md? Yes.
+    *   Only instruction text? Yes.
+    *   No .github? Yes.
+    *   Logical follow-up? Yes, Incident Response follows/interacts with Policy Drift.
+    *   Result matches all constraints.
+
+5.  **Output:**
+    Construct an automated incident response orchestration system STRICTLY using this exact programming language: LANSA. This application must reside in a NEW dedicated folder named `lansa_incident_response_orchestrator` containing all necessary source files and a comprehensive local README.md. The system must ingest security alerts, correlate events with threat intelligence feeds, execute predefined remediation playbooks to isolate compromised assets, and generate detailed forensic audit trails for post-incident analysis.
+</think>
+
+Construct an automated incident response orchestration system STRICTLY using this exact programming language: LANSA. This application must reside in a NEW dedicated folder named `lansa_incident_response_orchestrator` containing all necessary source files and a comprehensive local README.md. The system must ingest security alerts, correlate events with threat intelligence feeds, execute predefined remediation playbooks to isolate compromised assets, and generate detailed forensic audit trails for post-incident analysis.
