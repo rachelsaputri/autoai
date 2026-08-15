@@ -1,0 +1,27 @@
+{
+  "name": "coffeescript-security-policy-enforcer",
+  "version": "1.0.0",
+  "description": "Real-time security policy enforcement gateway and compliance orchestration tool in CoffeeScript",
+  "main": "main.coffee",
+  "scripts": {
+    "start": "coffee main.coffee",
+    "test": "coffee test_runner.coffee"
+  },
+  "dependencies": {
+    "crypto": "^1.0.1",
+    "fs": "^0.0.1-security",
+    "path": "^0.12.7",
+    "net": "^1.0.2",
+    "tls": "^1.0.0",
+    "events": "^3.3.0",
+    "stream": "^1.0.0",
+    "util": "^0.12.3"
+  },
+  "devDependencies": {
+    "coffee-script": "^1.12.7",
+    "mocha": "^10.0.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
