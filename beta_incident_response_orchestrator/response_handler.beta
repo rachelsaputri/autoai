@@ -1,0 +1,36 @@
+/**
+ * Handles response actions for different types of incidents.
+ */
+%response_handler.beta
+
+class ResponseHandler
+( % response actions
+  malwareHandler %Instance MalwareHandler
+  phishingHandler %Instance PhishingHandler
+  unknownHandler %Instance UnknownHandler
+)
+
+(% method to handle malware
+  handleMalware( incidentData %String )
+  % return a response code
+  ( % logic here
+    malwareHandler <- handle( incidentData )
+    return 'response_code_1'
+  )
+
+(% method to handle phishing
+  handlePhishing( incidentData %String )
+  % return a response code
+  ( % logic here
+    phishingHandler <- handle( incidentData )
+    return 'response_code_2'
+  )
+
+(% method to handle unknown
+  handleUnknown( incidentData %String )
+  % return a response code
+  ( % logic here
+    unknownHandler <- handle( incidentData )
+    return 'response_code_3'
+  )
+)
