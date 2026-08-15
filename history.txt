@@ -9818,3 +9818,54 @@ Final Polish:
 </think>
 
 Construct a high-performance, array-parallel statistical anomaly scoring engine STRICTLY using this exact programming language: Nickle. This application must reside in a NEW dedicated folder named `nickle_anomaly_scoring_engine` containing all necessary source files and a comprehensive local README.md. The system must leverage Nickle's native vector and matrix operations to perform rapid multidimensional correlation analysis on aggregated security logs and telemetry data, identifying complex threat patterns that linear models miss.
+[2026-08-15 10:14:04] (Target Lang: CLIST) Thinking Process:
+
+1.  **Deconstruct the Request:**
+    *   Goal: Generate exactly 1 logical follow-up instruction.
+    *   Constraint 1: MUST explicitly demand the new tool be built STRICTLY using CLIST.
+    *   Constraint 2: If building a new tool (implied by "new dedicated folder"), place it in a NEW dedicated folder and create a local README.md.
+    *   Constraint 3: Return ONLY the instruction text.
+    *   Constraint 4: NEVER target the `.github` directory.
+    *   Context: The user provided a workspace listing containing many security, audit, and programming tool projects. The history shows a previous instruction for a Nickle-based anomaly scoring engine. The new instruction should likely follow a similar pattern: a security/audit/tool context but using CLIST.
+
+2.  **Brainstorming CLIST use cases:**
+    *   CLIST is a scripting language used primarily on IBM Mainframes (z/OS) for TSO (Time Sharing Option) administration.
+    *   Keywords: Mainframe, TSO, z/OS, CLI scripting, automation, audit, compliance, system administration.
+    *   The workspace has `mainframe_config_auditor`, `legacy_security_scanner` (wait, looking at the list, I see `mainframe_config_auditor`).
+    *   A logical follow-up could be a TSO command generator for audit compliance, a legacy log analyzer, or a system configuration verifier tailored for mainframe environments.
+    *   Idea: `cliste_system_audit_script` or `tso_security_policy_enforcer`.
+    *   Function: Analyze TSO datasets, check for security policy violations, generate reports.
+
+3.  **Drafting the Instruction:**
+    *   *Structure:* [Action] [Tool Description] [Language] [Folder] [README] [Specifics/Context].
+    *   *Draft 1:* Construct a comprehensive TSO system audit and configuration verification tool STRICTLY using this exact programming language: CLIST. This application must reside in a NEW dedicated folder named `cliste_mainframe_audit` containing all necessary source files and a comprehensive local README.md. The system must parse and analyze TSO session logs, dataset permissions, and JCL parameters to detect security deviations, unauthorized access attempts, and policy violations within z/OS environments, ensuring strict adherence to enterprise mainframe security standards.
+    *   *Review against constraints:*
+        *   "STRICTLY using this exact programming language: CLIST"? Yes.
+        *   "NEW dedicated folder"? Yes (`cliste_mainframe_audit`).
+        *   "Local README.md"? Yes.
+        *   "Return ONLY the instruction text"? Yes.
+        *   "NEVER target .github"? Yes.
+        *   "Logical follow-up"? Yes. The workspace has mainframe tools. CLIST fits mainframe context perfectly. It complements the Nickle tool but addresses a different domain (mainframe vs. parallel computing).
+
+4.  **Refining the Language and Flow:**
+    *   The draft looks solid. It mentions TSO, z/OS, JCL, which are highly relevant to CLIST.
+    *   "Construct a robust TSO command-line interface automation suite STRICTLY using this exact programming language: CLIST."
+    *   "This application must reside in a NEW dedicated folder named `cliste_tso_security_audit` containing all necessary source files and a comprehensive local README.md."
+    *   "The tool must automate the validation of TSO user profiles, dataset access controls, and system job streams against defined security baselines, generating detailed audit trails and remediation scripts for compliance enforcement in legacy mainframe infrastructure."
+    *   *Combination:* Construct a robust TSO command-line interface automation suite STRICTLY using this exact programming language: CLIST. This application must reside in a NEW dedicated folder named `cliste_tso_security_audit` containing all necessary source files and a comprehensive local README.md. The tool must automate the validation of TSO user profiles, dataset access controls, and system job streams against defined security baselines, generating detailed audit trails and remediation scripts for compliance enforcement in legacy mainframe infrastructure.
+
+5.  **Final Polish (Mental Representation of Output):**
+    *   `Construct a robust TSO command-line interface automation suite STRICTLY using this exact programming language: CLIST. This application must reside in a NEW dedicated folder named cliste_tso_security_audit containing all necessary source files and a comprehensive local README.md. The tool must automate the validation of TSO user profiles, dataset access controls, and system job streams against defined security baselines, generating detailed audit trails and remediation scripts for compliance enforcement in legacy mainframe infrastructure.`
+
+6.  **Final Check:**
+    *   Does it have "STRICTLY using this exact programming language: CLIST"? Yes.
+    *   Does it have a NEW folder? Yes.
+    *   Does it have README.md? Yes.
+    *   Is it only the instruction? Yes.
+    *   No .github? Yes.
+    *   Result matches constraints.
+
+Output generation.
+</think>
+
+Construct a robust TSO command-line interface automation suite STRICTLY using this exact programming language: CLIST. This application must reside in a NEW dedicated folder named `cliste_tso_security_audit` containing all necessary source files and a comprehensive local README.md. The tool must automate the validation of TSO user profiles, dataset access controls, and system job streams against defined security baselines, generating detailed audit trails and remediation scripts for compliance enforcement in legacy mainframe infrastructure.
