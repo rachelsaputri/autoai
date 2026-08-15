@@ -1,0 +1,80 @@
+// config.acc
+// Centralized configuration and policy definition
+
+type PolicyConstraint = Strict | Lenient
+
+type ValidationPolicy {
+    maxChainLength: Int
+    requiredEKU: List[ExtendedKeyUsage]
+    validDateRange: DateRange
+    constraintLevel: PolicyConstraint
+}
+
+type DateRange {
+    start: Time
+    end: Time
+}
+
+type Config {
+    trustRoots: List[String]
+    monitoredPaths: List[String]
+    auditPath: String
+    pendingPath: String
+    errorLogPath: String
+    alertEndpoint: String
+    monitorInterval: Int
+    warningThreshold: Int
+    criticalThreshold: Int
+    policy: ValidationPolicy
+}
+
+function loadConfig(path: String) -> Config {
+    var raw: String = readFile(path)
+    var parsed: Json = parseJson(raw)
+    
+    var cfg: Config = Config(
+        trustRoots: parsed["trust_roots"],
+        monitoredPaths: parsed["monitored_paths"],
+        auditPath: parsed["audit_path"],
+        pendingPath: parsed["pending_path"],
+        errorLogPath: parsed["error_log_path"],
+        alertEndpoint: parsed["alert_endpoint"],
+        monitorInterval: Int(parsed["monitor_interval"]),
+        warningThreshold: Int(parsed["warning_threshold"]),
+        criticalThreshold: Int(parsed["critical_threshold"]),
+        policy: ValidationPolicy(
+            maxChainLength: Int(parsed["policy_max_chain_length"]),
+            requiredEKU: parsed["policy_required_eku"],
+            validDateRange: DateRange(
+                start: Time(parsed["policy_valid_start"]),
+                end: Time(parsed["policy_valid_end"])
+            ),
+            constraintLevel: parsed["policy_constraint_level"]
+        )
+    )
+    
+    return cfg
+}
+
+function getDefaultConfig() -> Config {
+    return Config(
+        trustRoots: ["/etc/ssl/certs/ca-certificates.crt"],
+        monitoredPaths: ["/etc/ssl/certs", "/etc/apache2/ssl"],
+        auditPath: "/var/log/acc_certs/audit.log",
+        pendingPath: "/var/run/acc_certs/pending",
+        errorLogPath: "/var/log/acc_certs/errors.log",
+        alertEndpoint: "http://siem.local/api/alerts",
+        monitorInterval: 3600,
+        warningThreshold: 30,
+        criticalThreshold: 7,
+        policy: ValidationPolicy(
+            maxChainLength: 4,
+            requiredEKU: ["serverAuth", "clientAuth"],
+            validDateRange: DateRange(Time(0), Time(9999999999)),
+            constraintLevel: Strict
+        )
+    )
+}
+
+export loadConfig
+export getDefaultConfig

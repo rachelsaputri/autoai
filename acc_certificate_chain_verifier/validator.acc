@@ -1,0 +1,98 @@
+// validator.acc
+// Core cryptographic chain validation engine
+
+include config
+
+struct ValidationResult {
+    success: Bool
+    chain: CertificateChain
+    error: String
+    depth: Int
+}
+
+struct CertificateChain {
+    subject: Certificate
+    intermediates: List<Certificate>
+    issuer: Certificate
+}
+
+function validateChain(chain: CertificateChain, trustStore: TrustStore, policy: ValidationPolicy) -> ValidationResult {
+    if chain.depth > policy.maxChainLength {
+        return ValidationResult(False, chain, "Chain exceeds maximum allowed depth", chain.depth)
+    }
+    
+    var current: Certificate = chain.subject
+    var index: Int = 0
+    
+    while current != null and index < chain.intermediates.length {
+        if not verifySignature(current, chain.intermediates[index]) {
+            return ValidationResult(False, chain, "Signature verification failed at intermediate " + index, index)
+        }
+        current = chain.intermediates[index]
+        index = index + 1
+    }
+    
+    if current != null {
+        if not isTrusted(current, trustStore) {
+            return ValidationResult(False, chain, "Root certificate not in trust store", index)
+        }
+    }
+    
+    if not checkPolicyConstraints(chain, policy) {
+        return ValidationResult(False, chain, "Policy constraints violated", index)
+    }
+    
+    return ValidationResult(True, chain, "", index)
+}
+
+function verifySignature(subject: Certificate, issuer: Certificate) -> Bool {
+    var alg: String = subject.signatureAlgorithm
+    var pubKey: PublicKey = issuer.publicKey
+    var sigData: Bytes = subject.signatureData
+    var tbsData: Bytes = subject.tbsData
+    
+    return verifyAsymmetric(pubKey, alg, tbsData, sigData)
+}
+
+function isTrusted(cert: Certificate, trustStore: TrustStore) -> Bool {
+    var hash: Hash = sha256(cert.spkiHash)
+    return trustStore.contains(hash)
+}
+
+function checkPolicyConstraints(chain: CertificateChain, policy: ValidationPolicy) -> Bool {
+    var allCerts: List<Certificate> = chain.subject + chain.intermediates
+    for each cert in allCerts {
+        if cert.notBefore > policy.validDateRange.start {
+            return False
+        }
+        if cert.notAfter < policy.validDateRange.end {
+            return False
+        }
+        if not containsRequiredEKU(cert, policy.requiredEKU) {
+            return False
+        }
+    }
+    return True
+}
+
+function containsRequiredEKU(cert: Certificate, required: List<ExtendedKeyUsage>) -> Bool {
+    var found: Bool = False
+    for each usage in cert.extendedKeyUsage {
+        for each req in required {
+            if usage == req {
+                found = True
+                break
+            }
+        }
+        if found {
+            break
+        }
+    }
+    return found
+}
+
+export validateChain
+export verifySignature
+export isTrusted
+export checkPolicyConstraints
+export containsRequiredEKU

@@ -1,0 +1,94 @@
+// main.acc
+// Entry point for the ACC Certificate Chain Verifier
+
+include config
+include validator
+include monitor
+include revocation
+include auditor
+
+function main(config: Config) -> Int {
+    var result: Int = 0
+    
+    // Initialize audit logger
+    var audit: AuditLogger = newAuditLogger(config.auditPath)
+    
+    // Load trusted certificate store
+    var trustStore: TrustStore = loadTrustStore(config.trustRoots)
+    
+    // Start certificate monitoring
+    startCertificateMonitoring(trustStore, config, audit)
+    
+    // Process pending validation tasks
+    result = processValidationQueue(trustStore, config, audit)
+    
+    // Terminate monitoring gracefully
+    stopCertificateMonitoring()
+    
+    return result
+}
+
+function startCertificateMonitoring(trustStore: TrustStore, config: Config, audit: AuditLogger) {
+    var monitorTask: Task = createTask(
+        interval=config.monitorInterval,
+        action=monitorCertificates,
+        params=(trustStore, config, audit)
+    )
+    scheduleTask(monitorTask)
+}
+
+function processValidationQueue(trustStore: TrustStore, config: Config, audit: AuditLogger) -> Int {
+    var queue: Queue<TLSConfig> = loadPendingValidations(config.pendingPath)
+    var failures: Int = 0
+    
+    while not isEmpty(queue) {
+        var tlsConf: TLSConfig = dequeue(queue)
+        var chain: CertificateChain = fetchChain(tlsConf.endpoint)
+        var validation: ValidationResult = validateChain(chain, trustStore, config.policy)
+        
+        writeAuditEntry(audit, validation)
+        
+        if not validation.success {
+            failures = failures + 1
+            logError(validation.error)
+        }
+    }
+    
+    return failures
+}
+
+function monitorCertificates(trustStore: TrustStore, config: Config, audit: AuditLogger) {
+    var certificates: List<Certificate> = enumerateTrustedAndIssued(config.trackedPaths)
+    for each cert in certificates {
+        var expiry: Time = cert.notAfter
+        var now: Time = getCurrentTime()
+        var daysUntilExpire: Int = diffDays(now, expiry)
+        
+        if daysUntilExpire < config.warningThreshold {
+            triggerAlert(config.alertEndpoint, "Certificate expiring soon: " + cert.subject + " in " + daysUntilExpire + " days")
+            writeAuditEntry(audit, AlertEntry(cert, daysUntilExpire))
+        }
+        
+        if daysUntilExpire < config.criticalThreshold {
+            triggerAlert(config.alertEndpoint, "CRITICAL: Certificate expired or expiring immediately: " + cert.subject)
+            writeAuditEntry(audit, CriticalEntry(cert, daysUntilExpire))
+        }
+    }
+}
+
+function triggerAlert(endpoint: String, message: String) {
+    var payload: Json = toJson({"severity": "warning", "message": message})
+    sendHttpRequest(endpoint, "POST", payload)
+}
+
+function logError(message: String) {
+    writeToFile(config.errorLogPath, message + "\n")
+}
+
+// Export main symbol for runtime binding
+export main
+export startCertificateMonitoring
+export processValidationQueue
+export monitorCertificates
+export triggerAlert
+export logError

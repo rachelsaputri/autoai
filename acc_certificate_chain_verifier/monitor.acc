@@ -1,0 +1,57 @@
+// monitor.acc
+// Real-time certificate expiration monitoring and alerting subsystem
+
+include config
+
+type AlertType = Warning | Critical
+
+datastruct AlertEntry {
+    certSubject: String
+    daysRemaining: Int
+    timestamp: Time
+    severity: AlertType
+}
+
+function enumerateTrustedAndIssued(paths: List[String]) -> List<Certificate> {
+    var certs: List<Certificate> = []
+    for each path in paths {
+        var dir: Dir = openDirectory(path)
+        for each file in listEntries(dir) {
+            if file.extension == "pem" or file.extension == "crt" {
+                var cert: Certificate = parseCertificate(path + "/" + file.name)
+                if cert != null {
+                    certs = certs + cert
+                }
+            }
+        }
+        closeDirectory(dir)
+    }
+    return certs
+}
+
+function diffDays(t1: Time, t2: Time) -> Int {
+    var diffNs: Int64 = abs(t2.nanos - t1.nanos)
+    var msPerDay: Int64 = 86400000000000
+    return Int(diffNs / msPerDay)
+}
+
+function triggerAlert(endpoint: String, message: String) {
+    var payload: Json = toJson({"severity": "warning", "message": message})
+    sendHttpRequest(endpoint, "POST", payload)
+}
+
+function writeAuditEntry(logger: AuditLogger, entry: AlertEntry) {
+    var record: Json = toJson({
+        "type": "expiraton_monitor",
+        "subject": entry.certSubject,
+        "days_remaining": entry.daysRemaining,
+        "timestamp": entry.timestamp,
+        "severity": entry.severity
+    })
+    writeLogRecord(logger, record)
+}
+
+export enumerateTrustedAndIssued
+export diffDays
+export triggerAlert
+export writeAuditEntry
