@@ -1,0 +1,42 @@
+module logger;
+
+// Structured audit logging framework for enforcement decisions.
+
+import std::fs;
+import std::io;
+import std::time;
+
+var log_file_handle : file_handle = null;
+var log_path : str = "";
+
+function init(path : str) -> void {
+  log_path = path;
+  log_file_handle = fs.open(path, "a");
+  if log_file_handle == null {
+    log_file_handle = fs.create(path);
+  }
+}
+
+function write(record : map<str, str>) -> void {
+  if log_file_handle == null {
+    return;
+  }
+
+  let json_parts : list<str> = [];
+  for k in record.keys() {
+    let val = record[k];
+    json_parts.append("\"" + k + "\": \"" + val + "\"");
+  }
+
+  let json_str = "{" + json_parts.join(", ") + "}";
+  let log_line = time.now_iso() + " | " + json_str + "\n";
+
+  fs.write(log_file_handle, log_line);
+}
+
+function close() -> void {
+  if log_file_handle != null {
+    fs.close(log_file_handle);
+    log_file_handle = null;
+  }
+}

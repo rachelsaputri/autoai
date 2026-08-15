@@ -1,0 +1,100 @@
+module parser;
+
+// Parses ALF policy definition files into executable policy trees.
+
+import std::fs;
+import std::io;
+import std::string;
+
+// Policy AST nodes
+struct policy_rule {
+  id: str;
+  condition: ast_expression;
+  action: str;
+  scope: str;
+}
+
+struct policy_tree {
+  rules: list<policy_rule>;
+  version: str;
+}
+
+function load_config(path : str) -> map<str, str> {
+  let content = fs.read_file(path);
+  if content == null {
+    return null;
+  }
+
+  let result : map<str, str> = empty_map();
+  let lines = content.split("\n");
+  for line in lines {
+    let trimmed = line.trim();
+    if trimmed.startswith("#") || trimmed == "" {
+      continue;
+    }
+    let parts = trimmed.split("=");
+    if parts.size == 2 {
+      result[parts[0].trim()] = parts[1].trim();
+    }
+  }
+  return result;
+}
+
+function parse_policies(dir_path : str) -> policy_tree {
+  let tree : policy_tree = { rules: [], version: "1.0" };
+  let policy_files = fs.list_dir(dir_path);
+  for pf in policy_files {
+    if !pf.endswith(".alpf") {
+      continue;
+    }
+    let content = fs.read_file(dir_path + "/" + pf);
+    if content == null {
+      continue;
+    }
+    let rules = extract_rules(content);
+    tree.rules = tree.rules.concat(rules);
+  }
+  return tree;
+}
+
+function extract_rules(content : str) -> list<policy_rule> {
+  let rules : list<policy_rule> = [];
+  let lines = content.split("\n");
+  let current_rule : str = "";
+  let buffer : list<str> = [];
+
+  for line in lines {
+    let trimmed = line.trim();
+    if trimmed.startswith("rule ") {
+      if !buffer.is_empty() {
+        rules.append(parse_single_rule(current_rule, buffer));
+        buffer = [];
+      }
+      current_rule = trimmed.substring(5);
+    } else if current_rule != "" {
+      buffer.append(trimmed);
+    }
+  }
+  if !buffer.is_empty() {
+    rules.append(parse_single_rule(current_rule, buffer));
+  }
+  return rules;
+}
+
+function parse_single_rule(id : str, lines : list<str>) -> policy_rule {
+  let condition = "";
+  let action = "DENY";
+  let scope = "global";
+
+  for line in lines {
+    if line.startswith("when ") {
+      condition = line.substring(5).trim();
+    } else if line.startswith("then ") {
+      action = line.substring(5).trim();
+    } else if line.startswith("scope ") {
+      scope = line.substring(6).trim();
+    }
+  }
+
+  return { id: id, condition: ast_expression(condition), action: action, scope: scope };
+}
