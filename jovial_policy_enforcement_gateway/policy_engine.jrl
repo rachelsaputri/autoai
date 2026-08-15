@@ -1,0 +1,80 @@
+C// policy_engine.jrl
+C// Core policy parsing, evaluation, and state machine logic
+C// Language: JOVIAL
+
+SUBPROGRAM POLICY_ENGINE IS
+    IMPORTS
+        POLICY_DEFINITION, EVENT_LOG, AUDIT_TRAIL;
+    LOCALS
+        current_policy_state : INTEGER;
+        policy_violation_flags : BITVECTOR(8);
+        evaluation_timer : TIMER;
+    
+    INITIALIZE
+        current_policy_state := 0;
+        policy_violation_flags := ALL ZEROES;
+        evaluation_timer := NEW TIMER();
+    
+    PROCESS_POLICY_INPUT
+        ARG input_data : ARRAY OF POLICY_DEFINITION;
+        FOR i := 0 TO LENGTH(input_data) - 1 DO
+            IF input_data[i].action_type = "EVALUATE" THEN
+                current_policy_state := EVALUATE_POLICY(input_data[i].rules);
+                IF current_policy_state <> VALID THEN
+                    policy_violation_flags[i \ 8] := TRUE;
+                    LOG_EVENT("VIOLATION_DETECTED", input_data[i].rule_id);
+                    AUDIT_TRAIL.RECORD(current_policy_state, input_data[i].timestamp);
+                END IF;
+            ELSIF input_data[i].action_type = "UPDATE" THEN
+                UPDATE_POLICY_STATE(input_data[i].rules, input_data[i].priority);
+            END IF;
+        END FOR;
+    
+    EVALUATE_POLICY
+        ARG rules : ARRAY OF RULE;
+        RETURN state : INTEGER;
+        FOR r := 0 TO LENGTH(rules) - 1 DO
+            IF NOT RULES_COMPLIANT(rules[r]) THEN
+                RETURN VIOLATION;
+            END IF;
+        END FOR;
+        RETURN VALID;
+    
+    RULES_COMPLIANT
+        ARG rule : RULE;
+        RETURN compliance : BOOLEAN;
+        IF rule.criticality = "HIGH" THEN
+            compliance := CHECK_CRITICAL_SECURITY(rule.parameters);
+        ELSIF rule.criticality = "MEDIUM" THEN
+            compliance := CHECK_STANDARD_SECURITY(rule.parameters);
+        ELSE
+            compliance := TRUE;
+        END IF;
+        RETURN compliance;
+    
+    CHECK_CRITICAL_SECURITY
+        ARG params : PARAMETER_SET;
+        RETURN result : BOOLEAN;
+        result := (params.encryption_strength >= 256) AND (params.auth_method IN ["MUTUAL_TLS", "CERT_BASED"]);
+        RETURN result;
+    
+    CHECK_STANDARD_SECURITY
+        ARG params : PARAMETER_SET;
+        RETURN result : BOOLEAN;
+        result := (params.encryption_strength >= 128) AND (params.session_timeout < 3600);
+        RETURN result;
+    
+    UPDATE_POLICY_STATE
+        ARG new_rules : ARRAY OF RULE;
+        ARG priority : INTEGER;
+        IF priority > current_priority THEN
+            current_rules := new_rules;
+            current_priority := priority;
+            CURRENT_POLICY_STATE := APPLYING_NEW_RULES;
+            WAIT FOR TIMER.EXPIRE(evaluation_timer, 100 MS);
+            CURRENT_POLICY_STATE := ACTIVE;
+        END IF;
+    
+    END POLICY_ENGINE;
+
+S

@@ -242,3 +242,5 @@
 - Created/Updated module: `acc_certificate_chain_verifier` (See `acc_certificate_chain_verifier/README.md` for details)
 
 - Created/Updated module: `accent_compliance_enforcer` (See `accent_compliance_enforcer/README.md` for details)
+
+- Created/Updated module: `jovial_policy_enforcement_gateway` (See `jovial_policy_enforcement_gateway/README.md` for details)
