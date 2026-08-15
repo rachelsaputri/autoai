@@ -8352,3 +8352,59 @@ Construct a Smalltalk Enterprise Security Response Orchestrator built STRICTLY u
 </think>
 
 Construct a legacy-compatible security telemetry bridge built STRICTLY using this exact programming language: Amiga E. This application must reside in a NEW dedicated folder named `amiga_e_security_bridge` containing all necessary source files and a comprehensive local README.md. Design a low-level, high-performance event processing module capable of parsing legacy audit logs, correlating historical threat indicators, and outputting structured compliance reports. The solution must emphasize Amiga E's concise syntax and direct memory interaction capabilities, efficient stack management, deterministic execution flow, detailed console output, and clear compilation/deployment steps for integration with the existing enterprise audit infrastructure.
+[2026-08-15 08:08:25] (Target Lang: Frege) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Workspace:** A large list of directories and files representing various security/audit tools, frameworks, and scripts.
+   - **History:** Mentions a constraint: "NEVER target the .github directory."
+   - **Prompt Requirements:**
+     - Generate exactly 1 logical follow-up instruction.
+     - MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: `Frege`.
+     - If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md.
+     - Return ONLY the instruction text.
+     - NEVER target the `.github` directory.
+     - The prompt ends with the exact constraints to follow.
+
+2.  **Identify Key Constraints:**
+   - Language: `Frege` (strictly)
+   - Structure: NEW dedicated folder + local `README.md`
+   - Output: ONLY the instruction text
+   - No `.github` targeting
+   - Exactly 1 instruction
+
+3.  **Formulate the Instruction (Mental Draft):**
+   Construct a formal policy verification assistant built STRICTLY using this exact programming language: Frege. This application must reside in a NEW dedicated folder named `frege_policy_verifier` containing all necessary source files and a comprehensive local README.md. Design a functional, type-safe module capable of parsing enterprise security configurations, validating compliance rules against regulatory frameworks, and generating deterministic audit trails. The solution must leverage Frege's Haskell-like semantics, seamless Java interop, immutable data structures, and strict type inference, while providing clear compilation/deployment instructions for integration with the existing audit infrastructure.
+
+4.  **Check Against Constraints:**
+   - Exactly 1 logical follow-up instruction? Yes, it's a single cohesive directive.
+   - Explicitly demands strict use of `Frege`? Yes.
+   - NEW dedicated folder + README.md? Yes, `frege_policy_verifier` and `README.md`.
+   - Return ONLY the instruction text? Yes.
+   - NEVER target `.github`? Checked. Not mentioned or targeted.
+   - Fits the workspace context? Yes, aligns with security/audit/compliance tools.
+
+5.  **Refine (Self-Correction/Verification):**
+   - Check tone/style: Matches the prompt's example style.
+   - Check exact wording constraints: "STRICTLY using this exact programming language: Frege." -> Included.
+   - "explicitly instruct to place it in a NEW dedicated folder and create a local README.md." -> Included.
+   - "Return ONLY the instruction text." -> I will output just the paragraph.
+   - All constraints met.
+
+   Final text matches the draft closely. I will ensure it's a single paragraph/block as requested. No extra words. Ready.✅
+   Output matches exactly. Proceeds. 
+   *Self-Correction/Note during thought*: The prompt says "Generate exactly 1 logical follow-up instruction." I will make sure it reads as a single, direct command/instruction. I'll keep it tight.
+
+   Draft: Construct a formal policy verification assistant built STRICTLY using this exact programming language: Frege. This application must reside in a NEW dedicated folder named `frege_policy_verifier` containing all necessary source files and a comprehensive local README.md. Design a functional, type-safe module capable of parsing enterprise security configurations, validating compliance rules against regulatory frameworks, and generating deterministic audit trails. The solution must leverage Frege's Haskell-like semantics, seamless Java interop, immutable data structures, and strict type inference, while providing clear compilation/deployment instructions for integration with the existing audit infrastructure.
+
+   All constraints verified. Output matches.✅
+   Proceeds. 
+   [Output Generation] -> *Proceeds* ✅
+   *(Note: I will output exactly the refined text without any markdown formatting unless necessary, but the prompt allows it if needed. I'll keep it plain text as requested.)*
+   Final check of the prompt: "Return ONLY the instruction text." -> I will output just the paragraph.
+   Done. 
+   [Output] -> Construct a formal policy verification assistant built STRICTLY using this exact programming language: Frege. This application must reside in a NEW dedicated folder named `frege_policy_verifier` containing all necessary source files and a comprehensive local README.md. Design a functional, type-safe module capable of parsing enterprise security configurations, validating compliance rules against regulatory frameworks, and generating deterministic audit trails. The solution must leverage Frege's Haskell-like semantics, seamless Java interop, immutable data structures, and strict type inference, while providing clear compilation/deployment instructions for integration with the existing audit infrastructure.✅
+   Matches perfectly. Proceeds. 
+   [Output Generation] -> *Proceeds* ✅
+</think>
+
+Construct a formal policy verification assistant built STRICTLY using this exact programming language: Frege. This application must reside in a NEW dedicated folder named `frege_policy_verifier` containing all necessary source files and a comprehensive local README.md. Design a functional, type-safe module capable of parsing enterprise security configurations, validating compliance rules against regulatory frameworks, and generating deterministic audit trails. The solution must leverage Frege's Haskell-like semantics, seamless Java interop, immutable data structures, and strict type inference, while providing clear compilation/deployment instructions for integration with the existing audit infrastructure.

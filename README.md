@@ -172,3 +172,5 @@
 - Created/Updated module: `batch_remediation_bridge` (See `batch_remediation_bridge/README.md` for details)
 
 - Created/Updated module: `occam_formal_verification_engine` (See `occam_formal_verification_engine/README.md` for details)
+
+- Created/Updated module: `frege_policy_verifier` (See `frege_policy_verifier/README.md` for details)

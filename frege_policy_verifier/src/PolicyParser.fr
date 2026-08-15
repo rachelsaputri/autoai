@@ -1,0 +1,26 @@
+module PolicyParser
+import Prelude
+import Data.Maybe
+import Data.List
+import Data.String
+
+type PolicyRule = PolicyRule { ruleId :: String, severity :: Int, description :: String, configPath :: String }
+type ConfigSnapshot = ConfigSnapshot { timestamp :: Long, hostId :: String, settings :: {String: String} }
+parsePolicyRule :: String -> Maybe PolicyRule
+parsePolicyRule line =
+  let parts = split ':' line
+  in if length parts >= 4
+     then Just $ PolicyRule (parts !! 0) (parseInt (parts !! 1)) (parts !! 2) (parts !! 3)
+     else Nothing
+parseConfigSnapshot :: String -> Maybe ConfigSnapshot
+parseConfigSnapshot line =
+  let parts = split ',' line
+      settings = foldl (\acc p -> insert (head p) (parts !! 2) acc) {} (split ';' (parts !! 2))
+  in if length parts >= 3
+     then Just $ ConfigSnapshot (parseLong (parts !! 0)) (parts !! 1) settings
+     else Nothing
+validateRule :: PolicyRule -> {String: String} -> Boolean
+validateRule rule settings =
+  case lookup (configPath rule) settings of
+    Just value -> parseInt value >= severity rule
+    Nothing -> False

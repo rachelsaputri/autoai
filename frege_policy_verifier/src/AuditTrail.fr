@@ -1,0 +1,22 @@
+module AuditTrail
+import Prelude
+import Data.Maybe
+import Data.List
+import ComplianceEngine
+import System.IO
+import System.Date
+
+type TrailEntry = TrailEntry { eventId :: Long, ruleId :: String, status :: String, timestamp :: String }
+createTrailEntry :: PolicyRule -> Boolean -> Long -> TrailEntry
+createTrailEntry rule statusId =
+  let status = if status then "PASS" else "FAIL"
+      timestamp = show (getTimestamp)
+  in TrailEntry statusId rule.ruleId status timestamp
+runFullAudit :: [PolicyRule] -> {String: String} -> IO [TrailEntry]
+runFullAudit rules config = do
+  let result = validatePolicies rules config
+      entries = map (\(rule, passed) -> createTrailEntry rule passed (getTimestamp)) result.results
+  putStrLn $ generateReport result
+  return entries
+getTimestamp :: Long
+getTimestamp = System.currentTimeMillis

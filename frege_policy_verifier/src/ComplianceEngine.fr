@@ -1,0 +1,20 @@
+module ComplianceEngine
+import Prelude
+import Data.Maybe
+import Data.List
+import Data.Map as Map
+import PolicyParser
+
+type AuditResult = AuditResult { passed :: Int, failed :: Int, results :: [(PolicyRule, Boolean)] }
+validatePolicies :: [PolicyRule] -> {String: String} -> AuditResult
+validatePolicies rules config =
+  let validated = map (\rule -> (rule, validateRule rule config)) rules
+      passed = length $ filter snd validated
+      failed = length $ filter (not . snd) validated
+  in AuditResult passed failed validated
+generateReport :: AuditResult -> String
+generateReport result =
+  let status = if failed > 0 then "NON-COMPLIANT" else "COMPLIANT"
+      details = intercalate ", " $ map (\(r, b) -> r.ruleId ++ ": " ++ if b then "PASS" else "FAIL") result.results
+  in "Audit Status: " ++ status ++ " | Passed: " ++ show result.passed ++ " | Failed: " ++ show result.failed ++ " | Details: " ++ details
+  where failed = result.failed
