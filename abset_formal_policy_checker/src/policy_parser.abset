@@ -1,0 +1,71 @@
+// ABSET Policy Parser
+import std.set;
+import std.io;
+import std.regex;
+
+type Policy {
+    id: string,
+    rules: List[Rule],
+    set_constraints: List[SetConstraint]
+}
+
+type Rule {
+    id: string,
+    action: string,
+    condition: string,
+    references: List[Rule]
+}
+
+type SetConstraint {
+    expression: string,
+    validation_func: function(string): bool
+}
+
+fn parse_policy_file(filepath: string): Policy
+    content = std.io.read_file(filepath);
+    id = extract_id(content);
+    rules = extract_rules(content);
+    constraints = extract_set_constraints(content);
+    return Policy{id, rules, constraints};
+end
+
+fn extract_id(content: string): string
+    match = std.regex.search(content, "policy_id:\\s*(\\w+)");
+    return match.captures[0];
+end
+
+fn extract_rules(content: string): List[Rule]
+    rules = std.set.new();
+    for line in std.io.lines(content):
+        if std.string.starts_with(line, "  - rule_id:"):
+            rule = parse_rule_line(line);
+            std.set.add(rules, rule);
+    return std.set.to_list(rules);
+end
+
+fn parse_rule_line(line: string): Rule
+    id = extract_field(line, "rule_id");
+    action = extract_field(line, "action");
+    condition = extract_field(line, "condition");
+    return Rule{id, action, condition, references: []};
+end
+
+fn extract_set_constraints(content: string): List[SetConstraint]
+    constraints = std.set.new();
+    for line in std.io.lines(content):
+        if std.string.starts_with(line, "  - ") and std.string.contains(line, "⊆") or "∩":
+            constraint = parse_constraint_line(line);
+            std.set.add(constraints, constraint);
+    return std.set.to_list(constraints);
+end
+
+fn parse_constraint_line(line: string): SetConstraint
+    expression = line.trim();
+    validation_func = create_validation_func(expression);
+    return SetConstraint{expression, validation_func};
+end
+
+fn create_validation_func(expression: string): function(string): bool
+    // ABSET-specific evaluation logic
+    return lambda(env): evaluate_set_expression(expression, env);
+end

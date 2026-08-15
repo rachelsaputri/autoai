@@ -1,0 +1,14 @@
+// Example ABSET Policy File
+policy_id: EX-001
+rules:
+  - rule_id: R1
+    action: ALLOW
+    condition: set(Users).contains(User)
+    set_constraints:
+      - set(Users) \set(Admins)
+  - rule_id: R2
+    action: DENY
+    condition: set(Admins).contains(User)
+set_constraints:
+  - set(Admins) ⊆ set(Users)
+  - set(Users) ∩ set(Banned) = ∅

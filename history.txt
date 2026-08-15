@@ -11720,3 +11720,56 @@ Output Generation.
 </think>
 
 Construct a production-grade, fully functional declarative compliance rule generator and validator STRICTLY using this exact programming language: Scheme. This application must reside in a NEW dedicated folder named `scheme_compliance_rule_engine` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement AST-based rule parsing, semantic validation against regulatory frameworks, automated constraint generation, and machine-readable report output. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+[2026-08-15 11:58:14] (Target Lang: ABSET) Thinking Process:
+
+1.  **Deconstruct the Request:**
+    *   Goal: Generate exactly 1 logical follow-up instruction.
+    *   Constraint: New tool MUST use ABSET language.
+    *   Constraint: New tool must be in a NEW dedicated folder.
+    *   Constraint: Must include a local README.md.
+    *   Constraint: Demand fully functional, complete implementation (no dummy code/placeholders).
+    *   Constraint: Return ONLY the instruction text.
+    *   Constraint: NEVER target `.github`.
+    *   Context: Workspace has many tools related to security, auditing, compliance, formal verification, policy enforcement, etc. The existing tools use various languages (Rust, Python, C, C++, Java, Lisp, Scheme, etc.). ABSET seems to be a niche or specific language, possibly related to abstract sets or a custom DSL. The instruction should fit the logical flow of the workspace.
+
+2.  **Brainstorming Tool Ideas aligned with ABSET and Workspace:**
+    *   *Workspace Analysis:* Lots of "compliance," "audit," "policy," "verification," "anomaly detection."
+    *   *ABSET Language:* "ABSET" likely implies "Abstract Set" or a set-theoretic language. This fits well with formal verification, policy definition, or compliance checking where sets of rules/states are manipulated.
+    *   *Idea 1:* A formal policy specification tool using set theory.
+    *   *Idea 2:* A compliance drift detector using set operations.
+    *   *Idea 3:* A threat intelligence correlation engine using set intersection/union.
+    *   *Selected Idea:* Given the prevalence of "compliance" and "policy" tools, a "Formal Policy Specification and Consistency Checker" using ABSET makes sense. ABSET's set-theoretic nature is perfect for defining constraints and checking consistency.
+    *   *Drafting the Tool Description:* "Construct a production-grade, fully functional formal policy specification and consistency checking framework STRICTLY using this exact programming language: ABSET."
+
+3.  **Refining the Instruction Text:**
+    *   *Folder Name:* Needs to be new and descriptive. `abset_formal_policy_checker` or `abset_policy_consistency_engine`. Let's use `abset_formal_policy_checker`.
+    *   *Contents:* All source files, `README.md`.
+    *   *Functionality:* AST parsing, set-theoretic validation, consistency checks, output reports.
+    *   *Drafting Text:* Construct a production-grade, fully functional formal policy specification and consistency checking framework STRICTLY using this exact programming language: ABSET. This application must reside in a NEW dedicated folder named `abset_formal_policy_checker` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement set-theoretic policy modeling, automated consistency analysis against logical contradictions, rule dependency mapping, and structured verification reports. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+
+4.  **Review against Constraints:**
+    *   *Exactly 1 instruction?* Yes.
+    *   *STRICTLY ABSET?* Yes.
+    *   *NEW dedicated folder?* Yes (`abset_formal_policy_checker`).
+    *   *Local README.md?* Yes.
+    *   *Fully functional/No placeholders?* Yes.
+    *   *Return ONLY instruction text?* Yes.
+    *   *NEVER target .github?* Yes (folder is distinct, no mention of .github).
+    *   *Logical follow-up?* Yes, fits the security/compliance/verification theme of the workspace.
+
+5.  **Final Polish (Mental Representation of Output):**
+    *   "Construct a production-grade, fully functional formal policy specification and consistency checking framework STRICTLY using this exact programming language: ABSET. This application must reside in a NEW dedicated folder named `abset_formal_policy_checker` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement set-theoretic policy modeling, automated consistency analysis against logical contradictions, rule dependency mapping, and structured verification reports. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+
+6.  **Comparison with previous turns (Contextual Check):**
+    *   The user provided a list of files and a history snippet where the previous output was a Scheme instruction.
+    *   The current request asks for an ABSET instruction based on that pattern.
+    *   The output format matches the expected pattern derived from the history (though the history shows the AI outputting the text directly).
+    *   Result looks solid.
+
+7.  **Final Output Construction:**
+    *   Text: `Construct a production-grade, fully functional formal policy specification and consistency checking framework STRICTLY using this exact programming language: ABSET. This application must reside in a NEW dedicated folder named `abset_formal_policy_checker` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement set-theoretic policy modeling, automated consistency analysis against logical contradictions, rule dependency mapping, and structured verification reports. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).`
+    *   (Note: The backticks in the folder name are part of the instruction text, which is standard for these prompts.)
+    *   Result matches constraints.
+</think>
+
+Construct a production-grade, fully functional formal policy specification and consistency checking framework STRICTLY using this exact programming language: ABSET. This application must reside in a NEW dedicated folder named `abset_formal_policy_checker` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement set-theoretic policy modeling, automated consistency analysis against logical contradictions, rule dependency mapping, and structured verification reports. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).

@@ -234,3 +234,5 @@
 - Created/Updated module: `./text_formatting_cleaner` (See `./text_formatting_cleaner/README.md` for details)
 
 - Created/Updated module: `scheme_compliance_rule_engine` (See `scheme_compliance_rule_engine/README.md` for details)
+
+- Created/Updated module: `abset_formal_policy_checker` (See `abset_formal_policy_checker/README.md` for details)
