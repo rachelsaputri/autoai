@@ -290,3 +290,5 @@
 - Created/Updated module: `ats_binary_integrity_monitor` (See `ats_binary_integrity_monitor/README.md` for details)
 
 - Created/Updated module: `apx_parallel_security_correlator` (See `apx_parallel_security_correlator/README.md` for details)
+
+- Created/Updated module: `autohotkey_compliance_orchestrator` (See `autohotkey_compliance_orchestrator/README.md` for details)
