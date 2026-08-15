@@ -376,3 +376,5 @@
 - Created/Updated module: `ch_security_policy_enforcer` (See `ch_security_policy_enforcer/README.md` for details)
 
 - Created/Updated module: `./interactive_diagnostic_tool` (See `./interactive_diagnostic_tool/README.md` for details)
+
+- Created/Updated module: `harbour_compliance_orchestrator` (See `harbour_compliance_orchestrator/README.md` for details)
