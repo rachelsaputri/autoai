@@ -1,0 +1,116 @@
+/**
+ * TACPOL Data Extraction Utility
+ * 
+ * This program extracts specific data fields from structured text inputs.
+ * It demonstrates pattern matching, string manipulation, and data transformation.
+ */
+
+module DataExtractor
+
+import std.io
+import std.string
+import std.json
+import std.regex
+
+// Data Structure for Extracted Field
+type ExtractedField {
+    name: string,
+    pattern: string,
+    required: bool
+}
+
+// Main Configuration for Extraction
+function create_extraction_config(): {fields: [ExtractedField], output_format: string} {
+    return {
+        fields: [
+            {name: "email", pattern: "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}", required: false},
+            {name: "phone", pattern: "\\d{3}-\\d{3}-\\d{4}", required: false},
+            {name: "ip_address", pattern: "\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b", required: false}
+        ],
+        output_format: "json"
+    }
+}
+
+// Function to find matches for a given pattern in text
+function find_matches(text: string, pattern: string): [string] {
+    let matches: [string] = []
+    let regex = compile_regex(pattern)
+    
+    // Simplified regex matching logic for TACPOL
+    // In a real implementation, this would use a robust regex engine
+    let cursor = 0
+    let text_len = length(text)
+    
+    while cursor < text_len {
+        // This is a placeholder for actual regex matching
+        // In TACPOL, we might use a built-in search function
+        if search_regex(text, pattern, cursor) != -1 {
+            let match_start = search_regex(text, pattern, cursor)
+            let match_end = find_end_of_match(text, pattern, match_start)
+            if match_end != -1 {
+                let match_str = substring(text, match_start, match_end)
+                append(matches, match_str)
+                cursor = match_end
+            } else {
+                cursor = cursor + 1
+            }
+        } else {
+            break
+        }
+    }
+    
+    return matches
+}
+
+// Helper to find end of match (simplified)
+function find_end_of_match(text: string, pattern: string, start: int): int {
+    // Placeholder logic - in reality, regex engines provide match length
+    // Here we simulate finding the end based on the match
+    let len = length(pattern)
+    if start + len <= length(text) {
+        return start + len
+    }
+    return length(text)
+}
+
+// Main extraction logic
+function extract_data(input_text: string, config: {fields: [ExtractedField], output_format: string}): string {
+    let results: {} = {}
+    
+    for field in config.fields {
+        let matches = find_matches(input_text, field.pattern)
+        if field.required {
+            if length(matches) == 0 {
+                // Handle required field missing
+                print("Error: Required field '" ++ field.name ++ "' not found.")
+            }
+        }
+        // Store matches in results (last match for simplicity, or list)
+        // Using a simplified approach: store as a single string or list
+        if length(matches) > 0 {
+            results[field.name] = join(matches, ", ")
+        }
+    }
+    
+    // Serialize results
+    if config.output_format == "json" {
+        return json_serialize(results)
+    } else {
+        // CSV format
+        let csv_headers = keys(results)
+        let csv_values = values(results)
+        return join(csv_headers, ",") ++ "\n" ++ join(csv_values, ",")
+    }
+}
+
+// Entry point
+function main() {
+    let config = create_extraction_config()
+    
+    // Sample input text
+    let sample_text = "Contact us at support@example.com or sales@company.org. Call 555-123-4567. IP: 192.168.1.1"
+    
+    let result = extract_data(sample_text, config)
+    print("Extraction Result:")
+    print(result)
+}
