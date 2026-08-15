@@ -1,0 +1,68 @@
+/* Joule Parser Module for Mainframe System Outputs */
+/* Handles parsing of VSAM, PDSE, and system dataset attributes */
+
+MODULE parser_utils;
+
+IMPORT system_interfaces;
+
+/**
+ * Parses the output of a LISTDS or IOR command to extract dataset attributes.
+ */
+FUNCTION parse_listds_output(raw_output: STRING): DATASET_INFO :
+    DECLARE info: DATASET_INFO;
+    DECLARE lines: LIST[STRING];
+
+    lines = SPLIT raw_output BY "\n";
+
+    /* Extract dataset name */
+    DECLARE first_line: STRING;
+    first_line = GET lines[0];
+    info.name = EXTRACT_STRING(first_line, "NAME ", " ");
+
+    /* Extract volume serial */
+    info.volume_serial = EXTRACT_STRING(first_line, "VOLUME ", " ");
+
+    /* Extract dataset type */
+    info.dataset_type = PARSE_DATASET_TYPE(info.name);
+
+    RETURN info;
+END FUNCTION;
+
+/**
+ * Parses access control entries from system security outputs.
+ */
+FUNCTION parse_access_controls(raw_acl: STRING): ACCESS_CONTROL :
+    DECLARE ac: ACCESS_CONTROL;
+    DECLARE entries: LIST[STRING];
+
+    entries = SPLIT raw_acl BY ",";
+
+    FOREACH entry IN entries DO
+        DECLARE user_id: STRING;
+        DECLARE permission: STRING;
+
+        user_id = EXTRACT_STRING(entry, "USER:", " ");
+        permission = EXTRACT_STRING(entry, "PERM:", " ");
+
+        IF user_id IS NOT EMPTY THEN
+            SET ac.user_permissions[user_id] TO permission;
+        END IF;
+    END FOREACH;
+
+    RETURN ac;
+END FUNCTION;
+
+/**
+ * Determines the standard dataset type based on naming conventions.
+ */
+FUNCTION PARSE_DATASET_TYPE(name: STRING): STRING :
+    IF CONTAINS(name, ".VSAM") THEN
+        RETURN "VSAM";
+    ELSIF CONTAINS(name, ".PDSE") THEN
+        RETURN "PDSE";
+    ELSIF CONTAINS(name, ".SEQ") THEN
+        RETURN "SEQUENTIAL";
+    ELSE
+        RETURN "UNKNOWN";
+    END IF;
+END FUNCTION;

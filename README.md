@@ -196,3 +196,5 @@
 - Created/Updated module: `nickle_anomaly_scoring_engine` (See `nickle_anomaly_scoring_engine/README.md` for details)
 
 - Created/Updated module: `alf_data_extractor` (See `alf_data_extractor/README.md` for details)
+
+- Created/Updated module: `joule_dataset_access_verifier` (See `joule_dataset_access_verifier/README.md` for details)

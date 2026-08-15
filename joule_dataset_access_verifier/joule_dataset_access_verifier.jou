@@ -1,0 +1,71 @@
+/* Joule Dataset Access Control Verifier */
+/* Main execution module */
+
+MODULE dataset_verifier;
+
+IMPORT config;
+IMPORT system_datasets;
+IMPORT compliance_engine;
+IMPORT report_generator;
+
+/**
+ * Initializes the verifier, loads configuration, and starts the audit cycle.
+ */
+MAIN start_verifier():
+    DECLARE config_file: STRING;
+    DECLARE output_dir: STRING;
+    DECLARE scan_targets: LIST[STRING];
+    
+    /* Parse command line arguments */
+    config_file = PARSE_ARGV("-config", "joule_config.jou");
+    output_dir = PARSE_ARGV("-output", "./audit_reports/");
+    scan_targets = PARSE_ARGV("-targets", ["SYS1.DATA**", "SYS1.SECURITY**", "*.*.DATACENTER**"]);
+
+    /* Load security baselines */
+    DECLARE baseline: BLOB;
+    baseline = config.load_baselines(config_file);
+
+    /* Initialize compliance engine */
+    DECLARE engine: COMPLIANCE_ENGINE;
+    engine = compliance_engine.initialize(baseline);
+
+    /* Start audit cycle */
+    LOG_INFO("Starting mainframe dataset access control verification...");
+
+    FOREACH target IN scan_targets DO
+        LOG_INFO("Scanning target pattern: " + target);
+        DECLARE results: LIST[COMPLIANCE_RESULT];
+        results = scan_dataset_pattern(target, engine);
+        report_generator.write_results(results, output_dir + target + ".json");
+    END FOREACH;
+
+    LOG_INFO("Verification complete. Reports generated in " + output_dir);
+END MAIN;
+
+/**
+ * Scans a specific dataset pattern for access control violations.
+ */
+FUNCTION scan_dataset_pattern(pattern: STRING, engine: COMPLIANCE_ENGINE): LIST[COMPLIANCE_RESULT] :
+    DECLARE results: LIST[COMPLIANCE_RESULT];
+    DECLARE datasets: LIST[DATASET_INFO];
+
+    /* Query system for datasets matching pattern */
+    datasets = system_datasets.query(pattern);
+
+    FOREACH ds IN datasets DO
+        DECLARE current_perms: ACCESS_CONTROL;
+        DECLARE violation: COMPLIANCE_RESULT;
+
+        /* Extract current access controls */
+        current_perms = system_datasets.get_access_controls(ds.name);
+
+        /* Validate against baseline */
+        violation = engine.validate_access_controls(current_perms, ds.name);
+
+        IF violation IS NOT NULL THEN
+            APPEND results TO violation;
+        END IF;
+    END FOREACH;
+
+    RETURN results;
+END FUNCTION;

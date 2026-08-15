@@ -1,0 +1,29 @@
+/* Joule Configuration for Dataset Access Control Verifier */
+/* Security baselines and severity definitions */
+
+CONFIG security_baselines:
+    /* Default permission levels for different dataset types */
+    DEFAULT_LEVEL = "READ";
+    MAX_PERMS = "UPDATE";
+
+    /* Critical datasets requiring strict EXCLUDE access for non-authorized users */
+    STRICT_DATASETS:
+        "SYS1.PARMLIB**",
+        "SYS1.SECURITY.IVR**",
+        "SYS1.SECURITY.RACF**"
+    END;
+
+    /* Severity thresholds */
+    SEVERITY_LEVELS:
+        CRITICAL = "ACCESS_VIOLATION";
+        HIGH = "PERMISSION_BROACH";
+        MEDIUM = "ATTRIBUTE_MISMATCH";
+        LOW = "INFORMATIONAL";
+    END;
+END CONFIG;
+
+CONFIG remediation:
+    /* Automatically generate JCL for fixing EXCLUDE permissions */
+    ENABLE_AUTO_REMEDIATION_SCRIPTS = TRUE;
+    JCL_TEMPLATE = "./remediation_templates/change_ds_perm.jcl";
+END CONFIG;
