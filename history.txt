@@ -7155,3 +7155,70 @@ Construct a Formally Verified Symbolic Compliance Constraint Solver & Policy Equ
 </think>
 
 Construct a Concurrent Formal Policy Verification Engine & Distributed Compliance Auditor built STRICTLY using this exact programming language: Blue. This application must reside in a NEW dedicated folder named `blue_formal_policy_engine` containing all necessary source files and a comprehensive local README.md. Leverage Blue’s advanced type system and concurrency primitives to architect a memory-safe, lock-free policy evaluation runtime that concurrently processes multi-tenant access control rules. The tool must implement a formal proof generator for semantic equivalence checking, utilize structural concurrency to isolate compliance invariants from policy drift detectors, and automatically synthesize tamper-proof audit trails with cryptographic signatures. Document the concurrency model for parallel rule evaluation, the formal verification pipeline for policy equivalence, Blue-specific implementation strategies, and deployment guidelines for high-throughput regulatory auditing environments.
+[2026-08-15 05:59:25] (Target Lang: Mortran) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Context:** The user provides a workspace structure with many directories/files, mostly representing various security, audit, compliance, and analysis tools built in different languages (Python, Rust, Go, C#, Lua, Haskell, Blue, GAPL, Idris, C, JavaCC, Shell, VB, etc.).
+   - **History:** Shows a pattern of generating "logical follow-up" instructions for new tools, each strictly tied to a specific programming language, placed in a new folder with a README, and focusing on security/audit/compliance themes.
+   - **Constraints:**
+     - Generate exactly 1 logical follow-up instruction.
+     - MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Mortran.
+     - If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md.
+     - Return ONLY the instruction text.
+     - NEVER target the .github directory.
+   - **Previous Output Pattern:** The user's history shows a prompt that ended with a specific instruction block. The current prompt asks me to generate a similar instruction block, but for Mortran.
+
+2.  **Identify Key Requirements for the Output:**
+   - Must be exactly one instruction paragraph.
+   - Must explicitly state: "built STRICTLY using this exact programming language: Mortran."
+   - Must specify: "NEW dedicated folder named `[folder_name]` containing all necessary source files and a comprehensive local README.md."
+   - Must be logically related to the workspace/theme (security auditing, telemetry, aerospace/industrial systems, as suggested by the existing `mortran_aerospace_telemetry` directory and Mortran's historical use in aerospace/industrial computing).
+   - Must NOT mention `.github`.
+   - Must return ONLY the instruction text.
+
+3.  **Brainstorming Content (Mental Draft):**
+   "Construct an Aerospace-Grade Telemetry Integrity Verifier & Fault Injection Simulator built STRICTLY using this exact programming language: Mortran. This application must reside in a NEW dedicated folder named `mortran_aerospace_telemetry_verifier` containing all necessary source files and a comprehensive local README.md. Leverage Mortran’s legacy real-time computing strengths and fixed-point arithmetic precision to architect a deterministic, cycle-accurate telemetry processing pipeline that validates sensor data streams against predefined safety thresholds. The tool must implement a formal fault injection engine to simulate hardware degradation, utilize static analysis to enforce hard real-time constraints, and automatically generate compliance-ready audit logs with timestamped checksums. Document the deterministic scheduling model for telemetry validation, the static verification pipeline for safety-critical data integrity, Mortran-specific implementation strategies, and deployment guidelines for avionics and industrial control environments."
+
+4.  **Check Against Constraints:**
+   - Exactly 1 logical follow-up instruction? Yes, one paragraph.
+   - Explicitly demands built STRICTLY using Mortran? Yes: "built STRICTLY using this exact programming language: Mortran."
+   - NEW dedicated folder & local README.md? Yes: "NEW dedicated folder named `mortran_aerospace_telemetry_verifier` containing all necessary source files and a comprehensive local README.md."
+   - Return ONLY the instruction text? Yes, I will output just that paragraph.
+   - NEVER target .github? Yes, not mentioned.
+   - Logical follow-up? Yes, fits the security/audit/telemetry theme and aligns with the existing `mortran_aerospace_telemetry` folder but expands into verification/auditing, matching the workspace's focus.
+
+5.  **Refine Output (Self-Correction/Verification during drafting):**
+   - Check exact phrasing requirement: "built STRICTLY using this exact programming language: Mortran." -> Matches.
+   - Check folder/README requirement: "place it in a NEW dedicated folder and create a local README.md." -> I'll phrase it exactly to match the prompt's style: "This application must reside in a NEW dedicated folder named `mortran_telemetry_integrity_verifier` containing all necessary source files and a comprehensive local README.md."
+   - Ensure it's strictly one paragraph/instruction.
+   - Ensure NO extra text, greetings, or markdown formatting that isn't part of the instruction itself (though the prompt says "Return ONLY the instruction text.", I'll output raw text as requested).
+   - The prompt says: "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Mortran. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+
+   I will craft it carefully to match the exact style of the history examples.
+
+   Draft:
+   Construct a Safety-Critical Telemetry Integrity Verifier & Hard Real-Time Fault Analyzer built STRICTLY using this exact programming language: Mortran. This application must reside in a NEW dedicated folder named `mortran_telemetry_integrity_verifier` containing all necessary source files and a comprehensive local README.md. Leverage Mortran’s legacy real-time computing capabilities and precise fixed-point arithmetic to architect a deterministic, cycle-accurate data validation pipeline that continuously monitors aerospace and industrial sensor streams against strict safety thresholds. The tool must implement a formal fault injection engine to simulate hardware degradation, utilize static analysis to enforce hard real-time scheduling constraints, and automatically generate compliance-ready audit logs with timestamped cryptographic checksums. Document the deterministic scheduling model for telemetry validation, the static verification pipeline for safety-critical data integrity, Mortran-specific implementation strategies, and deployment guidelines for avionics and critical infrastructure monitoring environments.
+
+   Checks:
+   - 1 instruction? Yes.
+   - STRICTLY using Mortran? Yes.
+   - NEW folder + README.md? Yes.
+   - ONLY instruction text? Yes.
+   - No .github? Yes.
+   - Logical follow-up? Yes, ties into the existing `mortran_aerospace_telemetry` folder and the overall security/audit theme.
+
+   All constraints met. Output matches draft. Proceeds. 
+   I will output exactly the drafted paragraph.✅
+   One minor adjustment: I'll make sure the phrasing exactly matches the prompt's demand style: "Construct a [Name] built STRICTLY using this exact programming language: Mortran. This application must reside in a NEW dedicated folder named `[folder]` containing all necessary source files and a comprehensive local README.md." This matches perfectly.
+   Ready.✅
+   Output generation. 
+   [Output Text] Construct a Safety-Critical Telemetry Integrity Verifier & Hard Real-Time Fault Analyzer built STRICTLY using this exact programming language: Mortran. This application must reside in a NEW dedicated folder named `mortran_telemetry_integrity_verifier` containing all necessary source files and a comprehensive local README.md. Leverage Mortran’s legacy real-time computing capabilities and precise fixed-point arithmetic to architect a deterministic, cycle-accurate data validation pipeline that continuously monitors aerospace and industrial sensor streams against strict safety thresholds. The tool must implement a formal fault injection engine to simulate hardware degradation, utilize static analysis to enforce hard real-time scheduling constraints, and automatically generate compliance-ready audit logs with timestamped cryptographic checksums. Document the deterministic scheduling model for telemetry validation, the static verification pipeline for safety-critical data integrity, Mortran-specific implementation strategies, and deployment guidelines for avionics and critical infrastructure monitoring environments. 
+   Matches all constraints. Proceeds. 
+   [Final Check of the Prompt]: "Return ONLY the instruction text." -> I will output exactly that paragraph. No extra words. All good.✅
+   Output matches.✅
+   Proceeds. 
+   [Output Generation] -> *Proceeds* 
+   *(Done.)*
+</think>
+
+Construct a Safety-Critical Telemetry Integrity Verifier & Hard Real-Time Fault Analyzer built STRICTLY using this exact programming language: Mortran. This application must reside in a NEW dedicated folder named `mortran_telemetry_integrity_verifier` containing all necessary source files and a comprehensive local README.md. Leverage Mortran’s legacy real-time computing capabilities and precise fixed-point arithmetic to architect a deterministic, cycle-accurate data validation pipeline that continuously monitors aerospace and industrial sensor streams against strict safety thresholds. The tool must implement a formal fault injection engine to simulate hardware degradation, utilize static analysis to enforce hard real-time scheduling constraints, and automatically generate compliance-ready audit logs with timestamped cryptographic checksums. Document the deterministic scheduling model for telemetry validation, the static verification pipeline for safety-critical data integrity, Mortran-specific implementation strategies, and deployment guidelines for avionics and critical infrastructure monitoring environments.
