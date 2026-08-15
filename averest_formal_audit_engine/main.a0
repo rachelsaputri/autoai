@@ -1,0 +1,36 @@
+module Main;
+
+import StateMachine;
+import ComplianceRules;
+import Verifier;
+import Reporter;
+
+fun main(args: list(string)): int {
+    let audit_log: list(audit_event) = StateMachine.read_audit_trail("/var/log/audit/trail.a0");
+    let ruleset: list(compliance_rule) = ComplianceRules.load("policies/compliance_policy.a0");
+    
+    if audit_log = [] then
+        Reporter.log_error("Failed to load audit trail.");
+        return 1;
+    fi;
+    
+    if ruleset = [] then
+        Reporter.log_error("Failed to load compliance rules.");
+        return 1;
+    fi;
+    
+    let verifier_engine: verifier = Verifier.init();
+    let verification_results: list(verification_result) = Verifier.verify(audit_log, ruleset, verifier_engine);
+    
+    let report: string = Reporter.generate_report(verification_results);
+    Reporter.save_report(report, "output/audit_verification_report.txt");
+    
+    let is_compliant: bool = Verifier.all_passed(verification_results);
+    if is_compliant then
+        Reporter.log_info("Audit trail verification passed. System integrity confirmed.");
+        return 0;
+    else
+        Reporter.log_error("Audit trail verification failed. Compliance violations detected.");
+        return 1;
+    fi;
+}

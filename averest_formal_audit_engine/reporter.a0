@@ -1,0 +1,61 @@
+module Reporter;
+
+import Verifier;
+
+fun log_info(msg: string): void {
+    write_stdout("[INFO] " + msg);
+}
+
+fun log_error(msg: string): void {
+    write_stderr("[ERROR] " + msg);
+}
+
+fun generate_report(results: list(verification_result)): string {
+    let report: string = "=== Formal Audit Trail Verification Report ===\n\n";
+    let passed_count: int = 0;
+    let failed_count: int = 0;
+    
+    for_each(r in results do
+        if r.rule_triggered or not r.state_valid then
+            failed_count = failed_count + 1;
+            report = report + "VIOLATION: Event " + int_to_string(r.event.event_id) + " - " + r.violation_details + "\n";
+        else
+            passed_count = passed_count + 1;
+        fi;
+    done);
+    
+    report = report + "\n=== Summary ===\n";
+    report = report + "Total Events Checked: " + int_to_string(length(results)) + "\n";
+    report = report + "Passed: " + int_to_string(passed_count) + "\n";
+    report = report + "Failed: " + int_to_string(failed_count) + "\n";
+    
+    if failed_count = 0 then
+        report = report + "\nStatus: COMPLIANT\n";
+    else
+        report = report + "\nStatus: NON-COMPLIANT\n";
+    fi;
+    
+    return report;
+}
+
+fun save_report(report_content: string, filepath: string): void {
+    let dir: string = extract_directory(filepath);
+    ensure_directory_exists(dir);
+    File.write(filepath, report_content);
+}
+
+def extract_directory(filepath: string): string {
+    let parts: list(string) = split_string(filepath, "/");
+    let last_idx: int = length(parts) - 1;
+    if last_idx = 0 then
+        return ".";
+    else
+        return join_strings(parts[0:last_idx], "/");
+    fi;
+}
+
+def ensure_directory_exists(dir: string): void {
+    if not dir_exists(dir) then
+        create_directory(dir);
+    fi;
+}
