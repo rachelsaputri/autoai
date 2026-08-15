@@ -272,3 +272,5 @@
 - Created/Updated module: `alma0_formal_prover` (See `alma0_formal_prover/README.md` for details)
 
 - Created/Updated module: `ame_audit_gateway` (See `ame_audit_gateway/README.md` for details)
+
+- Created/Updated module: `ispf_mainframe_compliance_auditor` (See `ispf_mainframe_compliance_auditor/README.md` for details)

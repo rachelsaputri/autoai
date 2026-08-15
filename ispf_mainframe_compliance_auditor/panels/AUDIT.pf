@@ -1,0 +1,25 @@
+Panel  &MAIN = AUDIT PANEL
+&VARS = (MAIN), &MODE = (MODE)
+%%Header
+  +-----------------------------------------------------------+
+  |      ISPF MAINFRAME COMPLIANCE AUDITOR                    |
+  +-----------------------------------------------------------+
+%%Menu
+  |  1. Select Audit Scope (Datasets, Security DBs)           |
+  |  2. Configure Policy Rules & Weights                      |
+  |  3. Execute Real-Time Compliance Scan                     |
+  |  4. View Preliminary Results & Scores                     |
+  |  5. Generate Remediation Recommendations                  |
+  |  6. Exit to ISPF Main Menu                              |
+%%Input
+  &MODE.IF=(=1), &MODE.=SCAN  
+  &MODE.IF=(=2), &MODE.=CONF  
+  &MODE.IF=(=3), &MODE.=EXEC  
+  &MODE.IF=(=4), &MODE.=VIEW  
+  &MODE.IF=(=5), &MODE.=REMED 
+  &MODE.IF=(=6), &MODE.=EXIT 
+%%Footer
+  +-----------------------------------------------------------+
+  |  F3=Exit  F12=Cancel  /MODE=Command                        |
+  +-----------------------------------------------------------+
+%%Panel
