@@ -108,3 +108,5 @@
 - Created/Updated module: `sac_security_validator` (See `sac_security_validator/README.md` for details)
 
 - Created/Updated module: `alef_system_auditor` (See `alef_system_auditor/README.md` for details)
+
+- Created/Updated module: `mobile_security_field_audit` (See `mobile_security_field_audit/README.md` for details)
