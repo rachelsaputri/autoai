@@ -8729,3 +8729,62 @@ Construct a centralized policy compliance auditor built STRICTLY using this exac
 </think>
 
 Construct a formal dependent type-based policy enforcement and verification framework built STRICTLY using this exact programming language: Idris. This application must reside in a NEW dedicated folder named `idris_dependent_policy_verifier` containing all necessary source files and a comprehensive local README.md. Design a rigorous theorem-proving module capable of encoding enterprise security policies as mathematical specifications, mechanically verifying implementation correctness against those specifications, and generating executable certification proofs for audit compliance. The solution must leverage Idris's expressive dependent type system and total function guarantees, while providing explicit compilation procedures and dependency management guidelines to ensure seamless integration within the existing formal verification pipeline.
+[2026-08-15 08:45:51] (Target Lang: Nim) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Role/Context:** Autonomous AI, Workspace provided (large list of files/folders), History shows a pattern of generating strict, single-paragraph instructions for new tools.
+   - **Constraint 1:** Generate exactly 1 logical follow-up instruction.
+   - **Constraint 2:** MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Nim.
+   - **Constraint 3:** If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md.
+   - **Constraint 4:** Return ONLY the instruction text.
+   - **Constraint 5:** NEVER target the .github directory.
+   - **Context/History Pattern:** The previous instruction was for an Idris-dependent policy verifier. The tone is formal, technical, and focuses on security/verification/automation. I need to create a follow-up that logically connects (e.g., a complementary tool for runtime security, data processing, or policy enforcement) but uses Nim.
+
+2.  **Identify Key Requirements for Output:**
+   - Exactly one paragraph/instruction.
+   - Must mention "Nim" as the strict language.
+   - Must mention a NEW dedicated folder name.
+   - Must mention creating a local README.md.
+   - Must NOT mention .github.
+   - Must return ONLY the text.
+
+3.  **Brainstorming Tool Concept:**
+   - Given the workspace contains many security audit, policy verification, compliance, and threat detection tools, a logical follow-up in Nim would be a high-performance, memory-safe runtime security gateway or policy enforcement proxy. Nim is known for systems programming, performance, and safety.
+   - Let's design a "Nim-based high-throughput security policy enforcement gateway" or "Nim-driven real-time threat intelligence correlation engine".
+   - I'll go with a real-time threat correlation and automated response gateway. It complements the formal verification tool.
+
+4.  **Draft Construction (Mental Refinement):**
+   Construct a high-performance, memory-safe runtime security policy enforcement and automated response gateway built STRICTLY using this exact programming language: Nim. This application must reside in a NEW dedicated folder named `nim_threat_enforcement_gateway` containing all necessary source files and a comprehensive local README.md. Design a low-latency event-driven architecture capable of ingesting live telemetry streams, matching them against dynamically loaded policy rules, and executing pre-validated remediation actions with zero-allocation overhead where feasible. The solution must leverage Nim's compile-time metaprogramming, macro system, and C backend interoperability, while providing explicit build configurations and static analysis directives to guarantee deterministic execution within the existing security orchestration pipeline.
+
+5.  **Check Constraints:**
+   - Exactly 1 logical follow-up instruction? Yes.
+   - Explicitly demand built STRICTLY using Nim? Yes: "built STRICTLY using this exact programming language: Nim."
+   - Explicitly instruct to place it in a NEW dedicated folder and create a local README.md? Yes: "reside in a NEW dedicated folder named `nim_threat_enforcement_gateway` containing all necessary source files and a comprehensive local README.md."
+   - Return ONLY the instruction text? Yes, I will output just the paragraph.
+   - NEVER target .github? Checked. No mention.
+   - Matches tone/style? Yes, formal, technical, consistent with previous.
+
+   All constraints met. I will output exactly the drafted paragraph. No extra text.✅
+   One minor check: The prompt says "Return ONLY the instruction text." I will ensure absolutely no markdown formatting interferes if possible, but standard text is fine. I'll output raw text.
+
+   Draft:
+   Construct a high-performance, memory-safe runtime security policy enforcement and automated response gateway built STRICTLY using this exact programming language: Nim. This application must reside in a NEW dedicated folder named `nim_threat_enforcement_gateway` containing all necessary source files and a comprehensive local README.md. Design a low-latency event-driven architecture capable of ingesting live telemetry streams, matching them against dynamically loaded policy rules, and executing pre-validated remediation actions with deterministic execution guarantees. The solution must leverage Nim's compile-time metaprogramming, macro system, and C backend interoperability, while providing explicit build configurations and static analysis directives to ensure seamless integration within the existing security orchestration pipeline.
+
+   Checks:
+   - 1 instruction? Yes.
+   - "STRICTLY using this exact programming language: Nim."? Yes.
+   - NEW dedicated folder + README.md? Yes.
+   - ONLY instruction text? Yes.
+   - No .github? Yes.
+   - Logical follow-up? Yes, complements the Idris verification tool with a runtime enforcement gateway.
+
+   Ready. Output matches draft.✅
+   Proceeds. 
+   Output generation. 
+   [Note: I will output exactly the paragraph without any surrounding text or markdown formatting to strictly comply with "Return ONLY the instruction text."] 
+   *Self-Correction/Verification during thought*: I'll keep it exactly as drafted. It perfectly matches the pattern. All constraints verified. Output matches.✅
+   Proceeds. 
+   [Output Generation] -> *Proceeds* ✅
+</think>
+
+Construct a high-performance, memory-safe runtime security policy enforcement and automated response gateway built STRICTLY using this exact programming language: Nim. This application must reside in a NEW dedicated folder named `nim_threat_enforcement_gateway` containing all necessary source files and a comprehensive local README.md. Design a low-latency event-driven architecture capable of ingesting live telemetry streams, matching them against dynamically loaded policy rules, and executing pre-validated remediation actions with deterministic execution guarantees. The solution must leverage Nim's compile-time metaprogramming, macro system, and C backend interoperability, while providing explicit build configurations and static analysis directives to ensure seamless integration within the existing security orchestration pipeline.
