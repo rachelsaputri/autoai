@@ -6954,3 +6954,54 @@ Construct a Secure Infrastructure Compliance & Drift Auditor built STRICTLY usin
 </think>
 
 Construct a Dynamic Policy Enforcement & Audit Trail Verifier built STRICTLY using this exact programming language: SASL. This tool must reside in a NEW dedicated folder named `sasl_policy_enforcer` containing the necessary source files and a detailed local README.md. The application must continuously validate access control policies against live system states, compute enforcement confidence metrics, and generate cryptographic audit trails to verify compliance adherence. It should leverage formal verification techniques and pattern-matching algorithms to identify policy violations, simulate enforcement actions, and output compliance verification reports. Document the logical framework for policy validation, the SASL implementation architecture, event stream processing methods, and integration guidelines for enterprise security orchestration platforms.
+[2026-08-15 05:55:35] (Target Lang: Idris) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Input Context:** The user provides a workspace file list (irrelevant to the core task but sets context), a history section showing previous constraints/instructions, and a draft/final output from a previous turn.
+   - **Core Task:** "Generate exactly 1 logical follow-up instruction."
+   - **Mandatory Constraints:**
+     - Explicitly demand the new tool be built STRICTLY using this exact programming language: `Idris`.
+     - If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md.
+     - Return ONLY the instruction text.
+     - NEVER target the `.github` directory.
+   - **Implicit Context from Previous Turn:** The previous turn created a "Dynamic Policy Enforcement & Audit Trail Verifier" in `sasl_policy_enforcer`. The follow-up should logically extend or complement this, likely focusing on a related security/verification/domain concept but using Idris (a dependently typed functional programming language known for formal verification and correctness).
+
+2.  **Deconstruct Constraints:**
+   - *Language:* Idris (strictly)
+   - *Folder:* NEW dedicated folder (e.g., `idris_dependent_security_verifier` or similar)
+   - *File:* Must create a local `README.md`
+   - *Output Format:* ONLY the instruction text (no extra words, explanations, or markdown formatting unless part of the instruction itself)
+   - *Negative Constraint:* Do not mention or target `.github`
+   - *Logical Follow-up:* Should connect to the previous tool's domain (policy enforcement, verification, audit trails, security orchestration) but pivot to Idris's strengths (formal proofs, dependent types, compile-time verification).
+
+3.  **Draft Construction (Mental Refinement):**
+   Construct a Formally Verified Dependently Typed Security Policy Prover built STRICTLY using this exact programming language: Idris. This tool must reside in a NEW dedicated folder named `idris_dependent_policy_prover` containing the necessary source files and a detailed local README.md. The application must leverage Idris's dependent type system to mathematically prove the correctness of access control rules, verify state transitions under policy constraints, and generate machine-checkable proof objects that guarantee absence of logical vulnerabilities. It should implement a formal semantics engine for policy evaluation, utilize automated theorem proving techniques to validate compliance invariants, and produce verifiable audit certificates for enterprise security audits. Document the mathematical model for policy correctness, the Idris implementation architecture, proof generation methodologies, and integration protocols for automated compliance verification pipelines.
+
+4.  **Check Against Constraints:**
+   - *Exactly 1 logical follow-up instruction?* Yes, it's a single paragraph/instruction.
+   - *Explicitly demand STICTLY using this exact programming language: Idris?* Yes, "built STRICTLY using this exact programming language: Idris."
+   - *NEW dedicated folder & local README.md?* Yes, "reside in a NEW dedicated folder named `idris_dependent_policy_prover` containing the necessary source files and a detailed local README.md."
+   - *Return ONLY the instruction text?* Yes, I will output just the paragraph.
+   - *NEVER target the .github directory?* Checked. Not mentioned.
+   - *Logical follow-up?* Connects to the previous policy enforcement/verification theme but adapts to Idris's formal verification strengths.
+
+   All constraints met. The output matches the draft. I will generate exactly that text. No extra words. Proceed. 
+   One minor check: The prompt says "Return ONLY the instruction text." I will ensure absolutely no preamble or postamble.
+   The draft looks solid. I'll output it exactly.✅
+   Output Generation. 
+   [Output] -> Construct a Formally Verified Dependently Typed Security Policy Prover built STRICTLY using this exact programming language: Idris. This tool must reside in a NEW dedicated folder named `idris_dependent_policy_prover` containing the necessary source files and a detailed local README.md. The application must leverage Idris's dependent type system to mathematically prove the correctness of access control rules, verify state transitions under policy constraints, and generate machine-checkable proof objects that guarantee absence of logical vulnerabilities. It should implement a formal semantics engine for policy evaluation, utilize automated theorem proving techniques to validate compliance invariants, and produce verifiable audit certificates for enterprise security audits. Document the mathematical model for policy correctness, the Idris implementation architecture, proof generation methodologies, and integration protocols for automated compliance verification pipelines.✅
+   Matches all constraints. Ready. 
+   Output matches response.✅
+   *Self-Correction/Verification during thought*: 
+   - Check exact wording: "built STRICTLY using this exact programming language: Idris." -> Matches constraint.
+   - "NEW dedicated folder" -> Matches constraint.
+   - "local README.md" -> Matches constraint.
+   - "Return ONLY the instruction text." -> Will do.
+   - "NEVER target the .github directory." -> Checked.
+   - Logical follow-up? Yes, continues the security policy/verification theme but pivots to Idris's formal verification capabilities.
+   All good. Output matches draft. Proceeds.✅
+   [Final Output Generation] -> *Proceeds*
+   *(Done.)*
+</think>
+
+Construct a Formally Verified Dependently Typed Security Policy Prover built STRICTLY using this exact programming language: Idris. This tool must reside in a NEW dedicated folder named `idris_dependent_policy_prover` containing the necessary source files and a detailed local README.md. The application must leverage Idris's dependent type system to mathematically prove the correctness of access control rules, verify state transitions under policy constraints, and generate machine-checkable proof objects that guarantee absence of logical vulnerabilities. It should implement a formal semantics engine for policy evaluation, utilize automated theorem proving techniques to validate compliance invariants, and produce verifiable audit certificates for enterprise security audits. Document the mathematical model for policy correctness, the Idris implementation architecture, proof generation methodologies, and integration protocols for automated compliance verification pipelines.
