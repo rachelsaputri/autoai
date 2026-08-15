@@ -5782,3 +5782,45 @@ Construct a lightweight, deterministic process auditor and telemetry gateway bui
 </think>
 
 Construct a lightweight, field-ready mobile security companion app built STRICTLY using this exact programming language: App Inventor for Android's visual block language. This tool must reside in a NEW dedicated folder named `mobile_security_field_audit` containing the necessary source files and a detailed local README.md. The application should capture low-level system metrics, detect unauthorized process injections or privilege escalations on connected devices, and stream real-time alerts to the existing `alert_correlation_persistence` and `incident_tracking_and_audit_log_aggregation_system` modules. Focus on leveraging the visual block architecture for rapid development and strict UI/UX constraints, and document how it integrates with the current security orchestration workflows and compliance baselines.
+[2026-08-15 03:27:54] (Target Lang: SISAL) Thinking Process:
+
+1.  **Deconstruct the Request:**
+    *   Goal: Generate exactly 1 logical follow-up instruction.
+    *   Constraint: Must demand the new tool be built STRICTLY using "SISAL".
+    *   Constraint: If building a new tool, place it in a NEW dedicated folder.
+    *   Constraint: Create a local `README.md`.
+    *   Constraint: Return ONLY the instruction text.
+    *   Constraint: NEVER target the `.github` directory.
+
+2.  **Analyze the Context:**
+    *   The workspace contains a massive list of files and directories related to security auditing, logging, compliance, network analysis, etc.
+    *   Recent history shows a previous instruction about creating a mobile security app using "App Inventor".
+    *   The user wants a *follow-up* instruction. This implies the new instruction should logically continue the theme of the workspace or the previous action, but strictly adhere to the SISAL constraint.
+    *   The workspace has themes like `a0_audit_engine`, `incident_tracking`, `alert_correlation`, `system_orchestrator`, `log_analyzer`, etc.
+    *   A logical follow-up might be a tool that processes high-performance numerical data or signal processing, as SISAL (Streamlined Isolated Scalar Array Language) is a functional language often used for high-performance computing, signal processing, and array operations. Alternatively, it could be a high-throughput log parser or a metric aggregation engine, leveraging SISAL's strengths.
+    *   Given the workspace has `signal_processing_pipeline` and `log_metrics_dashboard`, a tool bridging these or extending the audit capabilities with high-performance processing makes sense.
+    *   Let's aim for a "High-Performance Security Log Aggregation Engine" or a "Real-time Threat Signal Processor". SISAL is good for array operations, so "Array-based Security Event Correlation Engine" sounds appropriate.
+
+3.  **Draft the Instruction:**
+    *   *Draft 1:* Construct a high-performance security event correlation engine built STRICTLY using this exact programming language: SISAL. This tool must reside in a NEW dedicated folder named `sisal_security_correlator` containing the necessary source files and a detailed local README.md. The application should ingest massive streams of audit logs, perform parallel array-based pattern matching to detect complex attack sequences, and output structured threat intelligence reports compatible with the `incident_tracking_and_audit_log_aggregation_system`. Focus on leveraging SISAL's array semantics for maximum throughput in real-time analysis, and document how this high-performance module integrates with the existing low-latency processing pipelines.
+    *   *Check Constraints:*
+        *   Strictly SISAL? Yes.
+        *   New dedicated folder? Yes (`sisal_security_correlator`).
+        *   Local README.md? Yes.
+        *   Return ONLY instruction text? Yes.
+        *   No .github? Yes.
+        *   Logical follow-up? Yes, correlates with existing audit/log systems and uses a language suited for high performance/arrays, fitting the advanced security theme.
+
+4.  **Refine the Text:**
+    *   The prompt asks for "exactly 1 logical follow-up instruction".
+    *   The draft looks solid.
+    *   Result: "Construct a high-performance security event correlation engine built STRICTLY using this exact programming language: SISAL. This tool must reside in a NEW dedicated folder named `sisal_security_correlator` containing the necessary source files and a detailed local README.md. The application should ingest massive streams of audit logs, perform parallel array-based pattern matching to detect complex attack sequences, and output structured threat intelligence reports compatible with the `incident_tracking_and_audit_log_aggregation_system`. Focus on leveraging SISAL's array semantics for maximum throughput in real-time analysis, and document how this high-performance module integrates with the existing low-latency processing pipelines."
+
+5.  **Final Polish (Mental Representation of Output):**
+    *   The output should be just the string.
+    *   "Construct a high-performance security event correlation engine built STRICTLY using this exact programming language: SISAL. This tool must reside in a NEW dedicated folder named `sisal_security_correlator` containing the necessary source files and a detailed local README.md. The application should ingest massive streams of audit logs, perform parallel array-based pattern matching to detect complex attack sequences, and output structured threat intelligence reports compatible with the `incident_tracking_and_audit_log_aggregation_system`. Focus on leveraging SISAL's array semantics for maximum throughput in real-time analysis, and document how this high-performance module integrates with the existing low-latency processing pipelines."
+
+This meets all criteria.
+</think>
+
+Construct a high-performance security event correlation engine built STRICTLY using this exact programming language: SISAL. This tool must reside in a NEW dedicated folder named `sisal_security_correlator` containing the necessary source files and a detailed local README.md. The application should ingest massive streams of audit logs, perform parallel array-based pattern matching to detect complex attack sequences, and output structured threat intelligence reports compatible with the `incident_tracking_and_audit_log_aggregation_system`. Focus on leveraging SISAL's array semantics for maximum throughput in real-time analysis, and document how this high-performance module integrates with the existing low-latency processing pipelines.

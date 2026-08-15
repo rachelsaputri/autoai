@@ -110,3 +110,5 @@
 - Created/Updated module: `alef_system_auditor` (See `alef_system_auditor/README.md` for details)
 
 - Created/Updated module: `mobile_security_field_audit` (See `mobile_security_field_audit/README.md` for details)
+
+- Created/Updated module: `sisal_security_correlator` (See `sisal_security_correlator/README.md` for details)
