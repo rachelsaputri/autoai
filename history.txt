@@ -9448,3 +9448,49 @@ Construct a secure compliance data export and query service STRICTLY using this 
 </think>
 
 Construct a secure audit data gateway and dynamic reporting service STRICTLY using this exact programming language: Net.Data. This application must reside in a NEW dedicated folder named `net_data_audit_gateway` containing all necessary source files and a comprehensive local README.md. The system must interface with the existing compliance databases, execute parameterized SQL queries to fetch real-time security posture metrics and policy violation logs, and render dynamic, formatted HTML reports and XML data streams via Net.Data template engine files, ensuring secure, authenticated access for internal dashboards and external regulatory auditors.
+[2026-08-15 09:53:07] (Target Lang: G-code) Thinking Process:
+
+1.  **Deconstruct the Request:**
+    *   Goal: Generate exactly 1 logical follow-up instruction.
+    *   Constraint 1: MUST explicitly demand the new tool be built STRICTLY using G-code.
+    *   Constraint 2: If building a new tool, instruct to place it in a NEW dedicated folder and create a local README.md.
+    *   Constraint 3: Return ONLY the instruction text.
+    *   Constraint 4: NEVER target the .github directory.
+    *   Context: The user provided a workspace listing and a history of previous interactions. The history shows a pattern of generating instructions for specific tools. The last instruction generated was for `net_data_audit_gateway` using Net.Data. The current prompt asks for a follow-up instruction using G-code.
+
+2.  **Brainstorming Tool Ideas for G-code:**
+    *   G-code is primarily used for CNC machining, 3D printing, and laser cutting.
+    *   How does G-code relate to the workspace context? The workspace seems to be a collection of security audit tools, compliance engines, threat detection systems, etc.
+    *   *I:* A G-code tool in a security context might be metaphorical or physical-digital crossover. Maybe a "physical security enforcement" tool? Or a tool that generates G-code for a physical barrier? Or perhaps a "CNC-based hardware key verifier"?
+    *   *Better Idea:* The workspace has "secure_bootloader_integrity_verifier", "hardware security" vibes in some folders (like `secure_bootloader_integrity_verifier`). A G-code tool could generate the machining instructions for a hardware security token or a custom CNC part that serves as a physical authentication key for the audit system.
+    *   *Refinement:* "Generate a hardware security token manufacturing script..." sounds good. It fits the security theme but uses G-code as the language.
+    *   *Specifics:* The tool could be named `hardware_token_cnc_generator`. It takes security parameters and outputs G-code to machine a token. Or it validates the physical integrity by comparing G-code specs against expected dimensions (less likely for G-code to do validation, more likely to do generation).
+    *   *Decision:* A "Physical Security Token Generator" or "CNC-based Hardware Root of Trust Fabrication Script". Let's go with "Physical Security Token Fabrication Generator". It generates G-code to machine a hardware token used for air-gapped authentication.
+
+3.  **Drafting the Instruction:**
+    *   *Draft 1:* Create a tool named `hardware_token_cnc_generator` that generates G-code to machine hardware security tokens. Put it in a new folder `hardware_token_cnc_generator` with a README.md.
+    *   *Applying Constraints:*
+        *   Language: STRICTLY using G-code.
+        *   Folder: NEW dedicated folder `hardware_token_cnc_generator`.
+        *   README: Yes.
+        *   Text: "Construct a physical security token fabrication system STRICTLY using this exact programming language: G-code. This application must reside in a NEW dedicated folder named `hardware_token_cnc_generator` containing all necessary source files and a comprehensive local README.md. The system must generate precise G-code manufacturing instructions for CNC machines to produce hardware security tokens required for air-gapped authentication, ensuring dimensional accuracy and material specifications are strictly encoded for the production of cryptographic hardware roots of trust."
+    *   *Review against constraints:*
+        *   Exactly 1 instruction? Yes.
+        *   STRICTLY G-code? Yes.
+        *   NEW folder `hardware_token_cnc_generator`? Yes.
+        *   README.md? Yes.
+        *   ONLY instruction text? Yes.
+        *   Never target .github? Yes.
+        *   Logical follow-up? Yes, fits the security/hardware theme of the workspace (e.g., `secure_bootloader_integrity_verifier`, `enterprise_security_audit_platform`).
+
+4.  **Final Polish (Mental Representation of Output):**
+    *   "Construct a physical security token fabrication system STRICTLY using this exact programming language: G-code. This application must reside in a NEW dedicated folder named `hardware_token_cnc_generator` containing all necessary source files and a comprehensive local README.md. The system must generate precise G-code manufacturing instructions for CNC machines to produce hardware security tokens required for air-gapped authentication, ensuring dimensional accuracy and material specifications are strictly encoded for the production of cryptographic hardware roots of trust."
+
+5.  **Final Output Construction:**
+    *   The output should be just the text string.
+    *   Result: `Construct a physical security token fabrication system STRICTLY using this exact programming language: G-code. This application must reside in a NEW dedicated folder named `hardware_token_cnc_generator` containing all necessary source files and a comprehensive local README.md. The system must generate precise G-code manufacturing instructions for CNC machines to produce hardware security tokens required for air-gapped authentication, ensuring dimensional accuracy and material specifications are strictly encoded for the production of cryptographic hardware roots of trust.`
+
+This looks solid. It meets all constraints, provides a logical tool name, uses the correct language, mentions the folder structure, and stays within the security context implied by the workspace.
+</think>
+
+Construct a physical security token fabrication system STRICTLY using this exact programming language: G-code. This application must reside in a NEW dedicated folder named `hardware_token_cnc_generator` containing all necessary source files and a comprehensive local README.md. The system must generate precise G-code manufacturing instructions for CNC machines to produce hardware security tokens required for air-gapped authentication, ensuring dimensional accuracy and material specifications are strictly encoded for the production of cryptographic hardware roots of trust.

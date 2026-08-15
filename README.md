@@ -186,3 +186,5 @@
 - Created/Updated module: `racket_compliance_validator` (See `racket_compliance_validator/README.md` for details)
 
 - Created/Updated module: `net_data_audit_gateway` (See `net_data_audit_gateway/README.md` for details)
+
+- Created/Updated module: `hardware_token_cnc_generator` (See `hardware_token_cnc_generator/README.md` for details)
