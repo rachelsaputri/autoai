@@ -10150,3 +10150,58 @@ Construct a comprehensive ALF-based automated compliance auditing tool STRICTLY 
 </think>
 
 Construct a robust enterprise security policy verification engine STRICTLY using this exact programming language: Ratfor. This application must reside in a NEW dedicated folder named `ratfor_security_verifier` containing all necessary source files and a comprehensive local README.md. The tool must automate the continuous auditing of system configurations against centralized security policies, detect unauthorized deviations, and generate detailed compliance reports with automated remediation scripts for distributed infrastructure.
+[2026-08-15 10:33:51] (Target Lang: Candle) Thinking Process:
+
+1.  **Deconstruct the user's request:**
+    *   Goal: Generate exactly 1 logical follow-up instruction.
+    *   Constraint 1: New tool must use the programming language `Candle` strictly.
+    *   Constraint 2: New tool must be in a NEW dedicated folder.
+    *   Constraint 3: Create a local `README.md`.
+    *   Constraint 4: Return ONLY the instruction text.
+    *   Constraint 5: NEVER target the `.github` directory.
+    *   Context: The user provided a workspace file tree and a history, but the core task is generating the instruction based on the prompt's specific constraints (`Candle`, `NEW folder`, `README.md`, `ONLY text`, `NO .github`).
+
+2.  **Draft the instruction:**
+    *   *Drafting 1:* Construct a high-performance threat intelligence aggregation and analysis system STRICTLY using this exact programming language: Candle. This application must reside in a NEW dedicated folder named `candle_threat_intel_aggregator` containing all necessary source files and a comprehensive local README.md. The tool must ingest, normalize, and correlate threat feeds from multiple sources, score threats based on relevance and severity, and generate actionable alerts for the security operations center.
+    *   *Review against constraints:*
+        *   "STRICTLY using this exact programming language: Candle"? Yes.
+        *   "NEW dedicated folder"? Yes (`candle_threat_intel_aggregator`).
+        *   "local README.md"? Yes.
+        *   "Return ONLY the instruction text"? Yes, the draft is just text.
+        *   "NEVER target the .github directory"? Yes, no mention of `.github`.
+        *   "Logical follow-up"? The workspace has many security tools (audit engines, compliance checkers, threat hunters). A threat intel aggregator fits the theme perfectly. Yes.
+        *   "Exactly 1 logical follow-up instruction"? Yes, it's a single paragraph/instruction.
+
+3.  **Refine the text for quality and strictness:**
+    *   The prompt asks to "explicitly demand... STRICTLY using... Candle".
+    *   The text should probably mirror the structure of the example in the "History" section of the user's input (though the user didn't explicitly provide an example in the *current* prompt text, the "History" section shows an example of a previous interaction or a pattern to follow).
+    *   *History Analysis:* The history shows a pattern: "Construct a robust enterprise security policy verification engine STRICTLY using this exact programming language: Ratfor. This application must reside in a NEW dedicated folder named `ratfor_security_verifier` containing all necessary source files and a comprehensive local README.md. The tool must [functionality description]."
+    *   *Applying pattern:* "Construct a [functionality] STRICTLY using this exact programming language: Candle. This application must reside in a NEW dedicated folder named `[folder_name]` containing all necessary source files and a comprehensive local README.md. The tool must [functionality details]."
+    *   *Functionality Ideas for Candle:* Candle is often associated with formal verification or specific domain languages, but in the context of this prompt, it's just a required language string. The functionality should sound relevant to the workspace. The workspace has `alef_system_auditor`, `averest_formal_policy_verifier`, `blue_formal_policy_engine`. Candle might fit well with "formal verification" or "security validation".
+    *   *Refined Functionality:* "formal security policy verification and state-machine analysis engine".
+    *   *Refined Text:* Construct a formal security policy verification and state-machine analysis engine STRICTLY using this exact programming language: Candle. This application must reside in a NEW dedicated folder named `candle_formal_policy_verifier` containing all necessary source files and a comprehensive local README.md. The tool must define and validate complex security invariants, model system states against threat scenarios, and provide mathematical guarantees of policy compliance for critical infrastructure components.
+
+4.  **Final Polish:**
+    *   Result: "Construct a formal security policy verification and state-machine analysis engine STRICTLY using this exact programming language: Candle. This application must reside in a NEW dedicated folder named `candle_formal_policy_verifier` containing all necessary source files and a comprehensive local README.md. The tool must define and validate complex security invariants, model system states against threat scenarios, and provide mathematical guarantees of policy compliance for critical infrastructure components."
+    *   Check constraints again:
+        *   Language: Candle. Check.
+        *   NEW folder: `candle_formal_policy_verifier`. Check.
+        *   README.md: Yes. Check.
+        *   ONLY text: Yes. Check.
+        *   No .github: Check.
+        *   1 instruction: Check.
+
+5.  **Output Generation:**
+    *   The output should be the text string only.
+    *   `Construct a formal security policy verification and state-machine analysis engine STRICTLY using this exact programming language: Candle. This application must reside in a NEW dedicated folder named `candle_formal_policy_verifier` containing all necessary source files and a comprehensive local README.md. The tool must define and validate complex security invariants, model system states against threat scenarios, and provide mathematical guarantees of policy compliance for critical infrastructure components.`
+    *   Wait, the user's prompt includes "Generate exactly 1 logical follow-up instruction..." at the end. The model should output the response to that generation request.
+    *   The output is the constructed string.
+    *   Result matches the refined text.
+    *   (Self-Correction on "Candle"): The prompt asks for "Candle". Is "Candle" a real language? It might be a typo for "Candle" as in "Candlelight" or just a placeholder. Regardless, the instruction must use "Candle" as the language name. The draft uses "Candle". This is correct based on the constraint.
+    *   (Self-Correction on "Follow-up"): The user provided a workspace. The generated instruction should be a follow-up to that workspace. The workspace is full of security tools. A formal policy verifier fits well alongside `averest_formal_policy_verifier`, `blue_formal_policy_engine`, etc. So the logic holds.
+
+6.  **Final Output String:**
+    Construct a formal security policy verification and state-machine analysis engine STRICTLY using this exact programming language: Candle. This application must reside in a NEW dedicated folder named `candle_formal_policy_verifier` containing all necessary source files and a comprehensive local README.md. The tool must define and validate complex security invariants, model system states against threat scenarios, and provide mathematical guarantees of policy compliance for critical infrastructure components.
+</think>
+
+Construct a formal security policy verification and state-machine analysis engine STRICTLY using this exact programming language: Candle. This application must reside in a NEW dedicated folder named `candle_formal_policy_verifier` containing all necessary source files and a comprehensive local README.md. The tool must define and validate complex security invariants, model system states against threat scenarios, and provide mathematical guarantees of policy compliance for critical infrastructure components.
