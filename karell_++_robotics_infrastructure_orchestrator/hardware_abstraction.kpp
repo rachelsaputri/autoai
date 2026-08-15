@@ -1,0 +1,79 @@
+/*
+ * hardware_abstraction.kpp
+ * Direct hardware interface wrappers and driver stubs
+ */
+
+#include <karel.h>
+#include <config.hpp>
+
+namespace Robotics {
+
+/* Motor Drivers */
+int16 read_mosfet_current(int8 motor_id) {
+    int32 raw_adc = read_adc_raw(motor_id * 2);
+    return (int16)(raw_adc * CAL_FACTOR_CURRENT);
+}
+
+int16 read_ntc_temperature(int8 motor_id) {
+    int32 raw_adc = read_adc_raw(motor_id * 2 + 1);
+    return (int16)(raw_adc * CAL_FACTOR_TEMP);
+}
+
+int8 check_motor_health(int8 motor_id) {
+    int16 current = read_mosfet_current(motor_id);
+    int16 temp = read_ntc_temperature(motor_id);
+    
+    if (temp > MAX_MOTOR_TEMP_C) return HEALTH_OVERHEAT;
+    if (current > MAX_MOTOR_AMP) return HEALTH_OVERCURRENT;
+    
+    return HEALTH_OK;
+}
+
+/* Sensor Drivers */
+int32 read_lidar_range() {
+    return read_i2c_word(LIDAR_PORT, 0x00);
+}
+
+int32 read_lidar_angle() {
+    return read_i2c_word(LIDAR_PORT, 0x02);
+}
+
+void read_gyroscope_data(int8 *angle_buffer) {
+    /* Read 3-axis angle data */
+    int32 raw_x = read_i2c_word(GYRO_PORT, 0x00);
+    int32 raw_y = read_i2c_word(GYRO_PORT, 0x02);
+    int32 raw_z = read_i2c_word(GYRO_PORT, 0x04);
+    
+    angle_buffer[0] = (int8)(raw_x / 100);
+    angle_buffer[1] = (int8)(raw_y / 100);
+    angle_buffer[2] = (int8)(raw_z / 100);
+}
+
+/* System Control */
+void emergency_stop() {
+    disable_all_motors();
+    log_system_failure("EMERGENCY STOP ACTIVATED");
+}
+
+void disable_all_motors() {
+    for (int8 i = 0; i < MAX_MOTORS; i++) {
+        write_digital_output(i + 1, 0);
+    }
+}
+
+void enable_all_motors() {
+    for (int8 i = 0; i < MAX_MOTORS; i++) {
+        write_digital_output(i + 1, 1);
+    }
+}
+
+int32 get_system_uptime_ms() {
+    return get_timer_ms();
+}
+
+bool is_task_running() {
+    /* Returns execution state of current scheduler task */
+    return get_task_status();
+}
+
+} // namespace Robotics
