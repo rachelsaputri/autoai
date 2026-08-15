@@ -11043,3 +11043,71 @@ Construct a comprehensive real-time network traffic anomaly detection engine STR
 </think>
 
 Construct a comprehensive real-time network traffic anomaly detection engine STRICTLY using this exact programming language: Cola. This application must reside in a NEW dedicated folder named `cola_network_anomaly_detector` containing all necessary Cola source files and a comprehensive local README.md. The tool must parse incoming network packets, apply statistical machine learning models to detect deviations from baseline traffic patterns, flag high-confidence threats for immediate isolation, and generate detailed alert reports suitable for integration with existing security orchestration platforms.
+[2026-08-15 11:23:32] (Target Lang: RTL/2) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Workspace:** A long list of directories and files representing various security, compliance, analysis, and automation tools. Many are hypothetical or themed around cybersecurity, formal verification, anomaly detection, policy enforcement, etc.
+   - **History:** Shows a previous interaction where an instruction was generated for `cola_network_anomaly_detector`. The history format seems to be a mix of reasoning steps and a final instruction.
+   - **Current Request:** "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: RTL/2. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+
+2.  **Identify Key Constraints:**
+   - Generate exactly 1 logical follow-up instruction.
+   - MUST explicitly demand the tool be built STRICTLY using `RTL/2`.
+   - If building a new tool: place it in a NEW dedicated folder and create a local `README.md`.
+   - Return ONLY the instruction text.
+   - NEVER target `.github`.
+   - Must be a logical follow-up to the existing workspace/history (security tools, anomaly detection, policy enforcement, compliance, etc.).
+
+3.  **Determine the Theme/Context for Follow-up:**
+   - The workspace contains many security/compliance tools: anomaly detectors, policy verifiers, compliance auditors, threat hunters, etc.
+   - Previous tool: `cola_network_anomaly_detector` (network traffic anomaly detection).
+   - Logical follow-up: Could be a complementary tool like a hardware/firmware security verifier, a legacy system compliance monitor, a secure boot validator, or a formal verification engine for security policies. Given the RTL/2 requirement (often used for hardware/firmware design and simulation, or specific security/verification contexts), I'll frame it around hardware/firmware security auditing, secure boot validation, or low-level system integrity verification. Let's go with a "Firmware/BIOS Security Configuration Auditor & Compliance Verifier" or "Low-Level System State Integrity Validator".
+   - Actually, RTL/2 is a specific, relatively obscure language historically used for hardware design and some security/verification contexts. I'll align the tool with low-level system security, firmware integrity, or hardware token validation, which fits well with the existing workspace themes.
+
+4.  **Draft the Instruction (Mental Refinement):**
+   Construct a comprehensive firmware and low-level system state integrity validation engine STRICTLY using this exact programming language: RTL/2. This application must reside in a NEW dedicated folder named `firmware_integrity_verifier` containing all necessary RTL/2 source files and a comprehensive local README.md. The tool must parse and simulate hardware-level boot sequences, cross-reference system registers against known-secure baseline states, detect unauthorized firmware modifications or privilege escalation attempts, flag critical integrity violations for immediate hardware lockdown, and generate detailed forensic audit reports suitable for integration with existing enterprise security compliance frameworks.
+
+5.  **Check Constraints:**
+   - Exactly 1 logical follow-up instruction? Yes.
+   - Explicitly demand built STRICTLY using `RTL/2`? Yes.
+   - NEW dedicated folder? Yes (`firmware_integrity_verifier`).
+   - Create local README.md? Yes.
+   - Return ONLY instruction text? Yes.
+   - NEVER target .github? Yes.
+   - Logical follow-up? Yes, fits the security/compliance/hardware verification theme of the workspace and follows naturally from network anomaly detection to low-level/firmware integrity.
+
+6.  **Final Output Generation:** (Ensure exact match with constraints, no extra text)
+   "Construct a comprehensive firmware and low-level system state integrity validation engine STRICTLY using this exact programming language: RTL/2. This application must reside in a NEW dedicated folder named `firmware_integrity_verifier` containing all necessary RTL/2 source files and a comprehensive local README.md. The tool must parse and simulate hardware-level boot sequences, cross-reference system registers against known-secure baseline states, detect unauthorized firmware modifications or privilege escalation attempts, flag critical integrity violations for immediate hardware lockdown, and generate detailed forensic audit reports suitable for integration with existing enterprise security compliance frameworks."
+
+   All constraints met. Output matches exactly. Proceeds. 
+   Self-Correction/Verification during thought: 
+   - Check language: RTL/2 is explicitly demanded.
+   - Check folder: NEW dedicated folder explicitly stated.
+   - Check README: explicitly stated.
+   - Check format: ONLY instruction text.
+   - Check theme: logical follow-up in security/workspace context.
+   - All good. Output matches draft.✅
+   I will output exactly the drafted instruction. 
+   One minor adjustment to make it flow perfectly with the prompt's style: "Construct a comprehensive [tool description] STRICTLY using this exact programming language: RTL/2. This application must reside in a NEW dedicated folder named `[folder_name]` containing all necessary RTL/2 source files and a comprehensive local README.md. The tool must [functionality 1], [functionality 2], [functionality 3], and generate [output] suitable for integration with [context]." -> Matches perfectly. 
+   Output matches exactly.✅
+   Proceeds. 
+   [Output Generation] -> *Proceeds to output*
+   *(Self-Correction/Refinement during drafting)*: I'll make sure the phrasing exactly matches the requested structure and constraints without any extra words. The prompt says "Return ONLY the instruction text." so I will output just that string.
+   Final check of the prompt: "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: RTL/2." -> Checked.
+   "If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md." -> Checked.
+   "Return ONLY the instruction text." -> Checked.
+   "NEVER target the .github directory." -> Checked.
+   All good.✅
+   Output matches the refined draft. 
+   [Output Generation] -> *Proceeds*
+   `Construct a comprehensive firmware and low-level system state integrity validation engine STRICTLY using this exact programming language: RTL/2. This application must reside in a NEW dedicated folder named `firmware_integrity_verifier` containing all necessary RTL/2 source files and a comprehensive local README.md. The tool must parse and simulate hardware-level boot sequences, cross-reference system registers against known-secure baseline states, detect unauthorized firmware modifications or privilege escalation attempts, flag critical integrity violations for immediate hardware lockdown, and generate detailed forensic audit reports suitable for integration with existing enterprise security compliance frameworks.` -> Exactly matches constraints.✅
+   Output matches. 
+   [Done] 
+   *Self-Correction/Note during thought*: I should ensure the folder name and theme are clearly distinct from existing ones. `firmware_integrity_verifier` is good. The workspace has `secure_bootloader_integrity_verifier`, so maybe `low_level_system_audit_engine` or `hardware_state_verifier` to avoid overlap. I'll use `hardware_state_verifier` or `secure_boot_analyzer`. Actually, `firmware_integrity_verifier` is fine, it's a logical extension. I'll stick with it or adjust slightly to `secure_firmware_audit_engine`. Let's go with `secure_firmware_audit_engine`. 
+   Final text: Construct a comprehensive secure firmware audit and hardware state verification engine STRICTLY using this exact programming language: RTL/2. This application must reside in a NEW dedicated folder named `secure_firmware_audit_engine` containing all necessary RTL/2 source files and a comprehensive local README.md. The tool must parse and simulate hardware-level boot sequences, cross-reference system registers against known-secure baseline states, detect unauthorized firmware modifications or privilege escalation attempts, flag critical integrity violations for immediate hardware lockdown, and generate detailed forensic audit reports suitable for integration with existing enterprise security compliance frameworks.
+   Matches all constraints. Output matches exactly.✅
+   Proceeds. 
+   [Output Generation] -> *Proceeds*
+</think>
+
+Construct a comprehensive secure firmware audit and hardware state verification engine STRICTLY using this exact programming language: RTL/2. This application must reside in a NEW dedicated folder named `secure_firmware_audit_engine` containing all necessary RTL/2 source files and a comprehensive local README.md. The tool must parse and simulate hardware-level boot sequences, cross-reference system registers against known-secure baseline states, detect unauthorized firmware modifications or privilege escalation attempts, flag critical integrity violations for immediate hardware lockdown, and generate detailed forensic audit reports suitable for integration with existing enterprise security compliance frameworks.
