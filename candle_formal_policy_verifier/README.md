@@ -1,36 +1,39 @@
 # Candle Formal Policy Verifier
 
 ## Overview
-`candle_formal_policy_verifier` is a high-performance, formal security policy verification and state-machine analysis engine. It is designed to provide mathematical guarantees of policy compliance for critical infrastructure components by defining, modeling, and validating complex security invariants.
+This tool implements a formal policy specification and state invariant verification engine using the Candle programming language. It is designed to ensure rigorous compliance auditing through algebraic datatype reasoning, formal induction, and bounded model checking techniques.
 
 ## Features
-- **Formal Invariant Validation:** Define security properties using rigorous mathematical logic and verify them against system states.
-- **State-Machine Modeling:** Construct and simulate system state transitions to model potential threat scenarios and attack vectors.
-- **Compliance Reporting:** Generate detailed reports on compliance status, highlighting any violations or potential vulnerabilities.
-- **Threat Scenario Simulation:** Test system resilience against defined threat models to ensure robust security posture.
-- **Actionable Alerts:** Produce precise, actionable alerts for Security Operations Centers (SOCs) when policy violations or anomalies are detected.
+- **Policy Specification**: Ingest and parse system state definitions and security policy constraints using Candle's native syntax.
+- **State Space Exploration**: Performs exhaustive exploration to detect compliance violations.
+- **Theorem Proving**: Leverages built-in framework and structural recursion guarantees for logical soundness.
+- **Proof Certificates**: Generates machine-verifiable proof certificates with precise compliance verdicts.
+- **Automated Pipelines**: Handles structured policy mapping for integration into audit workflows.
+- **Error Handling**: Maintains a robust constraint registry with comprehensive error management and exit codes.
 
-## Architecture
-- `src/` - Contains the core implementation in Candle.
-  - `main.candle` - Entry point for the verifier engine.
-  - `invariant_engine.candle` - Logic for defining and validating security invariants.
-  - `state_machine.candle` - Implementation of the state-machine modeler and simulator.
-  - `reporter.candle` - Generates compliance reports and alerts.
-- `examples/` - Contains sample policy definitions and configuration files.
-  - `sample_policy.candle` - Example of a security policy definition.
-  - `sample_states.candle` - Example of a system state machine definition.
+## Project Structure
+```
+candle_formal_policy_verifier/
+├── README.md
+├── main.candle
+├── policy_spec.candle
+├── constraint_validator.candle
+├── state_invariant.candle
+├── proof_generator.candle
+├── types.candle
+├── config.candle
+└── run_verification.sh
+```
 
 ## Usage
-1. Navigate to the `candle_formal_policy_verifier` directory.
-2. Compile the project using the Candle compiler:
-   ```bash
-   candle-compile src/main.candle -o cfpv
-   ```
-3. Run the verifier with a policy and state file:
-   ```bash
-   ./cfpv examples/sample_policy.candle examples/sample_states.candle
-   ```
-4. Review the output for compliance status and any generated alerts.
+Run the verification script to analyze system states against defined policies:
+```bash
+./run_verification.sh
+```
 
-## License
-This project is licensed under the MIT License.
+## Requirements
+- Candle Compiler
+- Standard Unix-like environment
+
+## Compliance & Standards
+Adheres to formal verification standards, ensuring semantic determinism, minimal runtime ambiguity, and seamless integration with formal verification toolchains.

@@ -358,3 +358,5 @@
 - Created/Updated module: `csh_compliance_auditor` (See `csh_compliance_auditor/README.md` for details)
 
 - Created/Updated module: `caml_compliance_audit_engine` (See `caml_compliance_audit_engine/README.md` for details)
+
+- Created/Updated module: `candle_formal_policy_verifier` (See `candle_formal_policy_verifier/README.md` for details)

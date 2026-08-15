@@ -1,0 +1,79 @@
+(*
+ * constraint_validator.candle
+ * Validates system states against loaded policies.
+ * Implements bounded model checking and formal induction.
+ *)
+
+module ConstraintValidator :
+  sig
+    type violation = {
+      constraint_id : string;
+      state_id : string;
+      reason : string;
+      severity : Severity.t
+    }
+    type violation_list = violation list
+    val validate_constraints : PolicyDB.t -> StateList.t -> ViolationList.t
+    val check_invariant : Invariant.t -> State.t -> bool
+    val check_temporal : TemporalSpec.t -> Trace.t -> bool
+    val log_violation : violation -> unit
+    val compile_violation_report : ViolationList.t -> string
+  end
+
+module ConstraintValidator =
+  struct
+    type violation = {
+      constraint_id : string;
+      state_id : string;
+      reason : string;
+      severity : Severity.t
+    }
+
+    type violation_list = violation list
+
+    let check_invariant inv state =
+      match inv with
+      | AtomicInv (pred, expr) -> evaluate_predicate(pred, expr, state)
+      | ConjunctionInv (inv1, inv2) -> check_invariant inv1 state && check_invariant inv2 state
+      | DisjunctionInv (inv1, inv2) -> check_invariant inv1 state || check_invariant inv2 state
+
+    let check_temporal spec trace =
+      match spec with
+      | AlwaysSpec inv -> List.for_all (check_invariant inv) trace
+      | EventuallySpec inv -> List.exists (check_invariant inv) trace
+      | UntilSpec (inv1, inv2) ->
+        let rec helper = function
+          | [] -> false
+          | t :: rest ->
+            if check_invariant inv2 t then true
+            else if check_invariant inv1 t then helper rest
+            else false
+        in
+        helper trace
+
+    let validate_constraints policy_db states =
+      let rec loop constraints states acc =
+        match constraints with
+        | [] -> acc
+        | c :: rest ->
+          let state_violations = List.fold_left (fun acc_v s ->
+            if check_invariant c.rule s then acc_v else {
+              constraint_id = c.id;
+              state_id = s.id;
+              reason = "Invariant violation";
+              severity = c.severity
+            } :: acc_v
+          ) [] states in
+          loop rest states (acc_v @ state_violations)
+      in
+      loop policy_db.constraints states []
+
+    let log_violation v =
+      Logger.log (Printf.sprintf "VIOLATION: [%s] at state [%s]: %s (Severity: %s)" v.constraint_id v.state_id v.reason v.severity)
+
+    let compile_violation_report violations =
+      let total = List.length violations in
+      let high = List.filter (fun v -> v.severity = High) violations in
+      let low = List.filter (fun v -> v.severity = Low) violations in
+      Printf.sprintf "Total Violations: %d | High: %d | Low: %d" total (List.length high) (List.length low)
+  end

@@ -1,0 +1,106 @@
+(*
+ * policy_spec.candle
+ * Defines the structure and parsing logic for security policy specifications.
+ * Implements algebraic datatypes for rules, constraints, and compliance thresholds.
+ *)
+
+module PolicySpec :
+  sig
+    type rule =
+      | Always of string
+      | Eventually of string
+      | Until of string * string
+    type constraint = {
+      id : string;
+      rule : rule;
+      scope : string;
+      severity : Severity.t
+    }
+    type policy = {
+      name : string;
+      version : string;
+      rules : rule list
+    }
+    type policy_db = {
+      policies : policy list;
+      constraints : constraint list
+    }
+    val parse_policy : string -> policy
+    val parse_constraint : string -> constraint
+    val load_policies : string -> policy_db
+    val validate_policy_syntax : policy -> bool
+    val resolve_rule_dependencies : rule list -> rule list
+  end
+
+module PolicySpec =
+  struct
+    type rule =
+      | Always of string
+      | Eventually of string
+      | Until of string * string
+
+    type constraint = {
+      id : string;
+      rule : rule;
+      scope : string;
+      severity : Severity.t
+    }
+
+    type policy = {
+      name : string;
+      version : string;
+      rules : rule list
+    }
+
+    type policy_db = {
+      policies : policy list;
+      constraints : constraint list
+    }
+
+    let rec parse_rule s =
+      match s with
+      | "Always:" :: rest -> Always (List.hd rest)
+      | "Eventually:" :: rest -> Eventually (List.hd rest)
+      | "Until:" :: rest ->
+        let tokens = rest in
+        let condition = List.hd tokens in
+        let goal = List.nth tokens 1 in
+        Until (condition, goal)
+      | _ -> raise (ParseError "Invalid rule format")
+
+    let parse_policy s =
+      let lines = split_lines s in
+      let name = List.hd lines in
+      let version = List.nth lines 1 in
+      let rule_strings = List.tl (List.tl lines) in
+      let rules = List.map parse_rule rule_strings in
+      { name; version; rules }
+
+    let parse_constraint s =
+      let lines = split_lines s in
+      let id = List.hd lines in
+      let rule_str = List.nth lines 1 in
+      let scope = List.nth lines 2 in
+      let severity_str = List.nth lines 3 in
+      let severity = parse_severity(severity_str) in
+      let rule = parse_rule ["Rule:"; rule_str] in
+      { id; rule; scope; severity }
+
+    let load_policies path =
+      let content = read_file path in
+      let policies = parse_policy content in
+      let constraints = extract_constraints(content) in
+      { policies; constraints }
+
+    let validate_policy_syntax p =
+      List.for_all is_valid_rule p.rules
+
+    let rec resolve_rule_dependencies rules =
+      let rec helper = function
+        | [] -> []
+        | r :: rest ->
+          if is_resolved r then r :: resolve_rule_dependencies rest
+          else resolve_rule_dependencies (rest @ [r])
+      in
+      helper rules
+  end

@@ -1,0 +1,76 @@
+(*
+ * state_invariant.candle
+ * Manages state machine traversal, invariant definitions, and temporal logic.
+ * Supports structural recursion for state evaluation.
+ *)
+
+module StateInvariant :
+  sig
+    type state = {
+      id : string;
+      variables : (string * Value.t) list
+    }
+    type state_list = state list
+    type trace = state list
+    type invariant =
+      | AtomicInv of string * Expression.t
+      | ConjunctionInv of invariant * invariant
+      | DisjunctionInv of invariant * invariant
+    type temporal_spec =
+      | AlwaysSpec of invariant
+      | EventuallySpec of invariant
+      | UntilSpec of invariant * invariant
+    val evaluate_expression : Expression.t -> State.t -> Value.t
+    val traverse_state_space : State.t -> State.t list -> StateList.t
+    val verify_invariant_on_trace : Invariant.t -> Trace.t -> bool
+    val detect_cycle : Trace.t -> bool
+  end
+
+module StateInvariant =
+  struct
+    type state = {
+      id : string;
+      variables : (string * Value.t) list
+    }
+
+    type state_list = state list
+
+    type trace = state list
+
+    type invariant =
+      | AtomicInv of string * Expression.t
+      | ConjunctionInv of invariant * invariant
+      | DisjunctionInv of invariant * invariant
+
+    type temporal_spec =
+      | AlwaysSpec of invariant
+      | EventuallySpec of invariant
+      | UntilSpec of invariant * invariant
+
+    let rec evaluate_expression expr state =
+      match expr with
+      | Variable v -> lookup_variable v state.variables
+      | Add (e1, e2) -> evaluate_expression e1 state + evaluate_expression e2 state
+      | Mul (e1, e2) -> evaluate_expression e1 state * evaluate_expression e2 state
+      | Lt (e1, e2) -> if evaluate_expression e1 state < evaluate_expression e2 state then Bool true else Bool false
+      | Eq (e1, e2) -> if evaluate_expression e1 state = evaluate_expression e2 state then Bool true else Bool false
+
+    let rec traverse_state_space current visited =
+      if List.mem current visited then visited
+      else
+        let next_states = generate_successors current in
+        let visited' = current :: visited in
+        List.fold_left traverse_state_space visited' next_states
+
+    let verify_invariant_on_trace inv trace =
+      List.for_all (check_invariant inv) trace
+
+    let detect_cycle trace =
+      let rec helper seen = function
+        | [] -> false
+        | s :: rest ->
+          if List.mem s seen then true
+          else helper (s :: seen) rest
+      in
+      helper [] trace
+  end
