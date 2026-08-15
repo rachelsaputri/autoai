@@ -1,0 +1,17 @@
+{
+  "optimization_status": "optimal",
+  "total_cost": 12450,
+  "compliance_coverage": 94.2,
+  "audit_schedule": [
+    {"task_id": "AT001", "auditor_id": "AU01", "time_slot": "TS03", "risk_score": 0.87},
+    {"task_id": "AT002", "auditor_id": "AU02", "time_slot": "TS03", "risk_score": 0.65},
+    {"task_id": "AT003", "auditor_id": "AU03", "time_slot": "TS04", "risk_score": 0.92},
+    {"task_id": "AT004", "auditor_id": "AU01", "time_slot": "TS05", "risk_score": 0.71},
+    {"task_id": "AT005", "auditor_id": "AU04", "time_slot": "TS04", "risk_score": 0.58}
+  ],
+  "resource_allocation": [
+    {"task_id": "AT001", "resource_id": "RR01", "priority": 9},
+    {"task_id": "AT003", "resource_id": "RR03", "priority": 10},
+    {"task_id": "AT004", "resource_id": "RR02", "priority": 7}
+  ]
+}

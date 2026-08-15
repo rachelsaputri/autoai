@@ -13402,3 +13402,74 @@ Proceeds.
 </think>
 
 Construct a production-grade, fully functional IMP-based Network Traffic Inspector STRICTLY using this exact programming language: IMP. This application must reside in a NEW dedicated folder named `imp_network_traffic_inspector` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement packet capture, protocol parsing, anomaly detection, and automated logging of suspicious activity. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+[2026-08-15 14:24:28] (Target Lang: AIMMS) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Input Workspace:** A long list of files/folders in a git repo. Many security-related projects, various languages (Ada, Rust, C#, Python, Erlang, Lua, Pascal, etc.).
+   - **History:** Shows a previous turn where the user asked for an IMP-based tool, and the AI generated an instruction string. The format is strict: "Construct a production-grade, fully functional [LANG]-based [TOOL_NAME] STRICTLY using this exact programming language: [LANG]. This application must reside in a NEW dedicated folder named `[folder_name]` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement [FEATURES]. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+   - **Current Prompt:** "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: AIMMS. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+
+2.  **Identify Constraints:**
+   - Generate exactly 1 logical follow-up instruction.
+   - Language: AIMMS
+   - Must demand construction in a NEW dedicated folder with a local README.md
+   - Return ONLY the instruction text
+   - NEVER target the .github directory
+   - Match the style/format from the history/example
+
+3.  **Determine Tool/Feature Idea:**
+   - Need a logical security/audit/compliance tool that fits AIMMS (which is typically used for mathematical programming, optimization, and business modeling).
+   - Given the repo context (security audit, compliance, policy enforcement, drift detection, etc.), a good fit would be an "Enterprise Compliance Optimization & Audit Planner" or "AIMMS-based Security Risk & Compliance Optimizer" or "AIMMS-based Policy Compliance Drift Analyzer".
+   - Let's go with: "Enterprise Security Risk & Compliance Optimizer"
+   - Features to implement: risk scoring, compliance rule optimization, audit planning, resource allocation, and automated reporting.
+   - Folder name: `aimms_security_risk_optimizer` (Wait, I see `./aimms_security_risk_optimizer` already exists in the workspace. The prompt says "If building a new tool, explicitly instruct to place it in a NEW dedicated folder". I should pick a distinct name to avoid conflict, or just follow the exact phrasing. I'll use `aimms_compliance_optimizer_engine` or `aimms_risk_optimization_suite`. Let's stick to `aimms_security_risk_optimizer` if it's a new instance, but the prompt says "NEW dedicated folder". I'll invent a fresh one: `aimms_audit_optimization_platform`. Actually, I'll just follow the exact template style: `aimms_security_risk_optimizer` is fine, but I'll change it slightly to be safe: `aimms_compliance_optimization_engine`. Or I'll just use `aimms_audit_risk_optimizer`. I'll stick to a clear name: `aimms_security_risk_optimizer` is already there, but the prompt says "NEW dedicated folder". I'll use `aimms_audit_risk_optimizer` to be safe. Wait, the prompt history shows the exact string template. I will just generate the instruction exactly as requested.
+
+   Template from history:
+   "Construct a production-grade, fully functional [LANG]-based [TOOL_NAME] STRICTLY using this exact programming language: [LANG]. This application must reside in a NEW dedicated folder named `[folder_name]` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement [FEATURES]. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+
+   Let's map it:
+   LANG: AIMMS
+   TOOL_NAME: Enterprise Security Risk & Compliance Optimizer
+   FOLDER: `aimms_security_risk_optimizer` (I'll keep it consistent with the repo's existing style, or just `aimms_audit_risk_optimizer`)
+   FEATURES: mathematical risk modeling, compliance constraint optimization, automated audit scheduling, and dynamic resource allocation for remediation.
+
+   Draft:
+   Construct a production-grade, fully functional AIMMS-based Enterprise Security Risk & Compliance Optimizer STRICTLY using this exact programming language: AIMMS. This application must reside in a NEW dedicated folder named `aimms_security_risk_optimizer` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement mathematical risk modeling, compliance constraint optimization, automated audit scheduling, and dynamic resource allocation for remediation. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+
+4.  **Check Constraints:**
+   - Exactly 1 logical follow-up instruction? Yes.
+   - Explicitly demand built STRICTLY using AIMMS? Yes.
+   - Place in NEW dedicated folder + README.md? Yes.
+   - Return ONLY instruction text? Yes.
+   - NEVER target .github? Yes (not mentioned).
+   - Matches style? Yes.
+
+   One minor adjustment: The prompt says "If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md." I'll make sure the wording exactly matches the required pattern. I'll adjust the tool name to avoid collision with the existing `aimms_security_risk_optimizer` in the workspace, maybe `aimms_audit_risk_optimizer` or `aimms_compliance_optimization_engine`. I'll use `aimms_compliance_optimization_engine`.
+
+   Let's craft it carefully:
+   Construct a production-grade, fully functional AIMMS-based Compliance Optimization & Audit Scheduler STRICTLY using this exact programming language: AIMMS. This application must reside in a NEW dedicated folder named `aimms_compliance_optimization_engine` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement mathematical risk modeling, compliance constraint optimization, automated audit scheduling, and dynamic remediation resource allocation. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+
+   Check against constraints: All good. Returns ONLY the instruction. No extra text. Matches the few-shot style exactly. Ready.✅
+   Output matches request. Proceeds. 
+   Self-Correction/Verification during thought: The prompt says "Return ONLY the instruction text." I will output exactly that string. No markdown, no extra words. Just the instruction.
+   Final check of the prompt: "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: AIMMS. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+   All constraints met. Output matches.✅
+   Proceeds. 
+   Output Generation. 
+   [Output] Construct a production-grade, fully functional AIMMS-based Compliance Optimization & Audit Scheduler STRICTLY using this exact programming language: AIMMS. This application must reside in a NEW dedicated folder named `aimms_compliance_optimization_engine` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement mathematical risk modeling, compliance constraint optimization, automated audit scheduling, and dynamic remediation resource allocation. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). 
+   *(Done.)* 
+   Wait, let's verify the exact phrasing from the history example to ensure perfect match:
+   "Construct a production-grade, fully functional IMP-based Network Traffic Inspector STRICTLY using this exact programming language: IMP. This application must reside in a NEW dedicated folder named `imp_network_traffic_inspector` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement packet capture, protocol parsing, anomaly detection, and automated logging of suspicious activity. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+   My draft matches this structure perfectly. I will output it exactly.✅
+   Proceeds. 
+   [Output Generation] -> *Outputs exactly the string* 
+   *(Final Check)*: All constraints satisfied. Output is just the instruction.✅ Proceeds. 
+   [Output] Construct a production-grade, fully functional AIMMS-based Compliance Optimization & Audit Scheduler STRICTLY using this exact programming language: AIMMS. This application must reside in a NEW dedicated folder named `aimms_compliance_optimization_engine` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement mathematical risk modeling, compliance constraint optimization, automated audit scheduling, and dynamic remediation resource allocation. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). 
+   *(Done.)*
+   [Note: I will output just the instruction text as requested.] 
+   Proceeds. 
+   [Output Generation] -> Constructs exactly the requested string. 
+   [Done]
+</think>
+
+Construct a production-grade, fully functional AIMMS-based Compliance Optimization & Audit Scheduler STRICTLY using this exact programming language: AIMMS. This application must reside in a NEW dedicated folder named `aimms_compliance_optimization_engine` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement mathematical risk modeling, compliance constraint optimization, automated audit scheduling, and dynamic remediation resource allocation. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
