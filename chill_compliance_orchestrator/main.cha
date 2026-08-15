@@ -1,0 +1,61 @@
+MODULE main;
+/* =======================================================================
+   CHILL Compliance Orchestrator - Main Entry Point
+   =======================================================================
+   This module serves as the primary entry point for the system.
+   It initializes the global context, starts the background daemons
+   for policy evaluation and threat correlation, and handles the main
+   event loop for processing inbound audit requests and system metrics.
+*/
+
+IMPORTS
+    chill_compliance_orchestrator,
+    policy_evaluator,
+    threat_correlator,
+    audit_logger;
+
+PROCEDURE main IS
+    /* -------------------------------------------------------------------
+       Initialization and State Management
+       ------------------------------------------------------------------- */
+    ctx: CHILL_CONTEXT;
+    result: INTEGER;
+
+    /* Start the main orchestrator daemon */
+    result := chill_compliance_orchestrator.start_system(ctx);
+    IF result <> CHILL_SUCCESS THEN
+        audit_logger.log_event(ctx, "CRITICAL", "FAILED_TO_START_ORCHESTRATOR");
+        TERMINATE(1);
+    END IF;
+
+    /* Start policy evaluation daemon */
+    result := policy_evaluator.start_daemon(ctx);
+    IF result <> CHILL_SUCCESS THEN
+        audit_logger.log_event(ctx, "WARNING", "FAILED_TO_START_POLICY_DAEMON");
+        /* System continues with degraded compliance capabilities */
+    END IF;
+
+    /* Start threat correlation daemon */
+    result := threat_correlator.start_daemon(ctx);
+    IF result <> CHILL_SUCCESS THEN
+        audit_logger.log_event(ctx, "WARNING", "FAILED_TO_START_THREAT_DAEMON");
+        /* System continues with compliance-only capabilities */
+    END IF;
+
+    /* Main Event Loop - Waits for termination signals or system shutdown */
+    FOREVER
+        WAIT FOR 60 SECONDS;
+        IF NOT chill_compliance_orchestrator.is_active(ctx) THEN
+            EXIT;
+        END IF;
+    END FOREVER;
+
+    /* Graceful Shutdown */
+    audit_logger.log_event(ctx, "INFO", "INITIATING_GRACEFUL_SHUTDOWN");
+    chill_compliance_orchestrator.stop_system(ctx);
+    policy_evaluator.stop_daemon(ctx);
+    threat_correlator.stop_daemon(ctx);
+    audit_logger.log_event(ctx, "INFO", "SYSTEM_SHUTDOWN_COMPLETE");
+    TERMINATE(0);
+
+END main;

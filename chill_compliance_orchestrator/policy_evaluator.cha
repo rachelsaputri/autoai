@@ -1,0 +1,135 @@
+MODULE policy_evaluator;
+/* =======================================================================
+   CHILL Compliance Orchestrator - Policy Evaluator
+   =======================================================================
+   This module is responsible for parsing formal policy definitions
+   and evaluating system states against them. It provides a deterministic
+   engine for compliance checks, ensuring idempotent and unambiguous
+   results for every policy rule processed.
+*/
+
+/* -----------------------------------------------------------------------
+   Type Definitions
+   ----------------------------------------------------------------------- */
+TYPE
+    POLICY_RULE RECORD
+        rule_id: CHAR(32);
+        condition_expression: ARRAY OF CHAR;
+        severity: INTEGER;
+    END RECORD;
+
+    EVALUATION_RESULT RECORD
+        rule_id: CHAR(32);
+        is_compliant: BOOLEAN;
+        compliance_level: INTEGER;
+        message: ARRAY OF CHAR(128);
+    END RECORD;
+
+/* -----------------------------------------------------------------------
+   Global Variables
+   ----------------------------------------------------------------------- */
+GLOBAL
+    policy_queue: QUEUE OF POLICY_RULE;
+    is_daemon_running: BOOLEAN;
+
+/* -----------------------------------------------------------------------
+   Public Interface
+   ----------------------------------------------------------------------- */
+PROCEDURE start_daemon RETURNING (ctx: SYSTEM_CONTEXT) RETURNING (status: INTEGER) IS
+    /* Start the background evaluation loop */
+    is_daemon_running := TRUE;
+    SPOOL (evaluate_loop());
+    status := 0;
+END start_daemon;
+
+PROCEDURE stop_daemon RETURNING (ctx: SYSTEM_CONTEXT) IS
+    is_daemon_running := FALSE;
+END stop_daemon;
+
+/* -----------------------------------------------------------------------
+   Internal Evaluation Loop
+   ----------------------------------------------------------------------- */
+PROCEDURE evaluate_loop IS
+    /* Continuously fetch and evaluate policies from the queue */
+    FOREVER
+        IF NOT is_daemon_running THEN
+            EXIT;
+        END IF;
+
+        /* Block until a policy is available or timeout occurs */
+        WAIT FOR QUEUE(policy_queue) UNTIL NOT EMPTY() TIMEOUT 100 MILLISECONDS;
+
+        IF NOT EMPTY(policy_queue) THEN
+            DECLARE r POLICY_RULE;
+            GET FROM queue TO r;
+
+            /* Execute the formal evaluation */
+            process_single_rule(r);
+        END IF;
+    END FOREVER;
+END evaluate_loop;
+
+/* -----------------------------------------------------------------------
+   Rule Processing Logic
+   ----------------------------------------------------------------------- */
+PROCEDURE process_single_rule RETURNING (rule: POLICY_RULE) IS
+    /* Perform strict evaluation of the rule against current system state */
+    DECLARE result EVALUATION_RESULT;
+
+    /* 1. Parse the formal condition */
+    result.rule_id := rule.rule_id;
+
+    /* 2. Evaluate against runtime invariants */
+    /* (Assumes a lower-level invariant engine is available via OS API) */
+    result.is_compliant := evaluate_invariant_expression(rule.condition_expression);
+    result.compliance_level := IF result.is_compliant THEN 1 ELSE 0 END IF;
+
+    /* 3. Log the outcome for downstream correlation */
+    IF result.is_compliant THEN
+        APPEND_TO(result.message, "POLICY_COMPLIANT");
+    ELSE
+        APPEND_TO(result.message, "POLICY_VIOLATION_DETECTED");
+    END IF;
+
+    audit_logger.log_event(ctx, "POLICY_EVAL", result.message);
+
+    /* 4. Trigger remediation if violation is detected */
+    IF NOT result.is_compliant AND rule.severity > 1 THEN
+        trigger_remediation_engine(rule);
+    END IF;
+
+    /* Decrement active task count in core context */
+    ctx.active_tasks := ctx.active_tasks - 1;
+END process_single_rule;
+
+/* -----------------------------------------------------------------------
+   Private Evaluators and Triggers
+   ----------------------------------------------------------------------- */
+PROCEDURE evaluate_invariant_expression RETURNING (expr: ARRAY OF CHAR) RETURNING (is_valid: BOOLEAN) IS
+    /* A strict, deterministic evaluator for system invariants */
+    DECLARE expr_copy: ARRAY OF CHAR;
+    /* Copy expression to avoid mutation */
+    expr_copy := TO_STRING(expr);
+
+    /* Perform the actual evaluation against system state */
+    IF OS_CHECK_SYSTEM_STATE(expr_copy) THEN
+        is_valid := TRUE;
+    ELSE
+        is_valid := FALSE;
+    END IF;
+END evaluate_invariant_expression;
+
+PROCEDURE trigger_remediation_engine RETURNING (rule: POLICY_RULE) IS
+    /* Dispatch a remediation task to the remediation queue */
+    DECLARE task RECORD
+        policy_id: CHAR(32);
+        priority: INTEGER;
+    END RECORD;
+    task.policy_id := rule.rule_id;
+    task.priority := rule.severity;
+
+    /* Send to remediation queue */
+    SEND TO remediation_queue task;
+END trigger_remediation_engine;
+
+END policy_evaluator;

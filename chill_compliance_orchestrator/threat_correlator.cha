@@ -1,0 +1,117 @@
+MODULE threat_correlator;
+/* =======================================================================
+   CHILL Compliance Orchestrator - Threat Correlator
+   =======================================================================
+   This module implements a real-time correlation engine for security
+   events. It builds an event correlation graph to identify complex,
+   multi-stage attack patterns, ensuring that isolated anomalies are
+   correctly aggregated into high-fidelity threat signals.
+*/
+
+/* -----------------------------------------------------------------------
+   Type Definitions
+   ----------------------------------------------------------------------- */
+TYPE
+    SECURITY_EVENT RECORD
+        event_id: CHAR(64);
+        timestamp: TIMESTAMP;
+        source_ip: CHAR(16);
+        event_type: INTEGER;
+        severity: INTEGER;
+        payload: ARRAY OF CHAR(1024);
+    END RECORD;
+
+    CORRELATION_WINDOW RECORD
+        start_time: TIMESTAMP;
+        end_time: TIMESTAMP;
+        matching_events: ARRAY OF SECURITY_EVENT;
+    END RECORD;
+
+/* -----------------------------------------------------------------------
+   Global Variables
+   ----------------------------------------------------------------------- */
+GLOBAL
+    event_stream: QUEUE OF SECURITY_EVENT;
+    is_daemon_running: BOOLEAN;
+    correlation_graph: TREE OF SECURITY_EVENT;
+
+/* -----------------------------------------------------------------------
+   Public Interface
+   ----------------------------------------------------------------------- */
+PROCEDURE start_daemon RETURNING (ctx: SYSTEM_CONTEXT) RETURNING (status: INTEGER) IS
+    /* Initialize the correlation window and start the daemon */
+    correlation_graph := EMPTY_TREE();
+    is_daemon_running := TRUE;
+    SPOOL (run_correlation_loop());
+    status := 0;
+END start_daemon;
+
+PROCEDURE stop_daemon RETURNING (ctx: SYSTEM_CONTEXT) IS
+    is_daemon_running := FALSE;
+END stop_daemon;
+
+/* -----------------------------------------------------------------------
+   Internal Correlation Loop
+   ----------------------------------------------------------------------- */
+PROCEDURE run_correlation_loop IS
+    DECLARE window: CORRELATION_WINDOW;
+
+    window.start_time := CURRENT_TIMESTAMP();
+    window.end_time := ADD_SECONDS(window.start_time, 30);
+    window.matching_events := EMPTY_ARRAY();
+
+    FOREVER
+        IF NOT is_daemon_running THEN
+            EXIT;
+        END IF;
+
+        /* Ingest new events into the correlation graph */
+        FOREVER
+            WAIT FOR QUEUE(event_stream) TIMEOUT 1000 MILLISECONDS;
+            DECLARE evt SECURITY_EVENT;
+            GET FROM event_stream TO evt;
+            ADD_TO_GRAPH(correlation_graph, evt);
+        END FOREVER;
+
+        /* Evaluate the window for high-confidence threat patterns */
+        IF EVALUATE_GRAPH(correlation_graph, window) THEN
+            /* High-confidence threat detected */
+            audit_logger.log_event(ctx, "THREAT_DETECTED", "MULTI_STAGE_ATTACK_PATTERN");
+            /* Clear the graph and reset the window */
+            correlation_graph := EMPTY_TREE();
+            window.start_time := CURRENT_TIMESTAMP();
+        ELSE
+            /* Decay old events in the window */
+            window.start_time := ADD_SECONDS(window.start_time, 1);
+        END IF;
+    END FOREVER;
+END run_correlation_loop;
+
+/* -----------------------------------------------------------------------
+   Graph Evaluation and Pattern Matching
+   ----------------------------------------------------------------------- */
+PROCEDURE EVALUATE_GRAPH RETURNING (graph: TREE OF SECURITY_EVENT) RETURNING (window: CORRELATION_WINDOW) RETURNING (is_threat: BOOLEAN) IS
+    /* Analyze the correlation graph for known attack sequences */
+    DECLARE sequence: ARRAY OF SECURITY_EVENT;
+
+    /* Perform depth-first search for anomalous patterns */
+    sequence := DEPTH_FIRST_SEARCH(graph);
+
+    IF LENGTH(sequence) > 3 THEN
+        /* More than 3 correlated events indicate a likely attack */
+        is_threat := TRUE;
+    ELSE
+        is_threat := FALSE;
+    END IF;
+END EVALUATE_GRAPH;
+
+PROCEDURE ADD_TO_GRAPH RETURNING (graph: TREE OF SECURITY_EVENT) RETURNING (event: SECURITY_EVENT) IS
+    /* Insert event into the correlation graph based on timestamp and source */
+    IF graph IS NULL OR IS_EMPTY(graph) THEN
+        graph := CREATE_NODE(event);
+    ELSE
+        INSERT_NODE(graph, event, ON_FIELD(source_ip));
+    END IF;
+END ADD_TO_GRAPH;
+
+END threat_correlator;
