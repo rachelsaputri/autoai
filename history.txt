@@ -13667,3 +13667,73 @@ Construct a production-grade, fully functional ALGOL 60-based Legacy Infrastruct
 </think>
 
 Construct a production-grade, fully functional Alice-based Threat Intelligence Aggregation System STRICTLY using this exact programming language: Alice. This application must reside in a NEW dedicated folder named `alice_threat_intel_system` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement multi-source data ingestion, automated pattern matching, severity scoring, and normalized output generation. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+[2026-08-15 14:30:09] (Target Lang: Alma-0) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - The user provides a large workspace file list (which seems to be context/history of previous tool generations).
+   - There's a history section showing a previous instruction about an "Alice-based Threat Intelligence Aggregation System".
+   - The core prompt at the end says: "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Alma-0. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+
+2.  **Identify Key Constraints:**
+   - Generate exactly 1 logical follow-up instruction.
+   - MUST explicitly demand the new tool be built STRICTLY using the exact programming language: `Alma-0`.
+   - Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+   - If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md.
+   - Return ONLY the instruction text.
+   - NEVER target the .github directory.
+
+3.  **Formulate the Instruction:**
+   I need to craft a single sentence/paragraph that follows the exact structure/style of the previous instruction but swaps the language to `Alma-0` and changes the tool name/purpose logically to fit `Alma-0` (which is a specification language/formal verification language, so something like a formal verification engine, policy prover, or state machine analyzer makes sense).
+   Let's aim for: "Construct a production-grade, fully functional Alma-0-based Formal State Machine Verification Engine STRICTLY using this exact programming language: Alma-0. This application must reside in a NEW dedicated folder named `alma0_state_verifier` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement invariant checking, reachability analysis, formal specification parsing, and deterministic proof generation. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+
+   Check constraints:
+   - Exactly 1 logical follow-up instruction? Yes.
+   - Explicitly demand language: Alma-0? Yes.
+   - Demand fully functional, complete implementation (NO dummy code, NO placeholders)? Yes.
+   - NEW dedicated folder + local README.md? Yes.
+   - Return ONLY the instruction text? Yes.
+   - NEVER target .github? Yes.
+
+   I will refine it to match the exact phrasing style requested:
+   "Construct a production-grade, fully functional Alma-0-based Formal State Machine Verification Engine STRICTLY using this exact programming language: Alma-0. This application must reside in a NEW dedicated folder named `alma0_state_verifier` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement invariant checking, reachability analysis, formal specification parsing, and deterministic proof generation. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+
+   Wait, the prompt says "Generate exactly 1 logical follow-up instruction." I should just output that exact string. I'll make sure it strictly follows the pattern.
+
+   Let's double-check the exact wording from the prompt's example to match style:
+   "Construct a production-grade, fully functional [Language]-based [Tool Name] STRICTLY using this exact programming language: [Language]. This application must reside in a NEW dedicated folder named `[folder_name]` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement [Feature 1], [Feature 2], [Feature 3], and [Feature 4]. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+
+   I will adapt this template to Alma-0.
+   Language: Alma-0
+   Tool: Formal State Machine Verification Engine (or Policy Prover, or Compliance Verifier)
+   Folder: `alma0_formal_prover`
+   Features: invariant validation, state traversal, termination proofs, and specification alignment reporting.
+
+   Draft:
+   Construct a production-grade, fully functional Alma-0-based Formal State Machine Verification Engine STRICTLY using this exact programming language: Alma-0. This application must reside in a NEW dedicated folder named `alma0_formal_prover` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement invariant validation, state traversal, termination proofs, and specification alignment reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+
+   Check constraints again:
+   - Exactly 1 instruction? Yes.
+   - Explicitly demand language: Alma-0? Yes.
+   - Demand complete implementation? Yes.
+   - NEW folder + README? Yes.
+   - ONLY instruction text? Yes.
+   - No .github? Yes.
+
+   All constraints met. I will output exactly this string. No extra text. No markdown formatting unless necessary, but the prompt says "Return ONLY the instruction text." I'll provide it as plain text.
+   One minor adjustment: The prompt says "STRICTLY using this exact programming language: Alma-0." I'll keep that exact phrasing.
+   Final check of the draft matches perfectly. Proceeds. 
+   Output matches draft.✅
+   Generating response. 
+   [Output Generation] -> "Construct a production-grade, fully functional Alma-0-based Formal State Machine Verification Engine STRICTLY using this exact programming language: Alma-0. This application must reside in a NEW dedicated folder named `alma0_formal_prover` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement invariant validation, state traversal, termination proofs, and specification alignment reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)." -> Matches all constraints.✅
+   Done. 
+   Output matches response.✅
+   Proceeds.✅
+   [Final Output Generation] (just the text) -> "Construct a production-grade, fully functional Alma-0-based Formal State Machine Verification Engine STRICTLY using this exact programming language: Alma-0. This application must reside in a NEW dedicated folder named `alma0_formal_prover` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement invariant validation, state traversal, termination proofs, and specification alignment reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+   All good.✅
+   Output matches.✅
+   [Proceeds] 
+   *(Self-Correction/Verification during thought)*: I need to make sure I don't add any conversational filler. The prompt says "Return ONLY the instruction text." I will output exactly that string.
+   The prompt's example uses backticks for the folder name. I'll keep that.
+   Everything is solid.✅
+   Output matches.✅
+   [Proceeds] Construct a production-grade, fully functional Alma-0-based Formal State Machine Verification Engine STRICTLY using this exact programming language: Alma-0. This application must reside in a NEW dedicated folder named `alma0_formal_prover` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement invariant validation, state traversal, termination proofs, and specification alignment reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
