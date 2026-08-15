@@ -1,0 +1,38 @@
+BEGIN
+   COMMENT Contains formal compliance evaluation logic and rule definitions;
+   COMMENT Applies static analysis to parsed configuration state;
+   
+   PROCEDURE EvaluateRule(INTEGER rule_id, CONFIG_STATE state);
+      COMMENT Checks a specific configuration against a compliance rule;
+      BEGIN
+         BOOLEAN is_compliant;
+         
+         CASE rule_id OF
+            rule_id = 1001: is_compliant := CHECK_PERMISSIONS(state);
+            rule_id = 1002: is_compliant := CHECK_AUTHENTICATION(state);
+            rule_id = 1003: is_compliant := CHECK_ENCRYPTION(state);
+            TRUE: is_compliant := FALSE;
+         END;
+         
+         RETURN is_compliant;
+      END;
+   
+   PROCEDURE CHECK_PERMISSIONS(CONFIG_STATE state);
+      COMMENT Verifies minimum privilege separation;
+      BEGIN
+         RETURN state.privilege_level >= MINIMUM_REQUIRED_LEVEL;
+      END;
+   
+   PROCEDURE CHECK_AUTHENTICATION(CONFIG_STATE state);
+      COMMENT Verifies authentication mechanism strength;
+      BEGIN
+         RETURN state.auth_method == STRONG_AUTH_METHOD;
+      END;
+   
+   PROCEDURE CHECK_ENCRYPTION(CONFIG_STATE state);
+      COMMENT Verifies data-at-rest and in-transit encryption;
+      BEGIN
+         RETURN state.encryption_strength >= MINIMUM_BIT_STRENGTH;
+      END;
+   
+   END

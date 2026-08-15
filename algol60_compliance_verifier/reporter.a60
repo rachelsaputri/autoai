@@ -1,0 +1,36 @@
+BEGIN
+   COMMENT Formats and outputs audit logs and compliance status reports;
+   COMMENT Generates structured, timestamped records for audit trails;
+   
+   PROCEDURE GenerateAuditLog(STRING event_name, BOOLEAN result);
+      COMMENT Logs a single verification event;
+      BEGIN
+         STRING timestamp;
+         STRING log_entry;
+         
+         timestamp := CURRENT_TIMESTAMP();
+         log_entry := timestamp + " | " + event_name + " | " + (IF result THEN "PASS" ELSE "FAIL");
+         
+         APPEND_TO_FILE("audit.log", log_entry);
+         PRINT(log_entry);
+         RETURN;
+      END;
+   
+   PROCEDURE OutputFinalReport(TOTAL_CHECKS total, TOTAL_PASSED passed);
+      COMMENT Summarizes the overall verification results;
+      BEGIN
+         REAL compliance_score;
+         compliance_score := (passed / total) * 100.0;
+         
+         PRINT("----------------------------------------");
+         PRINT("   LEGACY COMPLIANCE VERIFICATION REPORT");
+         PRINT("----------------------------------------");
+         PRINT("Total Checks Evaluated: " + INT2STR(total));
+         PRINT("Checks Passed:        " + INT2STR(passed));
+         PRINT("Compliance Score:     " + REAL2STR(compliance_score) + "%");
+         PRINT("Status:               " + (IF compliance_score >= 90.0 THEN "COMPLIANT" ELSE "NON-COMPLIANT"));
+         PRINT("----------------------------------------");
+         RETURN;
+      END;
+   
+   END

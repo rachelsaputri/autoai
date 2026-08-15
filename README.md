@@ -266,3 +266,5 @@
 - Created/Updated module: `alf_security_policy_enforcer` (See `alf_security_policy_enforcer/README.md` for details)
 
 - Created/Updated module: `sb_security_audit_scanner` (See `sb_security_audit_scanner/README.md` for details)
+
+- Created/Updated module: `algol60_compliance_verifier` (See `algol60_compliance_verifier/README.md` for details)

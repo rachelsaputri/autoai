@@ -13520,3 +13520,73 @@ This looks solid.
 </think>
 
 Construct a production-grade, fully functional Small Basic-based Security Audit Scanner STRICTLY using this exact programming language: Small Basic. This application must reside in a NEW dedicated folder named `sb_security_audit_scanner` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement file integrity verification, configuration compliance checking, permission analysis, and automated vulnerability reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+[2026-08-15 14:27:04] (Target Lang: ALGOL 60) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Workspace:** A long list of directories and files, mostly related to security, compliance, auditing, formal verification, and various programming languages/tools.
+   - **History:** Shows a pattern of generating instructions for new tools. The last instruction was for a Small Basic-based Security Audit Scanner in `sb_security_audit_scanner`.
+   - **Prompt Requirement:** "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: ALGOL 60. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+
+2.  **Identify Key Constraints:**
+   - Must be exactly 1 logical follow-up instruction.
+   - MUST explicitly demand the tool be built STRICTLY using ALGOL 60.
+   - If building a new tool: MUST instruct to place it in a NEW dedicated folder and create a local README.md.
+   - Return ONLY the instruction text.
+   - NEVER target .github directory.
+   - Should follow the style of the history example.
+
+3.  **Determine the Tool/Context:**
+   - Looking at the workspace, there are many compliance/security tools. ALGOL 60 is an old, structured programming language. A logical tool for ALGOL 60 in this context could be a "Legacy System Compliance Verifier" or "Formal Policy Validator" or "Configuration Drift Detector".
+   - Let's go with a "Legacy System Compliance Verifier" or "Formal Security Policy Validator". Given the historical context of security auditing, a "Legacy Infrastructure Compliance Verifier" fits well.
+   - I need to specify features to implement, matching the style: "file integrity verification, configuration compliance checking, permission analysis, and automated vulnerability reporting" -> I'll adapt to ALGOL 60 capabilities/context: "legacy configuration parsing, compliance rule evaluation, audit log generation, and security state reporting".
+   - New folder name: `algol60_compliance_verifier`
+   - Language: ALGOL 60
+   - Must include README.md in the new folder.
+
+4.  **Draft the Instruction (Mental Refinement):**
+   Construct a production-grade, fully functional ALGOL 60-based Legacy Infrastructure Compliance Verifier STRICTLY using this exact programming language: ALGOL 60. This application must reside in a NEW dedicated folder named `algol60_compliance_verifier` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement legacy configuration parsing, compliance rule evaluation, audit log generation, and security state reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+
+5.  **Check Constraints:**
+   - Exactly 1 logical follow-up instruction? Yes.
+   - Explicitly demand built STRICTLY using ALGOL 60? Yes.
+   - Explicitly instruct to place in NEW dedicated folder and create README.md? Yes (`algol60_compliance_verifier`, `README.md`).
+   - Return ONLY the instruction text? Yes.
+   - NEVER target .github? Checked, not mentioned.
+   - Matches style? Yes, closely follows the provided history example structure.
+
+   One minor adjustment: Ensure the phrasing exactly matches the required constraint phrasing if possible, or stays very close. The prompt says: "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: ALGOL 60." I will make sure that exact phrase or very close to it is in the output.
+
+   Let's draft it carefully:
+   Construct a production-grade, fully functional ALGOL 60-based Legacy Infrastructure Compliance Verifier STRICTLY using this exact programming language: ALGOL 60. This application must reside in a NEW dedicated folder named `algol60_compliance_verifier` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement legacy configuration parsing, compliance rule evaluation, audit log generation, and security state reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+
+   Check against constraints:
+   - "Generate exactly 1 logical follow-up instruction." -> It's one sentence/paragraph.
+   - "MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: ALGOL 60." -> Included.
+   - "If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md." -> Included.
+   - "Return ONLY the instruction text." -> Will output just the text.
+   - "NEVER target the .github directory." -> Not targeted.
+
+   The draft looks solid. I will output exactly that. No extra text. Ensure formatting matches the prompt's request. All constraints met. Proceed. 
+   One thing: The prompt says "explicitly demand that the new tool be built STRICTLY using this exact programming language: ALGOL 60." I'll make sure the phrasing matches closely. I'll adjust slightly to be perfectly aligned: "Construct a production-grade, fully functional ALGOL 60-based Legacy Infrastructure Compliance Verifier STRICTLY using this exact programming language: ALGOL 60. This application must reside in a NEW dedicated folder named `algol60_compliance_verifier` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement legacy configuration parsing, compliance rule evaluation, audit log generation, and security state reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+
+   This matches perfectly. Output matches requirement.✅
+   Proceeds. 
+   Output generation. 
+   [Self-Correction/Verification during thought]
+   - Check workspace context: There's no ALGOL 60 tool yet, so creating one is logical.
+   - Check style: Matches history example exactly.
+   - Check constraints: All met.
+   - Output will be just the instruction text. No markdown formatting around it unless necessary, but the prompt says "Return ONLY the instruction text." I'll provide it as plain text.
+   - Ready. 
+   Output matches the draft.✅
+   Proceeds. 
+   [Output Generation] -> "Construct a production-grade, fully functional ALGOL 60-based Legacy Infrastructure Compliance Verifier STRICTLY using this exact programming language: ALGOL 60. This application must reside in a NEW dedicated folder named `algol60_compliance_verifier` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement legacy configuration parsing, compliance rule evaluation, audit log generation, and security state reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)." -> Exactly matches requirements.✅
+   Done. 
+   Output matches response. 
+   [Final Check of the Prompt]: "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: ALGOL 60. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+   All good.✅
+   Output matches. 
+   [Proceeds]
+</think>
+
+Construct a production-grade, fully functional ALGOL 60-based Legacy Infrastructure Compliance Verifier STRICTLY using this exact programming language: ALGOL 60. This application must reside in a NEW dedicated folder named `algol60_compliance_verifier` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement legacy configuration parsing, compliance rule evaluation, audit log generation, and security state reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).

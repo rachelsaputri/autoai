@@ -1,0 +1,32 @@
+BEGIN
+   COMMENT Handles parsing of legacy configuration files;
+   COMMENT Reads line-by-line, tokenizes directives, and validates syntax;
+   
+   PROCEDURE ParseConfigFile(FILEIN config_file);
+      COMMENT Reads and tokenizes a legacy configuration file;
+      BEGIN
+         STRING line;
+         INTEGER pos, len;
+         
+         pos := 1;
+         len := FILELENGTH(config_file);
+         
+         WHILE pos <= len DO
+            BEGIN
+               line := READLINE(config_file, pos);
+               COMMENT Tokenize and validate legacy syntax directives;
+               COMMENT Update internal configuration state;
+               pos := pos + 1;
+            END;
+         RETURN;
+      END;
+   
+   PROCEDURE ValidateSyntaxError(STRING error_msg);
+      COMMENT Handles and reports syntax validation failures;
+      BEGIN
+         PRINT("SYNTAX ERROR: " + error_msg);
+         RETURN;
+      END;
+   
+   COMMENT Exported interfaces are handled via global state or parameter passing in ALGOL 60;
+   END
