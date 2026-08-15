@@ -198,3 +198,5 @@
 - Created/Updated module: `alf_data_extractor` (See `alf_data_extractor/README.md` for details)
 
 - Created/Updated module: `joule_dataset_access_verifier` (See `joule_dataset_access_verifier/README.md` for details)
+
+- Created/Updated module: `nice_security_enforcer` (See `nice_security_enforcer/README.md` for details)
