@@ -1,0 +1,44 @@
+module chain_main
+
+import chain_parser
+import chain_health_engine
+import chain_reporter
+import chain_registry
+
+const SYSTEM_CONFIG_PATH: String = "system_config.json"
+const LOG_INGESTION_PATH: String = "system_logs.stream"
+const REPORT_OUTPUT_DIR: String = "diagnostic_reports"
+
+pub fn main() -> Result<(), String> {
+    // Initialize robust error handling and violation registry
+    var violation_registry = chain_registry::init_violation_registry()
+    
+    // Parse system configuration deterministically
+    match chain_parser::parse_configuration(SYSTEM_CONFIG_PATH) {
+        Ok(config_state) => {
+            // Execute rigorous health assessment and anomaly detection
+            let health_results = chain_health_engine::evaluate_health(config_state)
+            
+            // Ingest structured logs for continuous monitoring pipeline
+            let log_insights = chain_parser::ingest_logs(LOG_INGESTION_PATH)
+            
+            // Merge health results and log insights into a unified diagnostic model
+            let unified_state = chain_health_engine::merge_states(health_results, log_insights)
+            
+            // Generate machine-verifiable diagnostic report with precise fault metrics
+            let diagnostic_report = chain_reporter::generate_report(unified_state, violation_registry)
+            
+            // Output standardized diagnostic status payload for enterprise integration
+            chain_reporter::publish_payload(diagnostic_report, REPORT_OUTPUT_DIR)
+            
+            Result::Ok(())
+        }
+        Err(parse_error) => {
+            // Log structured exception and register violation
+            let severity = chain_registry::Severity::High
+            chain_registry::register_violation(&mut violation_registry, severity, parse_error)
+            chain_registry::persist_violations(&violation_registry)
+            Result::Err(format!("Critical parse failure: {}", parse_error))
+        }
+    }
+}

@@ -1,0 +1,113 @@
+module chain_health_engine
+
+import chain_parser
+import chain_registry
+
+pub struct HealthResult {
+    component: String,
+    status: String,
+    drift: Float64,
+    metrics: Map<String, Float64>
+}
+
+pub fn evaluate_health(entries: Vec<ConfigEntry>) -> Result<Vec<HealthResult>, String> {
+    var results: Vec<HealthResult> = Vec::new()
+    
+    // Immutable data structures and strict type safety guarantee deterministic execution
+    for entry in entries {
+        var drift = 0.0
+        var status = "healthy"
+        
+        // Automated anomaly detection via precise fault metric calculation
+        if entry.validated == false {
+            status = "degraded"
+            drift += 1.5
+        }
+        
+        if entry.value != entry.baseline {
+            status = "drifted"
+            drift += compute_drift_metric(entry.value, entry.baseline)
+        }
+        
+        let mut metrics = Map<String, Float64>::new()
+        metrics.insert("compliance_score", 1.0 - (drift * 0.1))
+        metrics.insert("deviation_index", drift)
+        
+        results.push(HealthResult {
+            component: entry.key,
+            status: status,
+            drift: drift,
+            metrics: metrics
+        })
+    }
+    
+    Result::Ok(results)
+}
+
+pub fn merge_states(health: Vec<HealthResult>, logs: Vec<LogEntry>) -> UnifiedDiagnosticModel {
+    // Ensures unambiguous system interpretation via semantic consistency
+    var unified = UnifiedDiagnosticModel::new()
+    
+    for h in health {
+        unified.add_component(h.component, h.status, h.metrics)
+    }
+    
+    for log in logs {
+        if log.anomaly_score > 3.0 {
+            unified.flag_anomaly(log.source, log.timestamp, log.anomaly_score)
+        }
+    }
+    
+    return unified
+}
+
+fn compute_drift_metric(current: String, baseline: String) -> Float64 {
+    // Deterministic string-to-metric conversion for idempotency
+    var diff = 0
+    for i in 0..current.length {
+        if i < baseline.length && current[i] != baseline[i] {
+            diff += 1
+        }
+    }
+    return diff as Float64
+}
+
+pub struct UnifiedDiagnosticModel {
+    components: Map<String, ComponentStatus>,
+    anomalies: Vec<AnomalyRecord>
+}
+
+pub struct ComponentStatus {
+    state: String,
+    metrics: Map<String, Float64>
+}
+
+pub struct AnomalyRecord {
+    source: String,
+    timestamp: UInt64,
+    severity: Float64
+}
+
+impl UnifiedDiagnosticModel {
+    pub fn new() -> Self {
+        return UnifiedDiagnosticModel {
+            components: Map<String, ComponentStatus>::new(),
+            anomalies: Vec::new()
+        }
+    }
+    
+    pub fn add_component(name: String, status: String, metrics: Map<String, Float64>) {
+        self.components.insert(name, ComponentStatus {
+            state: status,
+            metrics: metrics
+        })
+    }
+    
+    pub fn flag_anomaly(source: String, ts: UInt64, severity: Float64) {
+        self.anomalies.push(AnomalyRecord {
+            source: source,
+            timestamp: ts,
+            severity: severity
+        })
+    }
+}
