@@ -1,0 +1,84 @@
+# Sample State Machine Definition for Candle Formal Policy Verifier
+
+# State Machine: User Access Control System
+# Description: Models the states and transitions of user access control
+
+state_machine "user_access_control" {
+    # States
+    state "unauthorized" {
+        variables: {
+            user: User,
+            resource: Resource,
+            permission: Permission
+        }
+        constraints: {
+            has_access(user, resource) = false
+        }
+    }
+
+    state "authorized_read" {
+        variables: {
+            user: User,
+            resource: Resource,
+            permission: Permission
+        }
+        constraints: {
+            has_access(user, resource) = true AND permission = READ
+        }
+    }
+
+    state "authorized_write" {
+        variables: {
+            user: User,
+            resource: Resource,
+            permission: Permission
+        }
+        constraints: {
+            has_access(user, resource) = true AND permission = WRITE
+        }
+    }
+
+    # Initial State
+    initial_state "unauthorized" {
+        variables: {
+            user: User, # Unknown user
+            resource: Resource, # Unknown resource
+            permission: NONE # No permission
+        }
+    }
+
+    # Transitions
+    transition "request_access" {
+        guard: {
+            has_access(user, resource) = false
+        }
+        action: {
+            assignment: {
+                variable: permission,
+                new_value: READ
+            }
+        }
+    }
+
+    transition "grant_write_access" {
+        guard: {
+            has_access(user, resource) = true AND permission = READ
+        }
+        action: {
+            assignment: {
+                variable: permission,
+                new_value: WRITE
+            }
+        }
+    }
+
+    transition "revoke_access" {
+        guard: true # Always enabled
+        action: {
+            assignment: {
+                variable: permission,
+                new_value: NONE
+            }
+        }
+    }
+}

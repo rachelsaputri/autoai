@@ -1,0 +1,34 @@
+# Sample Policy Definition for Candle Formal Policy Verifier
+
+# Policy: Access Control Policy
+# Description: Defines security invariants for access control
+
+invariant "no_unauthorized_access" {
+    description: "No user should have access to a resource without proper authorization.",
+    expression: {
+        forall user in Users, resource in Resources: {
+            has_access(user, resource) => has_permission(user, resource, READ) OR has_permission(user, resource, WRITE)
+        }
+    },
+    severity: CRITICAL
+}
+
+invariant "least_privilege" {
+    description: "Users should only have the minimum necessary permissions.",
+    expression: {
+        forall user in Users, resource in Resources: {
+            has_permission(user, resource, WRITE) => has_permission(user, resource, READ)
+        }
+    },
+    severity: HIGH
+}
+
+invariant "admin_isolation" {
+    description: "Administrative functions should be isolated and restricted.",
+    expression: {
+        forall user in Users: {
+            is_admin(user) => has_access(user, admin_panel)
+        }
+    },
+    severity: CRITICAL
+}
