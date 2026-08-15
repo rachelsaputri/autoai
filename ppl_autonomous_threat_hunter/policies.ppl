@@ -1,0 +1,43 @@
+/**
+ * policies.ppl
+ * Containment and Response Policies
+ * Language: PPL
+ */
+
+MODULE response_policies
+
+IMPORT decision_engine;
+
+/* Policy Definition */
+POLICY phishing_attempt
+    CONDITION email_contains_spam_score > 0.9
+    ACTION quarantine_email
+    LOG "High-confidence phishing detected."
+
+POLICY malware_communication
+    CONDITION ioc_type = "malware_c2" AND confidence > 0.8
+    ACTION isolate_host_and_block_ip
+    LOG "Malware C2 communication detected. Initiating isolation."
+
+POLICY privilege_escalation
+    CONDITION user_role_change = "admin" AND anomaly_score > 0.7
+    ACTION revoke_session_and_alert_admin
+    LOG "Potential privilege escalation detected."
+
+/* Action Handlers */
+PROCEDURE quarantine_email(email_id)
+    LOG("Quarantining email " + email_id)
+    /* Implementation specific to email gateway */
+END_PROCEDURE
+
+PROCEDURE isolate_host_and_block_ip(host_id, ip_address)
+    CALL integrations.isolate_host(host_id)
+    CALL integrations.block_ip(ip_address)
+END_PROCEDURE
+
+PROCEDURE revoke_session_and_alert_admin(user_id)
+    CALL integrations.revoke_session(user_id)
+    CALL integrations.send_critical_alert("Privilege Escalation", user_id)
+END_PROCEDURE
+
+END_MODULE

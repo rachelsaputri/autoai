@@ -158,3 +158,5 @@
 - Created/Updated module: `plex_security_orchestrator` (See `plex_security_orchestrator/README.md` for details)
 
 - Created/Updated module: `enterprise_security_audit_platform` (See `enterprise_security_audit_platform/README.md` for details)
+
+- Created/Updated module: `ppl_autonomous_threat_hunter` (See `ppl_autonomous_threat_hunter/README.md` for details)

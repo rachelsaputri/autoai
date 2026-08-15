@@ -1,0 +1,49 @@
+/**
+ * integrations.ppl
+ * SIEM and API Integration Handlers
+ * Language: PPL
+ */
+
+MODULE integrations
+
+IMPORT ssl_wrapper;
+IMPORT json_parser;
+
+/* SIEM Connection Config */
+VAR splunk_endpoint = "https://splunk.internal:8089"
+VAR splunk_token = ENV("SPLUNK_TOKEN")
+VAR elastic_endpoint = "https://elastic.internal:9200"
+
+/* Ingest Alert to SIEM */
+PROCEDURE send_alert_to_siem(alert_data)
+    headers = {
+        "Authorization": "Bearer " + splunk_token,
+        "Content-Type": "application/json"
+    }
+    payload = json_parser.serialize(alert_data)
+    
+    resp = ssl_wrapper.post(splunk_endpoint + "/servicesCollector/http", payload, headers)
+    IF resp.status != 200 THEN
+        ERROR("Failed to send alert to Splunk: " + resp.body)
+    END_IF
+END_PROCEDURE
+
+/* Query Internal Logs for IOCs */
+PROCEDURE query_logs_for_ioc(ioc_value)
+    query = "index=network_logs src_ip=" + ioc_value
+    results = api_bridge.query("elasticsearch", query)
+    RETURN results
+END_PROCEDURE
+
+/* Network Containment Action */
+PROCEDURE isolate_host(host_id)
+    /* API call to firewall or NAC */
+    resp = api_bridge.call("firewall_api", "/isolate", {"host_id": host_id})
+    IF resp.success THEN
+        LOG("Host " + host_id + " isolated successfully.")
+    ELSE
+        ERROR("Host isolation failed for " + host_id + ": " + resp.error)
+    END_IF
+END_PROCEDURE
+
+END_MODULE
