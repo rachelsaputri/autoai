@@ -1,0 +1,28 @@
+// ABSET Dependency Mapper
+import std.set;
+import std.graph;
+
+type Policy { ... } // Reused from policy_parser.abset
+
+type Dependency {
+    from: Rule,
+    to: Rule
+}
+
+fn map_dependencies(policies: Set[Policy]): Graph[Dependency]
+    graph = std.graph.new();
+    for p in policies:
+        for r in p.rules:
+            std.graph.add_node(graph, r.id);
+            for ref in r.references:
+                std.graph.add_edge(graph, r.id, ref);
+    return graph;
+end
+
+fn render_dependency_map(graph: Graph[Dependency]): string
+    output = std.string_builder.new();
+    output.append("Dependency Map:\n");
+    for edge in std.graph.edges(graph):
+        output.append(edge.from + " -> " + edge.to + "\n");
+    return output.to_string();
+end

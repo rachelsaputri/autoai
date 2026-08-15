@@ -1,0 +1,41 @@
+// ABSET Consistency Checker
+import std.set;
+import std.logic;
+import std.math;
+
+type Policy { ... } // Reused from policy_parser.abset
+
+fn analyze_consistency(policies: Set[Policy]): ConsistencyReport
+    report = ConsistencyReport{contradictions: std.set.new(), dependencies: std.set.new(), warnings: std.set.new()};
+
+    // Check for rule contradictions
+    for p1 in policies:
+        for p2 in policies:
+            if p1.id != p2.id:
+                conflicts = find_rule_conflicts(p1, p2);
+                std.set.add(report.contradictions, conflicts);
+
+    // Check set constraint consistency
+    for p in policies:
+        for c1 in p.set_constraints:
+            for c2 in p.set_constraints:
+                if c1 != c2 and not are_constraints_compatible(c1, c2):
+                    report.warnings.append("Incompatible constraints in policy " + p.id);
+
+    return report;
+end
+
+fn find_rule_conflicts(p1: Policy, p2: Policy): List[Conflict]
+    conflicts = std.set.new();
+    for r1 in p1.rules:
+        for r2 in p2.rules:
+            if std.logic.are_conditions_mutually_exclusive(r1.condition, r2.condition):
+                if r1.action != r2.action:
+                    std.set.add(conflicts, Conflict{r1, r2});
+    return std.set.to_list(conflicts);
+end
+
+fn are_constraints_compatible(c1: SetConstraint, c2: SetConstraint): bool
+    // ABSET-specific set algebra validation
+    return evaluate_compatibility(c1.expression, c2.expression);
+end
