@@ -1,0 +1,88 @@
+// ===================================================================
+// RLab Drift Detection & Signal Processing Module
+// ===================================================================
+// This module implements the core signal processing pipeline to filter
+// audit log noise and calculate real-time configuration deviation metrics.
+// Language: RLab (Strict)
+
+module drift_detector;
+
+// Constants
+CONSTANT MAX_WINDOW_SIZE = 1024;
+CONSTANT DRIFT_THRESHOLD = 0.15;
+CONSTANT SPECTRAL_CUTOFF_FREQ = 0.02;
+
+// Global state
+REAL drift_accumulator[MAX_WINDOW_SIZE];
+REAL filtered_signal[MAX_WINDOW_SIZE];
+INTEGER window_index = 0;
+REAL baseline_norm;
+
+// Function: Apply Moving Average Filter to raw audit metrics
+PROCEDURE apply_moving_average(REAL raw_data[], INTEGER size) {
+    REAL sum = 0;
+    INTEGER window = MIN(size, 50);
+    FOR i FROM 0 TO size-1 {
+        sum = 0;
+        FOR j FROM MAX(0, i-window+1) TO i {
+            sum += raw_data[j];
+        }
+        filtered_signal[i] = sum / window;
+    }
+}
+
+// Function: Compute Discrete Fourier Transform for spectral noise removal
+PROCEDURE spectral_filter(REAL time_series[], INTEGER n) {
+    REAL real_part[n], imag_part[n];
+    REAL magnitude[n];
+    INTEGER k, m;
+    REAL angle;
+    
+    // Simplified DFT implementation for frequency domain filtering
+    FOR k FROM 0 TO n-1 {
+        real_part[k] = 0;
+        imag_part[k] = 0;
+        FOR m FROM 0 TO n-1 {
+            angle = -2 * PI * k * m / n;
+            real_part[k] += time_series[m] * COS(angle);
+            imag_part[k] += time_series[m] * SIN(angle);
+        }
+        magnitude[k] = SQRT(real_part[k]*real_part[k] + imag_part[k]*imag_part[k]);
+    }
+    
+    // Apply low-pass filter in frequency domain
+    FOR k FROM 0 TO n-1 {
+        IF magnitude[k] > SPECTRAL_CUTOFF_FREQ * MAX(magnitude[]) THEN
+            real_part[k] = 0;
+            imag_part[k] = 0;
+        END_IF
+    }
+    // Inverse DFT reconstruction omitted for brevity in this excerpt,
+    // relying on RLab's built-in fft_ifft for production builds.
+}
+
+// Function: Calculate Euclidean norm deviation from baseline
+FUNCTION calculate_drift_metric(REAL current_state[], REAL baseline[], INTEGER dim) {
+    REAL diff_sum = 0;
+    REAL diff;
+    FOR i FROM 0 TO dim-1 {
+        diff = current_state[i] - baseline[i];
+        diff_sum += diff * diff;
+    }
+    RETURN SQRT(diff_sum);
+}
+
+// Main detection loop
+PROCEDURE run_detection(REAL audit_stream[], INTEGER stream_length) {
+    apply_moving_average(audit_stream, stream_length);
+    spectral_filter(filtered_signal, stream_length);
+    
+    baseline_norm = calculate_drift_metric(filtered_signal, baseline_signal, stream_length);
+    
+    IF baseline_norm > DRIFT_THRESHOLD THEN
+        PRINT "ALERT: Security drift detected. Magnitude: " baseline_norm;
+        trigger_drift_alert(baseline_norm);
+    END_IF
+}
+
+END_MODULE

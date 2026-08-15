@@ -142,3 +142,5 @@
 - Created/Updated module: `binary_integrity_verifier` (See `binary_integrity_verifier/README.md` for details)
 
 - Created/Updated module: `averest_memory_network_simulator` (See `averest_memory_network_simulator/README.md` for details)
+
+- Created/Updated module: `rlab_compliance_drift_auditor` (See `rlab_compliance_drift_auditor/README.md` for details)
