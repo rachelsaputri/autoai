@@ -1,0 +1,73 @@
+/*
+ * data_ingestion.acl
+ * Handles reading data from various sources (CSV, DB).
+ */
+
+USING Progress.Lang.*.
+
+CLASS DataIngestion:
+    METHOD PUBLIC VOID loadFromCSV(input filePath AS CHARACTER, output tableData AS HANDLE):
+        /* 
+         * Logic to read CSV file line by line or use IMPORT 
+         * For simplicity, we assume a table structure matches the CSV columns
+         */
+        DEFINE VARIABLE hTemp AS HANDLE NO-UNDO.
+        DEFINE VARIABLE cLine AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE iRecId AS INTEGER NO-UNDO.
+
+        CREATE TABLE hTemp.
+        hTemp:CREATE-LIKE("TempTable"). /* Assumes a predefined TempTable structure */
+        
+        INPUT FROM VALUE(filePath) NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN DO:
+            MESSAGE "Error opening file: " filePath VIEW-AS ALERT-BOX.
+            RETURN.
+        END.
+
+        REPEAT:
+            IMPORT UNFORMATTED cLine.
+            IF ERROR-STATUS:ERROR OR cLine = "" THEN LEAVE.
+
+            iRecId = iRecId + 1.
+            CREATE TempTable IN hTemp.
+            TempTable:RECORDID = iRecId.
+            /* Assuming CSV has 3 columns: Field1, Field2, Field3 */
+            ASSIGN 
+                TempTable.Field1 = ENTRY(1, cLine, ",")
+                TempTable.Field2 = ENTRY(2, cLine, ",")
+                TempTable.Field3 = ENTRY(3, cLine, ",").
+        END.
+        
+        INPUT CLOSE.
+        ASSIGN tableData = hTemp.
+    END METHOD.
+
+    METHOD PUBLIC VOID loadFromDB(output tableData AS HANDLE):
+        /* 
+         * Logic to query a database table
+         */
+        DEFINE VARIABLE cQuery AS CHARACTER NO-UNDO.
+        
+        cQuery = "SELECT * FROM MainDataTable WHERE Processed = FALSE".
+        
+        /* In a real ABL app, we would use a FIND or EXPLICIT PREPARE */
+        /* Here we simulate loading into a temp table */
+        DEFINE VARIABLE hTemp AS HANDLE NO-UNDO.
+        CREATE TABLE hTemp.
+        hTemp:CREATE-LIKE("MainData").
+        
+        /* Simulated data load */
+        DEFINE BUFFER bMain FOR MainData.
+        FIRST bMain WHERE Processed = FALSE NO-ERROR.
+        DO WHILE NOT ERROR-STATUS:ERROR:
+            CREATE TempRecord IN hTemp.
+            ASSIGN
+                TempRecord.Field1 = bMain.Field1
+                TempRecord.Field2 = bMain.Field2
+                TempRecord.Field3 = bMain.Field3.
+            NEXT bMain.
+        END.
+        
+        ASSIGN tableData = hTemp.
+    END METHOD.
+END CLASS.

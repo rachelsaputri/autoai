@@ -1,0 +1,63 @@
+/*
+ * data_transformation.acl
+ * Contains business logic for data cleaning and validation.
+ */
+
+USING Progress.Lang.*.
+
+CLASS DataTransformation:
+    METHOD PUBLIC VOID transformRecord(input pInputBuffer AS HANDLE, output pOutputBuffer AS HANDLE):
+        /* Validate fields */
+        IF VALID-OBJECT(pInputBuffer) THEN DO:
+            IF AVAILABLE(pInputBuffer) THEN DO:
+                /* Clean string fields */
+                IF pInputBuffer.Field1 <> ? THEN DO:
+                    pOutputBuffer.Field1 = TRIM(UPPER(pInputBuffer.Field1)).
+                END.
+                ELSE DO:
+                    pOutputBuffer.Field1 = "".
+                END.
+
+                /* Validate numeric-like strings */
+                IF pInputBuffer.Field2 <> ? THEN DO:
+                    IF LENGTH(TRIM(pInputBuffer.Field2)) > 0 THEN DO:
+                        ASSIGN pOutputBuffer.Field2 = pInputBuffer.Field2.
+                    END.
+                    ELSE DO:
+                        ASSIGN pOutputBuffer.Field2 = "0".
+                    END.
+                END.
+                ELSE DO:
+                    ASSIGN pOutputBuffer.Field2 = "0".
+                END.
+
+                /* Date validation example */
+                IF pInputBuffer.Field3 <> ? THEN DO:
+                    IF pInputBuffer.Field3 <> "" THEN DO:
+                        ASSIGN pOutputBuffer.Field3 = pInputBuffer.Field3.
+                    END.
+                END.
+                ELSE DO:
+                    ASSIGN pOutputBuffer.Field3 = "".
+                END.
+            END.
+        END.
+    END METHOD.
+
+    METHOD PUBLIC VOID applyRules(input tableData AS HANDLE):
+        /* Apply batch rules */
+        DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+        DEFINE VARIABLE hBuffer AS HANDLE NO-UNDO.
+        
+        /* Assuming tableData has a standard TempTable structure */
+        hBuffer = tableData:GET-BUFFER-HANDLE(1).
+        
+        /* Example: Filter out empty records */
+        FOR EACH hBuffer NO-LOCK:
+            IF hBuffer.Field1 = "" THEN DELETE hBuffer.
+        END.
+        
+        /* Reset buffer pointer */
+        FIRST hBuffer.
+    END METHOD.
+END CLASS.

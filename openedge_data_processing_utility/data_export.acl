@@ -1,0 +1,42 @@
+/*
+ * data_export.acl
+ * Handles writing processed data to output files.
+ */
+
+USING Progress.Lang.*.
+
+CLASS DataExport:
+    METHOD PUBLIC VOID exportToCSV(input tableData AS HANDLE, output filePath AS CHARACTER):
+        /* 
+         * Export processed data to CSV
+         */
+        DEFINE VARIABLE hBuffer AS HANDLE NO-UNDO.
+        DEFINE VARIABLE cLine AS CHARACTER NO-UNDO.
+        
+        hBuffer = tableData:GET-BUFFER-HANDLE(1).
+        
+        OUTPUT TO VALUE(filePath) NO-APPEND NO-CONVERT NO-ERASE.
+        IF ERROR-STATUS:ERROR THEN DO:
+            MESSAGE "Error creating output file: " filePath VIEW-AS ALERT-BOX.
+            RETURN.
+        END.
+
+        FOR EACH hBuffer NO-LOCK:
+            cLine = hBuffer.Field1 + "," + hBuffer.Field2 + "," + hBuffer.Field3.
+            PUT UNFORMATTED cLine SKIP.
+        END.
+        
+        OUTPUT CLOSE.
+    END METHOD.
+
+    METHOD PUBLIC VOID exportToLog(input message AS CHARACTER):
+        /* Append to log file */
+        DEFINE VARIABLE cLogFile AS CHARACTER NO-UNDO.
+        
+        cLogFile = "data_process.log".
+        
+        OUTPUT APPEND TO VALUE(cLogFile) NO-CONVERT.
+        PUT UNFORMATTED TIMESTAMP NOW ": " message SKIP.
+        OUTPUT CLOSE.
+    END METHOD.
+END CLASS.

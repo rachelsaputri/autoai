@@ -1,0 +1,31 @@
+/*
+ * logger.acl
+ * Centralized logging utility.
+ */
+
+USING Progress.Lang.*.
+
+CLASS Logger:
+    METHOD PUBLIC STATIC VOID info(input pMessage AS CHARACTER):
+        RUN _log("INFO", pMessage).
+    END METHOD.
+
+    METHOD PUBLIC STATIC VOID error(input pMessage AS CHARACTER):
+        RUN _log("ERROR", pMessage).
+    END METHOD.
+
+    METHOD STATIC PRIVATE VOID _log(input pLevel AS CHARACTER, input pMessage AS CHARACTER):
+        DEFINE VARIABLE cLogFile AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cTimestamp AS CHARACTER NO-UNDO.
+        
+        cLogFile = "utility.log".
+        cTimestamp = STRING(NOW, "YYYY-MM-DD HH:MM:SS").
+        
+        OUTPUT APPEND TO VALUE(cLogFile) NO-CONVERT.
+        PUT UNFORMATTED cTimestamp + " [" + pLevel + "]: " + pMessage SKIP.
+        OUTPUT CLOSE.
+
+        /* Also print to screen for debug purposes */
+        MESSAGE pMessage VIEW-AS ALERT-BOX INFO BUTTONS OK.
+    END METHOD.
+END CLASS.

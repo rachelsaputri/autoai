@@ -1,0 +1,26 @@
+/*
+ * config.acl
+ * Configuration management.
+ */
+
+USING Progress.Lang.*.
+
+CLASS Config:
+    METHOD PUBLIC STATIC CHARACTER get(input pKey AS CHARACTER) OUTPUT AS CHARACTER:
+        /* 
+         * Simple config reader. In production, use XML or JSON config files.
+         */
+        CASE pKey:
+            WHEN "INPUT_FILE" THEN RETURN "input_data.csv".
+            WHEN "OUTPUT_FILE" THEN RETURN "output_data.csv".
+            WHEN "LOG_LEVEL" THEN RETURN "INFO".
+            OTHERWISE RETURN "".
+        END CASE.
+    END METHOD.
+
+    METHOD PUBLIC STATIC VOID initialize():
+        /* Placeholder for config initialization logic */
+        /* Load from XML/JSON if desired */
+        RETURN.
+    END METHOD.
+END CLASS.

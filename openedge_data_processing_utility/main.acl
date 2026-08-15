@@ -1,0 +1,45 @@
+/*
+ * main.acl
+ * Main application entry point.
+ */
+
+USING Progress.Lang.*.
+
+DEFINE VARIABLE hInputData AS HANDLE NO-UNDO.
+DEFINE VARIABLE hOutputData AS HANDLE NO-UNDO.
+DEFINE VARIABLE oIngestion AS HANDLE NO-UNDO.
+DEFINE VARIABLE oTransformation AS HANDLE NO-UNDO.
+DEFINE VARIABLE oExport AS HANDLE NO-UNDO.
+
+DEFINE VARIABLE cInputFile AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cOutputFile AS CHARACTER NO-UNDO.
+
+RUN initialize IN Config.
+
+ASSIGN 
+    cInputFile = Config:get("INPUT_FILE")
+    cOutputFile = Config:get("OUTPUT_FILE").
+
+/* Instantiate Components */
+CREATE DataIngestion oIngestion.
+CREATE DataTransformation oTransformation.
+CREATE DataExport oExport.
+
+/* Step 1: Ingest Data */
+RUN loadFromCSV IN oIngestion(pInputFile, hInputData).
+IF VALID-OBJECT(hInputData) AND hInputData:NUM-RECORDS > 0 THEN DO:
+    RUN info IN Logger("Data ingested successfully.").
+    
+    /* Step 2: Transform Data */
+    RUN applyRules IN oTransformation(hInputData).
+    
+    /* Step 3: Export Data */
+    RUN exportToCSV IN oExport(hInputData, cOutputFile).
+    
+    RUN info IN Logger("Data exported successfully.").
+END.
+ELSE DO:
+    RUN error IN Logger("No data to process.").
+END.
+
+QUIT.
