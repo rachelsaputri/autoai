@@ -1,0 +1,16 @@
+{
+  "policies": [
+    {
+      "name": "password_complexity",
+      "description": "Ensure passwords meet complexity requirements",
+      "rule": "password_complexity_rule"
+    },
+    {
+      "name": "access_control",
+      "description": "Enforce access control policies",
+      "rule": "access_control_rule"
+    }
+  ],
+  "baseline": "baseline.alf",
+  "audit_log_file": "audit.log"
+}
