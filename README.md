@@ -356,3 +356,5 @@
 - Created/Updated module: `COS_Compliance_Orchestrator` (See `COS_Compliance_Orchestrator/README.md` for details)
 
 - Created/Updated module: `csh_compliance_auditor` (See `csh_compliance_auditor/README.md` for details)
+
+- Created/Updated module: `caml_compliance_audit_engine` (See `caml_compliance_audit_engine/README.md` for details)
