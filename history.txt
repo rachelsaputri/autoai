@@ -13911,3 +13911,38 @@ Construct a production-grade, fully functional Amiga E-based Real-Time Log Analy
 </think>
 
 Construct a production-grade, fully functional ISPF-based Interactive Mainframe Compliance Audit and Policy Verification System STRICTLY using this exact programming language: ISPF. This application must reside in a NEW dedicated folder named `ispf_mainframe_compliance_auditor` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement interactive dataset auditing, dynamic policy rule evaluation against z/OS security databases, real-time compliance scoring, and automated remediation recommendation generation. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+[2026-08-15 14:46:56] (Target Lang: Cilk) Thinking (Process):
+1.  **Analyze Request**:
+    *   Input: Workspace listing, History (shows a previous output was an instruction for an ISPF tool).
+    *   Current Task: Generate exactly 1 logical follow-up instruction.
+    *   Constraints:
+        *   Demand strict use of programming language: Cilk.
+        *   If building a new tool, use a NEW dedicated folder and create a local README.md.
+        *   Return ONLY the instruction text.
+        *   NEVER target `.github`.
+        *   Output must match the style of the example: "Construct a production-grade, fully functional [Tool Name/Description] STRICTLY using this exact programming language: [Language]. This application must reside in a NEW dedicated folder named `[folder_name]` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement [Features]. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+
+2.  **Formulate Instruction**:
+    *   Language: Cilk.
+    *   Concept: A follow-up to a compliance/audit tool could be a high-performance, parallelized threat detection engine or a distributed compliance verification system, leveraging Cilk's parallelism capabilities.
+    *   Name: `cilk_parallel_compliance_scanner` or `cilk_distributed_threat_intelligence_engine`. Let's go with `cilk_parallel_compliance_scanner`.
+    *   Features: Parallel log ingestion, concurrent policy validation, high-throughput anomaly detection, distributed node coordination.
+    *   Folder: `cilk_parallel_compliance_scanner`.
+    *   Drafting text: "Construct a production-grade, fully functional Cilk-based Parallel High-Throughput Compliance Scanning Engine STRICTLY using this exact programming language: Cilk. This application must reside in a NEW dedicated folder named `cilk_parallel_compliance_scanner` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement concurrent multi-core log processing, parallel policy rule evaluation across massive datasets, real-time risk aggregation using Cilk `cilk_spawn` and `cilk_sync` constructs, and automated parallel remediation orchestration. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+
+3.  **Review against Constraints**:
+    *   One logical follow-up instruction? Yes.
+    *   Strictly Cilk? Yes.
+    *   New dedicated folder (`cilk_parallel_compliance_scanner`)? Yes.
+    *   Local README.md mentioned? Yes.
+    *   Return ONLY instruction text? Yes.
+    *   No `.github`? Yes.
+    *   Format matches example? Yes.
+
+4.  **Final Polish**:
+    *   "Construct a production-grade, fully functional Cilk-based Parallel High-Throughput Compliance Scanning Engine STRICTLY using this exact programming language: Cilk. This application must reside in a NEW dedicated folder named `cilk_parallel_compliance_scanner` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement concurrent multi-core log processing, parallel policy rule evaluation across massive datasets, real-time risk aggregation using Cilk `cilk_spawn` and `cilk_sync` constructs, and automated parallel remediation orchestration. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+
+5.  **Output Generation**.
+</think>
+
+Construct a production-grade, fully functional Cilk-based Parallel High-Throughput Compliance Scanning Engine STRICTLY using this exact programming language: Cilk. This application must reside in a NEW dedicated folder named `cilk_parallel_compliance_scanner` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement concurrent multi-core log processing, parallel policy rule evaluation across massive datasets, real-time risk aggregation using Cilk `cilk_spawn` and `cilk_sync` constructs, and automated parallel remediation orchestration. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).

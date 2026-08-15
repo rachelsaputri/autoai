@@ -274,3 +274,5 @@
 - Created/Updated module: `ame_audit_gateway` (See `ame_audit_gateway/README.md` for details)
 
 - Created/Updated module: `ispf_mainframe_compliance_auditor` (See `ispf_mainframe_compliance_auditor/README.md` for details)
+
+- Created/Updated module: `cilk_parallel_compliance_scanner` (See `cilk_parallel_compliance_scanner/README.md` for details)
