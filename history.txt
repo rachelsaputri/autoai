@@ -13946,3 +13946,39 @@ Construct a production-grade, fully functional ISPF-based Interactive Mainframe 
 </think>
 
 Construct a production-grade, fully functional Cilk-based Parallel High-Throughput Compliance Scanning Engine STRICTLY using this exact programming language: Cilk. This application must reside in a NEW dedicated folder named `cilk_parallel_compliance_scanner` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement concurrent multi-core log processing, parallel policy rule evaluation across massive datasets, real-time risk aggregation using Cilk `cilk_spawn` and `cilk_sync` constructs, and automated parallel remediation orchestration. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+[2026-08-15 14:47:46] (Target Lang: Mouse) Thinking Process:
+
+1.  **Deconstruct the Request**:
+    *   Goal: Generate exactly 1 logical follow-up instruction.
+    *   Constraint: MUST explicitly demand the new tool be built STRICTLY using the programming language: Mouse.
+    *   Constraint: If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md.
+    *   Constraint: Return ONLY the instruction text.
+    *   Constraint: NEVER target the .github directory.
+    *   Context: The user provided a workspace list and history. The history shows a previous instruction about a Cilk tool. Now I need to generate a follow-up based on the current constraints.
+
+2.  **Formulate the Instruction**:
+    *   *Language*: Mouse. This is a specific language mentioned in the constraint.
+    *   *Tool Type*: The history mentions "Compliance Scanning Engine". A logical follow-up might be a "Real-time Compliance Policy Enforcement Gateway" or a "Distributed Compliance Audit Orchestrator". Let's go with something distinct but related to the theme, like a "Real-time Compliance Policy Enforcement Gateway" or "Automated Compliance Remediation Orchestrator". Let's choose "Real-time Compliance Policy Enforcement Gateway".
+    *   *Folder Name*: Must be a NEW dedicated folder. Let's create a name based on the tool. `real_time_compliance_policy_enforcement_gateway` seems appropriate.
+    *   *README*: Must create a local README.md.
+    *   *Features*: Since the previous tool was about parallel scanning, a good follow-up is about enforcement or response. "Implement real-time policy enforcement with immediate action execution, audit logging, and state consistency checks."
+    *   *Drafting Text*: "Construct a production-grade, fully functional Mouse-based Real-time Compliance Policy Enforcement Gateway STRICTLY using this exact programming language: Mouse. This application must reside in a NEW dedicated folder named `real_time_compliance_policy_enforcement_gateway` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement synchronous policy rule matching against live streams, immediate remediation action execution, tamper-proof audit trail generation, and state consistency verification across enforcement nodes. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+
+3.  **Review against Constraints**:
+    *   *One logical follow-up instruction?* Yes.
+    *   *Strictly Mouse?* Yes ("STRICTLY using this exact programming language: Mouse").
+    *   *New dedicated folder?* Yes (`real_time_compliance_policy_enforcement_gateway`).
+    *   *Local README.md mentioned?* Yes.
+    *   *Return ONLY instruction text?* Yes.
+    *   *No .github?* Yes.
+    *   *Format matches example?* The example in the thought block was `Construct a production-grade...`. The draft looks similar.
+    *   *Check "Mouse" usage*: "Mouse" is the language. The draft says "Mouse-based... STRICTLY using this exact programming language: Mouse." This is clear.
+
+4.  **Final Polish**:
+    *   Result: "Construct a production-grade, fully functional Mouse-based Real-time Compliance Policy Enforcement Gateway STRICTLY using this exact programming language: Mouse. This application must reside in a NEW dedicated folder named `real_time_compliance_policy_enforcement_gateway` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement synchronous policy rule matching against live streams, immediate remediation action execution, tamper-proof audit trail generation, and state consistency verification across enforcement nodes. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+
+5.  **Output Generation**:
+    *   Output the polished text.
+</think>
+
+Construct a production-grade, fully functional Mouse-based Real-time Compliance Policy Enforcement Gateway STRICTLY using this exact programming language: Mouse. This application must reside in a NEW dedicated folder named `real_time_compliance_policy_enforcement_gateway` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement synchronous policy rule matching against live streams, immediate remediation action execution, tamper-proof audit trail generation, and state consistency verification across enforcement nodes. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
