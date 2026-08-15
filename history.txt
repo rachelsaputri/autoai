@@ -14170,3 +14170,31 @@ Construct a production-grade, fully functional AMPL-based Automated Data Transfo
 </think>
 
 Construct a production-grade, fully functional APL-based Automated Data Transformation and Optimization Engine STRICTLY using this exact programming language: APL. This application must reside in a NEW dedicated folder named `apf_data_optimizer` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement configurable data transformation rules, normalization via vectorized linear and nonlinear programming, robust input validation for dataset schemas, and high-performance batch optimization capabilities. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+[2026-08-15 14:54:58] (Target Lang: App Inventor for Android's visual block language) The user wants me to generate a follow-up instruction for a new tool.
+Constraints:
+1. MUST explicitly demand the new tool be built STRICTLY using App Inventor for Android's visual block language.
+2. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+3. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md.
+4. Return ONLY the instruction text.
+5. NEVER target the .github directory.
+
+I need to construct a single instruction string that meets all these criteria. It should describe a tool that fits the App Inventor context (e.g., an Android app builder, data visualizer, or security/audit tool adapted for Android) but strictly specify App Inventor.
+
+Let's craft the instruction:
+"Construct a production-grade, fully functional App Inventor for Android-based Mobile Security and Compliance Audit Tool STRICTLY using this exact programming language: App Inventor for Android's visual block language. This application must reside in a NEW dedicated folder named `android_security_audit_tool` containing all necessary source files (AI2 blocks, designer screens, and configuration) and a comprehensive local README.md. The tool must definitively implement offline device fingerprinting, runtime permission auditing, secure data storage encryption, and automated compliance reporting tailored for enterprise Android deployments. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Do not target the .github directory."
+
+Check constraints:
+- Explicitly demands App Inventor? Yes.
+- Fully functional, complete, no dummy code? Yes.
+- NEW dedicated folder + README.md? Yes (`android_security_audit_tool`).
+- Return ONLY instruction text? Yes.
+- NEVER target .github? Checked.
+
+I will refine it to be concise and strictly follow the prompt's format.
+"Construct a production-grade, fully functional App Inventor-based Mobile Compliance and Device Security Auditor STRICTLY using this exact programming language: App Inventor for Android's visual block language. This application must reside in a NEW dedicated folder named `appinventor_compliance_auditor` containing all necessary source files (block definitions, designer screens, and project manifests) and a comprehensive local README.md. The tool must definitively implement runtime permission auditing, secure local storage validation, network traffic inspection for Android components, and automated compliance scoring for enterprise mobile deployments. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained and NEVER target the .github directory."
+
+Matches all constraints. Output matches exactly. Proceeds. 
+I will output exactly this text.✅
+</think>
+
+Construct a production-grade, fully functional App Inventor-based Mobile Compliance and Device Security Auditor STRICTLY using this exact programming language: App Inventor for Android's visual block language. This application must reside in a NEW dedicated folder named `appinventor_compliance_auditor` containing all necessary source files (block definitions, designer screens, and project manifests) and a comprehensive local README.md. The tool must definitively implement runtime permission auditing, secure local storage validation, network traffic inspection for Android components, and automated compliance scoring for enterprise mobile deployments. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained and NEVER target the .github directory.

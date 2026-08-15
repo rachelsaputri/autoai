@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<content version="1.0" xmlns:appinventor="http://appinventor.mit.edu/appinventor">
+  <appinfo>
+    <name>App Inventor Compliance Auditor</name>
+    <version>1</version>
+    <id>com.example.appinventor_compliance_auditor</id>
+  </appinfo>
+  <blocks>
+    <block type="procedures_defreturn" id="def_getComplianceScore">
+      <field name="NAME">getComplianceScore</field>
+      <statement name="STACK">
+        <block type="variables_set" id="set_score">
+          <field name="VAR">score</field>
+          <value name="VALUE">
+            <block type="math_number" id="num_100">
+              <field name="NUM">100</field>
+            </block>
+          </value>
+        </block>
+      </statement>
+      <value name="RETURN">
+        <block type="variables_get" id="get_score">
+          <field name="VAR">score</field>
+        </block>
+      </value>
+    </block>
+    <block type="procedures_defnoreturn" id="def_checkPermissions">
+      <field name="NAME">checkPermissions</field>
+      <statement name="STACK">
+        <block type="controls_if" id="if_permissions">
+          <value name="IF0">
+            <block type="variables_get" id="get_perms">
+              <field name="VAR">permissions</field>
+            </block>
+          </value>
+          <statement name="DO0">
+            <block type="variables_set" id="set_score_to_0">
+              <field name="VAR">score</field>
+              <value name="VALUE">
+                <block type="math_number" id="num_0">
+                  <field name="NUM">0</field>
+                </block>
+              </value>
+            </block>
+          </statement>
+        </block>
+      </statement>
+    </block>
+    <block type="procedures_defnoreturn" id="def_validateStorage">
+      <field name="NAME">validateStorage</field>
+      <statement name="STACK">
+        <block type="controls_if" id="if_storage">
+          <value name="IF0">
+            <block type="variables_get" id="get_storage">
+              <field name="VAR">storageSecure</field>
+            </block>
+          </value>
+          <statement name="DO0">
+            <block type="variables_set" id="set_storage_score">
+              <field name="VAR">score</field>
+              <value name="VALUE">
+                <block type="math_arithmetic" id="add_20">
+                  <field name="OP">ADD</field>
+                  <value name="A">
+                    <block type="variables_get" id="get_score">
+                      <field name="VAR">score</field>
+                    </block>
+                  </value>
+                  <value name="B">
+                    <block type="math_number" id="num_20">
+                      <field name="NUM">20</field>
+                    </block>
+                  </value>
+                </block>
+              </value>
+            </block>
+          </statement>
+        </block>
+      </statement>
+    </block>
+    <block type="procedures_defnoreturn" id="def_inspectNetwork">
+      <field name="NAME">inspectNetwork</field>
+      <statement name="STACK">
+        <block type="controls_if" id="if_network">
+          <value name="IF0">
+            <block type="variables_get" id="get_network">
+              <field name="VAR">networkSecure</field>
+            </block>
+          </value>
+          <statement name="DO0">
+            <block type="variables_set" id="set_network_score">
+              <field name="VAR">score</field>
+              <value name="VALUE">
+                <block type="math_arithmetic" id="add_30">
+                  <field name="OP">ADD</field>
+                  <value name="A">
+                    <block type="variables_get" id="get_score">
+                      <field name="VAR">score</field>
+                    </block>
+                  </value>
+                  <value name="B">
+                    <block type="math_number" id="num_30">
+                      <field name="NUM">30</field>
+                    </block>
+                  </value>
+                </block>
+              </value>
+            </block>
+          </statement>
+        </block>
+      </statement>
+    </block>
+    <block type="procedures_defnoreturn" id="def_generateReport">
+      <field name="NAME">generateReport</field>
+      <statement name="STACK">
+        <block type="controls_if" id="if_report">
+          <value name="IF0">
+            <block type="variables_get" id="get_score">
+              <field name="VAR">score</field>
+            </block>
+          </value>
+          <statement name="DO0">
+            <block type="text_print" id="print_score">
+              <value name="TEXT">
+                <block type="text_join" id="join_report">
+                  <mutation items="2" />
+                  <value name="ADD0">
+                    <block type="text" id="text_1">
+                      <field name="TEXT">Compliance Score: </field>
+                    </block>
+                  </value>
+                  <value name="ADD1">
+                    <block type="variables_get" id="get_score">
+                      <field name="VAR">score</field>
+                    </block>
+                  </value>
+                </block>
+              </value>
+            </block>
+          </statement>
+        </block>
+      </statement>
+    </block>
+  </blocks>
+</content>
