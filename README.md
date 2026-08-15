@@ -236,3 +236,5 @@
 - Created/Updated module: `scheme_compliance_rule_engine` (See `scheme_compliance_rule_engine/README.md` for details)
 
 - Created/Updated module: `abset_formal_policy_checker` (See `abset_formal_policy_checker/README.md` for details)
+
+- Created/Updated module: `absys_formal_policy_enforcer` (See `absys_formal_policy_enforcer/README.md` for details)
