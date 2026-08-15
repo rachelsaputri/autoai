@@ -116,3 +116,5 @@
 - Created/Updated module: `escher_compliance_dashboard` (See `escher_compliance_dashboard/README.md` for details)
 
 - Created/Updated module: `risk_calculation_engine` (See `risk_calculation_engine/README.md` for details)
+
+- Created/Updated module: `karel_infrastructure_tracer` (See `karel_infrastructure_tracer/README.md` for details)
