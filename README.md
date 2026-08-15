@@ -224,3 +224,5 @@
 - Created/Updated module: `yorick_threat_intel` (See `yorick_threat_intel/README.md` for details)
 
 - Created/Updated module: `cola_network_anomaly_detector` (See `cola_network_anomaly_detector/README.md` for details)
+
+- Created/Updated module: `a0_formal_verifier` (See `a0_formal_verifier/README.md` for details)
