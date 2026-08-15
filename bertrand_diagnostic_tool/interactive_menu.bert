@@ -1,0 +1,108 @@
+// ============================================================================
+// interactive_menu.bert
+// CLI interactive interface for user-driven diagnostics.
+// ============================================================================
+
+module InteractiveMenu;
+
+import Engine;
+import SystemChecker;
+
+// ============================================================================
+// Menu Options
+// ============================================================================
+var current_menu_level: int = 1;
+
+fun main() -> void =
+    let _ = clear_screen() in
+    print("========================================\n");
+    print("  Bertrand System Diagnostic Auditor v1.0\n");
+    print("========================================\n\n");
+    main_loop();
+
+fun main_loop() -> void =
+    let
+        choice = get_user_input();
+    in
+        match choice with
+            "1" -> perform_full_scan();
+            "2" -> run_vulnerability_audit();
+            "3" -> check_specific_file();
+            "4" -> save_report();
+            "5" -> exit_tool();
+            _ -> print("Invalid selection. Try again.\n");
+                 main_loop();
+        end
+    end;
+
+fun perform_full_scan() -> void =
+    let _ = clear_screen() in
+    print("Running full system diagnostic scan...\n");
+    let report = Engine.run_full_diagnostic_scan() in
+    print_report(report);
+    print("\nScan complete.\n");
+    pause_for_enter();
+    main_loop();
+
+fun run_vulnerability_audit() -> void =
+    let _ = clear_screen() in
+    print("Executing vulnerability audit...\n");
+    let vulns = SystemChecker.run_vulnerability_scan() in
+    if list_length(vulns) = 0 then
+        print("No vulnerabilities detected.\n")
+    else
+        print("Vulnerabilities Found:\n");
+        list_iter (fun m -> print("  - " ^ Engine.metric_to_string(m) ^ "\n")) vulns;
+    end;
+    pause_for_enter();
+    main_loop();
+
+fun check_specific_file() -> void =
+    let _ = clear_screen() in
+    print("Enter file path to audit: ");
+    let path = get_stdin() in
+    let result = SystemChecker.audit_file_permissions(path) in
+    print("Audit Result: " ^ Engine.metric_to_string(result) ^ "\n");
+    pause_for_enter();
+    main_loop();
+
+fun save_report() -> void =
+    let _ = clear_screen() in
+    print("Enter report file path (e.g., /tmp/diag_report.txt): ");
+    let path = get_stdin() in
+    let report = Engine.get_report() in
+    let success = Engine.log_scan_to_file(report, path) in
+    if success then
+        print("Report saved successfully to " ^ path ^ "\n")
+    else
+        print("Failed to save report.\n");
+    end;
+    pause_for_enter();
+    main_loop();
+
+fun exit_tool() -> void =
+    print("Exiting Diagnostic Auditor. Goodbye.\n");
+    stdlib_exit(0);
+
+// ============================================================================
+// UI Helpers
+// ============================================================================
+
+fun print_report(report: Engine.DiagnosticReport) -> void =
+    print("\n--- Diagnostic Report ---\n");
+    print("Summary: " ^ report.summary ^ "\n");
+    list_iter (fun m -> print("  " ^ Engine.metric_to_string(m) ^ "\n")) report.metrics;
+    print("-------------------------\n");
+
+fun get_user_input() -> string =
+    let _ = print("\nSelect an option:\n1. Full Scan\n2. Vulnerability Audit\n3. Check File\n4. Save Report\n5. Exit\n\n> ") in
+    get_stdin();
+
+fun clear_screen() -> void =
+    system_command("clear");
+
+fun pause_for_enter() -> void =
+    print("Press Enter to continue...");
+    ignore(get_stdin());
+
+end module InteractiveMenu;

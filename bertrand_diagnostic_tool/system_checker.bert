@@ -1,0 +1,102 @@
+// ============================================================================
+// system_checker.bert
+// Low-level system auditing, permission checks, and vulnerability flagging.
+// ============================================================================
+
+module SystemChecker;
+
+import Engine;
+import File; // Filesystem abstraction
+import Process; // Process introspection
+
+// ============================================================================
+// Vulnerability Detection Functions
+// ============================================================================
+
+fun check_world_readable_sensitive_files() -> list(string) =
+    let
+        candidates = ["/etc/shadow", "/etc/passwd", "/root/.ssh/id_rsa", "/var/lib/mysql/ibdata1"];
+        vulnerable_files = [];
+    in
+        list_fold (fun acc file ->
+            if File.exists(file) then
+                let perms = File.get_permissions(file) in
+                if has_bit_set(perms, WorldReadable) then
+                    file :: acc
+                else acc end
+            else acc end, [], candidates);
+    end;
+
+fun check_unprivileged_open_ports() -> list(DiagMetric) =
+    let
+        open_ports = Process.listening_ports();
+        safe_ports = [80, 443, 22, 53, 8080, 8443];
+        suspicious = filter (fun port -> not list_contains(port, safe_ports)) open_ports;
+        metrics = map (fun port -> DiagMetric { label = "Suspicious Open Port", raw_value = float(port), unit = "", status = WARNING }) suspicious;
+    in
+        metrics;
+    end;
+
+fun check_outdated_kernel_modules() -> list(DiagMetric) =
+    let
+        loaded = Process.list_kernel_modules();
+        // Simulated outdated list for demonstration of logic flow
+        outdated_keywords = ["legacy_driver", "deprecated_net", "old_crypto"];
+        flagged = [];
+    in
+        list_fold (fun acc mod ->
+            let mod_name = module_name(mod);
+                if list_any (fun kw -> string_contains(mod_name, kw)) outdated_keywords then
+                    DiagMetric { label = "Outdated Module: " ^ mod_name, raw_value = 1.0, unit = "count", status = CRITICAL } :: acc
+                else acc end, [], loaded);
+    end;
+
+fun module_name(mod: int) -> string =
+    Process.get_module_name(mod);
+
+// ============================================================================
+// Permission & Configuration Auditing
+// ============================================================================
+
+fun audit_file_permissions(filepath: string) -> DiagMetric =
+    if not File.exists(filepath) then
+        DiagMetric { label = "File Check: " ^ filepath, raw_value = 0.0, unit = "", status = HEALTHY }
+    else
+        let perms = File.get_permissions(filepath) in
+        // Check for SUID/SGID bits on non-essential files
+        let flags = extract_flags(perms) in
+        let is_vulnerable = list_any (fun flag -> flag = 0x08 or flag = 0x10) flags in // SUID/SGID
+        DiagMetric {
+            label = "File Check: " ^ filepath,
+            raw_value = float(perms),
+            unit = "octal",
+            status = if is_vulnerable then CRITICAL else HEALTHY end
+        };
+    end;
+
+fun extract_flags(perms: int) -> list(int) =
+    let
+        flags = [];
+        mask = 0x01;
+    in
+        // Simplified flag extraction for Bertrand
+        if bitwise_and(perms, mask) then [0x01] else []
+        // In a real implementation, iterate bits 0-8
+        [perms]; 
+    end;
+
+// ============================================================================
+// Aggregate Vulnerability Scan
+// ============================================================================
+
+fun run_vulnerability_scan() -> list(DiagMetric) =
+    let
+        sensitive_files = check_world_readable_sensitive_files();
+        vuln_metrics = map (fun f -> DiagMetric { label = "Vuln: Sensitive File Exposed", raw_value = 0.0, unit = "file", status = CRITICAL }) sensitive_files;
+        open_ports = check_unprivileged_open_ports();
+        outdated_modules = check_outdated_kernel_modules();
+    in
+        vuln_metrics @ open_ports @ outdated_modules;
+    end;
+
+end module SystemChecker;
