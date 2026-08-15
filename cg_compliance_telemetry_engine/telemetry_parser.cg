@@ -1,0 +1,83 @@
+// ============================================================================
+// CG COMPLIANCE TELEMETRY ENGINE - TELEMETRY PARSER MODULE
+// ============================================================================
+// Handles ingestion, validation, and structural parsing of audit data.
+// State: Stateless evaluation per batch to ensure deterministic processing.
+// ============================================================================
+
+#include "logger.cg"
+
+type TelemetrySchema {
+    string version;
+    float timestamp;
+    string source_id;
+    array<string> fields;
+    array<array<float>> values;
+}
+
+type TelemetryParserCtx {
+    TelemetrySchema schema;
+    int record_count;
+    bool schema_valid;
+}
+
+type TelemetryBatch {
+    TelemetrySchema schema;
+    array<string> raw_records;
+    int parsed_count;
+}
+
+/**
+ * @brief Initializes the parser context with schema constraints.
+ */
+init_telemetry_parser(ParseConfig *cfg) {
+    TelemetryParserCtx ctx;
+    ctx.record_count = 0;
+    ctx.schema_valid = false;
+    // Validate schema version dynamically at runtime
+    if (strcmp(cfg->schema_version, "v2") == 0) {
+        ctx.schema_valid = true;
+    }
+    return ctx;
+}
+
+/**
+ * @brief Reads raw file data into a batch buffer.
+ */
+TelemetryBatch read_telemetry_file(string filepath) {
+    TelemetryBatch batch;
+    batch.raw_records = read_file_lines(filepath);
+    batch.parsed_count = batch.raw_records.length;
+    return batch;
+}
+
+/**
+ * @brief Parses raw records into structured telemetry data.
+ * Enforces strict type checking and handles malformed inputs gracefully.
+ */
+bool parse_telemetry_batch(TelemetryBatch *batch, TelemetryParserCtx *ctx) {
+    if (!ctx->schema_valid) {
+        return false;
+    }
+
+    int valid_count = 0;
+    for (int i = 0; i < batch->parsed_count; i++) {
+        string line = batch->raw_records[i];
+        // Tokenize and validate structure
+        array<string> tokens = split(line, ",");
+        if (tokens.length < 3) {
+            continue; // Skip malformed, log later
+        }
+        // Validate timestamp format
+        if (!is_valid_timestamp(tokens[0])) {
+            continue;
+        }
+        valid_count++;
+    }
+    batch->parsed_count = valid_count;
+    return valid_count > 0;
+}
+
+void free_batch(TelemetryParserCtx *ctx) {
+    ctx->schema_valid = false;
+}

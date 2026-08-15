@@ -1,0 +1,52 @@
+// ============================================================================
+// CG COMPLIANCE TELEMETRY ENGINE - DRIFT DETECTOR MODULE
+// ============================================================================
+// Performs rigorous configuration drift analysis and anomaly correlation.
+// State: Stateless metrics calculation ensures idempotent drift reporting.
+// ============================================================================
+
+#include "policy_verifier.cg"
+#include "logger.cg"
+
+type DriftMetrics {
+    float current_drift_score;
+    int total_violations;
+    array<string> critical_deviation_traces;
+}
+
+type DriftDetectorCtx {
+    float tolerance;
+}
+
+/**
+ * @brief Initializes drift detection with tolerance thresholds.
+ */
+init_drift_detector(float tolerance) {
+    DriftDetectorCtx ctx;
+    ctx.tolerance = tolerance;
+    return ctx;
+}
+
+/**
+ * @brief Computes drift metrics based on policy verification results.
+ * Guarantees deterministic output for identical inputs.
+ */
+DriftMetrics compute_drift(PolicyResult *verif, DriftDetectorCtx *ctx) {
+    DriftMetrics metrics;
+    metrics.total_violations = verif->violated_rules.length;
+    metrics.current_drift_score = 1.0 - verif->alignment_score;
+
+    // Generate precise deviation traces
+    metrics.critical_deviation_traces = [];
+    for (int i = 0; i < verif->violated_rules.length; i++) {
+        string violation = verif->violated_rules[i];
+        if (metrics.current_drift_score > ctx->tolerance) {
+            metrics.critical_deviation_traces.push("CRITICAL_DRIFT_DETECTED: " + violation);
+        }
+    }
+    return metrics;
+}
+
+void free_detector(DriftDetectorCtx *ctx) {
+    ctx->tolerance = 0.0;
+}

@@ -1,0 +1,62 @@
+// ============================================================================
+// CG COMPLIANCE TELEMETRY ENGINE - REPORT GENERATOR MODULE
+// ============================================================================
+// Generates machine-verifiable compliance reports with standardized payloads.
+// State: Stateless report serialization ensures unambiguous interpretation.
+// ============================================================================
+
+#include "policy_verifier.cg"
+#include "drift_detector.cg"
+#include "logger.cg"
+
+type ComplianceReport {
+    string engine_version;
+    float timestamp;
+    float alignment_score;
+    int total_checks;
+    int violations;
+    float drift_score;
+    array<string> deviation_traces;
+}
+
+type ReportGeneratorCtx {
+    string output_format;
+    bool include_traces;
+}
+
+/**
+ * @brief Initializes the report generator with output constraints.
+ */
+init_report_generator(ReportConfig *cfg) {
+    ReportGeneratorCtx ctx;
+    ctx.output_format = cfg->output_format;
+    ctx.include_traces = cfg->include_traces;
+    return ctx;
+}
+
+/**
+ * @brief Constructs the final compliance payload.
+ */
+ComplianceReport generate_report(PolicyResult *verif, DriftMetrics *metrics, ReportGeneratorCtx *ctx) {
+    ComplianceReport report;
+    report.engine_version = "1.0.0";
+    report.timestamp = get_current_timestamp();
+    report.alignment_score = verif->alignment_score;
+    report.total_checks = verif->aligned_fields.length + verif->violated_rules.length;
+    report.violations = metrics->total_violations;
+    report.drift_score = metrics->current_drift_score;
+    
+    if (ctx->include_traces) {
+        report.deviation_traces = metrics->critical_deviation_traces;
+    } else {
+        report.deviation_traces = [];
+    }
+    
+    return report;
+}
+
+void write_report(ComplianceReport *report, string filepath) {
+    // Deterministic JSON serialization
+    string json_payload = serialize_to_json(report);
+    write_string_to_file(filepath, json_payload);
+}
