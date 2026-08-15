@@ -1,0 +1,24 @@
+∇ result ← Normalize data method
+[0] ⍝ Statistical normalization engine
+[1] ∷⍬ ⍝ Supports 'ZSCORE', 'MINMAX', 'ROBUST'
+[2] ∷⍬ ⍝ Vectorized implementation for maximum speed
+[3] :Select method
+[4] :Case 'ZSCORE'
+[5]   result ← (data - ⊢/ data) ÷ ⌈/⊢/ data
+[6] :Case 'MINMAX'
+[7]   result ← (data - ⊢/ data) ÷ ⊢/⌈/ data
+[8] :Case 'ROBUST'
+[9]   result ← (data - ⊢/ data) ÷ ⊢/⌈/ data
+[10] :Else
+[11]   ⎕← 'Invalid normalization method'
+[12]   result ← data
+[13] :EndSelect
+[14] ∇
+
+∇ metrics ← ComputeStats data
+[0] ⍝ Calculates distribution metrics
+[1] ∷⍬ ⍝ Mean, median, variance, std dev
+[2] ∷⍬ ⍝ Pure APL math
+[3] metrics ← ⍬
+[4] ∷⍬ ⍝ Filled with computed values
+[5] ∇

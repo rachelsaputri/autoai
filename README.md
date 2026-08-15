@@ -278,3 +278,5 @@
 - Created/Updated module: `cilk_parallel_compliance_scanner` (See `cilk_parallel_compliance_scanner/README.md` for details)
 
 - Created/Updated module: `dataset_cleaning_tool` (See `dataset_cleaning_tool/README.md` for details)
+
+- Created/Updated module: `apf_data_optimizer` (See `apf_data_optimizer/README.md` for details)

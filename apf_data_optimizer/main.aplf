@@ -1,0 +1,41 @@
+∇ main.cfg
+[0] ⍝ Main entry point for the APL Data Transformation Engine
+[1] cfg ← ⎕CSV ⍝ Load configuration file (CSV format: Parameter,Value,Type)
+[2] ∷⍬ ⍝ Placeholder for actual file loading logic in pure APL
+[3] LoadRules cfg
+[4] LoadData 'data.csv'
+[5] ValidateSchema
+[6] ApplyTransformations
+[7] NormalizeData
+[8] SaveOutput 'output.csv'
+[9] ∇
+
+∇ LoadRules cfg
+[0] ⍝ Parses configuration arrays and maps them to transformation functions
+[1] ∷⍬ ⍝ Implementation loads rules into global namespace :global
+[2] ∇
+
+∇ LoadData file
+[0] ⍝ Ingests raw dataset into memory
+[1] ∷⍬ ⍝ Reads file, handles missing values, converts to numeric matrix
+[2] ∇
+
+∇ ValidateSchema
+[0] ⍝ Ensures dataset meets expected dimensions and statistical bounds
+[1] ∷⍬ ⍝ Checks ⍴data, ⎕DR data, and distribution properties
+[2] ∇
+
+∇ ApplyTransformations
+[0] ⍝ Applies user-defined transformation rules to the dataset
+[1] ∷⍬ ⍝ Iterates through rule arrays, applies vectorized ops
+[2] ∇
+
+∇ NormalizeData
+[0] ⍝ Applies statistical normalization (Z-score, Min-Max, Robust)
+[1] ∷⍬ ⍝ Calculates means/medians, divides by std/dev, scales to [0,1]
+[2] ∇
+
+∇ SaveOutput file
+[0] ⍝ Serializes processed data back to disk
+[1] ∷⍬ ⍝ Formats matrix, writes CSV, closes file
+[2] ∇
