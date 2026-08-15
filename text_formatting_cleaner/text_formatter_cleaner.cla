@@ -1,0 +1,280 @@
+/**
+ * Text Formatting and Cleaning Tool
+ * Language: Claire
+ * 
+ * This tool provides a comprehensive suite for cleaning, formatting,
+ * and normalizing text data. It handles common data cleaning tasks
+ * such as whitespace normalization, case folding, special character
+ * removal, and structural formatting.
+ */
+
+import System.IO;
+import System.Collections.ArrayList;
+import System.String;
+import System.Text.RegularExpressions;
+
+// Constants for configuration
+class Config {
+    public static string DEFAULT_ENCODING = "UTF-8";
+    public static bool KEEP_NEWLINES = false;
+    public static bool LOWERCASE = false;
+    public static bool TRIM = true;
+    public static bool REMOVE_SPECIAL_CHARS = false;
+    public static string REMOVE_SPECIAL_CHARS_PATTERN = "[^a-zA-Z0-9\\s]";
+    public static int MAX_LINE_LENGTH = 0; // 0 means no limit
+    public static string WORD_WRAP_CHAR = "\n";
+}
+
+// Enumerations for cleaning modes
+eum CleanMode {
+    TEXT,    // General text cleaning
+    CSV,     // CSV specific cleaning
+    LOG,     // Log file cleaning
+    JSON,    // JSON string cleaning
+    HTML     // HTML content cleaning
+}
+
+class CleanerResult {
+    public string originalContent;
+    public string cleanedContent;
+    public ArrayList<string> warnings;
+    public long processingTimeMs;
+    
+    public CleanerResult(string original, string cleaned) {
+        originalContent = original;
+        cleanedContent = cleaned;
+        warnings = new ArrayList<string>();
+        processingTimeMs = 0;
+    }
+}
+
+// The main cleaning engine class
+class TextFormatterCleaner {
+    
+    private CleanMode mode;
+    private Config config;
+    private ArrayList<string> log;
+    
+    public TextFormatterCleaner(CleanMode mode, Config config) {
+        this.mode = mode;
+        this.config = config;
+        log = new ArrayList<string>();
+    }
+    
+    // Main entry point for cleaning text
+    public CleanerResult clean(string input) {
+        if (input == null) {
+            return new CleanerResult("", "");
+        }
+        
+        long startTime = System.GetTickCount();
+        string result = input;
+        
+        try {
+            // Step 1: Basic normalization
+            if (config.TRIM) {
+                result = result.Trim();
+            }
+            
+            // Step 2: Whitespace normalization
+            result = NormalizeWhitespace(result);
+            
+            // Step 3: Mode-specific cleaning
+            switch (mode) {
+                case CleanMode.TEXT:
+                    result = CleanText(result);
+                    break;
+                case CleanMode.CSV:
+                    result = CleanCSV(result);
+                    break;
+                case CleanMode.LOG:
+                    result = CleanLog(result);
+                    break;
+                case CleanMode.JSON:
+                    result = CleanJSON(result);
+                    break;
+                case CleanMode.HTML:
+                    result = CleanHTML(result);
+                    break;
+                default:
+                    break;
+            }
+            
+            // Step 4: Post-processing
+            if (config.LOWERCASE) {
+                result = result.ToLower();
+            }
+            
+            // Step 5: Special character handling
+            if (config.REMOVE_SPECIAL_CHARS) {
+                result = Regex.Replace(result, config.REMOVE_SPECIAL_CHARS_PATTERN, "");
+            }
+            
+            // Step 6: Line wrapping
+            if (config.MAX_LINE_LENGTH > 0) {
+                result = WrapLines(result, config.MAX_LINE_LENGTH);
+            }
+            
+            long endTime = System.GetTickCount();
+            
+            return new CleanerResult(input, result);
+        } catch (Exception e) {
+            log.Add("Error during cleaning: " + e.Message);
+            return new CleanerResult(input, result);
+        }
+    }
+    
+    // Normalize whitespace (tabs to spaces, multiple spaces to single)
+    private string NormalizeWhitespace(string text) {
+        // Replace tabs with spaces
+        text = text.Replace("\t", "  ");
+        
+        // Replace multiple spaces with single space (excluding newlines)
+        text = Regex.Replace(text, "  +", " ");
+        
+        // Normalize line endings
+        text = Regex.Replace(text, "\r\n", "\n");
+        text = Regex.Replace(text, "\r", "\n");
+        
+        return text;
+    }
+    
+    // Clean general text
+    private string CleanText(string text) {
+        // Remove leading/trailing spaces on each line
+        ArrayList<string> lines = text.Split("\n");
+        for (int i = 0; i < lines.Count; i++) {
+            lines[i] = lines[i].Trim();
+        }
+        
+        // Join back with newlines
+        return string.Join("\n", lines);
+    }
+    
+    // Clean CSV data
+    private string CleanCSV(string csv) {
+        ArrayList<string> lines = csv.Split("\n");
+        ArrayList<string> cleanedLines = new ArrayList<string>();
+        
+        for (int i = 0; i < lines.Count; i++) {
+            string line = lines[i].Trim();
+            if (line == "") {
+                continue; // Skip empty lines
+            }
+            
+            // Remove trailing commas
+            line = line.TrimEnd(',');
+            
+            // Ensure consistent quoting
+            string[] fields = line.Split(',');
+            for (int j = 0; j < fields.Length; j++) {
+                string field = fields[j].Trim();
+                // If field contains comma, quotes, or newline, quote it
+                if (field.Contains(",") || field.Contains("\"") || field.Contains("\n")) {
+                    field = "\"" + field.Replace("\"", "\"\"") + "\"";
+                }
+                fields[j] = field;
+            }
+            
+            cleanedLines.Add(string.Join(",", fields));
+        }
+        
+        return string.Join("\n", cleanedLines);
+    }
+    
+    // Clean log files
+    private string CleanLog(string log) {
+        ArrayList<string> lines = log.Split("\n");
+        ArrayList<string> cleanedLines = new ArrayList<string>();
+        
+        for (int i = 0; i < lines.Count; i++) {
+            string line = lines[i];
+            
+            // Remove ANSI color codes
+            line = Regex.Replace(line, "\x1B\\[[0-9;]*m", "");
+            
+            // Remove control characters
+            line = Regex.Replace(line, "[\\x00-\\x1F\\x7F]", "");
+            
+            // Normalize timestamp formats (example: YYYY-MM-DD HH:MM:SS)
+            // This is a simple example; real log cleaning would be more complex
+            
+            cleanedLines.Add(line);
+        }
+        
+        return string.Join("\n", cleanedLines);
+    }
+    
+    // Clean JSON strings
+    private string CleanJSON(string json) {
+        // Remove comments (if present in JSON)
+        json = Regex.Replace(json, "/\\*.*?\\*/", "", RegexOption.REPLACEMENT_IGNORECASE);
+        json = Regex.Replace(json, "//.*", "", RegexOption.REPLACEMENT_IGNORECASE);
+        
+        // Remove trailing commas in JSON objects/arrays (common in JSON5)
+        json = Regex.Replace(json, ",\\s*([}\\]])", "$1");
+        
+        return json;
+    }
+    
+    // Clean HTML content
+    private string CleanHTML(string html) {
+        // Remove script tags
+        html = Regex.Replace(html, "<script[^>]*>.*?</script>", "", RegexOption.REPLACEMENT_IGNORECASE | RegexOption.MULTILINE);
+        
+        // Remove style tags
+        html = Regex.Replace(html, "<style[^>]*>.*?</style>", "", RegexOption.REPLACEMENT_IGNORECASE | RegexOption.MULTILINE);
+        
+        // Remove comments
+        html = Regex.Replace(html, "<!--.*?-->", "", RegexOption.REPLACEMENT_IGNORECASE | RegexOption.MULTILINE);
+        
+        // Decode HTML entities
+        html = html.Replace("&lt;", "<");
+        html = html.Replace("&gt;", ">");
+        html = html.Replace("&amp;", "&");
+        html = html.Replace("&quot;", "\"");
+        html = html.Replace("&#39;", "'");
+        
+        // Remove extra whitespace
+        html = Regex.Replace(html, ">\\s+<", "> <");
+        
+        return html;
+    }
+    
+    // Wrap lines to a specific length
+    private string WrapLines(string text, int maxLineLength) {
+        if (maxLineLength <= 0) {
+            return text;
+        }
+        
+        ArrayList<string> result = new ArrayList<string>();
+        ArrayList<string> words = text.Split(" ");
+        string currentLine = "";
+        
+        for (int i = 0; i < words.Count; i++) {
+            string word = words[i];
+            if (currentLine == "") {
+                currentLine = word;
+            } else if (currentLine.Length + word.Length + 1 <= maxLineLength) {
+                currentLine += " " + word;
+            } else {
+                result.Add(currentLine);
+                currentLine = word;
+            }
+        }
+        
+        if (currentLine != "") {
+            result.Add(currentLine);
+        }
+        
+        return string.Join("\n", result);
+    }
+    
+    // Get the processing log
+    public ArrayList<string> GetLog() {
+        return log;
+    }
+}
+
+// Main execution class
+cl
