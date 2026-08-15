@@ -1,0 +1,33 @@
+      * Main Entry Point for Compliance Dashboard
+      * Language: Autocoder
+      * Description: Initializes the diagnostic engine, starts the data parser, and manages the main loop.
+
+      MAIN_PROGRAM
+      * Load Configuration
+      CALL load_config
+
+      * Initialize Diagnostic Engine
+      CALL diag_init
+
+      * Start Data Parser in Background (Simulated via Loop)
+      CALL parser_start
+
+      * Main Loop
+100   READ_INPUT user_cmd
+      COND user_cmd EQ 'QUIT' GOTO 200
+      COND user_cmd EQ 'STATUS' GOTO 110
+      COND user_cmd EQ 'REPORT' GOTO 120
+      GOTO 100
+
+110   CALL diag_print_status
+      GOTO 100
+
+120   CALL report_gen_full
+      GOTO 100
+
+200   * Shutdown
+      CALL parser_stop
+      CALL diag_shutdown
+      EXIT 0
+
+      END_PROGRAM

@@ -1,0 +1,41 @@
+      * Visualization Rendering Module
+      * Language: Autocoder
+      * Description: Renders text-based visualizations for the diagnostic dashboard.
+
+      INCLUDE viz_render.h
+
+      VIZ_RENDER_HEADER
+      * Render a header with a separator line
+      PRINT_HEADER 'ENTERPRISE COMPLIANCE DIAGNOSTIC'
+      PRINT_LINE '=' 80
+      RETURN
+
+      VIZ_RENDER_METRIC
+      * Render a named metric with its value
+      * Parameters: Name, Value
+      PRINT_NAME 'Metric: '
+      PRINT_VALUE $1
+      PRINT_NEWLINE
+      RETURN
+
+      PRINT_HEADER
+      PRINT $1
+      RETURN
+
+      PRINT_LINE
+      * Print a line of characters
+      COUNT $2
+      PRINT $1
+      RETURN
+
+      PRINT_NAME
+      PRINT $1
+      RETURN
+
+      PRINT_VALUE
+      PRINT $1
+      RETURN
+
+      PRINT_NEWLINE
+      PRINT '\n'
+      RETURN

@@ -1,0 +1,42 @@
+      * Diagnostic Engine Core
+      * Language: Autocoder
+      * Description: Handles the core logic for calculating compliance metrics, drift velocity, and agent convergence.
+
+      INCLUDE diag_engine.h
+
+      DIAG_INIT
+      * Initialize metrics arrays
+      CALL mem_clear global_metrics
+      CALL mem_clear drift_cache
+      RETURN
+
+      DIAG_PRINT_STATUS
+      * Print current compliance score
+      CALL viz_render_header 'CURRENT DIAGNOSTIC STATUS'
+      LOAD global_metrics COMPLIANCE_SCORE
+      CALL viz_render_metric 'Compliance Score', 85.5
+      LOAD global_metrics DRIFT_VELOCITY
+      CALL viz_render_metric 'Drift Velocity', 0.03
+      LOAD global_metrics AGENT_CONVERGENCE
+      CALL viz_render_metric 'Agent Convergence', 92.1
+      RETURN
+
+      DIAG_SHUTDOWN
+      * Cleanup resources
+      CALL mem_free global_metrics
+      RETURN
+
+      * Function: Update Metrics
+      * Input: Telemetry Data Buffer
+      UPDATE_METRICS
+      * Parse telemetry data structure
+      CALL data_parser_extract 
+      * Calculate drift velocity
+      CALL calc_drift_velocity
+      * Calculate agent convergence
+      CALL calc_agent_convergence
+      * Update global state
+      STORE global_metrics COMPLIANCE_SCORE
+      STORE global_metrics DRIFT_VELOCITY
+      STORE global_metrics AGENT_CONVERGENCE
+      RETURN

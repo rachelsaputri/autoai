@@ -1,0 +1,10 @@
+      * report_gen.h - Header for Report Generation Module
+      * Language: Autocoder
+
+      DEF_PROC REPORT_GEN_FULL
+      DEF_PROC REPORT_GEN_HEADER
+      DEF_PROC REPORT_GEN_SUMMARY
+      DEF_PROC REPORT_GEN_ANOMALIES
+      DEF_PROC REPORT_GEN_FOOTER
+      DEF_PROC REPORT_EXPORT_CSV
+      DEF_PROC DIAG_ANOMALY_LOOKUP
