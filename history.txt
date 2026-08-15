@@ -9640,3 +9640,92 @@ Construct a secure audit log persistence engine STRICTLY using this exact progra
 </think>
 
 Construct a mainframe system configuration auditor STRICTLY using this exact programming language: PL/B. This application must reside in a NEW dedicated folder named `mainframe_config_auditor` containing all necessary source files and a comprehensive local README.md. The system must analyze IBM z/OS JCL and system parameters to detect policy drift, ensuring compliance with enterprise hardware security standards, and provide structured reporting for the audit compliance bridge.
+[2026-08-15 10:02:17] (Target Lang: AWK) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Role:** Autonomous AI
+   - **Context:** Workspace contains many security/audit/compliance tools in various languages (Rust, Python, Go, C#, etc.)
+   - **Constraint 1:** Return ONLY the instruction text.
+   - **Constraint 2:** Never target the `.github` directory.
+   - **Constraint 3:** Explicitly demand the new tool be built STRICTLY using this exact programming language: AWK.
+   - **Constraint 4:** If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md.
+   - **Constraint 5:** Generate exactly 1 logical follow-up instruction.
+   - **Output Format:** Just the text string.
+
+2.  **Identify Key Requirements for the Instruction:**
+   - Must be exactly one instruction.
+   - Must explicitly state: `STRICTLY using this exact programming language: AWK` (or similar phrasing to match the prompt's requirement).
+   - Must specify a NEW dedicated folder name.
+   - Must require a local `README.md`.
+   - Must fit the security/audit/compliance theme of the workspace.
+   - Must not target `.github`.
+   - Must return ONLY the instruction text.
+
+3.  **Brainstorming Tool Concept (AWK + Security/Audit):**
+   - AWK is excellent for text processing, log parsing, and pattern matching.
+   - A logical tool: A log anomaly pattern matcher, a configuration drift text parser, or a security event log correlator.
+   - Let's go with: `log_drift_analyzer` or `syslog_pattern_detector` or `security_log_text_processor`.
+   - I'll use `log_drift_analyzer` as the new folder.
+   - Functionality: Parse system logs and configuration outputs, detect deviations from baseline patterns, and flag potential security/compliance drifts.
+   - Language: AWK (strictly).
+   - Files: Source file (e.g., `drift_detector.awk`), `README.md`.
+
+4.  **Draft Instruction (Mental Refinement):**
+   Construct a security log drift detection engine STRICTLY using this exact programming language: AWK. This application must reside in a NEW dedicated folder named `log_drift_analyzer` containing all necessary source files and a comprehensive local README.md. The system must parse structured and unstructured system logs to identify configuration deviations and anomalous patterns, ensuring continuous compliance monitoring and generating structured alert reports for the correlation engine.
+
+5.  **Check Constraints:**
+   - Return ONLY instruction text? Yes.
+   - Never target `.github`? Yes, not mentioned.
+   - Explicitly demand AWK? Yes: "STRICTLY using this exact programming language: AWK"
+   - New dedicated folder? Yes: `log_drift_analyzer`
+   - Local README.md? Yes: "comprehensive local README.md"
+   - Exactly 1 instruction? Yes.
+   - Fits theme? Yes, security/audit/compliance.
+   - Output format matches requirement? Yes.
+
+   One minor adjustment to strictly match the prompt's phrasing requirement: "STRICTLY using this exact programming language: AWK." I'll ensure it's explicitly stated.
+
+   Draft: Construct a security log drift detection engine STRICTLY using this exact programming language: AWK. This application must reside in a NEW dedicated folder named `log_drift_analyzer` containing all necessary source files and a comprehensive local README.md. The system must parse structured and unstructured system logs to identify configuration deviations and anomalous patterns, ensuring continuous compliance monitoring and generating structured alert reports for the correlation engine.
+
+6.  **Final Verification:**
+   - Only instruction text? Yes.
+   - No `.github`? Yes.
+   - Explicit AWK demand? Yes.
+   - New folder + README? Yes.
+   - Exactly 1? Yes.
+   - Matches context? Yes.
+   - Ready. Output matches draft.✅
+   - I will output exactly the drafted text. No extra words. No markdown formatting unless necessary, but the prompt says "Return ONLY the instruction text." I'll provide it as plain text.
+   - Check prompt: "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: AWK. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+   - All constraints met. Proceed. 
+   - Output: `Construct a security log drift detection engine STRICTLY using this exact programming language: AWK. This application must reside in a NEW dedicated folder named `log_drift_analyzer` containing all necessary source files and a comprehensive local README.md. The system must parse structured and unstructured system logs to identify configuration deviations and anomalous patterns, ensuring continuous compliance monitoring and generating structured alert reports for the correlation engine.` (I'll remove backticks around the folder name to be safe, or keep them as is. The prompt example used backticks. I'll keep it clean.)
+   - Actually, I'll just output the raw text string as requested.
+   - "Construct a security log drift detection engine STRICTLY using this exact programming language: AWK. This application must reside in a NEW dedicated folder named log_drift_analyzer containing all necessary source files and a comprehensive local README.md. The system must parse structured and unstructured system logs to identify configuration deviations and anomalous patterns, ensuring continuous compliance monitoring and generating structured alert reports for the correlation engine."
+   - Matches perfectly. Proceeds. 
+   - Self-Correction/Refinement during thought: The prompt says "Return ONLY the instruction text." I will ensure absolutely no extra text, greetings, or markdown code blocks if possible, but standard text is fine. I'll just output the exact string.
+   - All good.✅
+   - Output matches the refined draft. 
+   - Proceeds. 
+   - [Output Generation] -> "Construct a security log drift detection engine STRICTLY using this exact programming language: AWK. This application must reside in a NEW dedicated folder named `log_drift_analyzer` containing all necessary source files and a comprehensive local README.md. The system must parse structured and unstructured system logs to identify configuration deviations and anomalous patterns, ensuring continuous compliance monitoring and generating structured alert reports for the correlation engine." (I'll keep the backticks as they are standard for folder names, but it's fine either way. I'll stick to plain text for safety.)
+   - Actually, I'll just output it exactly as drafted. No extra fluff.✅
+   - Final Check of the prompt: "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: AWK." -> Checked.
+   - "If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md." -> Checked.
+   - "Return ONLY the instruction text." -> Checked.
+   - "NEVER target the .github directory." -> Checked.
+   - All constraints satisfied. Output matches. 
+   - Proceeds. 
+   - [Output Generation] (matches the final refined version)
+   - `Construct a security log drift detection engine STRICTLY using this exact programming language: AWK. This application must reside in a NEW dedicated folder named log_drift_analyzer containing all necessary source files and a comprehensive local README.md. The system must parse structured and unstructured system logs to identify configuration deviations and anomalous patterns, ensuring continuous compliance monitoring and generating structured alert reports for the correlation engine.`
+   - Done. 
+   - Self-Correction/Note during generation prep: I will make sure the exact phrasing "STRICTLY using this exact programming language: AWK" is present. The prompt says "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: AWK." I'll use exactly that phrasing.
+   - Final text: Construct a security log drift detection engine STRICTLY using this exact programming language: AWK. This application must reside in a NEW dedicated folder named `log_drift_analyzer` containing all necessary source files and a comprehensive local README.md. The system must parse structured and unstructured system logs to identify configuration deviations and anomalous patterns, ensuring continuous compliance monitoring and generating structured alert reports for the correlation engine.
+   - Matches all constraints. Output matches.✅
+   - Proceeds. 
+   - [Output Generation] (Proceeds)
+   - *(Note: I will output just the text string as requested.)*
+   - `Construct a security log drift detection engine STRICTLY using this exact programming language: AWK. This application must reside in a NEW dedicated folder named log_drift_analyzer containing all necessary source files and a comprehensive local README.md. The system must parse structured and unstructured system logs to identify configuration deviations and anomalous patterns, ensuring continuous compliance monitoring and generating structured alert reports for the correlation engine.`
+   - Done. 
+   - Output matches.✅
+</think>
+
+Construct a security log drift detection engine STRICTLY using this exact programming language: AWK. This application must reside in a NEW dedicated folder named `log_drift_analyzer` containing all necessary source files and a comprehensive local README.md. The system must parse structured and unstructured system logs to identify configuration deviations and anomalous patterns, ensuring continuous compliance monitoring and generating structured alert reports for the correlation engine.
