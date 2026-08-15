@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Program.fs" />
+    <Compile Include="FileUtils.fs" />
+    <Compile Include="Crypto.fs" />
+    <Compile Include="PolicyEngine.fs" />
+    <Compile Include="AuditLogger.fs" />
+  </ItemGroup>
+
+</Project>
