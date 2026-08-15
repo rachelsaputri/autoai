@@ -304,3 +304,5 @@
 - Created/Updated module: `averest_formal_audit_engine` (See `averest_formal_audit_engine/README.md` for details)
 
 - Created/Updated module: `distributed_policy_enforcement_coordinator` (See `distributed_policy_enforcement_coordinator/README.md` for details)
+
+- Created/Updated module: `nesl_parallel_compliance_detector` (See `nesl_parallel_compliance_detector/README.md` for details)
