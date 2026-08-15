@@ -1,0 +1,62 @@
+/*
+ * bc Compliance Scoring Calculator
+ * Deterministic compliance scoring and threshold evaluation
+ */
+
+/* Configuration: Compliance Weights and Thresholds */
+define WEIGHT_AUTH      = 0.30;
+define WEIGHT_ENCRYPT   = 0.25;
+define WEIGHT_PATCH     = 0.20;
+define WEIGHT_ACCESS    = 0.15;
+define WEIGHT_AUDIT     = 0.10;
+define PASS_THRESHOLD   = 0.75;
+
+/* Input: Raw Security Metrics (0.0 to 1.0) */
+print "Enter Authentication Security Score (0-1): ";
+auto auth = read();
+print "Enter Encryption Security Score (0-1): ";
+auto encrypt = read();
+print "Enter Patch Compliance Score (0-1): ";
+auto patch = read();
+print "Enter Access Control Score (0-1): ";
+auto access = read();
+print "Enter Audit Readiness Score (0-1): ";
+auto audit = read();
+
+/* Calculate Weighted Compliance Score */
+define weighted_sum(w, v) {
+    return w * v;
+}
+
+auto score_auth   = weighted_sum(WEIGHT_AUTH, auth);
+auto score_encrypt = weighted_sum(WEIGHT_ENCRYPT, encrypt);
+auto score_patch   = weighted_sum(WEIGHT_PATCH, patch);
+auto score_access  = weighted_sum(WEIGHT_ACCESS, access);
+auto score_audit   = weighted_sum(WEIGHT_AUDIT, audit);
+
+auto total_score = score_auth + score_encrypt + score_patch + score_access + score_audit;
+
+/* Evaluate Threshold */
+define check_threshold(s, t) {
+    if (s >= t) {
+        return "COMPLIANT";
+    } else {
+        return "NON-COMPLIANT";
+    }
+}
+
+auto status = check_threshold(total_score, PASS_THRESHOLD);
+
+/* Output Results */
+print "\n=== Compliance Evaluation Report ===\n";
+print "Weighted Auth Score:    "; scale; scale_auth = score_auth; scale; print score_auth; print "\n";
+print "Weighted Encrypt Score: "; scale; scale_encrypt = score_encrypt; scale; print score_encrypt; print "\n";
+print "Weighted Patch Score:   "; scale; scale_patch = score_patch; scale; print score_patch; print "\n";
+print "Weighted Access Score:  "; scale; scale_access = score_access; scale; print score_access; print "\n";
+print "Weighted Audit Score:   "; scale; scale_audit = score_audit; scale; print score_audit; print "\n";
+print "Total Compliance Score: "; scale; scale_total = total_score; scale; print total_score; print "\n";
+print "Status: " status "\n";
+print "====================================\n";
+
+/* End of Calculator */
+halt
