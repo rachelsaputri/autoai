@@ -1,0 +1,35 @@
+{
+  "engine": {
+    "name": "CG Compliance Telemetry Engine",
+    "version": "1.0.0",
+    "mode": "production",
+    "parallelism": {
+      "enabled": true,
+      "thread_count": 0
+    }
+  },
+  "parsing": {
+    "schema_version": "v2",
+    "allowed_formats": ["json", "csv", "log"],
+    "max_record_size_bytes": 1048576,
+    "timeout_ms": 5000
+  },
+  "policy": {
+    "baseline_path": "/etc/security/policy.baseline",
+    "alignment_threshold": 0.95,
+    "drift_tolerance": 0.01,
+    "idempotent_execution": true
+  },
+  "logging": {
+    "level": "INFO",
+    "destination": "stdout",
+    "format": "structured",
+    "rotate_size_mb": 50,
+    "max_files": 10
+  },
+  "reporting": {
+    "output_format": "json",
+    "include_traces": true,
+    "compliance_status_schema": "open_cspi_v1"
+  }
+}

@@ -1,0 +1,83 @@
+// ============================================================================
+// CG COMPLIANCE TELEMETRY ENGINE - MAIN ENTRY POINT
+// ============================================================================
+// Compiling this module requires a valid Cg compute/shader environment.
+// This implementation enforces strict type definitions, deterministic state,
+// and parallel-safe resource management.
+// ============================================================================
+
+#pragma exclude_exceptions
+#pragma strict
+#pragma stateless
+
+#include "logger.cg"
+#include "telemetry_parser.cg"
+#include "policy_verifier.cg"
+#include "drift_detector.cg"
+#include "report_generator.cg"
+
+/**
+ * @brief Initialization routine for the compliance engine context.
+ * Validates configuration, initializes stateless registries, and prepares
+ * the parallel execution environment.
+ */
+type EngineContext {
+    LoggerContext log_ctx;
+    TelemetryParserCtx parser_ctx;
+    PolicyVerifierCtx policy_ctx;
+    DriftDetectorCtx drift_ctx;
+    ReportGeneratorCtx report_ctx;
+    bool initialized;
+}
+
+init_engine(Config *cfg) {
+    EngineContext ctx;
+    ctx.log_ctx = init_logger(cfg->logging);
+    ctx.parser_ctx = init_telemetry_parser(cfg->parsing);
+    ctx.policy_ctx = init_policy_verifier(cfg->policy);
+    ctx.drift_ctx = init_drift_detector(cfg->policy->drift_tolerance);
+    ctx.report_ctx = init_report_generator(cfg->reporting);
+    ctx.initialized = true;
+    return ctx;
+}
+
+/**
+ * @brief Main execution pipeline.
+ * Ingests telemetry, verifies policy alignment, detects drift, and generates reports.
+ * Guarantees idempotency and deterministic output.
+ */
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        return -1;
+    }
+
+    Config cfg = load_config("config.json");
+    EngineContext ctx = init_engine(&cfg);
+
+    // Step 1: Ingest & Parse Telemetry
+    TelemetryBatch batch = read_telemetry_file(argv[1]);
+    if (!parse_telemetry_batch(&batch, &ctx.parser_ctx)) {
+        log_error(&ctx.log_ctx, "TELEMETRY_PARSE_FAILED");
+        return -2;
+    }
+
+    // Step 2: Policy Verification & Drift Detection
+    PolicyResult verification = verify_policy(&batch, &ctx.policy_ctx);
+    DriftMetrics metrics = compute_drift(&verification, &ctx.drift_ctx);
+
+    // Step 3: Generate Machine-Verifiable Report
+    ComplianceReport report = generate_report(&verification, &metrics, &ctx.report_ctx);
+    write_report(&report, "output/compliance_report.json");
+
+    // Cleanup
+    cleanup_engine(&ctx);
+    return 0;
+}
+
+void cleanup_engine(EngineContext *ctx) {
+    ctx->initialized = false;
+    free_batch(&ctx->parser_ctx);
+    free_verifier(&ctx->policy_ctx);
+    free_detector(&ctx->drift_ctx);
+    free_logger(&ctx->log_ctx);
+}
