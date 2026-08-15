@@ -28,22 +28,27 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
           if [ ! -f history.txt ]; then
-            echo "Initialization: Ultimate Polyglot system boot (Badge Farmer Mode)." > history.txt
+            echo "Initialization: Ultimate Polyglot system boot (Sequential + Full Code Mode)." > history.txt
           fi
           if [ ! -f README.md ]; then
             echo "# Autonomous AI Ultimate Polyglot Knowledgebase" > README.md
           fi
+          if [ ! -f lang_index.txt ]; then
+            echo "1" > lang_index.txt
+          fi
           
-          curl -s "https://gist.githubusercontent.com/calvinfroedge/defeb8fc6cdc0068e172/raw/7904b2504827f6f4883df0299a2bf51accbe9dab/languages.json" > /tmp/languages.json
+          # Download dan bersihkan daftar bahasa ke file sementara
+          curl -s "https://gist.githubusercontent.com/calvinfroedge/defeb8fc6cdc0068e172/raw/7904b2504827f6f4883df0299a2bf51accbe9dab/languages.json" | sed 's/","/\n/g' | tr -d '[]"' > /tmp/all_langs.txt
+          TOTAL_LANGS=$(wc -l < /tmp/all_langs.txt)
           
           TOPICS=(
-            "Develop a data extraction or parsing utility."
-            "Implement a complex mathematical or cryptographic algorithm."
-            "Create an interactive diagnostic or visualization tool."
+            "Develop a complex data extraction or parsing utility."
+            "Implement a fully working mathematical or cryptographic algorithm."
+            "Create an interactive, fully functioning diagnostic tool."
             "Build a robust data transfer or API interaction script."
-            "Write a low-level memory management or network protocol simulator."
-            "Design an automated dataset cleaning or text formatting tool."
-            "Create a self-healing tool to handle edge cases and errors."
+            "Write a working low-level memory management or network protocol simulator."
+            "Design a complete, automated dataset cleaning or text formatting tool."
+            "Create a self-healing tool with proper error handling and real logic."
           )
           
           for i in {1..6}
@@ -56,24 +61,33 @@ jobs:
             README_CONTEXT=$(tail -n 30 README.md | tr '\n' ' ')
             DIR_STRUCTURE=$(find . -maxdepth 4 -not -path '*/\.git/*' -not -path '*/\.github/*' | sort | tr '\n' ' | ')
             
-            RANDOM_LANG=$(cat /tmp/languages.json | sed 's/","/\n/g' | tr -d '[]"' | shuf -n 1)
+            # Ambil bahasa secara BERURUTAN berdasarkan index saat ini
+            CURRENT_INDEX=$(cat lang_index.txt)
+            TARGET_LANG=$(sed "${CURRENT_INDEX}q;d" /tmp/all_langs.txt)
+            
+            # Pindahkan bookmark/index ke angka selanjutnya
+            NEXT_INDEX=$((CURRENT_INDEX + 1))
+            if [ "$NEXT_INDEX" -gt "$TOTAL_LANGS" ]; then
+              NEXT_INDEX=1
+            fi
+            echo "$NEXT_INDEX" > lang_index.txt
             
             RESET_CHANCE=$((RANDOM % 5))
             if [ $RESET_CHANCE -eq 0 ]; then
               RANDOM_TOPIC="${TOPICS[$RANDOM % ${#TOPICS[@]}]}"
-              GENERATED_PROMPT="Focus entirely on this new objective: '$RANDOM_TOPIC'. You MUST write functional code for this task strictly using this programming language: $RANDOM_LANG. Workspace: $DIR_STRUCTURE."
+              GENERATED_PROMPT="Focus entirely on this new objective: '$RANDOM_TOPIC'. You MUST write complex, fully functional, and production-ready code strictly using this programming language: $TARGET_LANG. No dummy code. Workspace: $DIR_STRUCTURE."
             else
               PROMPT_PAYLOAD=$(jq -n \
                 --arg model "Qwen3.6-35B-A3B-FP8" \
                 --arg history "$HISTORY_CONTEXT" \
                 --arg dirs "$DIR_STRUCTURE" \
-                --arg lang "$RANDOM_LANG" \
+                --arg lang "$TARGET_LANG" \
                 '{
                   model: $model,
                   messages: [
                     {
                       role: "user",
-                      content: ("You are an Autonomous AI. Workspace:\n" + $dirs + "\n\nHistory:\n" + $history + "\n\nGenerate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: " + $lang + ". If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory.")
+                      content: ("You are an Autonomous AI. Workspace:\n" + $dirs + "\n\nHistory:\n" + $history + "\n\nGenerate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: " + $lang + ". Demand a fully functional, complete implementation (NO dummy code, NO placeholders). If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory.")
                     }
                   ]
                 }')
@@ -85,23 +99,23 @@ jobs:
             fi
             
             if [ -z "$GENERATED_PROMPT" ]; then
-              GENERATED_PROMPT="Create a new utility for data processing in a new folder. You MUST write it strictly in $RANDOM_LANG. Include a local README.md."
+              GENERATED_PROMPT="Create a complete, fully functional utility for data processing in a new folder. You MUST write it strictly in $TARGET_LANG. Absolutely NO dummy code or placeholders. Include a local README.md."
             fi
             
-            echo "[$(date +'%Y-%m-%d %H:%M:%S')] (Target Lang: $RANDOM_LANG) $GENERATED_PROMPT" >> history.txt
+            echo "[$(date +'%Y-%m-%d %H:%M:%S')] (Target Lang: $TARGET_LANG) $GENERATED_PROMPT" >> history.txt
             
             CONTENT_PAYLOAD=$(jq -n \
               --arg model "Qwen3.6-35B-A3B-FP8" \
               --arg prompt "$GENERATED_PROMPT" \
               --arg dirs "$DIR_STRUCTURE" \
-              --arg lang "$RANDOM_LANG" \
+              --arg lang "$TARGET_LANG" \
               '{
                 model: $model,
                 response_format: { type: "json_object" },
                 messages: [
                   {
                     role: "system",
-                    content: ("You are an elite Autonomous AI Polyglot Software Engineer. Workspace: " + $dirs + ". You MUST NEVER create or modify files inside the .github directory. You MUST strictly write the code in the exact programming language requested: " + $lang + ". Whenever you create a tool, you MUST generate a README.md file INSIDE that specific folder. You MUST respond strictly in valid JSON format containing a single key \"files\" which is an ARRAY of objects. Each object must have exactly two keys: \n1. \"filepath\": The relative path. \n2. \"content\": The raw, functional code or markdown text. Do NOT wrap content in markdown code blocks.")
+                    content: ("You are an elite Autonomous AI Polyglot Software Engineer. Workspace: " + $dirs + ". You MUST NEVER create or modify files inside the .github directory. You MUST strictly write the code in the exact programming language requested: " + $lang + ". Using Python or any other default language instead of " + $lang + " is strictly forbidden. \n\nCRITICAL INSTRUCTION: The code you write MUST be completely functional, logically sound, and production-ready. You are STRICTLY FORBIDDEN from writing dummy code, theoretical snippets, placeholders, or \"TODO\" comments. The tools must work out of the box with real logic.\n\nWhenever you create a tool, you MUST generate a README.md file INSIDE that specific folder. You MUST respond strictly in valid JSON format containing a single key \"files\" which is an ARRAY of objects. Each object must have exactly two keys: \n1. \"filepath\": The relative path. \n2. \"content\": The raw, functional code or markdown text. Do NOT wrap content in markdown code blocks.")
                   },
                   {
                     role: "user",
@@ -118,7 +132,6 @@ jobs:
             RAW_JSON=$(echo "$NEW_CONTENT_RESP" | jq -r '.choices[0].message.content // empty' 2>/dev/null | perl -0777 -pe 's/<think>.*?<\/think>\s*//gs')
             
             if echo "$RAW_JSON" | jq -e . >/dev/null 2>&1; then
-              # Buat branch baru untuk tugas ini
               BRANCH_NAME="patch-$(date +'%s')-$RANDOM"
               git checkout -b "$BRANCH_NAME"
               
@@ -141,17 +154,14 @@ jobs:
                 fi
               done
               
-              git add history.txt README.md
+              # Wajib memasukkan lang_index.txt agar antrean bahasa tersimpan
+              git add history.txt README.md lang_index.txt
               
-              # Jika ada perubahan (ada file yang dicommit)
               if git commit -m "feat(ai): autonomous update via PR for $FILE_COUNT files [$(date +'%H:%M:%S')]" -m "Co-authored-by: BOTCAHX <tioclkp02@gmail.com>"; then
-                # Push branch ke origin
                 git push -u origin "$BRANCH_NAME"
                 
-                # Buka Pull Request otomatis via GitHub CLI
-                gh pr create --title "feat(ai): autonomous polyglot update ($RANDOM_LANG)" --body "Automated tool creation using $RANDOM_LANG. This PR is auto-generated and merged by AI." --base main --head "$BRANCH_NAME"
+                gh pr create --title "feat(ai): full tool implementation in $TARGET_LANG" --body "Automated fully functional tool creation using $TARGET_LANG. This PR is auto-generated and merged by AI." --base main --head "$BRANCH_NAME"
                 
-                # Merge PR saat itu juga & hapus branch bekasnya
                 gh pr merge "$BRANCH_NAME" --merge --delete-branch
                 
                 echo "Successfully merged PR for $BRANCH_NAME!"
