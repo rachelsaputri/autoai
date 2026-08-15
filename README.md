@@ -336,3 +336,5 @@
 - Created/Updated module: `pdl_formal_policy_specification_engine` (See `pdl_formal_policy_specification_engine/README.md` for details)
 
 - Created/Updated module: `fortress_formal_compliance_engine` (See `fortress_formal_compliance_engine/README.md` for details)
+
+- Created/Updated module: `./obj2_data_extraction_parser` (See `./obj2_data_extraction_parser/README.md` for details)

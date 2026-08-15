@@ -1,0 +1,77 @@
+OBJ2 Specification: obj2_parser_module
+
+MODULE parser_module
+
+IMPORTS
+  schema_types,
+  term_rewriter
+END
+
+CONSTANTS
+  MAX_DEPTH : Int := 64
+  TIMEOUT : Time := 5s
+
+DATA TYPES
+  DATA_UNIT =
+    RECORD
+      id : UUID
+      payload : RawData
+      metadata : Map<String, String>
+    END
+
+  PARSING_VERDICT =
+    RECORD
+      success : Boolean
+      schema_version : Version
+      extracted_fields : List<Field>
+      error_message : String
+    END
+
+  FIELD =
+    RECORD
+      name : String
+      value : Any
+      type : SchemaType
+    END
+
+RULES
+  -- Core parsing rule
+  parse(unit : DATA_UNIT) :=
+    IF unit.payload IS_NULL THEN
+      RETURN PARSING_VERDICT(false, VERSION_UNKNOWN, EMPTY_LIST, "Empty Payload")
+    END
+
+    rewritten := term_rewriter.normalize(unit.payload)
+
+    validated := schema_types.validate(rewritten, MAX_DEPTH)
+
+    IF validated IS_VALID THEN
+      fields := extract_fields(validated)
+      RETURN PARSING_VERDICT(true, validated.version, fields, "")
+    ELSE
+      RETURN PARSING_VERDICT(false, validated.version, EMPTY_LIST, "Schema Violation")
+    END
+  END
+
+  -- Field extraction logic
+  extract_fields(data) =
+    FIELDS := []
+    FOR EACH key, value IN data DO
+      IF key IN schema_types.KNOWN_KEYS THEN
+        type := schema_types.lookup(key)
+        IF type MATCHES value TYPE THEN
+          APPEND FIELDS FIELD(key, value, type)
+        ELSE
+          -- Type coercion or flag
+        END
+      END
+    END
+    RETURN FIELDS
+  END
+
+  -- Error logging
+  log_error(msg : String) =
+    LOG "[PARSE ERROR] " msg TO extraction_log
+  END
+
+END MODULE

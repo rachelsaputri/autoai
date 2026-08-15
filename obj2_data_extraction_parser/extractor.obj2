@@ -1,0 +1,45 @@
+OBJ2 Specification: obj2_extractor_module
+
+MODULE extractor_module
+
+IMPORTS
+  extraction_registry,
+  data_transformers
+END
+
+RULES
+  -- Apply extraction rules to parsed data
+  apply_rules(data : ParsedData) :=
+    transformed := data_transformers.deep_map(data, transform_rule)
+    IF transformed IS_STRUCTURED THEN
+      registry.register(transformed)
+      RETURN transformed
+    ELSE
+      FLAG conflicts_in(transformed)
+      RETURN transformed
+    END
+  END
+
+  -- Individual field transformation
+  transform_rule(field : Field) :=
+    CASE field.type OF
+      STRING => normalize_string(field.value)
+      INTEGER => coerce_integer(field.value)
+      BOOLEAN => coerce_boolean(field.value)
+      COMPLEX => apply_complex_rules(field.value)
+      ELSE => field.value
+    END
+  END
+
+  -- Store validated extraction
+  store(data) =
+    COMMIT data TO persistent_storage
+  END
+
+  -- Conflict resolution
+  flag_conflicts(data) =
+    LOG "Conflict detected in data structure" TO extraction_log
+    data.is_conflicted := TRUE
+  END
+
+END MODULE

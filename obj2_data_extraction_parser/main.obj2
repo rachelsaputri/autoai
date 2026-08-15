@@ -1,0 +1,75 @@
+OBJ2 Specification: obj2_main_workflow
+
+MODULE main_workflow
+
+IMPORTS
+  parser_module,
+  extractor_module,
+  extraction_registry
+END
+
+CONFIGURATION
+  -- Define input source configuration
+  VAR input_stream : Stream<DataUnit>
+  VAR output_verdict : Stream<ParsingVerdict>
+  VAR extraction_log : LogFile
+
+  -- Define extraction context
+  CONTEXT ctx : ExtractionContext
+
+RULES
+  -- Main workflow entry point
+  MAIN := 
+    INIT ctx
+    PARSE input_stream
+    EXTRACT parsed_data
+    VERIFY schema_consistency(parsed_data)
+    LOG_VERDICT output_verdict
+    IF error_detected THEN
+      ROLLBACK ctx
+    ELSE
+      COMMIT ctx
+    END
+  END
+
+  -- Initialize extraction context
+  INIT(ctx) =
+    CREATE ctx
+    REGISTER all_schemas
+    SETUP extraction_log
+  END
+
+  -- Main parsing loop
+  PARSE(stream) =
+    WHILE stream HAS_NEXT DO
+      unit := stream NEXT
+      result := parser_module.parse(unit)
+      IF result IS_SUCCESSFUL THEN
+        parser_module.emit(result)
+      ELSE
+        parser_module.log_error(result.error)
+        ROLLBACK unit
+      END
+    END
+  END
+
+  -- Extraction and transformation
+  EXTRACT(data) =
+    transformed_data := extractor_module.apply_rules(data)
+    IF transformed_data IS_VALID THEN
+      extractor_module.store(transformed_data)
+    ELSE
+      extractor_module.flag_conflicts(transformed_data)
+    END
+  END
+
+  -- Schema consistency verification
+  VERIFY(data) =
+    IF schema_engine.verify(data) THEN
+      RETURN VERIFIED
+    ELSE
+      RETURN FAILED
+    END
+  END
+
+END MODULE
