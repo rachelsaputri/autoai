@@ -218,3 +218,5 @@
 - Created/Updated module: `ops5_audit_engine` (See `ops5_audit_engine/README.md` for details)
 
 - Created/Updated module: `interactive_diagnostic_tool` (See `interactive_diagnostic_tool/README.md` for details)
+
+- Created/Updated module: `masm_syscall_interceptor` (See `masm_syscall_interceptor/README.md` for details)
