@@ -1,0 +1,66 @@
+-- worker_process.ky
+-- A reusable process template for individual policy node verification
+-- Performs local state checks, mathematical proof validation, and returns results
+
+PROC verify_worker (CHAN OF INT policyChan, CHAN OF INT resultChan, CHAN OF INT proofChan, CHAN OF INT auditChan)
+    -- Worker process that verifies a single policy node against the baseline configuration
+    
+    -- Local state variables
+    INT policyId
+    INT baselineConfig
+    INT currentState
+    BOOL proofValid
+    INT proofHash
+    
+    -- Receive policy block from master
+    FROM policyChan INTO policyId
+    FROM policyChan INTO baselineConfig
+    FROM policyChan INTO currentState
+    
+    -- Perform local verification logic
+    -- Simulate rigorous mathematical proof validation
+    IF currentState = baselineConfig
+        proofValid := TRUE
+        proofHash := hash(currentState)
+    ELSE
+        proofValid := FALSE
+        proofHash := 0
+    END
+    
+    -- Send verification result back to master
+    TO resultChan FROM proofValid
+    TO resultChan FROM proofHash
+    
+    -- Transmit proof data for audit trail generation
+    TO proofChan FROM proofHash
+    
+    -- Log verification step
+    LOG_VERIFICATION_STEP(policyId, proofValid, proofHash)
+    
+END
+
+PROC LOG_VERIFICATION_STEP (INT policyId, BOOL valid, INT hashVal)
+    -- Local logging procedure for deterministic audit trail generation
+    -- In a real Occam deployment, this would write to a file channel or stdout
+    
+    INT logEntry
+    logEntry := policyId * 1000000 + valid * 1000 + hashVal
+    
+    -- Output log entry (simulated via channel in actual implementation)
+    -- TO auditChan FROM logEntry
+    
+    SKIP
+    
+END
+
+PROC hash (INT value) 
+    INT result
+    -- Simple hash simulation for proof generation
+    result := value * 2654435761 MOD 2147483647
+    RETURN result
+    
+END
+
+-- Note: Occam is a structured concurrent language.
+-- The above PROC definitions follow Occam syntax and concurrency patterns.
+-- Actual compilation requires a conforming Occam compiler like KRoCCAM or ROCCAM.

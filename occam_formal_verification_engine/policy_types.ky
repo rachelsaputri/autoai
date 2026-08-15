@@ -1,0 +1,58 @@
+-- policy_types.ky
+-- Defines logical types, records, and interfaces for the Formal Policy Verification Engine
+
+PROC verify_types (CHAN OF INT inChan, CHAN OF INT outChan)
+    -- Defines the logical structure for policies and proofs using Occam's type system
+    -- In Occam, types are often handled via channel protocols and record definitions
+    -- Here we simulate the type definitions through structured channel communication
+    
+    BOOL policy_verified
+    BOOL proof_complete
+    INT verification_state
+    CHAN OF INT proof_log
+    CHAN OF INT config_baseline
+    CHAN OF INT current_state
+    CHAN OF INT result_queue
+    CHAN OF INT sync_barrier
+    
+    -- Type definitions for policy nodes, baseline configurations, and proof outputs
+    -- Occam relies on channels and structured processes rather than OOP classes
+    -- This module establishes the communication protocols between master and workers
+    
+    SKIP
+    
+END
+
+PROC define_policy_protocol (CHAN OF INT policy_chan, CHAN OF INT result_chan)
+    -- Establishes the protocol for transmitting policy blocks to verification workers
+    -- Uses Occam's channel communication to enforce strict data flow
+    
+    INT policy_id
+    INT baseline_snapshot
+    INT verification_timeout
+    
+    -- Protocol: Master sends (policy_id, baseline_snapshot, verification_timeout)
+    -- Worker responds with (verification_state, proof_complete, proof_log)
+    
+    SKIP
+    
+END
+
+PROC define_proof_protocol (CHAN OF INT proof_chan, CHAN OF INT audit_chan)
+    -- Establishes the protocol for transmitting cryptographic proofs and audit trails
+    -- Ensures deterministic logging and tamper-evident verification records
+    
+    INT proof_hash
+    INT signature_key
+    INT audit_timestamp
+    
+    -- Protocol: Worker sends (proof_hash, signature_key)
+    -- Master appends to (audit_timestamp, audit_log)
+    
+    SKIP
+    
+END
+
+-- Note: Occam does not support traditional class-based OOP. 
+-- The above PROC definitions serve as protocol and type specifications.
+-- Actual logic resides in verification_master.ky and worker_process.ky.

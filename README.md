@@ -170,3 +170,5 @@
 - Created/Updated module: `epl_compliance_report_generator` (See `epl_compliance_report_generator/README.md` for details)
 
 - Created/Updated module: `batch_remediation_bridge` (See `batch_remediation_bridge/README.md` for details)
+
+- Created/Updated module: `occam_formal_verification_engine` (See `occam_formal_verification_engine/README.md` for details)
