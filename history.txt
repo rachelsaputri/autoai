@@ -7005,3 +7005,80 @@ Construct a Dynamic Policy Enforcement & Audit Trail Verifier built STRICTLY usi
 </think>
 
 Construct a Formally Verified Dependently Typed Security Policy Prover built STRICTLY using this exact programming language: Idris. This tool must reside in a NEW dedicated folder named `idris_dependent_policy_prover` containing the necessary source files and a detailed local README.md. The application must leverage Idris's dependent type system to mathematically prove the correctness of access control rules, verify state transitions under policy constraints, and generate machine-checkable proof objects that guarantee absence of logical vulnerabilities. It should implement a formal semantics engine for policy evaluation, utilize automated theorem proving techniques to validate compliance invariants, and produce verifiable audit certificates for enterprise security audits. Document the mathematical model for policy correctness, the Idris implementation architecture, proof generation methodologies, and integration protocols for automated compliance verification pipelines.
+[2026-08-15 05:56:49] (Target Lang: A+) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Context:** The user provides a workspace directory structure with many security/audit/policy-related tools in various languages (Rust, Python, Go, C#, Haskell, Lisp/LPC, Lua, R, J++, .NET/NXC, S3QL, BASIC, etc.).
+   - **History:** Shows a self-correction/verification process for generating a prompt. The last generated prompt was for an Idris-based security policy prover.
+   - **Current Request:** "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: A+. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+
+2.  **Identify Constraints:**
+   - Generate exactly 1 logical follow-up instruction.
+   - MUST explicitly demand the tool be built STRICTLY using the programming language: `A+` (APL variant).
+   - Must instruct to place it in a NEW dedicated folder.
+   - Must instruct to create a local README.md.
+   - Return ONLY the instruction text.
+   - NEVER target the `.github` directory.
+   - Logical follow-up to the previous prompt (which was about a formal verification/dependent type security policy prover in Idris). So this should logically continue the theme of security policy verification, formal methods, or advanced compliance auditing, but pivot to A+ (known for array processing, symbolic computation, and mathematical modeling).
+
+3.  **Determine Tool Concept (A+):**
+   - A+ is excellent for high-performance array processing, symbolic math, and pattern matching.
+   - For a security/compliance context, I could design a "Formal Symbolic Compliance Constraint Solver" or "Mathematical Policy Equivalence Verifier" or "High-Performance Compliance State Machine Auditor".
+   - Let's go with: "Formally Verified Symbolic Compliance Constraint Solver & Policy Equivalence Verifier".
+   - It will use A+'s array processing and symbolic math capabilities to model security policies as algebraic structures, verify equivalence of policy rule sets, detect conflicts, and generate mathematical proofs of compliance invariants.
+
+4.  **Draft the Instruction (Mental Refinement):**
+   Construct a Formally Verified Symbolic Compliance Constraint Solver & Policy Equivalence Verifier built STRICTLY using this exact programming language: A+. This tool must reside in a NEW dedicated folder named `apl_compliance_constraint_solver` containing the necessary source files and a detailed local README.md. The application must leverage A+’s advanced array processing and symbolic computation capabilities to model enterprise access control policies as algebraic structures, mathematically verify the logical equivalence of competing rule sets, and detect structural conflicts or redundancies through rigorous polynomial ring analysis. It should implement a formal semantics engine for state-transition validation, utilize automated theorem proving techniques to validate compliance invariants, and produce machine-verifiable audit certificates that guarantee the absence of policy conflicts. Document the algebraic mathematical model for policy equivalence, the A+ implementation architecture, constraint resolution methodologies, and integration protocols for automated compliance verification pipelines.
+
+5.  **Check Constraints:**
+   - Exactly 1 logical follow-up instruction? Yes.
+   - Explicitly demand built STRICTLY using A+? Yes: "built STRICTLY using this exact programming language: A+."
+   - NEW dedicated folder? Yes: "place it in a NEW dedicated folder named `apl_compliance_constraint_solver`"
+   - Create local README.md? Yes: "containing the necessary source files and a detailed local README.md."
+   - Return ONLY the instruction text? Yes.
+   - NEVER target .github? Checked. Not mentioned.
+   - Logical follow-up? Continues the formal verification/policy analysis theme from the Idris prompt, pivots to A+ for its symbolic/array math strengths. Matches perfectly.
+
+   One minor adjustment to ensure it strictly matches the phrasing requested in the prompt: "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: A+." I will make sure that exact phrase or very close to it is in the output. The prompt says "Return ONLY the instruction text." I will output just the drafted paragraph.
+
+   Let's verify the exact wording requirement: "built STRICTLY using this exact programming language: A+." I'll include that exactly.
+   Also, I need to make sure it's a single coherent instruction paragraph, as per the style of the history.
+
+   Draft:
+   Construct a Formally Verified Symbolic Compliance Constraint Solver & Policy Equivalence Verifier built STRICTLY using this exact programming language: A+. This tool must reside in a NEW dedicated folder named `apl_compliance_constraint_solver` containing the necessary source files and a detailed local README.md. The application must leverage A+’s advanced array processing and symbolic computation capabilities to model enterprise access control policies as algebraic structures, mathematically verify the logical equivalence of competing rule sets, and detect structural conflicts or redundancies through rigorous polynomial ring analysis. It should implement a formal semantics engine for state-transition validation, utilize automated theorem proving techniques to validate compliance invariants, and produce machine-verifiable audit certificates that guarantee the absence of policy conflicts. Document the algebraic mathematical model for policy equivalence, the A+ implementation architecture, constraint resolution methodologies, and integration protocols for automated compliance verification pipelines.
+
+   Checks:
+   - Exactly 1 instruction? Yes.
+   - STRICTLY using A+? Yes.
+   - NEW dedicated folder? Yes.
+   - local README.md? Yes.
+   - ONLY instruction text? Yes.
+   - No .github? Yes.
+   - Logical follow-up? Yes, continues formal verification/policy analysis theme.
+
+   All constraints met. Output matches draft. Proceeds. 
+   I will output exactly the drafted text.✅
+   One thing: The prompt says "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: A+." I'll make sure that exact phrasing is embedded naturally but clearly. The draft does this.
+   Ready.✅
+   Output generation. 
+   [Output] -> Construct a Formally Verified Symbolic Compliance Constraint Solver & Policy Equivalence Verifier built STRICTLY using this exact programming language: A+. This tool must reside in a NEW dedicated folder named `apl_compliance_constraint_solver` containing the necessary source files and a detailed local README.md. The application must leverage A+’s advanced array processing and symbolic computation capabilities to model enterprise access control policies as algebraic structures, mathematically verify the logical equivalence of competing rule sets, and detect structural conflicts or redundancies through rigorous polynomial ring analysis. It should implement a formal semantics engine for state-transition validation, utilize automated theorem proving techniques to validate compliance invariants, and produce machine-verifiable audit certificates that guarantee the absence of policy conflicts. Document the algebraic mathematical model for policy equivalence, the A+ implementation architecture, constraint resolution methodologies, and integration protocols for automated compliance verification pipelines. 
+   Matches all constraints. Proceeds.✅
+   *(Self-Correction/Verification during thought)*: 
+   - Check exact wording: "built STRICTLY using this exact programming language: A+." -> Matches constraint.
+   - "NEW dedicated folder" -> Matches constraint.
+   - "local README.md" -> Matches constraint.
+   - "Return ONLY the instruction text." -> Will do.
+   - "NEVER target the .github directory." -> Checked.
+   - Logical follow-up? Yes, continues the formal verification/policy analysis theme but pivots to A+’s symbolic math strengths.
+   All good. Output matches draft. Proceeds.✅
+   [Final Output Generation] -> *Proceeds*
+   *(Done.)*
+   [Output Generation] -> (Proceeds to output exactly the drafted text)
+   "Construct a Formally Verified Symbolic Compliance Constraint Solver & Policy Equivalence Verifier built STRICTLY using this exact programming language: A+. This tool must reside in a NEW dedicated folder named `apl_compliance_constraint_solver` containing the necessary source files and a detailed local README.md. The application must leverage A+’s advanced array processing and symbolic computation capabilities to model enterprise access control policies as algebraic structures, mathematically verify the logical equivalence of competing rule sets, and detect structural conflicts or redundancies through rigorous polynomial ring analysis. It should implement a formal semantics engine for state-transition validation, utilize automated theorem proving techniques to validate compliance invariants, and produce machine-verifiable audit certificates that guarantee the absence of policy conflicts. Document the algebraic mathematical model for policy equivalence, the A+ implementation architecture, constraint resolution methodologies, and integration protocols for automated compliance verification pipelines."
+   All constraints verified. Output matches.✅
+   Proceeds. 
+   [Output Generation] -> *Proceeds*
+   *(Done.)*
+</think>
+
+Construct a Formally Verified Symbolic Compliance Constraint Solver & Policy Equivalence Verifier built STRICTLY using this exact programming language: A+. This tool must reside in a NEW dedicated folder named `apl_compliance_constraint_solver` containing the necessary source files and a detailed local README.md. The application must leverage A+’s advanced array processing and symbolic computation capabilities to model enterprise access control policies as algebraic structures, mathematically verify the logical equivalence of competing rule sets, and detect structural conflicts or redundancies through rigorous polynomial ring analysis. It should implement a formal semantics engine for state-transition validation, utilize automated theorem proving techniques to validate compliance invariants, and produce machine-verifiable audit certificates that guarantee the absence of policy conflicts. Document the algebraic mathematical model for policy equivalence, the A+ implementation architecture, constraint resolution methodologies, and integration protocols for automated compliance verification pipelines.
