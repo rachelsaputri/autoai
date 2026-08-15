@@ -282,3 +282,5 @@
 - Created/Updated module: `apf_data_optimizer` (See `apf_data_optimizer/README.md` for details)
 
 - Created/Updated module: `appinventor_compliance_auditor` (See `appinventor_compliance_auditor/README.md` for details)
+
+- Created/Updated module: `arc_formal_policy_evaluator` (See `arc_formal_policy_evaluator/README.md` for details)
