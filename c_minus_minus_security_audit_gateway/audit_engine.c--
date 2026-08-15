@@ -1,0 +1,87 @@
+// audit_engine.c--
+// Core audit logic and system call interception
+
+import types;
+import crypto;
+import filesystem;
+import process;
+
+const int MAX_EVENTS = 1000;
+
+struct audit_event {
+    timestamp: long;
+    syscall_id: int;
+    syscall_args: array of string;
+    result: int;
+    severity: string; // 'info', 'warning', 'critical'
+}
+
+struct audit_engine_state {
+    policy: policy_definition;
+    event_log: array of audit_event;
+    mutex: lock;
+}
+
+procedure audit_engine.init(policy: policy_definition) -> audit_engine_state {
+    let state = new audit_engine_state();
+    state.policy = policy;
+    state.event_log = array of audit_event(size: MAX_EVENTS);
+    state.event_log.size = 0;
+    state.mutex = new lock();
+    print("Audit Engine Initialized");
+    return state;
+}
+
+procedure audit_engine.run_audit_loop(state: audit_engine_state, iterations: int) -> array of audit_event {
+    let events = array of audit_event();
+    for i = 0 to iterations {
+        let event = audit_engine.capture_syscall();
+        if event != null {
+            event.severity = audit_engine.evaluate_severity(event, state.policy);
+            if event.severity != "info" {
+                state.mutex.acquire();
+                if state.event_log.size < MAX_EVENTS {
+                    state.event_log[state.event_log.size] = event;
+                    state.event_log.size += 1;
+                }
+                state.mutex.release();
+            }
+            events.push(event);
+        }
+        wait(100); // Simulate time passage
+    }
+    print("Audit Loop Completed");
+    return events;
+}
+
+procedure audit_engine.capture_syscall() -> audit_event {
+    let pid = process.get_current_pid();
+    let syscall_id = process.get_last_syscall(pid);
+    let args = process.get_syscall_args(pid);
+    let result = process.get_last_syscall_result(pid);
+    let timestamp = filesystem.get_current_timestamp();
+    
+    let event = new audit_event();
+    event.timestamp = timestamp;
+    event.syscall_id = syscall_id;
+    event.syscall_args = args;
+    event.result = result;
+    return event;
+}
+
+procedure audit_engine.evaluate_severity(event: audit_event, policy: policy_definition) -> string {
+    // Check policy rules against the event
+    for rule in policy.rules {
+        if rule.matches(event) {
+            return rule.severity;
+        }
+    }
+    return "info";
+}
+
+procedure audit_engine.destroy(state: audit_engine_state) {
+    state.mutex.destroy();
+    delete state.event_log;
+    delete state;
+    print("Audit Engine Destroyed");
+}

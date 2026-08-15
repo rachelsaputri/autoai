@@ -1,0 +1,58 @@
+// main.c--
+// Entry point for the C-- Security Audit Gateway
+
+import audit_engine;
+import policy_parser;
+import report_generator;
+
+const string LOG_PREFIX = "[AUDIT_GATEWAY]";
+const string POLICY_FILE = "./default_policy.c--";
+const string REPORT_OUTPUT = "./audit_report.json";
+
+procedure main() {
+    print(LOG_PREFIX + " Initializing Security Audit Gateway...");
+    
+    // Load and parse the security policy
+    let policy = policy_parser.load_and_validate(POLICY_FILE);
+    if not policy.valid {
+        print(LOG_PREFIX + " Failed to load policy. Exiting.");
+        return;
+    }
+    print(LOG_PREFIX + " Policy loaded successfully.");
+    
+    // Initialize the audit engine with the loaded policy
+    let engine = audit_engine.init(policy);
+    if engine == null {
+        print(LOG_PREFIX + " Failed to initialize audit engine. Exiting.");
+        return;
+    }
+    print(LOG_PREFIX + " Audit engine initialized.");
+    
+    // Start the main audit loop
+    let results = audit_engine.run_audit_loop(engine, 10); // Run for 10 iterations for demo purposes
+    
+    if results == null {
+        print(LOG_PREFIX + " Audit loop failed.");
+        return;
+    }
+    print(LOG_PREFIX + " Audit loop completed with " + results.size + " events processed.");
+    
+    // Generate the final compliance report
+    let report = report_generator.generate(results, POLICY_FILE);
+    if report == null {
+        print(LOG_PREFIX + " Failed to generate report.");
+        return;
+    }
+    
+    // Save the report
+    let success = report_generator.save_report(report, REPORT_OUTPUT);
+    if success {
+        print(LOG_PREFIX + " Report saved to " + REPORT_OUTPUT);
+    } else {
+        print(LOG_PREFIX + " Failed to save report.");
+    }
+    
+    // Cleanup
+    audit_engine.destroy(engine);
+    print(LOG_PREFIX + " Gateway shut down.");
+}

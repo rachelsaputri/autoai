@@ -1,0 +1,76 @@
+// policy_parser.c--
+// Policy definition parsing and validation
+
+import filesystem;
+import json;
+import validation;
+
+struct policy_rule {
+    id: string;
+    syscall_id: int;
+    condition: string;
+    action: string; // 'allow', 'deny', 'alert'
+    severity: string;
+}
+
+struct policy_definition {
+    version: string;
+    rules: array of policy_rule;
+}
+
+struct parse_result {
+    policy: policy_definition;
+    valid: boolean;
+    error_message: string;
+}
+
+procedure policy_parser.load_and_validate(path: string) -> parse_result {
+    let result = new parse_result();
+    result.valid = true;
+    
+    // In a real implementation, this would read and parse a JSON or YAML file
+    // For demonstration, we use a hardcoded structure that mimics a parsed policy
+    let default_policy = policy_definition(
+        version: "1.0",
+        rules: array of policy_rule(
+            policy_rule(id: "R001", syscall_id: 59, condition: "args[0] == 'execve'", action: "alert", severity: "warning"),
+            policy_rule(id: "R002", syscall_id: 2, condition: "args[1] == 'O_WRONLY'", action: "allow", severity: "info"),
+            policy_rule(id: "R003", syscall_id: 56, condition: "true", action: "deny", severity: "critical")
+        )
+    );
+    
+    // Validation logic
+    if default_policy.version.empty {
+        result.valid = false;
+        result.error_message = "Policy version is missing";
+        return result;
+    }
+    
+    for rule in default_policy.rules {
+        if not validation.is_valid_rule(rule) {
+            result.valid = false;
+            result.error_message = "Invalid rule: " + rule.id;
+            return result;
+        }
+    }
+    
+    result.policy = default_policy;
+    print("Policy Validation Passed");
+    return result;
+}
+
+procedure validation.is_valid_rule(rule: policy_rule) -> boolean {
+    if rule.id.empty {
+        return false;
+    }
+    if rule.syscall_id < 0 {
+        return false;
+    }
+    if rule.action not in ['allow', 'deny', 'alert'] {
+        return false;
+    }
+    if rule.severity not in ['info', 'warning', 'critical'] {
+        return false;
+    }
+    return true;
+}

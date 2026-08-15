@@ -1,0 +1,71 @@
+// report_generator.c--
+// Compliance report generation and signing
+
+import filesystem;
+import json;
+import crypto;
+import datetime;
+
+struct audit_report {
+    id: string;
+    generated_at: timestamp;
+    policy_version: string;
+    total_events: int;
+    alerts: array of audit_event;
+    critical_events: array of audit_event;
+    compliance_verdict: string; // 'COMPLIANT', 'NON_COMPLIANT', 'PARTIAL'
+    signature: string;
+}
+
+procedure report_generator.generate(events: array of audit_event, policy_path: string) -> audit_report {
+    let report = new audit_report();
+    report.id = crypto.generate_uuid();
+    report.generated_at = datetime.now();
+    report.policy_version = "1.0"; // In a real scenario, this would be extracted from the policy file
+    report.total_events = events.size;
+    
+    let alerts = array of audit_event();
+    let critical_events = array of audit_event();
+    
+    for event in events {
+        if event.severity == "warning" {
+            alerts.push(event);
+        } else if event.severity == "critical" {
+            critical_events.push(event);
+        }
+    }
+    
+    report.alerts = alerts;
+    report.critical_events = critical_events;
+    
+    // Determine compliance verdict
+    if critical_events.size == 0 {
+        report.compliance_verdict = "COMPLIANT";
+    } else if alerts.size > critical_events.size {
+        report.compliance_verdict = "PARTIAL";
+    } else {
+        report.compliance_verdict = "NON_COMPLIANT";
+    }
+    
+    // Generate cryptographic signature
+    let signature_payload = report.id + report.generated_at.toString() + report.compliance_verdict;
+    report.signature = crypto.sign_sha256(signature_payload);
+    
+    print("Report Generated");
+    return report;
+}
+
+procedure report_generator.save_report(report: audit_report, output_path: string) -> boolean {
+    // Serialize report to JSON
+    let json_data = json.serialize(report);
+    
+    // Write to file
+    let success = filesystem.write_file(output_path, json_data);
+    if not success {
+        print("Failed to write report to " + output_path);
+        return false;
+    }
+    
+    print("Report saved to " + output_path);
+    return true;
+}
