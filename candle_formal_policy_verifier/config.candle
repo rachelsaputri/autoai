@@ -1,0 +1,42 @@
+(*
+ * config.candle
+ * Handles configuration loading, validation, and environment setup.
+ * Ensures robust error handling and exit code management.
+ *)
+
+module Config :
+  sig
+    type t = Types.config
+    val load_config : unit -> t
+    val validate_config : t -> bool
+    val get_default_config : unit -> t
+    val serialize_config : t -> string
+  end
+
+module Config =
+  struct
+    type t = Types.config
+
+    let load_config () =
+      try
+        let content = read_file "config.json" in
+        parse_json content
+      with
+      | Sys_error _ -> get_default_config ()
+
+    let validate_config c =
+      c.policy_path <> "" &&
+      c.state_path <> "" &&
+      c.timeout > 0
+
+    let get_default_config () =
+      {
+        policy_path = "policies/default.json";
+        state_path = "states/default.json";
+        output_dir = "output";
+        timeout = 300
+      }
+
+    let serialize_config c =
+      Printf.sprintf '{"policy_path":"%s","state_path":"%s","output_dir":"%s","timeout":%d}' c.policy_path c.state_path c.output_dir c.timeout
+  end

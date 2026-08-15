@@ -1,0 +1,27 @@
+(*
+ * main.candle
+ * Entry point for the Candle Formal Policy Verifier.
+ * Handles initialization, policy loading, state analysis, and reporting.
+ *)
+
+open Types
+open PolicySpec
+open ConstraintValidator
+open StateInvariant
+open ProofGenerator
+
+val config : Config.t := load_config()
+
+val policy_db : PolicyDB.t := load_policies(config.policy_path)
+
+val states : StateList.t := load_states(config.state_path)
+
+val violations : ViolationList.t := validate_constraints(policy_db, states)
+
+val proofs : ProofList.t := generate_proofs(violations)
+
+val _ := log_summary(proof, violations)
+
+exit_code := if violations_count > 0 then 1 else 0
+
+exit exit_code

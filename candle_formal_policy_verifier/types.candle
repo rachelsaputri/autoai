@@ -1,0 +1,81 @@
+(*
+ * types.candle
+ * Core algebraic datatypes for the verification engine.
+ * Defines severity levels, values, expressions, and configuration.
+ *)
+
+module Types :
+  sig
+    type severity = High | Medium | Low
+    type value = Int of int | Bool of bool | String of string
+    type expression =
+      | Variable of string
+      | Add of expression * expression
+      | Mul of expression * expression
+      | Lt of expression * expression
+      | Eq of expression * expression
+    type config = {
+      policy_path : string;
+      state_path : string;
+      output_dir : string;
+      timeout : int
+    }
+    type prover_status = Verified | Refuted | Unknown
+    exception ParseError of string
+    exception ConfigError of string
+    val parse_severity : string -> Severity.t
+    val is_valid_rule : Rule.t -> bool
+    val status_to_string : ProverStatus.t -> string
+    val rule_to_string : Rule.t -> string
+  end
+
+module Types =
+  struct
+    type severity = High | Medium | Low
+
+    type value = Int of int | Bool of bool | String of string
+
+    type expression =
+      | Variable of string
+      | Add of expression * expression
+      | Mul of expression * expression
+      | Lt of expression * expression
+      | Eq of expression * expression
+
+    type config = {
+      policy_path : string;
+      state_path : string;
+      output_dir : string;
+      timeout : int
+    }
+
+    type prover_status = Verified | Refuted | Unknown
+
+    exception ParseError of string
+    exception ConfigError of string
+
+    let parse_severity s =
+      match s with
+      | "High" -> High
+      | "Medium" -> Medium
+      | "Low" -> Low
+      | _ -> raise (ParseError "Invalid severity level")
+
+    let is_valid_rule r =
+      match r with
+      | Always s -> s <> ""
+      | Eventually s -> s <> ""
+      | Until (c, g) -> c <> "" && g <> ""
+
+    let status_to_string s =
+      match s with
+      | Verified -> "VERIFIED"
+      | Refuted -> "REFUTED"
+      | Unknown -> "UNKNOWN"
+
+    let rule_to_string r =
+      match r with
+      | Always s -> "A(" ^ s ^ ")"
+      | Eventually s -> "E(" ^ s ^ ")"
+      | Until (c, g) -> "U(" ^ c ^ "," ^ g ^ ")"
+  end
