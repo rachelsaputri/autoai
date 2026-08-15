@@ -128,3 +128,5 @@
 - Created/Updated module: `adaptive_security_dashboard` (See `adaptive_security_dashboard/README.md` for details)
 
 - Created/Updated module: `lua_compliance_enforcer` (See `lua_compliance_enforcer/README.md` for details)
+
+- Created/Updated module: `rebol_dynamic_policy_engine` (See `rebol_dynamic_policy_engine/README.md` for details)
