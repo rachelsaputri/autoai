@@ -17480,3 +17480,69 @@ Construct a production-grade, fully functional data extraction and parsing utili
 </think>
 
 Construct a production-grade, fully functional formal policy verification and secure execution engine STRICTLY using this exact programming language: C--. This application must reside in a NEW dedicated folder named `c--_formal_policy_verifier` containing all necessary implementation files (including a core `main.cc`, `policy_engine.cc`, `state_machine.cc`, corresponding header files, and a local `README.md`). The tool must implement a deterministic, high-precision workflow that compiles and verifies complex security policies using C--'s safe subset semantics and formal type system, ensures strict memory safety and control-flow integrity across all verified modules, resolves ambiguous policy states deterministically, generates auditable verification logs with formal proofs of correctness, handles structured policy mapping for downstream enforcement gateways, maintains a robust verification registry with comprehensive error handling and deterministic rollback, and outputs machine-readable compliance verdicts. The implementation must leverage C-- best practices, including explicit memory annotations, precise pointer arithmetic guarantees, robust state management, modular architecture, and standard formal semantics compliance to guarantee unambiguous policy representation, minimal runtime ambiguity, and seamless integration with formal verification toolchains. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to C-- development standards, and NEVER targets the .github directory.
+[2026-08-15 19:15:36] (Target Lang: S-Lang) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Workspace:** A long list of files/folders representing a large, multi-language security/compliance/verification codebase.
+   - **History:** Contains a crafted prompt for building a `c--_formal_policy_verifier` in C--, which was already outputted.
+   - **Task:** Generate exactly 1 logical follow-up instruction.
+   - **Constraints for the new instruction:**
+     - MUST explicitly demand the new tool be built STRICTLY using `S-Lang`.
+     - If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local `README.md`.
+     - Return ONLY the instruction text.
+     - NEVER target the `.github` directory.
+     - Must be a single paragraph/instruction as requested in the history/context.
+
+2.  **Identify Key Requirements for the Follow-up Instruction:**
+   - Language: S-Lang
+   - New folder name: Needs to be dedicated, e.g., `slang_security_policy_enforcer` or `s-lang_compliance_engine` (I'll stick to something descriptive like `s_lang_policy_enforcer` or just follow the naming pattern: `s-lang_formal_policy_enforcer`)
+   - Must include `README.md`
+   - Must be production-grade, fully functional, no dummy code
+   - Must specify core files (e.g., `main.sl`, `policy_engine.sl`, corresponding headers/modules, etc.)
+   - Must describe functionality: formal policy verification, secure execution, deterministic workflows, memory safety, audit logs, machine-readable verdicts, etc.
+   - Must explicitly state: "STRICTLY using this exact programming language: S-Lang"
+   - Must include: "NEW dedicated folder named `...` containing all necessary implementation files ... and a local `README.md`"
+   - Must NEVER target `.github`
+   - Must be exactly 1 paragraph/instruction.
+
+3.  **Draft Construction (Mental Refinement):**
+   Construct a production-grade, fully functional formal policy verification and secure execution engine STRICTLY using this exact programming language: S-Lang. This application must reside in a NEW dedicated folder named `s_lang_formal_policy_enforcer` containing all necessary implementation files (including a core `main.sl`, `policy_engine.sl`, `state_machine.sl`, corresponding header files, and a local `README.md`). The tool must implement a deterministic, high-precision workflow that compiles and verifies complex security policies using S-Lang's safe subset semantics and formal type system, ensures strict memory safety and control-flow integrity across all verified modules, resolves ambiguous policy states deterministically, generates auditable verification logs with formal proofs of correctness, handles structured policy mapping for downstream enforcement gateways, maintains a robust verification registry with comprehensive error handling and deterministic rollback, and outputs machine-readable compliance verdicts. The implementation must leverage S-Lang best practices, including explicit memory annotations, precise pointer arithmetic guarantees, robust state management, modular architecture, and standard formal semantics compliance to guarantee unambiguous policy representation, minimal runtime ambiguity, and seamless integration with formal verification toolchains. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to S-Lang development standards, and NEVER targets the .github directory.
+
+4.  **Check Constraints:**
+   - Exactly 1 logical follow-up instruction? Yes.
+   - Explicitly demand STRICTLY using S-Lang? Yes.
+   - Place in NEW dedicated folder & create local README.md? Yes.
+   - Return ONLY the instruction text? Yes.
+   - NEVER target .github? Yes.
+   - Single paragraph? Yes.
+   - Matches tone/style of previous prompt? Yes.
+
+   One minor adjustment: S-Lang is often a scripting/programming language. I'll adjust the file extensions to `.sl` (common for S-Lang) or keep it generic. The prompt says "STRICTLY using this exact programming language: S-Lang". I'll keep it as drafted. I'll make sure it's strictly one paragraph.
+
+   Let's verify the exact wording requirement: "If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md." -> I have that.
+   "Return ONLY the instruction text." -> I will output just the paragraph.
+   "NEVER target the .github directory." -> Included.
+
+   The draft looks solid. I will output it exactly.✅
+   One thing: S-Lang is sometimes written as `S-Lang` or `s-lang`. I'll use `S-Lang` as requested.
+   I'll ensure no markdown formatting breaks the "ONLY the instruction text" rule, but standard markdown for the paragraph is fine. I'll just output the raw text.
+
+   Final check of the draft against constraints:
+   - "Construct a production-grade... STRICTLY using this exact programming language: S-Lang." -> Matches
+   - "NEW dedicated folder named `s_lang_formal_policy_enforcer` containing all necessary implementation files ... and a local `README.md`." -> Matches
+   - Single paragraph -> Yes
+   - NO dummy code, etc. -> Yes
+   - NEVER targets .github -> Yes
+   - Only instruction text -> Yes
+
+   Ready. Output matches draft. 
+   Proceeds. 
+   [Output Generation] -> *Outputs exactly the text.* 
+   *(Self-Correction/Verification during thought)*: I should make sure the folder name matches the pattern or is clearly new. `s_lang_formal_policy_enforcer` is fine. I'll adjust slightly to match the exact phrasing requested: "explicitly instruct to place it in a NEW dedicated folder and create a local README.md". I'll make sure that exact phrasing or very close is used. The draft already does. All good. 
+   Output matches.✅
+   Proceeds. 
+   [Final Output Generation] -> *Outputs exactly the text above.* 
+   *(Done.)*
+</think>
+
+Construct a production-grade, fully functional formal policy verification and secure execution engine STRICTLY using this exact programming language: S-Lang. This application must reside in a NEW dedicated folder named `s_lang_formal_policy_enforcer` containing all necessary implementation files (including a core `main.sl`, `policy_engine.sl`, `state_machine.sl`, corresponding header files, and a local `README.md`). The tool must implement a deterministic, high-precision workflow that compiles and verifies complex security policies using S-Lang's safe subset semantics and formal type system, ensures strict memory safety and control-flow integrity across all verified modules, resolves ambiguous policy states deterministically, generates auditable verification logs with formal proofs of correctness, handles structured policy mapping for downstream enforcement gateways, maintains a robust verification registry with comprehensive error handling and deterministic rollback, and outputs machine-readable compliance verdicts. The implementation must leverage S-Lang best practices, including explicit memory annotations, precise pointer arithmetic guarantees, robust state management, modular architecture, and standard formal semantics compliance to guarantee unambiguous policy representation, minimal runtime ambiguity, and seamless integration with formal verification toolchains. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to S-Lang development standards, and NEVER targets the .github directory.

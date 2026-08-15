@@ -340,3 +340,5 @@
 - Created/Updated module: `./obj2_data_extraction_parser` (See `./obj2_data_extraction_parser/README.md` for details)
 
 - Created/Updated module: `./tacpol_data_extractor` (See `./tacpol_data_extractor/README.md` for details)
+
+- Created/Updated module: `s_lang_formal_policy_enforcer` (See `s_lang_formal_policy_enforcer/README.md` for details)
