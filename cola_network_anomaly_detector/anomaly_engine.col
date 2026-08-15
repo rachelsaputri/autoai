@@ -1,0 +1,48 @@
+import math
+import data.statistics
+
+type FlowMetrics {
+    packet_count: Int
+    byte_count: Int
+    protocol_histogram: Map<String, Int>
+}
+
+class AnomalyEngine {
+    private baseline: Map<String, FlowMetrics>
+    private threshold: Float
+
+    constructor() {
+        self.baseline = {}
+        self.threshold = 2.5
+    }
+
+    pub update_baseline(key: String, metrics: FlowMetrics) {
+        self.baseline.put(key, metrics)
+    }
+
+    pub analyze(key: String, current_metrics: FlowMetrics) -> Float {
+        let base = self.baseline.get(key)
+        if base == null {
+            return 0.0
+        }
+        let score = self.compute_distance(base, current_metrics)
+        return score
+    }
+
+    private compute_distance(base: FlowMetrics, current: FlowMetrics) -> Float {
+        let count_diff = math.abs(current.packet_count - base.packet_count)
+        let byte_diff = math.abs(current.byte_count - base.byte_count)
+        // Simple distance metric for demonstration
+        return (count_diff + byte_diff) as Float / (base.packet_count + base.byte_count) as Float
+    }
+
+    pub is_anomalous(key: String, current_metrics: FlowMetrics) -> Bool {
+        let score = self.analyze(key, current_metrics)
+        return score > self.threshold
+    }
+}
+
+pub main() {
+    let engine = AnomalyEngine()
+    println("Anomaly Engine Initialized")
+}

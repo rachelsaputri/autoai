@@ -1,0 +1,45 @@
+import packet_capture
+import anomaly_engine
+import report_generator
+
+pub main() {
+    let capture = packet_capture.PacketCapture("eth0")
+    let engine = anomaly_engine.AnomalyEngine()
+    let reporter = report_generator.ReportGenerator()
+
+    capture.open()
+    println("Starting network anomaly detection...")
+
+    // Simplified loop for demonstration
+    for packet in capture.stream() {
+        // In a real scenario, we would aggregate metrics over a window
+        let metrics = packet_to_metrics(packet)
+        let key = extract_key(packet)
+        
+        if engine.is_anomalous(key, metrics) {
+            let alert = report_generator.Alert(
+                timestamp=now(),
+                source_ip=packet.source,
+                anomaly_score=engine.analyze(key, metrics),
+                description="Anomaly detected"
+            )
+            reporter.add_alert(alert)
+        }
+    }
+
+    capture.close()
+    reporter.generate_report("anomaly_report.json")
+}
+
+// Helper functions (simplified)
+fn packet_to_metrics(packet) {
+    // Logic to convert packet to FlowMetrics
+}
+
+fn extract_key(packet) {
+    // Logic to extract a unique key for the flow
+}
+
+fn now() -> String {
+    // Return current timestamp
+}

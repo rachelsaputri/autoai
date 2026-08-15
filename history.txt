@@ -10994,3 +10994,52 @@ Construct a comprehensive aerospace telemetry processing and anomaly detection u
 </think>
 
 Construct a comprehensive embedded system security configuration auditor STRICTLY using this exact programming language: Oberon. This application must reside in a NEW dedicated folder named `oberon_embedded_security_auditor` containing all necessary Oberon source files and a comprehensive local README.md. The tool must ingest hardware configuration registers, validate security settings against defined policies, detect unauthorized modifications, and generate standardized security compliance logs for mission-critical systems.
+[2026-08-15 11:22:02] (Target Lang: Cola) Thinking Process:
+
+1.  **Deconstruct the Request:**
+    *   Goal: Generate exactly 1 logical follow-up instruction.
+    *   Constraint 1: The new tool must be built STRICTLY using the programming language "Cola".
+    *   Constraint 2: If building a new tool, instruct to place it in a NEW dedicated folder.
+    *   Constraint 3: Create a local README.md.
+    *   Constraint 4: Return ONLY the instruction text.
+    *   Constraint 5: NEVER target the `.github` directory.
+    *   Context: The workspace contains various security tools, auditors, and engines. The history shows a previous instruction for an "Oberon" embedded system security auditor. The follow-up should be "logical", meaning it should probably relate to the domain (security, auditing, configuration) but use the new language "Cola".
+
+2.  **Brainstorming "Logical Follow-up" in Cola:**
+    *   What is a "logical" next step after an embedded security auditor?
+    *   Maybe a network traffic analyzer? A policy enforcement engine? A compliance reporting module?
+    *   Since the previous one was an "auditor", a "compliance dashboard" or "real-time anomaly detector" or "remediation orchestrator" makes sense.
+    *   Let's go with a "Real-time Network Traffic Anomaly Detector" or a "Policy Compliance Dashboard".
+    *   Let's choose "Real-time Network Traffic Anomaly Detector" as it complements the embedded auditor well. Or perhaps a "Distributed Policy Enforcement Gateway".
+    *   *Decision:* A "Real-time Network Traffic Anomaly Detector" sounds robust and fits the pattern.
+    *   *Drafting the tool description:* "Construct a real-time network traffic anomaly detection engine..."
+
+3.  **Applying Constraints:**
+    *   *Language:* STRICTLY Cola.
+    *   *Folder:* NEW dedicated folder, e.g., `cola_network_anomaly_detector`.
+    *   *Files:* Source files and `README.md`.
+    *   *Result:* "Construct a real-time network traffic anomaly detection engine STRICTLY using this exact programming language: Cola. This application must reside in a NEW dedicated folder named `cola_network_anomaly_detector` containing all necessary Cola source files and a comprehensive local README.md. The tool must..."
+
+4.  **Refining the Instruction Text:**
+    *   *Full Text:* Construct a comprehensive real-time network traffic anomaly detection engine STRICTLY using this exact programming language: Cola. This application must reside in a NEW dedicated folder named `cola_network_anomaly_detector` containing all necessary Cola source files and a comprehensive local README.md. The tool must parse incoming network packets, apply statistical machine learning models to detect deviations from baseline traffic patterns, flag high-confidence threats for immediate isolation, and generate detailed alert reports suitable for integration with existing security orchestration platforms.
+    *   *Check against constraints:*
+        *   1 instruction? Yes.
+        *   Language: Cola? Yes.
+        *   NEW folder? Yes (`cola_network_anomaly_detector`).
+        *   README.md? Yes.
+        *   ONLY instruction text? Yes.
+        *   No `.github`? Yes.
+        *   Logical follow-up? Yes, follows the theme of security tools, adds a network/anomaly detection component to the previous embedded auditor.
+
+5.  **Final Polish:**
+    *   "Construct a comprehensive real-time network traffic anomaly detection engine STRICTLY using this exact programming language: Cola. This application must reside in a NEW dedicated folder named `cola_network_anomaly_detector` containing all necessary Cola source files and a comprehensive local README.md. The tool must parse incoming network packets, apply statistical machine learning models to detect deviations from baseline traffic patterns, flag high-confidence threats for immediate isolation, and generate detailed alert reports suitable for integration with existing security orchestration platforms."
+
+6.  **Output Generation:**
+    *   The user asked for "Return ONLY the instruction text."
+    *   So the output is just the string derived above.
+
+Result:
+Construct a comprehensive real-time network traffic anomaly detection engine STRICTLY using this exact programming language: Cola. This application must reside in a NEW dedicated folder named `cola_network_anomaly_detector` containing all necessary Cola source files and a comprehensive local README.md. The tool must parse incoming network packets, apply statistical machine learning models to detect deviations from baseline traffic patterns, flag high-confidence threats for immediate isolation, and generate detailed alert reports suitable for integration with existing security orchestration platforms.
+</think>
+
+Construct a comprehensive real-time network traffic anomaly detection engine STRICTLY using this exact programming language: Cola. This application must reside in a NEW dedicated folder named `cola_network_anomaly_detector` containing all necessary Cola source files and a comprehensive local README.md. The tool must parse incoming network packets, apply statistical machine learning models to detect deviations from baseline traffic patterns, flag high-confidence threats for immediate isolation, and generate detailed alert reports suitable for integration with existing security orchestration platforms.
