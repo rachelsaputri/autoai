@@ -10205,3 +10205,63 @@ Construct a robust enterprise security policy verification engine STRICTLY using
 </think>
 
 Construct a formal security policy verification and state-machine analysis engine STRICTLY using this exact programming language: Candle. This application must reside in a NEW dedicated folder named `candle_formal_policy_verifier` containing all necessary source files and a comprehensive local README.md. The tool must define and validate complex security invariants, model system states against threat scenarios, and provide mathematical guarantees of policy compliance for critical infrastructure components.
+[2026-08-15 10:36:21] (Target Lang: Napier88) Thinking Process:
+
+1.  **Deconstruct the user's request:**
+    *   Goal: Generate exactly 1 logical follow-up instruction.
+    *   Constraints:
+        *   Language: Must demand the new tool be built STRICTLY using `Napier88`.
+        *   Location: Must be in a NEW dedicated folder.
+        *   Documentation: Must create a local `README.md`.
+        *   Output: Return ONLY the instruction text.
+        *   Negative Constraint: NEVER target the `.github` directory.
+        *   Context: The user provided a workspace list and a history of a previous instruction. The workspace contains many security-related tools (`a0_audit_engine`, `alef_system_auditor`, `averest_formal_policy_verifier`, `blue_formal_policy_engine`, etc.). The follow-up should be logical within this context.
+
+2.  **Analyze the context:**
+    *   The workspace is heavily focused on security auditing, verification, policy enforcement, compliance, and threat detection.
+    *   There are formal verification engines (`averest_formal_policy_verifier`, `blue_formal_policy_engine`, `candle_formal_policy_verifier`, `occam_formal_verification_engine`).
+    *   There are policy enforcement systems (`espol_policy_enforcement_system`, `lua_compliance_enforcer`, `rebol_dynamic_policy_engine`).
+    *   There are audit engines and compliance checkers.
+    *   A logical follow-up would likely extend this theme. Perhaps a tool that integrates with these, performs a specific type of verification, or bridges a gap.
+    *   Since the previous instruction (in the history) was about `candle_formal_policy_verifier`, and the user asked for a "follow-up", it could be related. However, the user just asked for *a* logical follow-up based on the workspace. It doesn't strictly have to be related to `candle`, just logical for the workspace.
+    *   Given the prevalence of formal verification and policy enforcement, a tool that handles "formal state-space exploration" or "cryptographic protocol verification" or "hardware-software boundary auditing" would be logical.
+    *   Let's choose a direction: "Formal verification of hardware-software boundaries" or "Automated proof generation for compliance policies".
+    *   Let's go with something that complements the `Napier88` language choice. Napier88 is often associated with specification and verification, or mathematical modeling. A tool that "verifies mathematical proofs of compliance" or "analyzes formal specifications" fits well.
+    *   *Drafting the instruction content:* "Construct a formal specification analysis and automated proof-generator engine..." or "Build a mathematical model verification tool..."
+    *   Let's look at existing tools: `averest`, `blue`, `candle`, `occam`, `frege`, `idris`, `lisp`, `rebol`. These are all custom or niche languages/tools. The follow-up should introduce another niche tool.
+    *   *Proposed Functionality:* A tool that takes formal specifications and generates executable proofs or detects inconsistencies in a "formal contract" between services.
+    *   *Refinement:* "Construct a formal contract verification and automated proof-generation engine..."
+
+3.  **Apply Constraints to the Draft:**
+    *   *Language:* `Napier88`.
+    *   *Folder:* NEW folder. Let's name it something like `napier88_formal_contract_verifier` or `napier88_specification_analyzer`. The prompt doesn't require a specific name, just a NEW folder. I'll use `napier88_formal_specification_analyzer` for logic.
+    *   *README:* Local `README.md`.
+    *   *Output:* ONLY text.
+    *   *No .github:* Check.
+
+    *   *Draft Text:* Construct a formal specification analysis and automated proof-generation engine STRICTLY using this exact programming language: Napier88. This application must reside in a NEW dedicated folder named `napier88_formal_specification_analyzer` containing all necessary source files and a comprehensive local README.md. The tool must parse complex formal specifications, detect logical inconsistencies, generate mathematical proofs of correctness, and ensure rigorous verification of safety-critical system behaviors against defined contracts.
+
+4.  **Review against "Logical Follow-up":**
+    *   The workspace has `candle_formal_policy_verifier`, `averest_formal_policy_verifier`, etc.
+    *   Adding a `napier88_formal_specification_analyzer` fits perfectly. It's another formal verification tool, expanding the ecosystem.
+    *   Is it distinct? Yes, "Specification Analysis and Proof-Generation" vs "Policy Verification and State-Machine".
+    *   This seems logical.
+
+5.  **Final Polish (Mental Representation of Output):**
+    *   "Construct a formal specification analysis and automated proof-generation engine STRICTLY using this exact programming language: Napier88. This application must reside in a NEW dedicated folder named `napier88_formal_specification_analyzer` containing all necessary source files and a comprehensive local README.md. The tool must parse complex formal specifications, detect logical inconsistencies, generate mathematical proofs of correctness, and ensure rigorous verification of safety-critical system behaviors against defined contracts."
+
+6.  **Final Output Construction:**
+    *   Result matches the draft.
+    *   Check constraints:
+        *   1 instruction? Yes.
+        *   Napier88? Yes.
+        *   NEW folder? Yes.
+        *   README.md? Yes.
+        *   Only text? Yes.
+        *   No .github? Yes.
+        *   Logical? Yes.
+
+This instruction is ready.
+</think>
+
+Construct a formal specification analysis and automated proof-generation engine STRICTLY using this exact programming language: Napier88. This application must reside in a NEW dedicated folder named `napier88_formal_specification_analyzer` containing all necessary source files and a comprehensive local README.md. The tool must parse complex formal specifications, detect logical inconsistencies, generate mathematical proofs of correctness, and ensure rigorous verification of safety-critical system behaviors against defined contracts.

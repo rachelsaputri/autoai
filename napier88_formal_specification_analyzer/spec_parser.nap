@@ -1,0 +1,27 @@
+# Napier88 Formal Specification Analyzer
+
+## Overview
+The **Napier88 Formal Specification Analyzer** is a robust, standalone engine designed for parsing, validating, and proving complex formal specifications written in Napier88 syntax. This tool focuses on detecting logical inconsistencies within system contracts, generating mathematical proofs of correctness, and ensuring rigorous verification of safety-critical behaviors.
+
+## Key Features
+- **Specification Parsing**: Reads and interprets Napier88 formal specification files.
+- **Consistency Checking**: Detects logical contradictions and circular dependencies in contracts.
+- **Proof Generation**: Automatically generates mathematical proofs for specified invariants and safety properties.
+- **Safety Verification**: Verifies system behaviors against defined safety-critical contracts.
+
+## Installation
+1. Clone this repository.
+2. Ensure you have a Napier88 compiler/runtime environment installed.
+3. Compile the source code using the included Makefile.
+
+## Usage
+Run the analyzer with a specification file:
+```bash
+./napier_analyzer --spec contract.nap
+```
+
+## Documentation
+For detailed syntax and examples, refer to the `examples/` directory and the comprehensive Napier88 specification guide.
+
+## License
+MIT License
