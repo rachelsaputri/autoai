@@ -1,0 +1,32 @@
+<oxml:Schema xmlns:oxml="http://schema.compliance.engine/o/xml" id="compliance-validation-v1">
+  <types>
+    <type name="PolicyConfig">
+      <field name="id" type="string" required="true" pattern="P-\\d{3}"/>
+      <field name="type" type="enum" values="[access-control,network-security,data-protection,audit-logging]" required="true"/>
+      <field name="enforcement" type="enum" values="[always,default,conditional]" required="true"/>
+      <field name="rules" type="array" required="true" minItems="1"/>
+    </type>
+    <type name="AuditManifest">
+      <field name="timestamp" type="datetime" format="ISO8601" required="true"/>
+      <field name="status" type="enum" values="[compliant,drift,non-compliant]" required="true"/>
+      <field name="drift-score" type="float" min="0.0" max="1.0" required="true"/>
+      <field name="signed-token" type="string" required="true"/>
+    </type>
+  </types>
+  <rules>
+    <rule id="R-101" description="All policies must define enforcement mode">
+      <xpath select="/oxml:PolicyConfig/oxml:enforcement"/>
+      <constraint test="exists(oxml:enforcement) and string-length(oxml:enforcement) > 0"/>
+    </rule>
+    <rule id="R-102" description="Audit manifests must be signed">
+      <xpath select="/oxml:AuditManifest/oxml:signed-token"/>
+      <constraint test="matches(oxml:signed-token, '^sig_[A-Za-z0-9+/=]{32,}$')"/>
+    </rule>
+  </rules>
+  <transformations>
+    <transform source="PolicyConfig" target="AuditManifest" when="drift-score > 0.05">
+      <action type="generate-manifest" sign="true"/>
+      <action type="dispatch-webhook" payload="full"/>
+    </transform>
+  </transformations>
+</oxml:Schema>
