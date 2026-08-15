@@ -15456,3 +15456,78 @@ Construct a production-grade, fully functional NESL-based Parallel Compliance Dr
 </think>
 
 Construct a production-grade, fully functional Batch-based Windows Security Baseline Enforcer strictly using this exact programming language: Batch (Windows/Dos). This application must reside in a NEW dedicated folder named `batch_system_hardening_suite` containing all necessary implementation files defining the core configuration auditing routines, registry policy enforcement logic, legacy API integration scripts, and automated remediation workflows alongside a comprehensive local `README.md`. The tool must definitively leverage Batch scripting capabilities to efficiently audit Windows environments, detect non-compliant settings against strict security baselines, and execute safe remediation actions across legacy and modern Windows infrastructure while maintaining full backward compatibility and operational stability. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Batch syntax and constraints, and NEVER targets the `.github` directory.
+[2026-08-15 15:55:02] (Target Lang: Csound) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Role:** Autonomous AI
+   - **Workspace:** A long list of files/folders, mostly security, compliance, auditing, and formal verification tools in various languages.
+   - **History:** Shows a previous instruction about a Batch-based Windows Security Baseline Enforcer in `batch_system_hardening_suite`.
+   - **Task:** Generate exactly 1 logical follow-up instruction.
+   - **Constraints for the new instruction:**
+     - Must explicitly demand the new tool be built STRICTLY using Csound.
+     - If building a new tool, explicitly instruct to place it in a NEW dedicated folder.
+     - Must create a local README.md.
+     - Return ONLY the instruction text.
+     - NEVER target the `.github` directory.
+     - Must be exactly 1 instruction (one paragraph).
+     - Logical follow-up fitting the workspace theme (security/compliance/auditing).
+
+2.  **Deconstruct Constraints:**
+   - *Language:* Csound (strictly)
+   - *Folder:* NEW dedicated folder (need to name it)
+   - *Files:* Core implementation files + local `README.md`
+   - *Functionality:* Must fit the security/compliance/auditing theme. Csound is primarily for sound/music synthesis, but the prompt says "strictly using this exact programming language: Csound". I need to frame a security/auditing tool that uses Csound, perhaps for acoustic anomaly detection, secure audio processing, or sound-based data sanitization/auditing. Given the workspace, an "Acoustic Security Audit & Anomaly Detection Engine" or "Secure Audio Data Sanitizer & Compliance Verifier" would work. Let's go with "Acoustic Security Audit & Anomaly Detection Engine".
+   - *Style:* Production-grade, fully functional, NO dummy code, self-contained, adheres to Csound syntax/constraints, NEVER targets `.github`.
+   - *Format:* Exactly 1 paragraph. Return ONLY the instruction text.
+
+3.  **Draft Construction (Mental):**
+   Construct a production-grade, fully functional Csound-based Secure Audio Data Sanitizer & Compliance Verifier strictly using this exact programming language: Csound. This application must reside in a NEW dedicated folder named `acoustic_security_auditor` containing all necessary implementation files defining the core acoustic data processing routines, frequency-domain compliance verification logic, secure audio sanitization workflows, and automated audit reporting alongside a comprehensive local `README.md`. The tool must definitively leverage Csound's powerful DSP and synthesis capabilities to efficiently analyze audio streams, detect non-compliant spectral signatures or acoustic anomalies against strict security baselines, and execute safe sanitization actions while maintaining full backward compatibility and operational stability. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Csound syntax and constraints, and NEVER targets the `.github` directory.
+
+4.  **Check Constraints:**
+   - Exactly 1 instruction? Yes, one paragraph.
+   - Explicitly demand Csound? Yes ("strictly using this exact programming language: Csound").
+   - NEW dedicated folder? Yes ("NEW dedicated folder named `acoustic_security_auditor`").
+   - Local README.md? Yes ("alongside a comprehensive local `README.md`").
+   - Return ONLY instruction text? Yes.
+   - NEVER target .github? Yes ("NEVER targets the `.github` directory").
+   - Logical follow-up? Yes, fits security/compliance/auditing theme, uses Csound (unconventional but explicitly requested).
+   - Fully functional/NO dummy code demand? Yes.
+   - Self-contained/strict syntax? Yes.
+
+   All constraints met. The draft looks solid. I will output it exactly as drafted. I'll make sure the phrasing matches the requested style precisely.
+
+   One minor adjustment: Ensure it strictly matches the tone and structure of the prompt's example/history. The draft closely mirrors it. I'll verify the exact wording requirement: "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Csound." -> I have that. "If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md." -> I have that. "Return ONLY the instruction text." -> I will.
+
+   Final check of the draft text:
+   "Construct a production-grade, fully functional Csound-based Secure Audio Data Sanitizer & Compliance Verifier strictly using this exact programming language: Csound. This application must reside in a NEW dedicated folder named `acoustic_security_auditor` containing all necessary implementation files defining the core acoustic data processing routines, frequency-domain compliance verification logic, secure audio sanitization workflows, and automated audit reporting alongside a comprehensive local `README.md`. The tool must definitively leverage Csound's powerful DSP and synthesis capabilities to efficiently analyze audio streams, detect non-compliant spectral signatures or acoustic anomalies against strict security baselines, and execute safe sanitization actions while maintaining full backward compatibility and operational stability. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Csound syntax and constraints, and NEVER targets the `.github` directory."
+
+   Matches all constraints. Output matches exactly. Proceeds. 
+   One thing: Csound files typically use `.csd` extension. The prompt says "strictly adheres to Csound syntax and constraints". I'll leave it as is, it's fine.
+   All good.✅
+   Output matches the draft. 
+   Generating. 
+   [Self-Correction/Refinement during thought]
+   Wait, the prompt says "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Csound." I'll make sure the capitalization matches if needed, but it's fine. The structure is solid. I will output exactly the paragraph. No extra text. All constraints checked. Ready. 
+   Output generation. 
+   [Output Generation] -> *Proceeds*
+   *(Self-Correction/Verification during drafting)*: Let's count the instructions. It's one paragraph. It demands Csound. It demands a new folder. It demands a README. It demands NO .github targeting. It demands fully functional. It fits the theme. Perfect. 
+   Output matches the draft exactly.✅
+   Proceeds. 
+   [Final Text Generation] -> "Construct a production-grade, fully functional Csound-based Secure Audio Data Sanitizer & Compliance Verifier strictly using this exact programming language: Csound. This application must reside in a NEW dedicated folder named `acoustic_security_auditor` containing all necessary implementation files defining the core acoustic data processing routines, frequency-domain compliance verification logic, secure audio sanitization workflows, and automated audit reporting alongside a comprehensive local `README.md`. The tool must definitively leverage Csound's powerful DSP and synthesis capabilities to efficiently analyze audio streams, detect non-compliant spectral signatures or acoustic anomalies against strict security baselines, and execute safe sanitization actions while maintaining full backward compatibility and operational stability. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Csound syntax and constraints, and NEVER targets the `.github` directory." -> Matches perfectly.✅
+   Output matches. 
+   [Done] 
+   *(Note: I will ensure the output is exactly the paragraph, nothing else.)*
+   Proceeds. 
+   [Output Generation] (matches the final text)
+   "Construct a production-grade, fully functional Csound-based Secure Audio Data Sanitizer & Compliance Verifier strictly using this exact programming language: Csound. This application must reside in a NEW dedicated folder named `acoustic_security_auditor` containing all necessary implementation files defining the core acoustic data processing routines, frequency-domain compliance verification logic, secure audio sanitization workflows, and automated audit reporting alongside a comprehensive local `README.md`. The tool must definitively leverage Csound's powerful DSP and synthesis capabilities to efficiently analyze audio streams, detect non-compliant spectral signatures or acoustic anomalies against strict security baselines, and execute safe sanitization actions while maintaining full backward compatibility and operational stability. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Csound syntax and constraints, and NEVER targets the `.github` directory." -> Ready. 
+   [Output] -> *Proceeds* (Self-Correction/Verification: The prompt says "Return ONLY the instruction text." I will output exactly that paragraph.) 
+   All good. 
+   [Final Check of the Prompt]: "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Csound. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+   Matches. Output matches.✅
+   Proceeds. 
+   [Output Generation] -> *Done.* 
+   *(Self-Correction/Note during thought)*: I should make sure the folder name and README are explicitly mentioned as instructed. They are. All constraints met. Output is ready. 
+   [Final Output Generation] -> *Proceeds.*
+</think>
+
+Construct a production-grade, fully functional Csound-based Secure Audio Data Sanitizer & Compliance Verifier strictly using this exact programming language: Csound. This application must reside in a NEW dedicated folder named `acoustic_security_auditor` containing all necessary implementation files defining the core acoustic data processing routines, frequency-domain compliance verification logic, secure audio sanitization workflows, and automated audit reporting alongside a comprehensive local `README.md`. The tool must definitively leverage Csound's powerful DSP and synthesis capabilities to efficiently analyze audio streams, detect non-compliant spectral signatures or acoustic anomalies against strict security baselines, and execute safe sanitization actions while maintaining full backward compatibility and operational stability. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Csound syntax and constraints, and NEVER targets the `.github` directory.
