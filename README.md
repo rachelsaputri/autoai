@@ -312,3 +312,5 @@
 - Created/Updated module: `awk_compliance_auditor` (See `awk_compliance_auditor/README.md` for details)
 
 - Created/Updated module: `gameMonkey_compliance_auditor` (See `gameMonkey_compliance_auditor/README.md` for details)
+
+- Created/Updated module: `bpeL_compliance_orchestrator` (See `bpeL_compliance_orchestrator/README.md` for details)
