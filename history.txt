@@ -11302,3 +11302,47 @@ Output Generation.
 </think>
 
 Construct a production-grade cryptographic mathematical algorithm implementation and formal security analysis tool STRICTLY using this exact programming language: A++. This application must reside in a NEW dedicated folder named `a2_mathematical_crypto_toolkit` containing all necessary A++ source files and a comprehensive local README.md. The tool must definitively implement complex number-theoretic operations, validate cryptographic protocol correctness, enforce formal security properties, and output machine-checkable proofs for continuous auditing. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+[2026-08-15 11:40:09] (Target Lang: ABAP) Thinking Process:
+
+1.  **Deconstruct the Request:**
+    *   Goal: Generate exactly 1 logical follow-up instruction.
+    *   Constraint: New tool must use ABAP strictly.
+    *   Constraint: Fully functional, complete implementation (NO dummy code, NO placeholders).
+    *   Constraint: New dedicated folder + local README.md.
+    *   Constraint: Return ONLY the instruction text.
+    *   Constraint: NEVER target .github.
+    *   Context: The user provided a workspace list and history. The history shows a pattern of generating instructions for tools in specific languages (A++ was the previous one). The output should match the style of the "Refined" instruction in the history.
+
+2.  **Drafting the Instruction:**
+    *   *Language:* ABAP.
+    *   *Folder Name:* Needs to be consistent with naming conventions seen in the workspace or logical. The previous was `a2_mathematical_crypto_toolkit`. ABAP tools might be named something like `abap_sap_security_analyzer` or `abap_abap_audit_framework`. Let's look at the workspace names for inspiration. I see `config_boilerplate_generator`, `beanshell_build_automation`, etc. `abap_sap_audit_engine` sounds plausible. Let's go with `abap_sap_security_audit_engine` or just `abap_abap_audit_suite`. Let's use `abap_sap_audit_engine` for clarity.
+    *   *Functionality:* ABAP is SAP's language. A logical tool would be an SAP Security Audit tool, an ABAP Code Scanner, or a SAP System Compliance Checker. "Cryptographic mathematical algorithm" doesn't fit ABAP well. A logical follow-up to crypto/A++ would be something enterprise-grade and SAP-focused. Let's suggest "SAP system security compliance auditor and code quality analyzer".
+    *   *Structure:* "Construct a production-grade [Tool Description] STRICTLY using this exact programming language: ABAP. This application must reside in a NEW dedicated folder named `[Folder Name]` containing all necessary A++ [ABAP] source files and a comprehensive local README.md. The tool must [Key Capabilities]. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+    *   *Refining Content:*
+        *   Tool: SAP system security compliance auditor and code quality analyzer.
+        *   Capabilities: Analyze ABAP source code for security vulnerabilities, enforce SAP best practices, generate compliance reports, integrate with SAP security data models, and output detailed audit trails.
+        *   Folder: `abap_sap_audit_engine`.
+        *   Files: ABAP source files, local README.md.
+        *   Strictness: STRICTLY using ABAP. NO dummy code.
+
+    *   *Draft Text:*
+        Construct a production-grade SAP system security compliance auditor and ABAP code quality analysis tool STRICTLY using this exact programming language: ABAP. This application must reside in a NEW dedicated folder named `abap_sap_audit_engine` containing all necessary ABAP source files and a comprehensive local README.md. The tool must definitively analyze ABAP source code for security vulnerabilities, validate SAP configuration compliance, enforce secure coding standards, and generate machine-readable audit reports for continuous monitoring. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+
+3.  **Review against Constraints:**
+    *   Exactly 1 instruction? Yes.
+    *   Language: ABAP? Yes.
+    *   Fully functional? Yes, demanded.
+    *   New folder? Yes, `abap_sap_audit_engine`.
+    *   Local README.md? Yes.
+    *   Return ONLY instruction text? Yes, I will output just the text.
+    *   Never target .github? Yes, not mentioned.
+    *   Style match? The draft matches the structure: "Construct a production-grade... STRICTLY using... This application must reside in a NEW dedicated folder named... containing... The tool must... Demand a fully functional..."
+
+4.  **Final Polish (Mental Representation of Output):**
+    Construct a production-grade SAP system security compliance auditor and ABAP code quality analysis tool STRICTLY using this exact programming language: ABAP. This application must reside in a NEW dedicated folder named `abap_sap_audit_engine` containing all necessary ABAP source files and a comprehensive local README.md. The tool must definitively analyze ABAP source code for security vulnerabilities, validate SAP configuration compliance, enforce secure coding standards, and generate machine-readable audit reports for continuous monitoring. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+
+5.  **Final Output Generation:**
+    The text above is the result.
+</think>
+
+Construct a production-grade SAP system security compliance auditor and ABAP code quality analysis tool STRICTLY using this exact programming language: ABAP. This application must reside in a NEW dedicated folder named `abap_sap_audit_engine` containing all necessary ABAP source files and a comprehensive local README.md. The tool must definitively analyze ABAP source code for security vulnerabilities, validate SAP configuration compliance, enforce secure coding standards, and generate machine-readable audit reports for continuous monitoring. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
