@@ -240,3 +240,5 @@
 - Created/Updated module: `absys_formal_policy_enforcer` (See `absys_formal_policy_enforcer/README.md` for details)
 
 - Created/Updated module: `acc_certificate_chain_verifier` (See `acc_certificate_chain_verifier/README.md` for details)
+
+- Created/Updated module: `accent_compliance_enforcer` (See `accent_compliance_enforcer/README.md` for details)
