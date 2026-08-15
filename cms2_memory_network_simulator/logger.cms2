@@ -1,0 +1,51 @@
+Logger MODULE
+
+   EXPORT Initialize, LogEntry, Close
+
+   GLOBAL
+      LOG_FILE      TYPE FILEHandle
+      LOG_PATH      STRING[256]
+   END-GLOBAL
+
+   SUBPROGRAM Initialize(path)
+      LOG_PATH <- path
+      LOG_FILE <- OpenFile(LOG_PATH, 'WRITE')
+      WriteHeader(LOG_FILE)
+   END-SUBPROGRAM
+
+   SUBPROGRAM LogEntry(file, level, message)
+      DECLARE Timestamp STRING[64]
+      DECLARE Entry STRING[512]
+
+      Timestamp <- GetCurrentTimestamp()
+      Entry <- CONCAT('[' , Timestamp, '] ', level, ': ', message)
+      WriteLine(file, Entry)
+   END-SUBPROGRAM
+
+   SUBPROGRAM Close(file)
+      WriteTrailer(file)
+      CloseFile(file)
+   END-SUBPROGRAM
+
+   SUBPROGRAM WriteHeader(file)
+      DECLARE Header STRING[256]
+      Header <- 'CMS-2 SIMULATION AUDIT LOG\n=========================\n'
+      WriteLine(file, Header)
+   END-SUBPROGRAM
+
+   SUBPROGRAM WriteTrailer(file)
+      DECLARE Trailer STRING[128]
+      Trailer <- '=== END OF LOG ===\n'
+      WriteLine(file, Trailer)
+   END-SUBPROGRAM
+
+   SUBPROGRAM GetCurrentTimestamp()
+      DECLARE TimeStruct TYPE TimeType
+      DECLARE Str STRING[64]
+
+      GetTime(TimeStruct)
+      FORMAT(TimeStruct, 'YYYY-MM-DD HH:MM:SS', Str)
+      RETURN Str
+   END-SUBPROGRAM
+
+END-Logger

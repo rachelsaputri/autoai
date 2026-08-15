@@ -1,0 +1,99 @@
+NetworkProtocol MODULE
+
+   EXPORT Initialize, CreatePacket, IsValid, Transmit, Terminate
+
+   GLOBAL
+      PACKET_QUEUE    TYPE QueueType[100]
+      QUEUE_HEAD      INTEGER
+      QUEUE_TAIL      INTEGER
+      ENGINE_ACTIVE   BOOL
+   END-GLOBAL
+
+   SUBPROGRAM Initialize(params)
+      QUEUE_HEAD <- 0
+      QUEUE_TAIL <- 0
+      ENGINE_ACTIVE <- TRUE
+   END-SUBPROGRAM
+
+   SUBPROGRAM CreatePacket(payload, size)
+      DECLARE NewPacket TYPE PacketType
+
+      IF NOT ENGINE_ACTIVE THEN
+         RETURN NULL_PACKET
+      END-IF
+
+      IF size > 1500 THEN
+         RETURN NULL_PACKET
+      END-IF
+
+      NewPacket.Payload <- payload
+      NewPacket.Size <- size
+      NewPacket.SequenceNumber <- QUEUE_TAIL
+      NewPacket.Checksum <- CalculatePacketChecksum(payload, size)
+
+      RETURN NewPacket
+   END-SUBPROGRAM
+
+   SUBPROGRAM IsValid(packet)
+      IF (packet.Payload = NULL) THEN
+         RETURN FALSE
+      END-IF
+
+      IF (packet.Size < 0) OR (packet.Size > 1500) THEN
+         RETURN FALSE
+      END-IF
+
+      IF packet.Checksum != CalculatePacketChecksum(packet.Payload, packet.Size) THEN
+         RETURN FALSE
+      END-IF
+
+      RETURN TRUE
+   END-SUBPROGRAM
+
+   SUBPROGRAM Transmit(packet)
+      DECLARE Success BOOL
+
+      IF NOT IsValid(packet) THEN
+         RETURN FALSE
+      END-IF
+
+      Success <- SimulateTransmission(packet)
+      RETURN Success
+   END-SUBPROGRAM
+
+   SUBPROGRAM Terminate()
+      CLEAR PACKET_QUEUE
+      QUEUE_HEAD <- 0
+      QUEUE_TAIL <- 0
+      ENGINE_ACTIVE <- FALSE
+   END-SUBPROGRAM
+
+   SUBPROGRAM SimulateTransmission(packet)
+      DECLARE Success BOOL
+      DECLARE Latency INTEGER
+
+      Latency <- 50 + (packet.Size / 10)
+      IF Latency <= 200 THEN
+         Success <- TRUE
+      ELSE
+         Success <- FALSE
+      END-IF
+
+      RETURN Success
+   END-SUBPROGRAM
+
+   SUBPROGRAM CalculatePacketChecksum(payload, size)
+      DECLARE Checksum INTEGER
+      DECLARE i INTEGER
+
+      Checksum <- 0
+      i <- 0
+      WHILE i < size DO
+         Checksum <- (Checksum + CHAR_CODE(payload, i)) MOD 65536
+         i <- i + 1
+      END-WHILE
+
+      RETURN Checksum
+   END-SUBPROGRAM
+
+END-NetworkProtocol

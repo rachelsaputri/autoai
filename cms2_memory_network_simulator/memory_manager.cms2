@@ -1,0 +1,85 @@
+MemoryManager MODULE
+
+   EXPORT Initialize, Allocate, IsValid, Deallocate, Terminate
+
+   GLOBAL
+      BLOCK_TABLE     TYPE TableType[1000]
+      BLOCK_COUNT     INTEGER
+      ALLOCATED       BOOL
+   END-GLOBAL
+
+   SUBPROGRAM Initialize(params)
+      BLOCK_COUNT <- 0
+      ALLOCATED <- FALSE
+      CLEAR BLOCK_TABLE
+      ALLOCATED <- TRUE
+   END-SUBPROGRAM
+
+   SUBPROGRAM Allocate(size)
+      DECLARE NewBlock TYPE BlockType
+      DECLARE i INTEGER
+
+      IF NOT ALLOCATED THEN
+         RETURN NULL_BLOCK
+      END-IF
+
+      IF BLOCK_COUNT >= 1000 THEN
+         RETURN NULL_BLOCK
+      END-IF
+
+      NewBlock.Address <- 0x1000 + (BLOCK_COUNT * 256)
+      NewBlock.Size <- size
+      NewBlock.Allocated <- TRUE
+      NewBlock.ValidationChecksum <- CalculateChecksum(size)
+
+      BLOCK_TABLE[BLOCK_COUNT] <- NewBlock
+      BLOCK_COUNT <- BLOCK_COUNT + 1
+
+      RETURN NewBlock
+   END-SUBPROGRAM
+
+   SUBPROGRAM IsValid(block)
+      DECLARE i INTEGER
+      DECLARE Found BOOL
+
+      Found <- FALSE
+      i <- 0
+      WHILE (i < BLOCK_COUNT) AND (NOT Found) DO
+         IF (BLOCK_TABLE[i].Address = block.Address) AND 
+            (BLOCK_TABLE[i].Size = block.Size) THEN
+            IF BLOCK_TABLE[i].ValidationChecksum = CalculateChecksum(block.Size) THEN
+               Found <- TRUE
+            END-IF
+         END-IF
+         i <- i + 1
+      END-WHILE
+
+      RETURN Found
+   END-SUBPROGRAM
+
+   SUBPROGRAM Deallocate(block)
+      DECLARE i INTEGER
+      DECLARE Found BOOL
+
+      Found <- FALSE
+      i <- 0
+      WHILE (i < BLOCK_COUNT) AND (NOT Found) DO
+         IF BLOCK_TABLE[i].Address = block.Address THEN
+            BLOCK_TABLE[i].Allocated <- FALSE
+            Found <- TRUE
+         END-IF
+         i <- i + 1
+      END-WHILE
+   END-SUBPROGRAM
+
+   SUBPROGRAM Terminate()
+      CLEAR BLOCK_TABLE
+      BLOCK_COUNT <- 0
+      ALLOCATED <- FALSE
+   END-SUBPROGRAM
+
+   SUBPROGRAM CalculateChecksum(size)
+      RETURN (size * 7 + 13) MOD 256
+   END-SUBPROGRAM
+
+END-MemoryManager

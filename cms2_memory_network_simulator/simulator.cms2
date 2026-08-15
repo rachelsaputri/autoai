@@ -1,0 +1,72 @@
+Cms2Simulator PROGRAM
+
+   IMPORT MemoryManager
+   IMPORT NetworkProtocol
+   IMPORT Logger
+   IMPORT Reporter
+   IMPORT Config
+
+   GLOBAL
+      CONFIG_HANDLE       TYPE ConfigType
+      MEMORY_MANAGER      TYPE MemoryManagerType
+      NETWORK_ENGINE      TYPE NetworkEngineType
+      AUDIT_LOG           TYPE LogFileType
+      REPORT_GENERATOR    TYPE ReportType
+   END-GLOBAL
+
+   ENTRY MAIN
+      INITIALIZE
+      RUN_SIMULATION
+      GENERATE_REPORTS
+      TERMINATE
+   END-ENTRY
+
+   SUBPROGRAM INITIALIZE
+      CONFIG_HANDLE <- Config.Load('config.cms2')
+      MEMORY_MANAGER <- MemoryManager.Initialize(CONFIG_HANDLE.MemoryParams)
+      NETWORK_ENGINE <- NetworkProtocol.Initialize(CONFIG_HANDLE.NetworkParams)
+      AUDIT_LOG <- Logger.Initialize(CONFIG_HANDLE.LogFile)
+      REPORT_GENERATOR <- Reporter.Initialize(CONFIG_HANDLE.ReportDir)
+      Logger.LogEntry(AUDIT_LOG, 'INITIALIZE', 'System initialized successfully.')
+   END-SUBPROGRAM
+
+   SUBPROGRAM RUN_SIMULATION
+      DECLARE MemoryBlock TYPE BlockType
+      DECLARE Packet TYPE PacketType
+      DECLARE Success BOOL
+
+      MemoryBlock <- MemoryManager.Allocate(1024)
+      IF NOT MemoryManager.IsValid(MemoryBlock) THEN
+         Logger.LogEntry(AUDIT_LOG, 'ERROR', 'Memory allocation failed.')
+      END-IF
+
+      Packet <- NetworkProtocol.CreatePacket('DATA', 512)
+      IF NOT NetworkProtocol.IsValid(Packet) THEN
+         Logger.LogEntry(AUDIT_LOG, 'ERROR', 'Packet creation failed.')
+      END-IF
+
+      Success <- NetworkProtocol.Transmit(Packet)
+      IF NOT Success THEN
+         Logger.LogEntry(AUDIT_LOG, 'ERROR', 'Transmission failed.')
+      ELSE
+         Logger.LogEntry(AUDIT_LOG, 'TRANSMIT', 'Packet transmitted successfully.')
+      END-IF
+
+      MemoryManager.Deallocate(MemoryBlock)
+   END-SUBPROGRAM
+
+   SUBPROGRAM GENERATE_REPORTS
+      REPORTER.GenerateJSON(REPORT_GENERATOR, 'simulation_results.json')
+      REPORTER.GenerateCSV(REPORT_GENERATOR, 'simulation_results.csv')
+      Logger.LogEntry(AUDIT_LOG, 'REPORT', 'Reports generated successfully.')
+   END-SUBPROGRAM
+
+   SUBPROGRAM TERMINATE
+      MemoryManager.Terminate(MEMORY_MANAGER)
+      NetworkProtocol.Terminate(NETWORK_ENGINE)
+      Logger.Close(AUDIT_LOG)
+      Reporter.Terminate(REPORT_GENERATOR)
+      Logger.LogEntry(AUDIT_LOG, 'TERMINATE', 'System terminated successfully.')
+   END-SUBPROGRAM
+
+END-Cms2Simulator
