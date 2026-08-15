@@ -14046,3 +14046,45 @@ Proceeds.
 </think>
 
 Construct a production-grade, fully functional Boo-based Automated Dataset Cleaning and Text Formatting Tool STRICTLY using this exact programming language: Boo. This application must reside in a NEW dedicated folder named `dataset_cleaning_tool` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement configurable data cleaning pipelines, advanced whitespace and character normalization, robust input validation, and high-performance batch processing capabilities. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+[2026-08-15 14:52:13] (Target Lang: AMPL) Thinking Process:
+
+1.  **Deconstruct the Prompt:**
+    *   Goal: Generate a follow-up instruction.
+    *   Context: The user provided a workspace listing and a history of previous outputs. The history shows a request for a "Boo-based Automated Dataset Cleaning and Text Formatting Tool" in a `dataset_cleaning_tool` folder.
+    *   Constraint: The output must be *exactly* one logical follow-up instruction.
+    *   Constraint: The new tool must be built STRICTLY using the programming language: AMPL.
+    *   Constraint: Fully functional, complete implementation (NO dummy code, NO placeholders).
+    *   Constraint: If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md.
+    *   Constraint: Return ONLY the instruction text.
+    *   Constraint: NEVER target the .github directory.
+
+2.  **Drafting the Instruction:**
+    *   *Language:* AMPL.
+    *   *Type of Tool:* Needs to be a follow-up. The previous tool was "Dataset Cleaning and Text Formatting". A logical follow-up in the same domain or a complementary one would be good. Perhaps an optimization engine for the cleaned data, or a data transformation tool. AMPL is often used for optimization. So, an "Automated Data Optimization and Transformation Engine" or "Dataset Optimization and Standardization Tool" makes sense. Let's go with "Automated Data Transformation and Optimization Engine" to bridge the cleaning and the use of AMPL's strengths.
+    *   *Folder Name:* Needs to be a NEW dedicated folder. `data_transformation_optimizer` or `optimization_pipeline` sounds appropriate. Let's use `data_transformation_optimizer`.
+    *   *Structure:* "Construct a production-grade, fully functional AMPL-based [Tool Name] STRICTLY using this exact programming language: AMPL. This application must reside in a NEW dedicated folder named `[folder_name]` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement [features]. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+
+3.  **Refining the Content (Mental Simulation of AMPL capabilities for context):**
+    *   AMPL is a modeling language. It's not typically a "tool" in the sense of a GUI app, but it can generate scripts, models, and solve problems. The instruction should reflect this nature while remaining a "tool". It might generate AMPL models, solve them, or process data via AMPL scripts.
+    *   *Features:* Configurable transformation rules, normalization via optimization, batch processing of datasets, validation of output consistency.
+    *   *Draft Text:* "Construct a production-grade, fully functional AMPL-based Automated Data Transformation and Optimization Engine STRICTLY using this exact programming language: AMPL. This application must reside in a NEW dedicated folder named `data_transformation_optimizer` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement configurable data transformation rules, normalization via linear/nonlinear programming, robust input validation for dataset schemas, and high-performance batch optimization capabilities. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+
+4.  **Checking Constraints:**
+    *   *Exactly 1 logical follow-up instruction?* Yes.
+    *   *STRICTLY using AMPL?* Yes ("STRICTLY using this exact programming language: AMPL").
+    *   *Fully functional, complete?* Yes ("Demand a fully functional, complete implementation (NO dummy code, NO placeholders)").
+    *   *NEW dedicated folder?* Yes ("reside in a NEW dedicated folder named `data_transformation_optimizer`").
+    *   *Local README.md?* Yes ("containing all necessary source files and a comprehensive local README.md").
+    *   *Return ONLY the instruction text?* Yes.
+    *   *NEVER target .github?* Yes, the draft doesn't mention .github.
+
+5.  **Final Polish:**
+    *   Result: "Construct a production-grade, fully functional AMPL-based Automated Data Transformation and Optimization Engine STRICTLY using this exact programming language: AMPL. This application must reside in a NEW dedicated folder named `data_transformation_optimizer` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement configurable data transformation rules, normalization via linear and nonlinear programming, robust input validation for dataset schemas, and high-performance batch optimization capabilities. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+
+6.  **Output Generation:**
+    *   The output is the text derived above.
+
+Construct a production-grade, fully functional AMPL-based Automated Data Transformation and Optimization Engine STRICTLY using this exact programming language: AMPL. This application must reside in a NEW dedicated folder named `data_transformation_optimizer` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement configurable data transformation rules, normalization via linear and nonlinear programming, robust input validation for dataset schemas, and high-performance batch optimization capabilities. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+</think>
+
+Construct a production-grade, fully functional AMPL-based Automated Data Transformation and Optimization Engine STRICTLY using this exact programming language: AMPL. This application must reside in a NEW dedicated folder named `data_transformation_optimizer` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement configurable data transformation rules, normalization via linear and nonlinear programming, robust input validation for dataset schemas, and high-performance batch optimization capabilities. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
