@@ -348,3 +348,5 @@
 - Created/Updated module: `sympl_symbolic_reasoning_engine` (See `sympl_symbolic_reasoning_engine/README.md` for details)
 
 - Created/Updated module: `cpp_config_drift_auditor` (See `cpp_config_drift_auditor/README.md` for details)
+
+- Created/Updated module: `cal_compliance_audit_engine` (See `cal_compliance_audit_engine/README.md` for details)
