@@ -314,3 +314,5 @@
 - Created/Updated module: `gameMonkey_compliance_auditor` (See `gameMonkey_compliance_auditor/README.md` for details)
 
 - Created/Updated module: `bpeL_compliance_orchestrator` (See `bpeL_compliance_orchestrator/README.md` for details)
+
+- Created/Updated module: `b_legacy_security_auditor` (See `b_legacy_security_auditor/README.md` for details)
