@@ -1,0 +1,52 @@
+;; A-0 System: Automated Audit-0 Compliance Engine
+;; File: audit_rules.a0
+;; Description: Declarative definition of immutable audit rules for compliance verification.
+
+;; Import standard libraries
+(import std:types)
+(import std:crypto)
+(import std:network)
+(import std:fs)
+
+;; Define immutable audit rules
+(rule:validate_config_drift
+  condition:
+    (config:exists "config_drift_audit/output.json")
+    (config:parsed "config_drift_audit/output.json" as json:config)
+    (json:config:severity >= 3)
+  action:
+    (log:alert "High severity drift detected" json:config)
+    (emit:drift_event json:config)
+  )
+
+(rule:validate_security_policies
+  condition:
+    (policy:loaded "gcode_security_executor/policies.a0")
+    (policy:matches "gcode_security_executor/policies.a0" as policy:rules)
+    (policy:active policy:rules)
+  action:
+    (verify:compliance policy:rules)
+    (generate:certificate "compliance_cert.pem" policy:rules)
+  )
+
+(rule:enforce_immutable_baselines
+  condition:
+    (baseline:loaded "baselines.a0")
+    (system:state != baseline:state)
+  action:
+    (log:error "Baseline deviation detected" system:state)
+    (trigger:remediation system:state)
+  )
+
+;; Define custom types for audit results
+type:audit_result
+  fields:
+    (state:bool)
+    (timestamp:int64)
+    (details:string)
+
+;; Define rule metadata
+metadata:
+  (author "A-0 System Engine")
+  (version "1.0.0")
+  (last_updated "2023-10-01T00:00:00Z")
