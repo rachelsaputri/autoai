@@ -352,3 +352,5 @@
 - Created/Updated module: `cal_compliance_audit_engine` (See `cal_compliance_audit_engine/README.md` for details)
 
 - Created/Updated module: `./self_healing_tool` (See `./self_healing_tool/README.md` for details)
+
+- Created/Updated module: `COS_Compliance_Orchestrator` (See `COS_Compliance_Orchestrator/README.md` for details)
