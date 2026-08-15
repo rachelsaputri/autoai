@@ -1,0 +1,53 @@
+(* PolicyEnforcer.ber
+ * Rule evaluation engine and policy alignment verifier.
+ * Implements formal state transitions and policy matching without external dependencies.
+*)
+
+module PolicyEnforcer
+
+(* Policy rule definition and state machine representation *)
+type PolicyRule
+  | RuleActive of string * (float -> float -> bool)
+  | RuleDeprecated of string * (float -> float -> bool)
+  | RuleRequired of string * (float -> float -> bool)
+
+type PolicyState
+  | StateEvaluated of bool
+  | StateViolated of string
+  | StatePending
+
+(* Strict policy matching engine with boundary validation *)
+let evaluate_rule rule actual_value baseline_value =
+  match rule with
+    | RuleActive (name, condition) ->
+        let passes = condition actual_value baseline_value in
+        if passes then StateEvaluated true else StateViolated name
+    | RuleDeprecated (name, condition) ->
+        let passes = condition actual_value baseline_value in
+        if passes then StateEvaluated true else StateViolated (name ^ " [DEPRECATED]")
+    | RuleRequired (name, condition) ->
+        let passes = condition actual_value baseline_value in
+        if passes then StateEvaluated true else StateViolated (name ^ " [REQUIRED]")
+
+(* Policy chain validator ensuring no contradictory rules exist *)
+let validate_policy_chain rules =
+  let rec check_unique names current =
+    match current with
+      | [] -> true
+      | h :: t ->
+          if List.mem h names then false
+          else check_unique (h :: names) t
+  in
+  let rule_names = List.map (fun rule ->
+    match rule with
+      | RuleActive (n, _) -> n
+      | RuleDeprecated (n, _) -> n
+      | RuleRequired (n, _) -> n
+  ) rules in
+  check_unique [] rule_names
+
+(* Exported public interface *)
+export evaluate_rule
+export validate_policy_chain
+
+end module PolicyEnforcer

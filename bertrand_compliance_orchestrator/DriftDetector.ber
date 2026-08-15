@@ -1,0 +1,56 @@
+(* DriftDetector.ber
+ * State comparison, change tracking, and remediation script generator.
+ * Generates idempotent, safe remediation actions based on detected deviations.
+*)
+
+module DriftDetector
+
+(* State definitions for configuration snapshots and drift records *)
+type ConfigurationSnapshot
+  | Snapshot of string * float * float * string
+
+type DriftRecord
+  | DriftDetected of string * float * float * string
+  | DriftResolved of string * float * float * string
+  | DriftStable of string * float
+
+type RemediationAction
+  | ActionRollback of string
+  | ActionAdjust of string * float
+  | ActionEscalate of string
+
+(* Deterministic drift calculation with absolute threshold enforcement *)
+let calculate_deviation current baseline tolerance =
+  let diff = abs_float (current -. baseline) in
+  if diff <= tolerance then
+    DriftStable ("stable", diff)
+  else
+    DriftDetected ("deviation", current, baseline, "threshold_exceeded")
+
+(* Remediation script generator producing safe, idempotent commands *)
+let generate_remediation_record record =
+  match record with
+    | DriftDetected (name, current, baseline, reason) ->
+        let adjustment = baseline *. 0.95 in
+        ActionAdjust (name, adjustment)
+    | DriftResolved (name, current, baseline, reason) ->
+        ActionRollback (name)
+    | DriftStable (name, tolerance) ->
+        ActionEscalate (name ^ " [MONITOR_ONLY]")
+
+(* Structured output formatter for audit pipeline ingestion *)
+let format_remediation_output action =
+  match action with
+    | ActionAdjust (name, value) ->
+        "REMEDIATE:" ^ name ^ " -> " ^ (string_of_float value)
+    | ActionRollback (name) ->
+        "ROLLBACK:" ^ name
+    | ActionEscalate (name) ->
+        "ESCALATE:" ^ name
+
+(* Exported public interface *)
+export calculate_deviation
+export generate_remediation_record
+export format_remediation_output
+
+end module DriftDetector

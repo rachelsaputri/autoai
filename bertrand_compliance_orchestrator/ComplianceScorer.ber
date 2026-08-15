@@ -1,0 +1,66 @@
+(* ComplianceScorer.ber
+ * Core logic for scanning, scoring, and rating configuration compliance levels.
+ * Uses Bertrand's static typing and modular arithmetic for deterministic scoring.
+*)
+
+module ComplianceScorer
+
+(* Formal type definitions for configuration metrics and compliance tiers *)
+type ConfigurationMetric
+  | MetricValue of float
+  | MetricStatus of string
+  | MetricThreshold of float
+
+type ComplianceTier
+  | TierPass
+  | TierWarning
+  | TierCritical
+  | TierUnknown
+
+type ScoringResult
+  | ScorePass of float
+  | ScoreWarning of float
+  | ScoreFail of float
+  | ScoreError of string
+
+(* Boundary-checked metric extraction *)
+let extract_metric config key =
+  match config with
+    | { key = k; value = v; threshold = t } when k = key ->
+        Some { MetricValue = v; MetricStatus = "valid"; MetricThreshold = t }
+    | _ ->
+        None
+
+(* Deterministic scoring algorithm with strict threshold validation *)
+let compute_compliance_score metric baseline_threshold =
+  match metric with
+    | Some { MetricValue = v; MetricThreshold = t; _ } when v >= t ->
+        ScorePass (v /. t)
+    | Some { MetricValue = v; MetricThreshold = t; _ } when v >= (t *. 0.8) ->
+        ScoreWarning (v /. t)
+    | Some { MetricValue = v; MetricThreshold = t; _ } when v < (t *. 0.8) ->
+        ScoreFail (v /. t)
+    | None ->
+        ScoreError "Metric not found in configuration baseline"
+
+(* Aggregation function for multiple configuration nodes *)
+let aggregate_scores list_of_scores =
+  let rec process scores pass_count warn_count fail_count =
+    match scores with
+      | [] -> (pass_count, warn_count, fail_count)
+      | h :: t ->
+          let (p, w, f) = process t pass_count warn_count fail_count in
+          match h with
+            | ScorePass _ -> (p + 1, w, f)
+            | ScoreWarning _ -> (p, w + 1, f)
+            | ScoreFail _ -> (p, w, f + 1)
+            | ScoreError _ -> (p, w, f + 1)
+  in
+  process list_of_scores 0 0 0
+
+(* Exported public interface *)
+export extract_metric
+export compute_compliance_score
+export aggregate_scores
+
+end module ComplianceScorer
