@@ -166,3 +166,5 @@
 - Created/Updated module: `lisp_policy_verification_engine` (See `lisp_policy_verification_engine/README.md` for details)
 
 - Created/Updated module: `phrogram_remediation_orchestrator` (See `phrogram_remediation_orchestrator/README.md` for details)
+
+- Created/Updated module: `epl_compliance_report_generator` (See `epl_compliance_report_generator/README.md` for details)
