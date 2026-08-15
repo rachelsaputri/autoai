@@ -7395,3 +7395,36 @@ Construct a High-Throughput GPU-Accelerated Packet Validation Engine & Parallel 
 </think>
 
 Construct a Declarative Policy Enforcement & Compliance Validation Framework built STRICTLY using this exact programming language: o:XML. This application must reside in a NEW dedicated folder named `oxml_compliance_framework` containing all necessary source files and a comprehensive local README.md. Leverage o:XML’s structured data transformation and schema validation capabilities to architect a robust, schema-driven policy engine that continuously ingests security configurations, validates them against industry standards, and generates machine-readable compliance reports. The tool must implement a strict type-safe configuration parser to detect drift and misconfigurations, utilize declarative rule definitions to enforce deterministic audit trails, and automatically output structured compliance manifests with cryptographically signed validation tokens. Document the schema-driven validation architecture, the declarative policy mapping strategy for audit integrity, o:XML-specific implementation techniques for enterprise configuration management, and deployment guidelines for centralized compliance gateways and automated remediation pipelines.
+[2026-08-15 06:30:42] (Target Lang: PLEX) The user wants a follow-up instruction for a new tool.
+The new tool must be built using the programming language PLEX.
+The instruction must demand the creation of a new folder named `plex_security_orchestrator` (or similar, but the prompt implies I should generate the instruction, so I need to come up with a name or follow the pattern).
+The prompt history suggests a pattern: `Construct a ... built STRICTLY using this exact programming language: [LANG].`
+The previous example used `oxml_compliance_framework`.
+I need to generate exactly 1 logical follow-up instruction.
+The instruction must:
+1.  Demand PLEX language.
+2.  Create a NEW folder (I'll name it `plex_security_orchestrator` or similar based on the context of security tools).
+3.  Create a local README.md.
+4.  Return ONLY the instruction text.
+5.  NEVER target `.github`.
+
+Drafting the instruction:
+Construct a Declarative Security Orchestration & Automated Response Platform built STRICTLY using this exact programming language: PLEX. This application must reside in a NEW dedicated folder named `plex_security_orchestrator` containing all necessary source files and a comprehensive local README.md. Leverage PLEX’s rule-based processing capabilities to architect a dynamic threat response system that analyzes security events, correlates incident data, and executes automated mitigation workflows with high precision. The tool must implement a strict event-driven architecture to ingest telemetry streams, utilize declarative logic gates to enforce deterministic containment strategies, and automatically generate incident reports with execution timestamps. Document the rule-based orchestration architecture, the event correlation methodology for rapid response, PLEX-specific implementation techniques for security automation, and deployment guidelines for real-time threat mitigation pipelines.
+
+Check constraints:
+- Explicitly demand PLEX? Yes.
+- NEW folder? Yes (`plex_security_orchestrator`).
+- README.md? Yes.
+- Logical follow-up? Yes, fits the theme of security tools.
+- ONLY instruction text? Yes.
+- No .github? Yes.
+
+Refining the folder name to be consistent with the style. `plex_security_orchestrator` sounds good.
+The language is PLEX.
+The output should be the text only.
+
+Result:
+Construct a Declarative Security Orchestration & Automated Response Platform built STRICTLY using this exact programming language: PLEX. This application must reside in a NEW dedicated folder named `plex_security_orchestrator` containing all necessary source files and a comprehensive local README.md. Leverage PLEX’s rule-based processing capabilities to architect a dynamic threat response system that analyzes security events, correlates incident data, and executes automated mitigation workflows with high precision. The tool must implement a strict event-driven architecture to ingest telemetry streams, utilize declarative logic gates to enforce deterministic containment strategies, and automatically generate incident reports with execution timestamps. Document the rule-based orchestration architecture, the event correlation methodology for rapid response, PLEX-specific implementation techniques for security automation, and deployment guidelines for real-time threat mitigation pipelines.
+</think>
+
+Construct a Declarative Security Orchestration & Automated Response Platform built STRICTLY using this exact programming language: PLEX. This application must reside in a NEW dedicated folder named `plex_security_orchestrator` containing all necessary source files and a comprehensive local README.md. Leverage PLEX’s rule-based processing capabilities to architect a dynamic threat response system that analyzes security events, correlates incident data, and executes automated mitigation workflows with high precision. The tool must implement a strict event-driven architecture to ingest telemetry streams, utilize declarative logic gates to enforce deterministic containment strategies, and automatically generate incident reports with execution timestamps. Document the rule-based orchestration architecture, the event correlation methodology for rapid response, PLEX-specific implementation techniques for security automation, and deployment guidelines for real-time threat mitigation pipelines.
