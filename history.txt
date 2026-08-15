@@ -5408,3 +5408,54 @@ Implement a compliance reporting and visualization module that consumes the proc
 </think>
 
 Implement a high-performance statistical query engine and data correlation analyzer built STRICTLY using this exact programming language: Q. This tool should ingest raw telemetry and configuration drift data from the `config_drift_audit` and `drift_analytics_pipeline`, execute complex relational algebra operations, perform time-series aggregation, and generate structured analytic summaries to feed the `compliance_reporting_module`. Explicitly require the code to reside in a NEW dedicated folder named `statistical_query_engine` populated with Q source scripts, data dictionary definitions, and build configuration, alongside a detailed local README.md that outlines the query schemas, data loading mechanisms, performance tuning strategies, and integration points for comprehensive data analysis and reporting support.
+[2026-08-15 01:58:18] (Target Lang: MUMPS) The user wants a follow-up instruction for an Autonomous AI.
+The context involves a workspace with many directories and files.
+I need to generate exactly 1 logical follow-up instruction.
+The instruction must:
+1.  Demand the new tool be built STRICTLY using the language: MUMPS.
+2.  If it's a new tool, place it in a NEW dedicated folder and create a local README.md.
+3.  Return ONLY the instruction text.
+4.  Never target the .github directory.
+
+Analysis of the workspace:
+- There are tools related to `alert_correlation_persistence` (`.lpc` files). LPC is Lisp for Processors, often used with MUMPS/GTM/VMS.
+- There is `alert_dispatch_engine` (Rust), `correlation_engine` (Rust).
+- MUMPS is a legacy language often used in healthcare but also general processing.
+- `alert_correlation_persistence` uses `.lpc` files. This suggests a Lisp-like syntax, possibly generated from MUMPS or related to a Lisp runtime.
+- However, MUMPS is explicitly requested.
+- A logical tool could be a MUMPS-based parser or processor for the data produced by other tools, or perhaps a bridge.
+- Looking at `alert_correlation_persistence`, it has `config.lpc`, `correlation.lpc`, `ingestion.lpc`.
+- A MUMPS tool could handle the raw ingestion or persistence of alert data, perhaps as a legacy system integrator or a high-performance text processor.
+- Or, given `compliance_reporting_module` exists (`.e` file), a MUMPS tool could feed data to it or generate reports in a MUMPS-compatible format.
+- Another angle: `data_processing_utils` has Python scripts. A MUMPS tool could complement this for specific high-throughput text processing.
+- Let's look for a gap. We have `statistical_query_engine` suggested in the history as a good candidate, but the current turn requires MUMPS.
+- `alert_correlation_persistence` seems underdeveloped (just `.lpc` files, no Cargo or standard build). MUMPS is a good fit for this domain (process-oriented, text-heavy, historical context).
+- I will propose a MUMPS-based "Alert Persistence and Correlation Processor" or similar, to complement `alert_correlation_persistence`.
+- Or perhaps a "MUMPS-based Legacy Data Bridge" to interact with `api_data_sync_tool` or `incident_tracking`.
+- Let's choose a tool that fits the "MUMPS" vibe: high-volume text processing, transaction logging, or legacy integration.
+- `alert_correlation_persistence` is a strong candidate because `.lpc` often implies a Lisp interface over MUMPS data, or a similar Lisp-like language. Building a MUMPS engine to support or replace this could be logical.
+- Alternatively, `compliance_reporting_module` might need a robust MUMPS-based data generator.
+- I'll propose a "MUMPS-based Alert Persistence and Ingestion Engine".
+- New folder: `mumps_alert_engine`.
+- Language: MUMPS.
+
+Drafting the instruction:
+"Implement a high-throughput MUMPS-based alert persistence and ingestion engine built STRICTLY using this exact programming language: MUMPS. This tool should reside in a NEW dedicated folder named `mumps_alert_engine` and include a local README.md. It is designed to process raw alert streams from `alert_dispatch_engine`, perform pattern matching and state management for correlations suggested by `alert_correlation_persistence`, and store results in a structured format consumable by `compliance_reporting_module`. The implementation must leverage MUMPS' native capabilities for efficient text processing, database interfacing, and transactional integrity, with clear documentation on namespace management, global data structures, and compilation procedures."
+
+Refining against constraints:
+- Language: MUMPS. Yes.
+- NEW folder: `mumps_alert_engine`. Yes.
+- README.md: Yes.
+- Only instruction text: Yes.
+- No .github: Yes.
+- Logical follow-up: Connects `alert_dispatch`, `alert_correlation`, and `compliance_reporting`. MUMPS is a valid choice for transactional text processing.
+
+Final Polish:
+"Construct a robust MUMPS-based alert persistence and correlation processor built STRICTLY using this exact programming language: MUMPS. This tool must reside in a NEW dedicated folder named `mumps_alert_persistence` containing necessary source files and a detailed local README.md. The engine should ingest high-volume alert data from the `alert_dispatch_engine`, apply correlation rules inspired by the logic in `alert_correlation_persistence`, and output enriched event records compatible with the `compliance_reporting_module`. Focus on leveraging MUMPS' native performance for text manipulation and global data storage, and ensure the README covers build scripts, global namespace definitions, and integration protocols."
+
+Wait, `alert_correlation_persistence` has `.lpc` files. LPC might be a Lisp variant. MUMPS is often the underlying database/process for Lisp in some contexts (like InterSystems IRIS), but they are distinct. A MUMPS tool would be a distinct backend. This makes sense.
+
+Result looks good.
+</think>
+
+Construct a robust MUMPS-based alert persistence and correlation processor built STRICTLY using this exact programming language: MUMPS. This tool must reside in a NEW dedicated folder named `mumps_alert_persistence` containing necessary source files and a detailed local README.md. The engine should ingest high-volume alert data from the `alert_dispatch_engine`, apply correlation rules inspired by the logic in `alert_correlation_persistence`, and output enriched event records compatible with the `compliance_reporting_module`. Focus on leveraging MUMPS' native performance for text manipulation and global data storage, and ensure the README covers build scripts, global namespace definitions, and integration protocols.

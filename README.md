@@ -102,3 +102,5 @@
 - Created/Updated module: `config_drift_audit` (See `config_drift_audit/README.md` for details)
 
 - Created/Updated module: `drift_analytics_pipeline` (See `drift_analytics_pipeline/README.md` for details)
+
+- Created/Updated module: `mumps_alert_persistence` (See `mumps_alert_persistence/README.md` for details)
