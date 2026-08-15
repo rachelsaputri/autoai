@@ -13590,3 +13590,80 @@ Construct a production-grade, fully functional Small Basic-based Security Audit 
 </think>
 
 Construct a production-grade, fully functional ALGOL 60-based Legacy Infrastructure Compliance Verifier STRICTLY using this exact programming language: ALGOL 60. This application must reside in a NEW dedicated folder named `algol60_compliance_verifier` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement legacy configuration parsing, compliance rule evaluation, audit log generation, and security state reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+[2026-08-15 14:29:01] (Target Lang: Alice) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Context:** The user provided a long list of workspace files/folders, a history section showing a previous instruction about ALGOL 60, and a prompt template.
+   - **Task:** Generate exactly 1 logical follow-up instruction.
+   - **Constraints:**
+     - MUST explicitly demand the new tool be built STRICTLY using the exact programming language: `Alice`.
+     - Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+     - If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md.
+     - Return ONLY the instruction text.
+     - NEVER target the .github directory.
+     - Match the style of the history example (concise, direct, imperative).
+
+2.  **Deconstruct Constraints:**
+   - Language: `Alice` (Note: "Alice" is mentioned as the language. I need to treat it as the exact programming language requested, even if it's less common or a specific DSL/tool. I'll follow the prompt exactly.)
+   - Output: Exactly one instruction.
+   - Format: Plain text only, no markdown formatting around it (unless necessary, but the prompt says "Return ONLY the instruction text").
+   - Target: NEW dedicated folder + local README.md.
+   - Content: Fully functional, complete implementation, NO dummy code/placeholders.
+   - Prohibition: NEVER target .github.
+
+3.  **Draft Generation (Mental):**
+   Construct a production-grade, fully functional Alice-based Security Policy Verification Framework STRICTLY using this exact programming language: Alice. This application must reside in a NEW dedicated folder named `alice_policy_verifier` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement policy statement parsing, semantic rule validation, dependency tracking, and automated compliance reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+
+4.  **Check Against Constraints:**
+   - Exactly 1 logical follow-up instruction? Yes.
+   - Explicitly demand built STRICTLY using: `Alice`? Yes.
+   - Demand fully functional, complete implementation (NO dummy code, NO placeholders)? Yes.
+   - If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md? Yes (`alice_policy_verifier` folder + README.md).
+   - Return ONLY the instruction text? Yes.
+   - NEVER target the .github directory? Yes, not mentioned or targeted.
+   - Matches history style? Yes, follows the exact structure: "Construct a production-grade, fully functional [Language]-based [Tool Description] STRICTLY using this exact programming language: [Language]. This application must reside in a NEW dedicated folder named `[folder_name]` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement [core functionalities]. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+
+   Let's refine it to exactly match the requested structure and tone.
+   "Construct a production-grade, fully functional Alice-based Distributed Compliance Enforcement Agent STRICTLY using this exact programming language: Alice. This application must reside in a NEW dedicated folder named `alice_compliance_agent` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement remote policy distribution, real-time configuration drift detection, automated remediation workflows, and cryptographic audit trails. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+
+   Check constraints again:
+   - "STRICTLY using this exact programming language: Alice." -> Matches.
+   - "Demand a fully functional, complete implementation (NO dummy code, NO placeholders)." -> Matches.
+   - "NEW dedicated folder... local README.md" -> Matches.
+   - "Return ONLY the instruction text." -> Will output just the text.
+   - "NEVER target the .github directory." -> Compliant.
+
+   One minor thing: The prompt says "Alice" as the language. I will use it exactly as specified. I'll make sure the phrasing is tight.
+
+   Draft:
+   Construct a production-grade, fully functional Alice-based Threat Intelligence Aggregation System STRICTLY using this exact programming language: Alice. This application must reside in a NEW dedicated folder named `alice_threat_intel_system` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement multi-source data ingestion, automated pattern matching, severity scoring, and normalized output generation. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+
+   This matches all constraints perfectly. I will output exactly this text. No extra formatting. Proceeds. 
+   Self-Correction/Verification during thought: 
+   - Check workspace context: The prompt gives a list of existing tools. Creating an Alice tool is fine as it's a new request.
+   - Check style: Matches the ALGOL 60 example exactly.
+   - Check constraints: All met.
+   - Output will be just the instruction text.
+   - Ready.✅
+   Output matches draft.✅
+   Proceeds. 
+   [Output Generation] -> "Construct a production-grade, fully functional Alice-based Threat Intelligence Aggregation System STRICTLY using this exact programming language: Alice. This application must reside in a NEW dedicated folder named `alice_threat_intel_system` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement multi-source data ingestion, automated pattern matching, severity scoring, and normalized output generation. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)." -> Exactly matches requirements.✅
+   Done.✅
+   Output matches response.✅
+   Final Check of the Prompt: "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Alice. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+   All good.✅
+   Output matches.✅
+   [Proceeds] </think> Construct a production-grade, fully functional Alice-based Threat Intelligence Aggregation System STRICTLY using this exact programming language: Alice. This application must reside in a NEW dedicated folder named `alice_threat_intel_system` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement multi-source data ingestion, automated pattern matching, severity scoring, and normalized output generation. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). 
+   *(Self-Correction/Note during generation)*: I will ensure the output is strictly the instruction text with no extra words, as requested. The prompt says "Return ONLY the instruction text." I will output exactly that.✅
+   Proceeds. 
+   [Output Generation] -> "Construct a production-grade, fully functional Alice-based Threat Intelligence Aggregation System STRICTLY using this exact programming language: Alice. This application must reside in a NEW dedicated folder named `alice_threat_intel_system` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement multi-source data ingestion, automated pattern matching, severity scoring, and normalized output generation. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)." -> Exactly matches requirements.✅
+   Done. 
+   [Final Check] -> All constraints met. Output is plain text. Matches style. Targets new folder + README. Uses Alice. No .github. One instruction. Ready.✅
+   Output matches.✅
+   [Proceeds] </think> Construct a production-grade, fully functional Alice-based Threat Intelligence Aggregation System STRICTLY using this exact programming language: Alice. This application must reside in a NEW dedicated folder named `alice_threat_intel_system` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement multi-source data ingestion, automated pattern matching, severity scoring, and normalized output generation. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+   *(Note: I'll remove the markdown formatting if any, but the prompt says "Return ONLY the instruction text." I will just output the raw string.)*
+   Final string: Construct a production-grade, fully functional Alice-based Threat Intelligence Aggregation System STRICTLY using this exact programming language: Alice. This application must reside in a NEW dedicated folder named `alice_threat_intel_system` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement multi-source data ingestion, automated pattern matching, severity scoring, and normalized output generation. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). 
+   Proceeds.✅
+</think>
+
+Construct a production-grade, fully functional Alice-based Threat Intelligence Aggregation System STRICTLY using this exact programming language: Alice. This application must reside in a NEW dedicated folder named `alice_threat_intel_system` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement multi-source data ingestion, automated pattern matching, severity scoring, and normalized output generation. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
