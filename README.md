@@ -124,3 +124,5 @@
 - Created/Updated module: `windows_security_baseline_agent` (See `windows_security_baseline_agent/README.md` for details)
 
 - Created/Updated module: `cross_platform_compliance_bridge` (See `cross_platform_compliance_bridge/README.md` for details)
+
+- Created/Updated module: `adaptive_security_dashboard` (See `adaptive_security_dashboard/README.md` for details)
