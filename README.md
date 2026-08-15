@@ -252,3 +252,5 @@
 - Created/Updated module: `alma0_formal_verification_engine` (See `alma0_formal_verification_engine/README.md` for details)
 
 - Created/Updated module: `mpd_cross_domain_protocol_engine` (See `mpd_cross_domain_protocol_engine/README.md` for details)
+
+- Created/Updated module: `aimms_security_risk_optimizer` (See `aimms_security_risk_optimizer/README.md` for details)

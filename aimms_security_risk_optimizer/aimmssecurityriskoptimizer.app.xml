@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AppManifest xmlns="http://www.aimms.com/schemas/appmanifest">
+  <ApplicationName>AIMMS Security Risk Optimizer</ApplicationName>
+  <ProjectName>aimmssecurityriskoptimizer</ProjectName>
+  <ProjectIdentifier>aimmssecurityriskoptimizer</ProjectIdentifier>
+</AppManifest>
