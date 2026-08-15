@@ -284,3 +284,5 @@
 - Created/Updated module: `appinventor_compliance_auditor` (See `appinventor_compliance_auditor/README.md` for details)
 
 - Created/Updated module: `arc_formal_policy_evaluator` (See `arc_formal_policy_evaluator/README.md` for details)
+
+- Created/Updated module: `jass_security_visualizer` (See `jass_security_visualizer/README.md` for details)
