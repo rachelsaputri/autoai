@@ -1,0 +1,16 @@
+// Opal Compliance Auditor - Data Models
+// Type-safe declarative structures for policy documents and violation data.
+
+struct PolicyDocument {
+    id: str
+    name: str
+    version: str
+    rules: list[str]
+}
+
+struct ViolationData {
+    rule: str
+    status: str
+    description: str
+    severity: str
+}
