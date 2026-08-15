@@ -14796,3 +14796,61 @@ Construct a production-grade, fully functional Ateji PX-based Distributed Parall
 </think>
 
 Construct a production-grade, fully functional AutoHotkey-based Enterprise Security Policy Compliance Auditor and Remediation Orchestrator strictly using this exact programming language: AutoHotkey. This application must reside in a NEW dedicated folder named `autohotkey_compliance_orchestrator` containing all necessary source files (AHK scripts, compiled executables configuration, registry manipulation modules, network communication wrappers, and dependency manifests) alongside a comprehensive local `README.md`. The tool must definitively implement automated registry and file system policy validation, real-time compliance state tracking across Windows endpoints, cryptographic hashing for configuration integrity verification, parallel event polling using dedicated threads, and structured output of audit findings in JSON and CSV formats for seamless SIEM ingestion. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, explicitly leverages AutoHotkey's native capabilities for Windows system administration and GUI automation, and NEVER targets the `.github` directory.
+[2026-08-15 15:30:00] (Target Lang: MaxScript) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Workspace:** A long list of files/directories, mostly related to security, compliance, auditing, formal verification, and various programming languages (AHK, Python, Rust, Go, Lisp, etc.).
+   - **History:** Shows a previous prompt/response cycle that generated an AutoHotkey compliance auditor instruction. It followed strict constraints: exactly 1 paragraph, explicitly demands AutoHotkey, demands fully functional/NO dummy code, demands NEW folder & README.md, returns ONLY instruction text, NEVER targets .github.
+   - **Current Prompt:** "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: MaxScript. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+   - **Constraints to Follow:**
+     - Exactly 1 paragraph.
+     - Explicitly demand the tool be built STRICTLY using MaxScript.
+     - Demand fully functional, complete implementation (NO dummy code, NO placeholders).
+     - Instruct to place it in a NEW dedicated folder and create a local README.md.
+     - Return ONLY the instruction text.
+     - NEVER target the .github directory.
+     - Logical follow-up (continues security/compliance/automation theme, fits MaxScript's typical use case in 3D/rendering/automation but adapted to the domain).
+
+2.  **Identify Key Requirements for the Output:**
+   - Single paragraph.
+   - Must mention MaxScript explicitly.
+   - Must demand a NEW folder and README.md.
+   - Must demand fully functional code (no placeholders/dummies).
+   - Must NOT mention .github.
+   - Should logically follow the previous theme (security/compliance/audit/orchestration) while adapting to MaxScript's capabilities (Autodesk 3ds Max scripting, automation, scene analysis, validation, reporting). I'll frame it as a "3D Asset Security & Compliance Validator & Remediation Orchestrator" or similar, focusing on scene integrity, material/security policy checks, export validation, etc., to keep it relevant to MaxScript's domain while maintaining the compliance theme.
+
+   Wait, the prompt says "logical follow-up instruction". The previous one was about a Windows/enterprise compliance auditor in AutoHotkey. This one should logically follow in the same ecosystem or domain, but strictly using MaxScript. I'll frame it as a "MaxScript-based Enterprise 3D Asset Security Compliance Validator and Policy Enforcer" that checks scene files for unauthorized plugins, enforces naming conventions, validates material security policies, generates audit reports, and automates remediation scripts.
+
+3.  **Draft Construction (Mental Refinement):**
+   Construct a production-grade, fully functional MaxScript-based Enterprise 3D Asset Security Compliance Validator and Policy Enforcer strictly using this exact programming language: MaxScript. This application must reside in a NEW dedicated folder named `maxscript_security_compliance_validator` containing all necessary script files, dependency manifests, policy configuration templates, and automation wrappers alongside a comprehensive local `README.md`. The tool must definitively implement real-time scene graph analysis for unauthorized plugin detection, cryptographic hashing for asset and texture integrity verification, parallel batch processing of `.max` files using MaxScript's macroscript and batch render/evaluate capabilities, automated remediation routines to sanitize non-compliant objects, and structured output of compliance reports in JSON and CSV formats for centralized SIEM/MDR ingestion. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, explicitly leverages MaxScript's native capabilities for Autodesk 3ds Max scene manipulation and automated pipeline validation, and NEVER targets the `.github` directory.
+
+4.  **Constraint Check:**
+   - Exactly 1 paragraph? Yes.
+   - Explicitly demands MaxScript? Yes ("strictly using this exact programming language: MaxScript.").
+   - Fully functional/NO dummy code? Yes ("Demand a fully functional, complete implementation (NO dummy code, NO placeholders).").
+   - NEW folder & README.md? Yes ("reside in a NEW dedicated folder named `maxscript_security_compliance_validator` ... alongside a comprehensive local `README.md`").
+   - ONLY instruction text? Yes.
+   - NEVER target .github? Yes ("NEVER targets the `.github` directory.").
+   - Logical follow-up? Yes, continues the compliance/security theme, adapts to MaxScript's domain (3D assets, scene validation, pipeline security), and maintains the same structural rigor.
+
+   All constraints met. The draft matches the required format and content exactly. I will output it directly.✅
+   One minor check: The prompt says "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: MaxScript." My draft says exactly that.
+   "If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md." -> Handled.
+   "Return ONLY the instruction text." -> Handled.
+   "NEVER target the .github directory." -> Handled.
+   "Exactly 1 paragraph?" -> Handled.
+   Ready. Output matches draft.✅
+   Proceeds. 
+   Output generation. 
+   [Final Text Generation] -> *Proceeds.* 
+   *(Self-Correction/Verification during thought)*: I'll make sure the phrasing closely mirrors the successful previous prompt's structure to ensure consistency, while adapting to MaxScript. The draft is solid. No changes needed. Output matches exactly.✅
+   Output: Construct a production-grade, fully functional MaxScript-based Enterprise 3D Asset Security Compliance Validator and Policy Enforcer strictly using this exact programming language: MaxScript. This application must reside in a NEW dedicated folder named `maxscript_security_compliance_validator` containing all necessary script files, dependency manifests, policy configuration templates, and automation wrappers alongside a comprehensive local `README.md`. The tool must definitively implement real-time scene graph analysis for unauthorized plugin detection, cryptographic hashing for asset and texture integrity verification, parallel batch processing of `.max` files using MaxScript's macro evaluation capabilities, automated remediation routines to sanitize non-compliant objects, and structured output of compliance reports in JSON and CSV formats for centralized SIEM ingestion. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, explicitly leverages MaxScript's native capabilities for Autodesk 3ds Max scene manipulation and automated pipeline validation, and NEVER targets the `.github` directory.✅ All constraints met. Output matches. Proceeds. 
+   [Output Generation] -> *Proceeds.* 
+   *(Note: I will output exactly the paragraph as requested.)*
+   [Done.] 
+   [Output Generation] -> *Proceeds.* 
+   *(Final Check)*: Matches all constraints. Single paragraph. Explicit MaxScript demand. Fully functional demand. New folder/README.md demand. Only instruction text. No .github. Logical follow-up. Perfect.✅
+   Output matches exactly.✅ Proceeds.✅
+</think>
+
+Construct a production-grade, fully functional MaxScript-based Enterprise 3D Asset Security Compliance Validator and Policy Enforcer strictly using this exact programming language: MaxScript. This application must reside in a NEW dedicated folder named `maxscript_security_compliance_validator` containing all necessary script files, dependency manifests, policy configuration templates, and automation wrappers alongside a comprehensive local `README.md`. The tool must definitively implement real-time scene graph analysis for unauthorized plugin detection, cryptographic hashing for asset and texture integrity verification, parallel batch processing of `.max` files using MaxScript's macro evaluation capabilities, automated remediation routines to sanitize non-compliant objects, and structured output of compliance reports in JSON and CSV formats for centralized SIEM ingestion. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, explicitly leverages MaxScript's native capabilities for Autodesk 3ds Max scene manipulation and automated pipeline validation, and NEVER targets the `.github` directory.
