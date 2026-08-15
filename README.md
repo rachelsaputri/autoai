@@ -302,3 +302,5 @@
 - Created/Updated module: `autoit_windows_security_dashboard` (See `autoit_windows_security_dashboard/README.md` for details)
 
 - Created/Updated module: `averest_formal_audit_engine` (See `averest_formal_audit_engine/README.md` for details)
+
+- Created/Updated module: `distributed_policy_enforcement_coordinator` (See `distributed_policy_enforcement_coordinator/README.md` for details)

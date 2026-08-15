@@ -1,23 +1,38 @@
 # Distributed Policy Enforcement Coordinator
 
-A distributed policy enforcement coordinator built with Erlang. It manages a cluster of policy enforcement agents, routes compliance tasks via message passing, handles node failures gracefully, and aggregates remediation actions across the distributed network using Erlang's concurrent actor model and fault-tolerant OTP behaviors.
+A production-grade, fault-tolerant Erlang-based system designed to synchronize security policies across distributed nodes, validate cluster health, detect split-brain scenarios, and provide rigorous guarantees of consistency and fault tolerance.
 
 ## Features
+- Distributed Policy Synchronization
+- High-Availability Consensus
+- Split-Brain Detection and Resolution
+- Cluster Health Monitoring
+- Fault-Tolerant Coordination
 
-- **Distributed Agent Management**: Manage a cluster of policy enforcement agents.
-- **Message Passing**: Route compliance tasks and remediation actions via Erlang message passing.
-- **Fault Tolerance**: Handle node failures gracefully using Erlang's supervision trees.
-- **Aggregation**: Aggregate remediation actions across the distributed network.
+## Architecture
+The system utilizes the BEAM Virtual Machine's inherent distribution capabilities, OTP behaviors (Supervisor, GenServer), and distributed Erlang features for node-to-node communication.
 
-## Installation
-
-1. Clone the repository.
-2. Build the project using `rebar3`.
-3. Start the coordinator.
+### Core Modules
+- `distributed_policy_enforcement_coordinator.app`: Application definition.
+- `main`: Entry point and node initialization.
+- `dpe_coord`: Master coordination process.
+- `dpe_policy_sync`: Policy synchronization logic.
+- `dpe_health_monitor`: Cluster health validation.
 
 ## Usage
+1. Compile the project using `rebar3 compile`.
+2. Start nodes:
+   ```bash
+   rebar3 shell --name node1@127.0.0.1
+   rebar3 shell --name node2@127.0.0.1
+   ```
+3. Initialize the coordinator on the primary node:
+   ```erlang
+   dpe_coord:start_link().
+   ```
 
-1. Start the coordinator.
-2. Register agents.
-3. Send policy enforcement tasks.
-4. Monitor and manage the cluster.
+## Fault Tolerance
+The system is designed to handle node failures gracefully. Supervisors restart crashed processes, and consensus mechanisms ensure data consistency even during network partitions.
+
+## License
+MIT License

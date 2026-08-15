@@ -1,12 +1,15 @@
 -module(main).
--export([start/0, stop/0]).
+-behaviour(application).
+
+-export([start/0, start/2, stop/1]).
 
 start() ->
-    application:start(crypto),
-    application:start(distributed_policy_enforcement_coordinator),
-    {ok, NodePid} = distributed_policy_enforcement_coordinator:start_link(),
-    {ok, NodePid}.
+    application:start(distributed_policy_enforcement_coordinator).
 
-stop() ->
-    application:stop(distributed_policy_enforcement_coordinator),
-    application:stop(crypto).
+start(_StartType, _StartArgs) ->
+    dpe_coord:start_link(),
+    dpe_health_monitor:start_link(),
+    {ok, #{} }.
+
+stop(_State) ->
+    ok.
