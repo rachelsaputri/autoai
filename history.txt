@@ -13077,3 +13077,40 @@ Construct a production-grade, fully functional Object Pascal-based Formal Policy
 </think>
 
 Construct a production-grade, fully functional dc-based Formal Policy Verification Engine STRICTLY using this exact programming language: dc. This application must reside in a NEW dedicated folder named `dc_formal_policy_verifier` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement parsing of formal policy specifications, static analysis for logical consistency checks, constraint satisfaction verification against defined system invariants, and generation of structured compliance verification reports. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+[2026-08-15 13:45:05] (Target Lang: F-Script) The user wants me to generate exactly 1 logical follow-up instruction.
+The previous instruction was about creating a `dc_formal_policy_verifier`.
+The new instruction must strictly use the programming language "F-Script".
+It must explicitly demand that the new tool be built STRICTLY using this exact programming language: F-Script.
+If it's a new tool, it must be placed in a NEW dedicated folder with a local README.md.
+I must return ONLY the instruction text.
+NEVER target the .github directory.
+
+Let's craft the instruction following the template style from the history.
+Template style:
+"Construct a production-grade, fully functional [language]-based [Tool Description] STRICTLY using this exact programming language: [language]. This application must reside in a NEW dedicated folder named `[folder_name]` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement [features]. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+
+Tool: F-Script-based Security Policy Enforcement Gateway
+Language: F-Script
+Folder: fscript_policy_enforcement_gateway
+Features: parsing of F-Script object-oriented policy definitions, runtime enforcement of access control rules, dynamic state verification, and structured enforcement logging.
+
+Draft:
+Construct a production-grade, fully functional F-Script-based Security Policy Enforcement Gateway STRICTLY using this exact programming language: F-Script. This application must reside in a NEW dedicated folder named `fscript_policy_enforcement_gateway` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement parsing of F-Script object-oriented policy definitions, runtime enforcement of access control rules, dynamic state verification, and generation of structured enforcement logs. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+
+Check constraints:
+- Exactly 1 logical follow-up instruction? Yes.
+- Explicitly demand new tool built STRICTLY using F-Script? Yes.
+- NEW dedicated folder + README.md? Yes.
+- Return ONLY instruction text? Yes.
+- Never target .github? Yes.
+- Matches tone/format? Yes.
+
+Ready. Output matches draft.✅
+Proceeds. 
+Output Generation. 
+`Construct a production-grade, fully functional F-Script-based Security Policy Enforcement Gateway STRICTLY using this exact programming language: F-Script. This application must reside in a NEW dedicated folder named `fscript_policy_enforcement_gateway` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement parsing of F-Script object-oriented policy definitions, runtime enforcement of access control rules, dynamic state verification, and generation of structured enforcement logs. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).`
+All constraints met. Output matches exactly.✅
+Proceeds.
+</think>
+
+Construct a production-grade, fully functional F-Script-based Security Policy Enforcement Gateway STRICTLY using this exact programming language: F-Script. This application must reside in a NEW dedicated folder named `fscript_policy_enforcement_gateway` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement parsing of F-Script object-oriented policy definitions, runtime enforcement of access control rules, dynamic state verification, and generation of structured enforcement logs. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
