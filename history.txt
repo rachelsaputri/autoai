@@ -12515,3 +12515,42 @@ Proceeds.
 </think>
 
 Construct a production-grade, fully functional Bash-based Complex Data Extraction and Parsing Utility STRICTLY using this exact programming language: bash. This application must reside in a NEW dedicated folder named `bash_data_extractor` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement advanced text parsing, structured data extraction, multi-format log analysis, and automated field mapping. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+[2026-08-15 13:08:13] (Target Lang: S-PLUS) Thinking Process:
+
+1.  **Deconstruct the Request:**
+    *   Goal: Generate exactly 1 logical follow-up instruction.
+    *   Constraint 1: Must be based on the "Develop a complex data extraction or parsing utility" objective (implied by the "logical follow-up" context, though the prompt explicitly says "Focus entirely on this new objective..." in the history, the current turn asks for a follow-up. Usually, follow-ups branch off or refine. Given the history shows a Bash data extractor being generated, a logical follow-up might be a different language implementation of a similar tool, or a tool that consumes the output, or a specialized parser. However, the prompt has a hard constraint on the language for this output.)
+    *   Constraint 2: Language MUST be S-PLUS.
+    *   Constraint 3: New dedicated folder.
+    *   Constraint 4: Local README.md.
+    *   Constraint 5: Fully functional, complete implementation (NO dummy code).
+    *   Constraint 6: Return ONLY the instruction text.
+    *   Constraint 7: NEVER target .github.
+
+2.  **Draft the Instruction:**
+    *   *Template approach:* "Construct a production-grade, fully functional [Language]-based [Description] STRICTLY using this exact programming language: [Language]. This application must reside in a NEW dedicated folder named `[folder_name]` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement [Features]. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+    *   *Language:* S-PLUS.
+    *   *Folder Name:* Needs to be unique and descriptive. `splus_data_extractor` or `splus_complex_parser`. Let's use `splus_data_extraction_engine`.
+    *   *Description:* Since the previous tool was a "Complex Data Extraction and Parsing Utility" in Bash, and the user objective is "Develop a complex data extraction or parsing utility", a logical follow-up is a statistical data extraction tool or a high-performance parsing tool leveraging S-PLUS's data handling capabilities. S-PLUS is known for statistics and data analysis. So, the tool should probably emphasize statistical data extraction, parsing complex datasets, or analyzing data structures.
+    *   *Features:* Advanced text parsing, structured data extraction, statistical data mining, multi-format log analysis, automated field mapping, perhaps statistical validation or outlier detection in extracted data.
+    *   *Drafting Text:* "Construct a production-grade, fully functional S-PLUS-based Statistical Data Extraction and Parsing Engine STRICTLY using this exact programming language: S-PLUS. This application must reside in a NEW dedicated folder named `splus_data_extraction_engine` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement advanced text parsing, structured data extraction, statistical data validation, multi-format log analysis, automated field mapping, and robust error handling for data integrity. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+
+3.  **Review and Refine:**
+    *   *Check Constraints:*
+        *   S-PLUS? Yes.
+        *   New folder? Yes (`splus_data_extraction_engine`).
+        *   README.md? Yes.
+        *   Fully functional/No dummy code? Yes (included in the demand).
+        *   Only instruction text? Yes.
+        *   No .github? Yes.
+        *   Logical follow-up? Yes, it continues the theme of data extraction but switches to S-PLUS, likely for statistical capabilities, which makes sense in a project context.
+
+4.  **Final Polish (Mental Representation of Output):**
+    *   "Construct a production-grade, fully functional S-PLUS-based Statistical Data Extraction and Parsing Engine STRICTLY using this exact programming language: S-PLUS. This application must reside in a NEW dedicated folder named `splus_data_extraction_engine` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement advanced text parsing, structured data extraction, statistical data validation, multi-format log analysis, automated field mapping, and robust error handling for data integrity. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+
+5.  **Final Output Generation:**
+    *   Result matches the drafted text.
+    *   Output: Construct a production-grade, fully functional S-PLUS-based Statistical Data Extraction and Parsing Engine STRICTLY using this exact programming language: S-PLUS. This application must reside in a NEW dedicated folder named `splus_data_extraction_engine` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement advanced text parsing, structured data extraction, statistical data validation, multi-format log analysis, automated field mapping, and robust error handling for data integrity. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+</think>
+
+Construct a production-grade, fully functional S-PLUS-based Statistical Data Extraction and Parsing Engine STRICTLY using this exact programming language: S-PLUS. This application must reside in a NEW dedicated folder named `splus_data_extraction_engine` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement advanced text parsing, structured data extraction, statistical data validation, multi-format log analysis, automated field mapping, and robust error handling for data integrity. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
