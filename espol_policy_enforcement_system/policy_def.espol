@@ -1,0 +1,45 @@
+/*
+ * Core Policy Definitions
+ * 
+ * This module defines the structure for security policies.
+ * Policies consist of a unique identifier, a set of rules,
+ * and a priority level for enforcement.
+ */
+
+module policy_def
+
+// Define a Policy Structure
+policy Policy {
+    id: String,
+    name: String,
+    rules: List[Rule],
+    priority: Int
+}
+
+// Define a Rule Structure
+policy Rule {
+    condition: BooleanExpression,
+    action: EnforcementAction,
+    description: String
+}
+
+// Define possible enforcement actions
+enum EnforcementAction {
+    BLOCK,
+    ALLOW,
+    FLAG_FOR_REVIEW,
+    QUARANTINE
+}
+
+// Helper to create a new policy
+fun new_policy(id: String, name: String, rules: List[Rule]) -> Policy {
+    return Policy(id, name, rules, priority: 1)
+}
+
+// Helper to add a rule to a policy
+fun add_rule(policy: Policy, rule: Rule) -> Policy {
+    let updated_rules = policy.rules + rule
+    return Policy(policy.id, policy.name, updated_rules, policy.priority)
+}
+
+end module
