@@ -148,3 +148,5 @@
 - Created/Updated module: `idris_dependent_policy_prover` (See `idris_dependent_policy_prover/README.md` for details)
 
 - Created/Updated module: `blue_formal_policy_engine` (See `blue_formal_policy_engine/README.md` for details)
+
+- Created/Updated module: `mapper_ss7_security_auditor` (See `mapper_ss7_security_auditor/README.md` for details)

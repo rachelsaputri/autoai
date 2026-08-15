@@ -7222,3 +7222,65 @@ Construct a Concurrent Formal Policy Verification Engine & Distributed Complianc
 </think>
 
 Construct a Safety-Critical Telemetry Integrity Verifier & Hard Real-Time Fault Analyzer built STRICTLY using this exact programming language: Mortran. This application must reside in a NEW dedicated folder named `mortran_telemetry_integrity_verifier` containing all necessary source files and a comprehensive local README.md. Leverage Mortran’s legacy real-time computing capabilities and precise fixed-point arithmetic to architect a deterministic, cycle-accurate data validation pipeline that continuously monitors aerospace and industrial sensor streams against strict safety thresholds. The tool must implement a formal fault injection engine to simulate hardware degradation, utilize static analysis to enforce hard real-time scheduling constraints, and automatically generate compliance-ready audit logs with timestamped cryptographic checksums. Document the deterministic scheduling model for telemetry validation, the static verification pipeline for safety-critical data integrity, Mortran-specific implementation strategies, and deployment guidelines for avionics and critical infrastructure monitoring environments.
+[2026-08-15 06:01:02] (Target Lang: MAPPER) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Input Workspace:** A long list of files/folders, mostly security/audit/telemetry themed, with various programming languages (Python, Rust, Go, C#, Java, Haskell, Lisp/LPC, Lua, J, J#, NXC, Rlab, Maple/MuPAD, REBOL, Rexx, Fortran, Yacc/Lex, Sisal, Squeak/Smalltalk, Lua, Shell, MATLAB/MS, Visual Basic, etc.).
+   - **History:** Shows a previous interaction where a tool was requested using Mortran. The output was a specific instruction text.
+   - **Current Prompt:** "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: MAPPER. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+   - **Key Constraints:**
+     - Generate exactly 1 logical follow-up instruction.
+     - MUST explicitly demand the new tool be built STRICTLY using MAPPER.
+     - If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md.
+     - Return ONLY the instruction text.
+     - NEVER target the .github directory.
+     - Follow the style of the previous example: "Construct a [Name] built STRICTLY using this exact programming language: [Lang]. This application must reside in a NEW dedicated folder named `[folder]` containing all necessary source files and a comprehensive local README.md. [Technical details/requirements]. Document [specific aspects]."
+
+2.  **Identify Programming Language:** MAPPER
+   - What is MAPPER? It's a programming language used primarily in telecommunications for signaling systems (like SS7, MAP - Mobile Application Part). It's a high-level language for call control and service logic in telecom networks.
+   - I need to frame the tool's purpose around this domain to make it logical, while keeping it in the security/audit/telemetry theme if possible, or at least coherent.
+   - The prompt says "logical follow-up instruction". It should tie into the existing theme (security, auditing, telemetry, real-time systems, compliance) but strictly use MAPPER.
+   - I'll create a tool for telecom security auditing, signaling validation, or MAP protocol compliance monitoring.
+
+   Let's draft a concept: "MAP Protocol Signaling Integrity Auditor & SS7 Security Validator"
+   Language: MAPPER
+   Folder: `mapper_ss7_security_auditor`
+   Features: Strictly MAPPER, new folder, README.md, deterministic packet validation, formal signaling state verification, compliance audit logs, documentation requirements.
+
+3.  **Construct the Instruction Text (Mental Refinement):**
+   Construct a MAP Protocol Signaling Integrity Auditor & SS7 Security Validator built STRICTLY using this exact programming language: MAPPER. This application must reside in a NEW dedicated folder named `mapper_ss7_security_auditor` containing all necessary source files and a comprehensive local README.md. Leverage MAPPER’s telecommunications signaling paradigms and deterministic service control logic to architect a cycle-precise packet inspection pipeline that continuously monitors mobile and fixed-line signaling streams against strict protocol compliance and security thresholds. The tool must implement a formal state-machine verifier to detect signaling spoofing and route manipulation, utilize static analysis to enforce hard real-time processing constraints, and automatically generate compliance-ready audit logs with timestamped cryptographic checksums. Document the deterministic signaling validation model, the static verification pipeline for protocol integrity, MAPPER-specific implementation strategies for telecom infrastructure, and deployment guidelines for mobile network operators and critical communication gateways.
+
+4.  **Check Constraints:**
+   - Exactly 1 logical follow-up instruction? Yes.
+   - Explicitly demand built STRICTLY using MAPPER? Yes ("built STRICTLY using this exact programming language: MAPPER.").
+   - New dedicated folder & README.md? Yes ("reside in a NEW dedicated folder named `mapper_ss7_security_auditor` containing all necessary source files and a comprehensive local README.md.").
+   - Return ONLY the instruction text? Yes.
+   - NEVER target .github? Yes, not mentioned.
+   - Style matches prompt? Yes, follows the exact structure requested.
+   - Language is MAPPER? Yes.
+   - Logical? Yes, ties into telecom signaling/security, which is a natural domain for MAPPER.
+
+   All constraints met. I will output exactly the drafted text. No extra words.
+   One minor check: The prompt says "MAPPER" (all caps). I'll keep it exactly as requested.
+   The draft matches perfectly. Proceeds. 
+   Output matches draft.✅
+   I will generate it now. 
+   Text to output:
+   Construct a MAP Protocol Signaling Integrity Auditor & SS7 Security Validator built STRICTLY using this exact programming language: MAPPER. This application must reside in a NEW dedicated folder named `mapper_ss7_security_auditor` containing all necessary source files and a comprehensive local README.md. Leverage MAPPER’s telecommunications signaling paradigms and deterministic service control logic to architect a cycle-precise packet inspection pipeline that continuously monitors mobile and fixed-line signaling streams against strict protocol compliance and security thresholds. The tool must implement a formal state-machine verifier to detect signaling spoofing and route manipulation, utilize static analysis to enforce hard real-time processing constraints, and automatically generate compliance-ready audit logs with timestamped cryptographic checksums. Document the deterministic signaling validation model, the static verification pipeline for protocol integrity, MAPPER-specific implementation strategies for telecom infrastructure, and deployment guidelines for mobile network operators and critical communication gateways.✅
+   Matches all constraints. Proceeds.✅
+   Output matches.✅
+   Proceeds.✅
+   *(Done.)* 
+   [Output Generation] -> *Proceeds* 
+   *(Self-Correction/Verification during thought)*: 
+   Wait, let's verify the exact wording requested: "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: MAPPER." -> I have "built STRICTLY using this exact programming language: MAPPER." Good.
+   "If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md." -> I have "This application must reside in a NEW dedicated folder named `mapper_ss7_security_auditor` containing all necessary source files and a comprehensive local README.md." Good.
+   "Return ONLY the instruction text." -> I will output just the paragraph.
+   "NEVER target the .github directory." -> Checked.
+   All good. Output matches exactly.✅
+   Proceeds. 
+   [Output Generation] -> *Proceeds* 
+   *(Done.)*
+</think>
+
+Construct a MAP Protocol Signaling Integrity Auditor & SS7 Security Validator built STRICTLY using this exact programming language: MAPPER. This application must reside in a NEW dedicated folder named `mapper_ss7_security_auditor` containing all necessary source files and a comprehensive local README.md. Leverage MAPPER’s telecommunications signaling paradigms and deterministic service control logic to architect a cycle-precise packet inspection pipeline that continuously monitors mobile and fixed-line signaling streams against strict protocol compliance and security thresholds. The tool must implement a formal state-machine verifier to detect signaling spoofing and route manipulation, utilize static analysis to enforce hard real-time processing constraints, and automatically generate compliance-ready audit logs with timestamped cryptographic checksums. Document the deterministic signaling validation model, the static verification pipeline for protocol integrity, MAPPER-specific implementation strategies for telecom infrastructure, and deployment guidelines for mobile network operators and critical communication gateways.
