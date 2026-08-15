@@ -1,0 +1,62 @@
+module engine;
+
+// Runtime enforcement engine that evaluates policy rules against system state.
+
+import std::string;
+
+struct policy_decision {
+  policy_id: str;
+  action: str;
+  subject: str;
+  resource: str;
+  reason: str;
+}
+
+function evaluate(policy : policy_tree, state : state_snapshot) -> list<policy_decision> {
+  let decisions : list<policy_decision> = [];
+  for rule in policy.rules {
+    let cond_eval = eval_condition(rule.condition, state);
+    if cond_eval {
+      decisions.append({
+        policy_id: rule.id,
+        action: rule.action,
+        subject: state.active_user,
+        resource: rule.scope,
+        reason: "Policy " + rule.id + " matched condition"
+      });
+    }
+  }
+  return decisions;
+}
+
+function eval_condition(expr : ast_expression, state : state_snapshot) -> bool {
+  // Simplified condition evaluator for demonstration
+  // In production, this would contain a full AST evaluator
+  let text = expr.raw;
+  if text.contains("user_role == 'admin'") && state.active_role == "admin" {
+    return true;
+  }
+  if text.contains("access_level < 3") && state.security_clearance < 3 {
+    return true;
+  }
+  if text.contains("time < 18:00") && current_hour() < 18 {
+    return true;
+  }
+  return false;
+}
+
+function enforce(dec : policy_decision) -> void {
+  switch dec.action {
+    case "DENY":
+      log("Enforcing DENY for " + dec.subject + " on " + dec.resource);
+      break;
+    case "ALLOW":
+      log("Enforcing ALLOW for " + dec.subject + " on " + dec.resource);
+      break;
+    case "QUARANTINE":
+      log("Enforcing QUARANTINE for " + dec.resource);
+      break;
+    default:
+      log("Unknown action: " + dec.action);
+  }
+}

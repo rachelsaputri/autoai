@@ -1,0 +1,78 @@
+module gateway;
+
+// Entry point: Loads configuration, initializes engines, and starts the enforcement loop.
+
+use parser;
+use engine;
+use verifier;
+use logger;
+
+// Global configuration
+var global_config : map<str, str> = empty_map();
+var policy_graph : policy_tree = empty_policy_tree();
+var system_state : state_snapshot = empty_state_snapshot();
+
+function main() -> int {
+  let config_path = get_arg(1);
+  if config_path == null {
+    write_err("Usage: gateway <config_file.alpf>\n");
+    return 1;
+  }
+
+  // Load configuration
+  global_config = parser.load_config(config_path);
+  if global_config == null {
+    write_err("Failed to load configuration\n");
+    return 1;
+  }
+
+  // Initialize parser and build policy graph
+  policy_graph = parser.parse_policies(global_config["policy_dir"]);
+  if policy_graph == null {
+    write_err("Failed to parse policies\n");
+    return 1;
+  }
+
+  // Initialize state verifier
+  verifier.init(global_config["state_source"]);
+
+  // Initialize logger
+  logger.init(global_config["log_path"]);
+
+  // Start enforcement loop
+  run_enforcement_loop(policy_graph);
+
+  return 0;
+}
+
+function run_enforcement_loop(policy : policy_tree) -> void {
+  while true {
+    // Fetch current system state
+    system_state = verifier.snapshot();
+
+    // Evaluate policies against state
+    let decisions = engine.evaluate(policy, system_state);
+
+    // Apply decisions and log results
+    for dec in decisions {
+      if dec.action == "DENY" {
+        log_decision(dec);
+        engine.enforce(dec);
+      }
+    }
+
+    // Wait for next check interval (in milliseconds)
+    delay(global_config["check_interval_ms"].to_int());
+  }
+}
+
+function log_decision(dec : policy_decision) -> void {
+  logger.write({
+    "timestamp": now_iso(),
+    "policy_id": dec.policy_id,
+    "decision": dec.action,
+    "subject": dec.subject,
+    "resource": dec.resource,
+    "reason": dec.reason
+  });
+}
