@@ -1,0 +1,33 @@
+// Configuration file for Goo Policy Enforcement Gateway
+
+module config;
+
+// Define default configuration values
+struct DefaultConfig {
+    string listen_addr = "0.0.0.0:8080";
+    string orchestrator_endpoint = "http://localhost:9090";
+    int max_proof_size = 1048576; // 1MB
+    bool strict_verification = true;
+    string log_level = "info";
+    vector<string> allowed_verifiers = ["averest_formal_policy_verifier"];
+}
+
+// Function to load configuration
+function load_config(path string) -> DefaultConfig {
+    // Implementation to read config file and populate DefaultConfig struct
+    // This is a placeholder for actual file I/O logic in Goo
+    return DefaultConfig{};
+}
+
+// Function to validate configuration
+function validate_config(config: DefaultConfig) -> bool {
+    if config.listen_addr == "" {
+        error("Listen address cannot be empty");
+        return false;
+    }
+    if config.max_proof_size <= 0 {
+        error("Max proof size must be positive");
+        return false;
+    }
+    return true;
+}
