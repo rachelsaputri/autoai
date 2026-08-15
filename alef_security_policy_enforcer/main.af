@@ -1,0 +1,86 @@
+#include <alef/stdio>
+#include <alef/util>
+#include <alef/sys>
+
+struct PolicyRule {
+  int id;
+  char *subject;
+  char *object;
+  char *action;
+  int enforce;
+};
+
+struct EnforcementLog {
+  int timestamp;
+  char *rule_id;
+  char *result;
+};
+
+static PolicyRule *policy_db;
+static int policy_count = 0;
+
+void init_policy_db(void) {
+  policy_db = malloc(sizeof(PolicyRule) * 100);
+  policy_count = 0;
+}
+
+void parse_policy(char *raw_policy) {
+  char *token;
+  PolicyRule *rule = &policy_db[policy_count];
+  rule->id = policy_count;
+  rule->enforce = 1;
+  
+  token = strtok(raw_policy, " ");
+  if(token) rule->subject = strdup(token);
+  
+  token = strtok(NULL, " ");
+  if(token) rule->object = strdup(token);
+  
+  token = strtok(NULL, " ");
+  if(token) rule->action = strdup(token);
+  
+  policy_count++;
+}
+
+int verify_access(char *subj, char *obj, char *act) {
+  int i;
+  for(i = 0; i < policy_count; i++) {
+    if(strcmp(policy_db[i].subject, subj) == 0 &&
+       strcmp(policy_db[i].object, obj) == 0 &&
+       strcmp(policy_db[i].action, act) == 0) {
+      return policy_db[i].enforce;
+    }
+  }
+  return 0;
+}
+
+void log_enforcement(char *rule_id, char *result) {
+  EnforcementLog log_entry;
+  log_entry.timestamp = getticks();
+  log_entry.rule_id = rule_id;
+  log_entry.result = result;
+  printf("[%d] POLICY %s: %s\n", log_entry.timestamp, log_entry.rule_id, log_entry.result);
+}
+
+int main(int argc, char *argv[]) {
+  init_policy_db();
+  
+  parse_policy("user1 /secure/file read");
+  parse_policy("user2 /secure/file write");
+  parse_policy("user1 /temp/file read");
+  
+  if(verify_access("user1", "/secure/file", "read")) {
+    log_enforcement("policy0", "GRANTED");
+  } else {
+    log_enforcement("policy0", "DENIED");
+  }
+  
+  if(verify_access("user2", "/secure/file", "read")) {
+    log_enforcement("policy1", "GRANTED");
+  } else {
+    log_enforcement("policy1", "DENIED");
+  }
+  
+  sys.exit(0);
+  return 0;
+}

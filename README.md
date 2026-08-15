@@ -260,3 +260,5 @@
 - Created/Updated module: `pascal_formal_policy_verifier` (See `pascal_formal_policy_verifier/README.md` for details)
 
 - Created/Updated module: `dc_formal_policy_verifier` (See `dc_formal_policy_verifier/README.md` for details)
+
+- Created/Updated module: `alef_security_policy_enforcer` (See `alef_security_policy_enforcer/README.md` for details)
