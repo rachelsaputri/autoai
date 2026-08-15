@@ -1,0 +1,34 @@
+# ROOP Efficacy Scoring
+# Computes metrics on policy effectiveness
+
+module EfficacyScoring
+
+    function compute(logs)
+        total = 0
+        successes = 0
+        failures = 0
+        by_rule = {}
+
+        for log in logs
+            total = total + 1
+            rule = log.rule_id
+            by_rule[rule] = by_rule[rule] || {total: 0, successes: 0}
+            by_rule[rule].total = by_rule[rule].total + 1
+
+            if log.result == "success"
+                successes = successes + 1
+                by_rule[rule].successes = by_rule[rule].successes + 1
+            else
+                failures = failures + 1
+
+        // Calculate scores
+        report = {
+            overall_rate: successes / total,
+            by_rule: {}
+        }
+
+        for rule in by_rule
+            score = by_rule[rule].successes / by_rule[rule].total
+            report.by_rule[rule] = score
+
+        return report

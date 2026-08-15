@@ -1,0 +1,14 @@
+# ROOP Orchestrator Interface
+# Connects to response and remediation systems
+
+module OrchestratorInterface
+
+    function get_response_logs()
+        // Fetch logs from response_orchestrator
+        // Return list of log entries
+        return remote_api.fetch_logs("response_orchestrator")
+
+    function get_remediation_logs()
+        // Fetch logs from remediation_orchestrator
+        // Return list of log entries
+        return remote_api.fetch_logs("remediation_orchestrator")

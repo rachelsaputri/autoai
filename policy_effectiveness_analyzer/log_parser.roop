@@ -1,0 +1,22 @@
+# ROOP Log Parser
+# Parses logs from orchestrators
+
+module LogParser
+
+    function parse_all(logs)
+        parsed = []
+        for log in logs
+            rule_id = log.get_field("rule_id")
+            result = log.get_field("result")
+            status = log.get_field("status")
+            parsed.append({rule_id: rule_id, result: result, status: status})
+        return parsed
+
+    function get_proof_status(log_entry)
+        // Lookup proof status in verification database
+        // Return "valid", "invalid", or "unknown"
+        return verification_db.check_status(log_entry.rule_id)
+
+    function get_actual_result(log_entry)
+        // Extract actual enforcement result
+        return log_entry.result

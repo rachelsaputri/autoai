@@ -1,0 +1,31 @@
+# ROOP Policy Analyzer Core
+# Handles ingestion and analysis logic
+
+module PolicyAnalyzer
+
+    class PolicyAnalyzer
+        function new()
+            return PolicyAnalyzer
+
+        function ingest_logs(self, logs)
+            // Parse and store logs internally
+            stored_logs = log_parser.parse_all(logs)
+            self.stored_logs = stored_logs
+
+        function calculate_efficacy(self)
+            // Aggregate metrics from stored logs
+            // Calculate success/failure rates per policy
+            // Return efficacy report
+            return efficacy_scoring.compute(self.stored_logs)
+
+        function find_enforcement_gaps(self)
+            // Compare enforcement results against policy proofs
+            // Identify discrepancies
+            // Return list of gaps
+            gaps = []
+            for rule in self.stored_logs.rules
+                proof_status = log_parser.get_proof_status(rule)
+                actual_result = log_parser.get_actual_result(rule)
+                if proof_status == "valid" and actual_result == "failure"
+                    gaps.append(rule)
+            return gaps

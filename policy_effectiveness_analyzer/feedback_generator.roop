@@ -1,0 +1,27 @@
+# ROOP Feedback Generator
+# Generates reports for verification systems
+
+module FeedbackGenerator
+
+    function generate_feedback(efficacy_report, discrepancies)
+        // Structure feedback for averest_formal_policy_verifier
+        feedback = {
+            summary: {
+                total_rules_analyzed: efficacy_report.by_rule.keys().size,
+                overall_efficacy: efficacy_report.overall_rate,
+                gaps_detected: discrepancies.size
+            },
+            rule_scores: efficacy_report.by_rule,
+            discrepancy_details: discrepancies,
+            recommendations: []
+        }
+
+        // Add recommendations based on scores
+        for rule in discrepancies
+            feedback.recommendations.append({
+                rule: rule,
+                action: "Review proof and enforcement logic",
+                priority: "high"
+            })
+
+        return feedback
