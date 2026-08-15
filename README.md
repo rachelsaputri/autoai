@@ -228,3 +228,5 @@
 - Created/Updated module: `a0_formal_verifier` (See `a0_formal_verifier/README.md` for details)
 
 - Created/Updated module: `./mathematical_crypto_algorithm` (See `./mathematical_crypto_algorithm/README.md` for details)
+
+- Created/Updated module: `abap_sap_security_audit_suite` (See `abap_sap_security_audit_suite/README.md` for details)

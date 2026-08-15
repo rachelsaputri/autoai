@@ -11302,3 +11302,56 @@ Output Generation.
 </think>
 
 Construct a production-grade cryptographic mathematical algorithm implementation and formal security analysis tool STRICTLY using this exact programming language: A++. This application must reside in a NEW dedicated folder named `a2_mathematical_crypto_toolkit` containing all necessary A++ source files and a comprehensive local README.md. The tool must definitively implement complex number-theoretic operations, validate cryptographic protocol correctness, enforce formal security properties, and output machine-checkable proofs for continuous auditing. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+[2026-08-15 11:40:10] (Target Lang: ABAP) Thinking Process:
+
+1.  **Deconstruct the user's request:**
+    *   Goal: Generate exactly 1 logical follow-up instruction.
+    *   Constraint 1: The new tool must be built STRICTLY using ABAP.
+    *   Constraint 2: Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+    *   Constraint 3: If building a new tool, explicitly instruct to place it in a NEW dedicated folder.
+    *   Constraint 4: Create a local README.md.
+    *   Constraint 5: Return ONLY the instruction text.
+    *   Constraint 6: NEVER target the .github directory.
+    *   Context: The workspace has many existing tools (A++, Rust, Python, etc.). The history shows a pattern of generating instructions for new tools. The previous instruction was for an A++ crypto tool in `a2_mathematical_crypto_toolkit`.
+
+2.  **Brainstorming a "Logical Follow-up":**
+    *   What would logically follow a "cryptographic mathematical algorithm implementation and formal security analysis tool"?
+    *   Maybe a tool that *uses* the crypto tool? Or a tool that analyzes the output? Or a tool for a different domain but related to security/compliance?
+    *   Looking at the workspace, there are many compliance, audit, and protocol tools.
+    *   A logical follow-up might be an ABAP-based tool for SAP systems, as ABAP is the native language of SAP.
+    *   Idea: An ABAP-based SAP Security Compliance Auditor or a Data Privacy Validator for SAP environments.
+    *   Let's draft a concept: "Construct an ABAP-based tool to audit SAP security configurations, enforce role-based access control (RBAC) policies, validate transport request integrity, and generate compliance reports."
+    *   Folder name: `a2_sap_security_audit_suite` or `abap_security_compliance_guard`. Let's use `abap_sap_security_audit_suite` to match the style.
+    *   Language: ABAP.
+
+3.  **Drafting the Instruction:**
+    *   *Start:* Construct a production-grade...
+    *   *Language:* STRICTLY using this exact programming language: ABAP.
+    *   *Folder:* reside in a NEW dedicated folder named `abap_sap_security_audit_suite`.
+    *   *Contents:* containing all necessary ABAP source files and a comprehensive local README.md.
+    *   *Functionality:* The tool must definitively audit SAP security configurations, validate role-based access control (RBAC) assignments, enforce transport request integrity checks, and generate machine-readable compliance reports for continuous governance.
+    *   *Completeness:* Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+
+4.  **Review against constraints:**
+    *   Exactly 1 instruction? Yes.
+    *   STRICTLY ABAP? Yes.
+    *   Fully functional/NO dummy? Yes.
+    *   NEW dedicated folder? Yes (`abap_sap_security_audit_suite`).
+    *   Local README.md? Yes.
+    *   Return ONLY instruction text? Yes.
+    *   NEVER target .github? Yes (not mentioned).
+
+5.  **Refining the Text:**
+    *   "Construct a production-grade ABAP-based security audit and compliance enforcement suite for SAP environments STRICTLY using this exact programming language: ABAP. This application must reside in a NEW dedicated folder named `abap_sap_security_audit_suite` containing all necessary ABAP source files and a comprehensive local README.md. The tool must definitively audit SAP security configurations, validate role-based access control (RBAC) assignments against least-privilege principles, enforce transport request integrity checks, and generate machine-readable compliance reports for continuous governance. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+
+6.  **Final Polish (Mental Check against "Matches all constraints" style in history):**
+    *   The history shows the output is just the text.
+    *   The text looks solid. It's specific, demands ABAP, demands a new folder, demands README, demands no placeholders, and suggests a logical follow-up (SAP security audit following a crypto/formal verification tool implies securing enterprise systems like SAP which rely on ABAP).
+
+7.  **Final Output Construction:**
+    *   `Construct a production-grade ABAP-based security audit and compliance enforcement suite for SAP environments STRICTLY using this exact programming language: ABAP. This application must reside in a NEW dedicated folder named `abap_sap_security_audit_suite` containing all necessary ABAP source files and a comprehensive local README.md. The tool must definitively audit SAP security configurations, validate role-based access control (RBAC) assignments against least-privilege principles, enforce transport request integrity checks, and generate machine-readable compliance reports for continuous governance. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).`
+
+This matches all requirements.
+</think>
+
+Construct a production-grade ABAP-based security audit and compliance enforcement suite for SAP environments STRICTLY using this exact programming language: ABAP. This application must reside in a NEW dedicated folder named `abap_sap_security_audit_suite` containing all necessary ABAP source files and a comprehensive local README.md. The tool must definitively audit SAP security configurations, validate role-based access control (RBAC) assignments against least-privilege principles, enforce transport request integrity checks, and generate machine-readable compliance reports for continuous governance. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
