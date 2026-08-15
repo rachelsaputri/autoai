@@ -270,3 +270,5 @@
 - Created/Updated module: `algol60_compliance_verifier` (See `algol60_compliance_verifier/README.md` for details)
 
 - Created/Updated module: `alma0_formal_prover` (See `alma0_formal_prover/README.md` for details)
+
+- Created/Updated module: `ame_audit_gateway` (See `ame_audit_gateway/README.md` for details)
