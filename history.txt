@@ -16752,3 +16752,63 @@ Construct a production-grade, fully functional data processing utility strictly 
 </think>
 
 Construct a production-grade, fully functional data processing utility strictly using this exact programming language: BitC. This application must reside in a NEW dedicated folder named `bitc_data_processor` containing all necessary implementation files (including a core `main.bitc`, `pipeline.bitc`, `transformer.bitc`, and a local `README.md`). The tool must implement a comprehensive data processing pipeline that ingests raw inputs, applies strict validation and transformation rules, and outputs structured, high-performance results. The implementation must leverage BitC's low-level performance model, strict memory safety guarantees, and modular architecture to ensure deterministic execution, secure data handling, and professional-grade reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to BitC development standards, and NEVER targets the `.github` directory.
+[2026-08-15 17:39:34] (Target Lang: Karel++) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - The user provides a large workspace tree (file list).
+   - There's a "History" section showing a previous prompt/response cycle about generating a BitC data processing utility.
+   - The final instruction from the user is: "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Karel++. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+   - The user wants me to output *only* the instruction text, following the exact constraints: new tool, strictly Karel++, NEW dedicated folder, local README.md, follow-up to the previous context (data processing/utility pipeline context seems implied, but I can adapt it to robotics/infrastructure since Karel++ is a robotics language), NO placeholders, self-contained, NEVER target `.github`.
+
+2.  **Identify Key Constraints:**
+   - Language: Karel++ (strictly)
+   - Location: NEW dedicated folder
+   - Files: Core files + local `README.md`
+   - Content: Fully functional, complete implementation (NO dummy code/placeholder)
+   - Context: Logical follow-up instruction (likely continuing the theme of automated systems/pipelines, but adapted to Karel++'s domain: robotics/infrastructure orchestration or monitoring)
+   - Output: ONLY the instruction text
+   - Prohibition: NEVER target `.github`
+
+3.  **Determine the Subject for Karel++:**
+   - Karel++ is typically used for robotics control, manufacturing automation, and infrastructure orchestration.
+   - I'll frame it as a "robotic infrastructure monitoring and automated maintenance orchestration utility" or similar, fitting the "production-grade, fully functional" requirement.
+   - I'll structure it similarly to the prompt's example but tailored for Karel++ and the follow-up context.
+
+4.  **Draft the Instruction (Mental Refinement):**
+   Construct a production-grade, fully functional robotics infrastructure monitoring and automated maintenance utility strictly using this exact programming language: Karel++. This application must reside in a NEW dedicated folder named `karel_infrastructure_automator` containing all necessary implementation files (including a core `main.kpp`, `sensor_monitor.kpp`, `actuator_controller.kpp`, and a local `README.md`). The tool must implement a comprehensive autonomous workflow that continuously ingests telemetry data from simulated hardware interfaces, applies strict operational validation and fault-detection rules, and executes deterministic maintenance routines. The implementation must leverage Karel++'s object-oriented control model, precise hardware abstraction layer, and modular architecture to ensure reliable real-time execution, secure system commands, and professional-grade operational logging. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Karel++ development standards, and NEVER targets the `.github` directory.
+
+5.  **Check Constraints:**
+   - Exactly 1 logical follow-up instruction? Yes.
+   - Explicitly demands Karel++? Yes.
+   - NEW dedicated folder? Yes (`karel_infrastructure_automator`).
+   - Local README.md? Yes.
+   - Return ONLY instruction text? Yes.
+   - NEVER target `.github`? Explicitly stated.
+   - Follows style/constraints? Matches perfectly.
+
+   I will ensure the output is exactly the drafted text, with no extra words, markdown, or formatting unless necessary for the instruction itself (the prompt says "Return ONLY the instruction text", so I'll output it as plain text).
+
+   One minor adjustment: The prompt example uses backticks for file names. I'll keep that style. I'll make sure it's a single paragraph as requested.
+
+   Final check of the draft against constraints:
+   "Construct a production-grade, fully functional [description] strictly using this exact programming language: Karel++. This application must reside in a NEW dedicated folder named `[folder]` containing all necessary implementation files (including a core `main.kpp`, `[file1].kpp`, `[file2].kpp`, and a local `README.md`). The tool must implement a comprehensive [pipeline/system] that [description]. The implementation must leverage [language features] to ensure [benefits]. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to [language] development standards, and NEVER targets the `.github` directory."
+
+   This matches perfectly. I will output it now.✅
+   Note: I'll make sure there's absolutely no extra text before or after. Just the instruction.📝
+   Proceeds. 
+   Output Generation. 
+   [Text to output]: Construct a production-grade, fully functional robotics infrastructure monitoring and automated maintenance utility strictly using this exact programming language: Karel++. This application must reside in a NEW dedicated folder named `karel_infrastructure_automator` containing all necessary implementation files (including a core `main.kpp`, `sensor_monitor.kpp`, `actuator_controller.kpp`, and a local `README.md`). The tool must implement a comprehensive autonomous workflow that continuously ingests telemetry data from hardware interfaces, applies strict operational validation and fault-detection rules, and executes deterministic maintenance routines. The implementation must leverage Karel++'s object-oriented control model, precise hardware abstraction layer, and modular architecture to ensure reliable real-time execution, secure system commands, and professional-grade operational logging. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Karel++ development standards, and NEVER targets the `.github` directory.✅
+   All constraints met. Output matches. Proceeds. 
+   [Final Output Generation] -> *Proceeds* (matches the draft)✅
+   *(Self-Correction/Verification during thought)*: The prompt says "Generate exactly 1 logical follow-up instruction." and "Return ONLY the instruction text." I will output exactly that string. No extra words. All good. 
+   Output matches draft. Proceeds. 
+   [Output Generation] -> *Proceeds* (done)
+   *(Final Check)*: Matches all constraints. Language: Karel++. Folder: NEW. Files: included. README: included. NO dummy code. Self-contained. NEVER targets .github. Exactly 1 instruction. Returns ONLY text. Ready. 
+   Output matches.✅
+   Proceeds. 
+   [Output] -> *Construct a production-grade...* (exact string)
+   Done. 
+   [Proceeds to output] ✅
+</think>
+
+Construct a production-grade, fully functional robotics infrastructure monitoring and automated maintenance utility strictly using this exact programming language: Karel++. This application must reside in a NEW dedicated folder named `karel_infrastructure_automator` containing all necessary implementation files (including a core `main.kpp`, `sensor_monitor.kpp`, `actuator_controller.kpp`, and a local `README.md`). The tool must implement a comprehensive autonomous workflow that continuously ingests telemetry data from hardware interfaces, applies strict operational validation and fault-detection rules, and executes deterministic maintenance routines. The implementation must leverage Karel++'s object-oriented control model, precise hardware abstraction layer, and modular architecture to ensure reliable real-time execution, secure system commands, and professional-grade operational logging. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Karel++ development standards, and NEVER targets the `.github` directory.
