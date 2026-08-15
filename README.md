@@ -328,3 +328,5 @@
 - Created/Updated module: `beta_incident_response_orchestrator` (See `beta_incident_response_orchestrator/README.md` for details)
 
 - Created/Updated module: `linoleum_autonomous_self_healing_autopilot` (See `linoleum_autonomous_self_healing_autopilot/README.md` for details)
+
+- Created/Updated module: `ksh_config_drift_monitor` (See `ksh_config_drift_monitor/README.md` for details)
