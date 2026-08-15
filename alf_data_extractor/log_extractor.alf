@@ -1,0 +1,253 @@
+
+module log_extractor
+
+// ============================================
+// TYPE DEFINITIONS
+// ============================================
+
+type LogEntry {
+  timestamp: string
+  level: string
+  source: string
+  message: string
+  metadata: map(string, string)
+}
+
+type ParseResult {
+  success: bool
+  entry: ?LogEntry
+  error: ?string
+}
+
+// ============================================
+// PARSER INTERFACES
+// ============================================
+
+interface Parser {
+  fn parse(raw: string) -> ParseResult
+}
+
+type ParserRegistry = map(string, Parser)
+
+// ============================================
+// PARSER IMPLEMENTATIONS
+// ============================================
+
+// 1. JSON Parser
+module json_parser implements Parser {
+  fn parse(raw: string) -> ParseResult {
+    let parsed = try json_decode(raw)
+    if parsed is null {
+      return { success: false, error: Some("Invalid JSON") }
+    }
+    
+    // Extract standard fields with defaults
+    let timestamp = parsed.get("timestamp") || parsed.get("time") || "unknown"
+    let level = parsed.get("level") || parsed.get("severity") || "INFO"
+    let source = parsed.get("source") || parsed.get("service") || "unknown"
+    let message = parsed.get("message") || parsed.get("log") || ""
+    let metadata = parsed.except(["timestamp", "time", "level", "severity", "source", "service", "message", "log"])
+    
+    let entry = LogEntry {
+      timestamp: timestamp,
+      level: level,
+      source: source,
+      message: message,
+      metadata: metadata
+    }
+    
+    return { success: true, entry: Some(entry), error: None }
+  }
+}
+
+// 2. Syslog Parser
+module syslog_parser implements Parser {
+  fn parse(raw: string) -> ParseResult {
+    // Standard syslog format: <PRI>TIMESTAMP HOSTNAME TAG[PID]: MESSAGE
+    // Example: <134>Jan  1 00:00:00 myhost sshd[1234]: Failed password
+    
+    let regex = regex_compile("<([0-9]+)>([^ ]+) ([^ ]+) ([^\\[]+)\\[([0-9]+)\\]: (.*)")
+    let match = regex_exec(regex, raw)
+    
+    if match is null {
+      // Fallback for non-priority syslog
+      let fallback_regex = regex_compile("([^ ]+) ([^ ]+) ([^\\[]+)\\[([0-9]+)\\]: (.*)")
+      let fallback_match = regex_exec(fallback_regex, raw)
+      
+      if fallback_match is null {
+        return { success: false, error: Some("Failed to match syslog format") }
+      }
+      
+      return {
+        success: true,
+        entry: Some(LogEntry {
+          timestamp: fallback_match[1],
+          level: "INFO",
+          source: fallback_match[3],
+          message: fallback_match[5],
+          metadata: { "host": fallback_match[2], "pid": fallback_match[4] }
+        }),
+        error: None
+      }
+    }
+    
+    // Parse priority (facility + severity)
+    let priority = int_parse(match[1])
+    let severity = priority % 8
+    let level = match_severity(severity)
+    
+    return {
+      success: true,
+      entry: Some(LogEntry {
+        timestamp: match[2],
+        level: level,
+        source: match[4],
+        message: match[6],
+        metadata: { "host": match[3], "pid": match[5], "priority": match[1] }
+      }),
+      error: None
+    }
+  }
+  
+  fn match_severity(sev: int) -> string {
+    match sev {
+      0 => "EMERGENCY",
+      1 => "ALERT",
+      2 => "CRITICAL",
+      3 => "ERROR",
+      4 => "WARNING",
+      5 => "NOTICE",
+      6 => "INFO",
+      7 => "DEBUG",
+      _ => "UNKNOWN"
+    }
+  }
+}
+
+// 3. CSV Parser
+module csv_parser implements Parser {
+  fn parse(raw: string) -> ParseResult {
+    let lines = raw.split("\n")
+    if lines.length < 2 {
+      return { success: false, error: Some("CSV must have header and at least one row") }
+    }
+    
+    let headers = lines[0].split(",")
+    let values = lines[1].split(",")
+    
+    if headers.length != values.length {
+      return { success: false, error: Some("Header and value column count mismatch") }
+    }
+    
+    let metadata = map()
+    let mut i = 0
+    while i < headers.length {
+      metadata.put(headers[i].trim(), values[i].trim())
+      i = i + 1
+    }
+    
+    return {
+      success: true,
+      entry: Some(LogEntry {
+        timestamp: metadata.get("timestamp") || "unknown",
+        level: metadata.get("level") || "INFO",
+        source: metadata.get("source") || "csv",
+        message: metadata.get("message") || "",
+        metadata: metadata
+      }),
+      error: None
+    }
+  }
+}
+
+// 4. Regex/Unstructured Parser
+module regex_parser implements Parser {
+  fn parse(raw: string) -> ParseResult {
+    let pattern = get_config("regex_pattern") || ".*"
+    let regex = regex_compile(pattern)
+    let match = regex_exec(regex, raw)
+    
+    if match is null {
+      return { success: false, error: Some("No match for regex pattern") }
+    }
+    
+    let metadata = map()
+    let mut i = 0
+    while i < match.length {
+      metadata.put("group_" + i, match[i])
+      i = i + 1
+    }
+    
+    return {
+      success: true,
+      entry: Some(LogEntry {
+        timestamp: "parsed",
+        level: "INFO",
+        source: "regex_extractor",
+        message: match[0],
+        metadata: metadata
+      }),
+      error: None
+    }
+  }
+}
+
+// ============================================
+// REGISTRY & UTILITIES
+// ============================================
+
+fn init_registry() -> ParserRegistry {
+  let registry = map()
+  registry.put("json", json_parser)
+  registry.put("syslog", syslog_parser)
+  registry.put("csv", csv_parser)
+  registry.put("regex", regex_parser)
+  return registry
+}
+
+let parser_registry = init_registry()
+
+fn get_parser(name: string) -> ?Parser {
+  parser_registry.get(name)
+}
+
+// ============================================
+// SECURITY: PII STRIPPING
+// ============================================
+
+fn strip_pii(text: string) -> string {
+  let patterns = [
+    regex_compile("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"),
+    regex_compile("\\b\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\b"),
+    regex_compile("(api[_-]?key|token|secret)[\\s:=]+\\S+")
+  ]
+  
+  let mut result = text
+  let mut p = 0
+  while p < patterns.length {
+    result = regex_replace(patterns[p], result, "[REDACTED]")
+    p = p + 1
+  }
+  return result
+}
+
+fn safe_parse(parser: Parser, input: string) -> ParseResult {
+  let raw_result = parser.parse(input)
+  if raw_result.success {
+    let entry = raw_result.entry.unwrap()
+    let safe_entry = LogEntry {
+      timestamp: entry.timestamp,
+      level: entry.level,
+      source: entry.source,
+      message: strip_pii(entry.message),
+      metadata: map()
+    }
+    let mut clean_metadata = map()
+    for key in entry.metadata.keys {
+      clean_metadata.put(key, strip_pii(entry.metadata.get(key).unwrap()))
+    }
+    safe_entry.metadata = clean_metadata
+    return { success: true, entry: Some(safe_entry), error: None }
+  }
+  return raw_result
+}
