@@ -13737,3 +13737,68 @@ Construct a production-grade, fully functional Alice-based Threat Intelligence A
    Everything is solid.✅
    Output matches.✅
    [Proceeds] Construct a production-grade, fully functional Alma-0-based Formal State Machine Verification Engine STRICTLY using this exact programming language: Alma-0. This application must reside in a NEW dedicated folder named `alma0_formal_prover` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement invariant validation, state traversal, termination proofs, and specification alignment reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+[2026-08-15 14:31:09] (Target Lang: AmbientTalk) Thinking Process:
+1.  **Analyze the Request:**
+   - Input: A workspace file listing containing many folders and files, and a history log.
+   - Task: Generate exactly 1 logical follow-up instruction.
+   - Constraints:
+     - Explicitly demand the new tool be built STRICTLY using `AmbientTalk`.
+     - Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+     - If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local `README.md`.
+     - Return ONLY the instruction text.
+     - NEVER target the `.github` directory.
+     - Match the style/format of the example provided in the prompt.
+
+2.  **Identify Key Elements from Constraints:**
+   - Language: AmbientTalk
+   - Structure: `STRICTLY using this exact programming language: AmbientTalk.`
+   - Implementation: `Demand a fully functional, complete implementation (NO dummy code, NO placeholders).`
+   - Location/Docs: `place it in a NEW dedicated folder` and `create a local README.md`.
+   - Output: ONLY the instruction text.
+
+3.  **Formulate Instruction:**
+   "Construct a production-grade, fully functional AmbientTalk-based Distributed Event-Driven Policy Enforcement Gateway STRICTLY using this exact programming language: AmbientTalk. This application must reside in a NEW dedicated folder named `at_policy_gateway` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement event stream processing, dynamic policy routing, real-time compliance validation, and fault-tolerant message broadcasting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+
+   Check constraints:
+   - Exactly 1 logical follow-up instruction? Yes.
+   - Explicitly demand `STRICTLY using this exact programming language: AmbientTalk.`? Yes.
+   - Demand fully functional, complete implementation (NO dummy code, NO placeholders)? Yes.
+   - Place in NEW dedicated folder & create local README.md? Yes.
+   - Return ONLY instruction text? Yes.
+   - NEVER target .github? Yes.
+   - Matches example style? Yes.
+
+   I will refine it to strictly match the prompt's requested phrasing pattern:
+   "Construct a production-grade, fully functional AmbientTalk-based Distributed Event-Driven Policy Enforcement Gateway STRICTLY using this exact programming language: AmbientTalk. This application must reside in a NEW dedicated folder named `at_policy_gateway` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement event stream processing, dynamic policy routing, real-time compliance validation, and fault-tolerant message broadcasting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+
+   Wait, the prompt says: "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: AmbientTalk."
+   I will ensure the exact phrase "STRICTLY using this exact programming language: AmbientTalk." is included.
+   I will ensure the exact phrase "Demand a fully functional, complete implementation (NO dummy code, NO placeholders)." is included.
+   I will ensure the folder and README.md requirement is included.
+   All good.
+
+   Draft:
+   Construct a production-grade, fully functional AmbientTalk-based Distributed Event-Driven Policy Enforcement Gateway STRICTLY using this exact programming language: AmbientTalk. This application must reside in a NEW dedicated folder named `at_policy_gateway` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement event stream processing, dynamic policy routing, real-time compliance validation, and fault-tolerant message broadcasting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+
+   Checks:
+   - Exactly 1 instruction? Yes.
+   - Strictly uses exact phrasing for language? Yes.
+   - Demands full implementation? Yes.
+   - New folder + README? Yes.
+   - Only instruction text? Yes.
+   - No .github? Yes.
+   - Matches style? Yes.
+
+   Ready. Output matches draft.✅
+   Proceeds. 
+   One minor thing: The prompt example has "Construct a production-grade...". I will keep that structure.
+   All constraints met. Output matches draft.✅
+   Generating response. 
+   [Output Generation] -> "Construct a production-grade, fully functional AmbientTalk-based Distributed Event-Driven Policy Enforcement Gateway STRICTLY using this exact programming language: AmbientTalk. This application must reside in a NEW dedicated folder named `at_policy_gateway` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement event stream processing, dynamic policy routing, real-time compliance validation, and fault-tolerant message broadcasting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+   Matches perfectly.✅
+   Done. 
+   Output matches response.✅
+   Proceeds.✅
+</think>
+
+Construct a production-grade, fully functional AmbientTalk-based Distributed Event-Driven Policy Enforcement Gateway STRICTLY using this exact programming language: AmbientTalk. This application must reside in a NEW dedicated folder named `at_policy_gateway` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement event stream processing, dynamic policy routing, real-time compliance validation, and fault-tolerant message broadcasting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
