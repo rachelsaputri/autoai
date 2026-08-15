@@ -120,3 +120,5 @@
 - Created/Updated module: `karel_infrastructure_tracer` (See `karel_infrastructure_tracer/README.md` for details)
 
 - Created/Updated module: `s3_data_lifecycle_manager` (See `s3_data_lifecycle_manager/README.md` for details)
+
+- Created/Updated module: `windows_security_baseline_agent` (See `windows_security_baseline_agent/README.md` for details)
