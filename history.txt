@@ -14424,3 +14424,55 @@ Construct a production-grade, fully functional ARexx-based Formal Compliance Pol
 </think>
 
 Construct a production-grade, fully functional Component Pascal-based Formal Compliance Policy Evaluator STRICTLY using this exact programming language: Component Pascal. This application must reside in a NEW dedicated folder named `cpascal_formal_policy_evaluator` containing all necessary source files (Component Pascal units, interface modules, and project manifests) and a comprehensive local README.md. The tool must definitively implement automated parsing and evaluation of complex compliance policies against system state definitions, support formal logic operators, generate detailed proof traces for policy satisfaction/failure, and export results in structured formats suitable for enterprise audit trails. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained and NEVER target the .github directory.
+[2026-08-15 15:03:52] (Target Lang: Model 204) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - **Context:** The user provides a file tree and a conversation history. The history shows a previous turn where I was asked to generate exactly 1 follow-up instruction for a new tool using "Component Pascal". I did that.
+   - **Current Prompt:** "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Model 204. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+   - **Constraints:**
+     - Generate exactly 1 logical follow-up instruction.
+     - MUST explicitly demand the tool be built STRICTLY using "Model 204".
+     - If building a new tool, place it in a NEW dedicated folder and create a local README.md.
+     - Return ONLY the instruction text.
+     - NEVER target the .github directory.
+     - Based on the pattern from the history, I should generate a prompt-like instruction that I would output as the next step in the workflow.
+
+2.  **Deconstruct Requirements:**
+   - Language: Model 204 (an older, specialized database language for the Cullinet Model 204 system, often used for mainframe/enterprise data management, though it's rare. I'll treat it as a strict language constraint).
+   - Tool Type: Not specified, but should logically follow from the previous tool (Formal Compliance Policy Evaluator). A logical follow-up could be a "Model 204-based Enterprise Audit Data Archiver & Compliance Repository Manager" or similar. I'll make it a "Model 204-based Enterprise Compliance Audit Repository Manager".
+   - Folder: NEW dedicated folder, e.g., `m204_compliance_audit_repo`.
+   - README: Local `README.md` required.
+   - Functionality: Should align with the theme (compliance, auditing, policy enforcement, data management). Let's go with automated archival, indexing, and query processing of compliance audit logs/data using Model 204's native capabilities.
+   - Constraint Check: "STRICTLY using this exact programming language: Model 204." "NEVER target the .github directory." "Return ONLY the instruction text."
+
+3.  **Draft Construction (Mental):**
+   Construct a production-grade, fully functional Model 204-based Enterprise Compliance Audit Repository Manager STRICTLY using this exact programming language: Model 204. This application must reside in a NEW dedicated folder named `m204_compliance_audit_repo` containing all necessary source files (Model 204 database definitions, query scripts, processing routines, and project manifests) and a comprehensive local README.md. The tool must definitively implement automated indexing and archival of complex compliance audit logs against predefined schema models, support advanced Model 204 native query and traversal operations, generate detailed retention and chain-of-custody reports for regulatory compliance, and export structured data dumps compatible with enterprise data lakes. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained and NEVER target the .github directory.
+
+4.  **Refine & Check Constraints:**
+   - Exactly 1 instruction? Yes.
+   - Explicitly demand "STRICTLY using this exact programming language: Model 204"? Yes.
+   - NEW dedicated folder? Yes (`m204_compliance_audit_repo`).
+   - Local README.md? Yes.
+   - Return ONLY the instruction text? Yes.
+   - NEVER target .github? Yes, explicitly stated.
+   - Logical follow-up? Yes, follows the compliance/auditing theme of the previous tool but shifts to data repository/archival management.
+
+   The draft matches all constraints perfectly. I will output it exactly as drafted. No extra text. Ensure formatting matches the prompt's request for "ONLY the instruction text."
+
+   One minor check: Model 204 is a niche legacy DBMS language. The prompt just wants the instruction text to demand it. I'll keep it as is. The phrasing matches the required pattern.
+
+   Final check of the prompt: "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Model 204. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+
+   All constraints met. Output matches draft.✅
+   Proceeds. 
+   Output generation. 
+   [Text to output]: Construct a production-grade, fully functional Model 204-based Enterprise Compliance Audit Repository Manager STRICTLY using this exact programming language: Model 204. This application must reside in a NEW dedicated folder named `m204_compliance_audit_repo` containing all necessary source files (Model 204 database definitions, query scripts, processing routines, and project manifests) and a comprehensive local README.md. The tool must definitively implement automated indexing and archival of complex compliance audit logs against predefined schema models, support advanced Model 204 native query and traversal operations, generate detailed retention and chain-of-custody reports for regulatory compliance, and export structured data dumps compatible with enterprise data lakes. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained and NEVER target the .github directory. 
+   Matches perfectly. Ready. 
+   Output matches exactly.✅
+   *(Self-Correction/Verification during thought)*: I'll verify the exact wording constraint: "You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: Model 204." -> My draft includes "STRICTLY using this exact programming language: Model 204." which matches. All good. 
+   Proceeds.✅
+   [Output Generation] -> *Proceeds.* (exact string) 
+   *(Done.)*
+</think>
+
+Construct a production-grade, fully functional Model 204-based Enterprise Compliance Audit Repository Manager STRICTLY using this exact programming language: Model 204. This application must reside in a NEW dedicated folder named `m204_compliance_audit_repo` containing all necessary source files (Model 204 database definitions, query scripts, processing routines, and project manifests) and a comprehensive local README.md. The tool must definitively implement automated indexing and archival of complex compliance audit logs against predefined schema models, support advanced Model 204 native query and traversal operations, generate detailed retention and chain-of-custody reports for regulatory compliance, and export structured data dumps compatible with enterprise data lakes. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained and NEVER target the .github directory.
