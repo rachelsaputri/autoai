@@ -244,3 +244,5 @@
 - Created/Updated module: `accent_compliance_enforcer` (See `accent_compliance_enforcer/README.md` for details)
 
 - Created/Updated module: `jovial_policy_enforcement_gateway` (See `jovial_policy_enforcement_gateway/README.md` for details)
+
+- Created/Updated module: `ada_intrusion_detection_system` (See `ada_intrusion_detection_system/README.md` for details)

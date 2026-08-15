@@ -12402,3 +12402,44 @@ Construct a production-grade, fully functional automated network security baseli
 </think>
 
 Construct a production-grade, fully functional automated network security baseline auditor and configuration drift detector STRICTLY using this exact programming language: ActionScript. This application must reside in a NEW dedicated folder named `actionscript_net_baseline_auditor` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement real-time configuration state scanning, cryptographic baseline hashing and comparison, automated drift alert generation, and remediation command scripting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+[2026-08-15 13:00:06] (Target Lang: Ada) Thinking Process:
+
+1.  **Deconstruct the User's Request:**
+    *   Goal: Generate exactly 1 logical follow-up instruction.
+    *   Constraint 1: The new tool must be built STRICTLY using the exact programming language: Ada.
+    *   Constraint 2: Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+    *   Constraint 3: If building a new tool, explicitly instruct to place it in a NEW dedicated folder.
+    *   Constraint 4: Create a local README.md.
+    *   Constraint 5: Return ONLY the instruction text.
+    *   Constraint 6: NEVER target the `.github` directory.
+    *   Context: The workspace list shows many existing tools related to security auditing, formal verification, compliance, etc. A logical follow-up would likely be another security-related tool, perhaps expanding on the domain (e.g., a specific type of audit, a different aspect of security, or a complementary tool). Since the previous instruction (in the history) was about an "automated network security baseline auditor," a logical follow-up could be a "formal verification engine for Ada-based security configurations" or an "Ada-based intrusion detection system" or an "Ada-based secure configuration manager."
+    *   Let's pick a logical tool: An "Ada-based secure configuration management and drift detection engine" seems redundant to the previous one (network baseline auditor). A better logical progression might be a "Formal Verification Engine for Network Security Policies" or an "Ada-based Intrusion Detection System." Let's go with an "Ada-based Intrusion Detection System" or "Ada-based Security Audit Tool."
+    *   The prompt asks for a "logical follow-up instruction." The output should be a single text block that is the instruction itself.
+    *   Drafting the instruction text:
+        *   "Construct a production-grade..."
+        *   Tool description: "...fully functional Ada-based Intrusion Detection System..."
+        *   Language: "...STRICTLY using this exact programming language: Ada."
+        *   Folder: "...NEW dedicated folder named `ada_intrusion_detection_system`..."
+        *   Files: "...containing all necessary source files and a comprehensive local README.md."
+        *   Implementation detail: "The tool must definitively implement packet capture, signature matching, anomaly detection, and alert reporting."
+        *   Constraints: "Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+        *   Check against constraints:
+        *   Language: Ada? Yes.
+        *   New folder? Yes.
+        *   README.md? Yes.
+        *   No dummy code? Yes.
+        *   Only instruction text? Yes.
+        *   No .github? Yes.
+    *   Refinement: The user wants "exactly 1 logical follow-up instruction." The structure should mimic the example in the history: "Construct a production-grade, fully functional [description] STRICTLY using this exact programming language: [Language]. This application must reside in a NEW dedicated folder named `[folder]` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement [features]. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+    *   Resulting Text: Construct a production-grade, fully functional Ada-based Intrusion Detection System STRICTLY using this exact programming language: Ada. This application must reside in a NEW dedicated folder named `ada_intrusion_detection_system` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement network traffic analysis, signature-based detection, anomaly scoring, and alert dispatching. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+
+2.  **Final Polish:**
+    *   Check for `.github`. None present.
+    *   Check for "ONLY the instruction text". No markdown headers, no "Here is the instruction", etc. Just the text.
+    *   Result: `Construct a production-grade, fully functional Ada-based Intrusion Detection System STRICTLY using this exact programming language: Ada. This application must reside in a NEW dedicated folder named `ada_intrusion_detection_system` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement network traffic analysis, signature-based detection, anomaly scoring, and alert dispatching. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).`
+
+3.  **Output Generation:**
+    *   Output the result string.
+</think>
+
+Construct a production-grade, fully functional Ada-based Intrusion Detection System STRICTLY using this exact programming language: Ada. This application must reside in a NEW dedicated folder named `ada_intrusion_detection_system` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement network traffic analysis, signature-based detection, anomaly scoring, and alert dispatching. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
