@@ -206,3 +206,5 @@
 - Created/Updated module: `candle_formal_policy_verifier` (See `candle_formal_policy_verifier/README.md` for details)
 
 - Created/Updated module: `cesil_compliance_drift_detector` (See `cesil_compliance_drift_detector/README.md` for details)
+
+- Created/Updated module: `distributed_policy_enforcement_coordinator` (See `distributed_policy_enforcement_coordinator/README.md` for details)
