@@ -320,3 +320,5 @@
 - Created/Updated module: `./low_level_memory_network_sim` (See `./low_level_memory_network_sim/README.md` for details)
 
 - Created/Updated module: `coral66_config_drift_auditor` (See `coral66_config_drift_auditor/README.md` for details)
+
+- Created/Updated module: `windows_security_baseline_auditor_batch` (See `windows_security_baseline_auditor_batch/README.md` for details)
