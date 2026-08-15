@@ -1,0 +1,90 @@
+// json_handler.cpl
+// Handles JSON data serialization and deserialization
+
+module json_handler {
+
+    class JSONProcessor {
+        function constructor() {
+            // Initialize JSON processor
+        }
+        
+        function serializeToJSON(data: ProcessedData) : String {
+            var json = "{";
+            
+            // Serialize records
+            json += "\"records\":[";
+            var first = true;
+            for (record in data.records) {
+                if (!first) json += ",";
+                first = false;
+                
+                json += serializeRecord(record);
+            }
+            json += "]";
+            
+            // Serialize statistics
+            json += ",\"statistics\":{";
+            json += "\"count\":" + data.statistics.count;
+            json += ",\"avg_value\":" + data.statistics.avg_value;
+            json += ",\"max_value\":" + data.statistics.max_value;
+            json += ",\"min_value\":" + data.statistics.min_value;
+            json += ",\"categories\":[";
+            
+            var firstCategory = true;
+            for (category in data.statistics.categories) {
+                if (!firstCategory) json += ",";
+                firstCategory = false;
+                json += "\"" + category + "\"";
+            }
+            json += "]";
+            json += "}";
+            
+            // Serialize metadata
+            json += ",\"metadata\":{";
+            json += "\"source\":\"" + data.metadata.source + "\"";
+            json += ",\"processed_at\":\"" + data.metadata.processed_at + "\"";
+            json += ",\"version\":\"" + data.metadata.version + "\"";
+            json += "}";
+            
+            json += "}";
+            
+            return json;
+        }
+        
+        function serializeRecord(record: DataRecord) : String {
+            var json = "{";
+            json += "\"name\":\"" + escapeString(record.name) + "\"";
+            json += ",\"value\":" + record.value;
+            json += ",\"category\":\"" + escapeString(record.category) + "\"";
+            json += ",\"timestamp\":\"" + escapeString(record.timestamp) + "\"";
+            json += "}";
+            
+            return json;
+        }
+        
+        function escapeString(str: String) : String {
+            var result = "";
+            for (i = 0; i < count(str); i++) {
+                var ch = substring(str, i, 1);
+                if (ch == "\\") result += "\\\\";
+                else if (ch == "\"") result += "\\\"";
+                else if (ch == "\n") result += "\\n";
+                else if (ch == "\r") result += "\\r";
+                else if (ch == "\t") result += "\\t";
+                else result += ch;
+            }
+            return result;
+        }
+        
+        function deserializeFromJSON(json: String) : ProcessedData {
+            // Simplified deserialization for demonstration
+            // In a real implementation, you would parse the JSON string
+            
+            var records = List[DataRecord]();
+            var statistics = ProcessedStatistics(0, 0.0, 0.0, 0.0, []);
+            var metadata = ProcessedMetadata("", "", "");
+            
+            return ProcessedData(records, statistics, metadata);
+        }
+    }
+}
