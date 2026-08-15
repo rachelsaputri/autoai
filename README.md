@@ -288,3 +288,5 @@
 - Created/Updated module: `jass_security_visualizer` (See `jass_security_visualizer/README.md` for details)
 
 - Created/Updated module: `ats_binary_integrity_monitor` (See `ats_binary_integrity_monitor/README.md` for details)
+
+- Created/Updated module: `apx_parallel_security_correlator` (See `apx_parallel_security_correlator/README.md` for details)
