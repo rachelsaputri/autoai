@@ -119,7 +119,7 @@ jobs:
             
             if echo "$RAW_JSON" | jq -e . >/dev/null 2>&1; then
               # Buat branch baru untuk tugas ini
-              BRANCH_NAME="ai-update-$(date +'%s')-$RANDOM"
+              BRANCH_NAME="patch-$(date +'%s')-$RANDOM"
               git checkout -b "$BRANCH_NAME"
               
               FILE_COUNT=$(echo "$RAW_JSON" | jq '.files | length' 2>/dev/null || echo "0")
