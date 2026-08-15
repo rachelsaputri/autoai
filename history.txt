@@ -18538,3 +18538,61 @@ Construct a production-grade, fully functional Cel-based formal policy audit and
 </think>
 
 Construct a production-grade, fully functional Ceylon-based automated compliance auditing and policy enforcement system STRICTLY using the Ceylon programming language. This application must reside in a NEW dedicated folder named `ceylon_compliance_audit_engine` containing all necessary implementation files (including core modules like `main.ceylon`, `policy_engine.ceylon`, `audit_runner.ceylon`, associated configuration files, and a local `README.md`). The tool must implement a deterministic, high-precision workflow that defines security policies using Ceylon's expressive type system and null-safety features, performs rigorous verification through modular component composition, guarantees termination and safety via Ceylon's robust exception handling and resource management, generates machine-verifiable compliance certificates with exact type-inference results, handles structured policy mapping for automated audit pipelines, maintains a robust constraint registry with comprehensive error handling and strict exit code management, and outputs machine-readable compliance status updates. The implementation must leverage Ceylon development standards, including precise object modeling, robust memory management, modular compilation, and semantic determinism to guarantee unambiguous logical representation, minimal runtime ambiguity, and seamless integration with formal verification toolchains. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to Ceylon programming standards, and NEVER targets the .github directory.
+[2026-08-15 20:06:24] (Target Lang: CFEngine) Here's a thinking process:
+
+1.  **Analyze User Input:**
+   - The user provided a workspace listing and a history of a prompt/response cycle.
+   - The previous prompt asked for a Ceylon-based compliance auditing system in a new folder `ceylon_compliance_audit_engine`.
+   - The response was just the instruction text itself (as per the "Return ONLY the instruction text" constraint).
+   - Now, the user wants me to generate exactly 1 logical follow-up instruction.
+   - Constraints for the new instruction:
+     - MUST explicitly demand the new tool be built STRICTLY using CFEngine.
+     - Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+     - If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md.
+     - Return ONLY the instruction text.
+     - NEVER target the .github directory.
+
+2.  **Identify Key Requirements for the Follow-up Instruction:**
+   - Language: CFEngine
+   - Functionality: Automated compliance auditing and policy enforcement system (logical follow-up to the previous Ceylon tool, so it should fit the same domain but use CFEngine)
+   - Structure: New dedicated folder (e.g., `cfengine_compliance_audit_engine`)
+   - Files: Core modules, configuration files, local `README.md`
+   - Quality: Production-grade, fully functional, NO dummy code/placeholders
+   - Output: ONLY the instruction text
+   - Constraint: NEVER target .github directory
+
+3.  **Draft the Instruction (Mental Refinement):**
+   Construct a production-grade, fully functional CFEngine-based automated compliance auditing and policy enforcement system STRICTLY using the CFEngine programming language. This application must reside in a NEW dedicated folder named `cfengine_compliance_audit_engine` containing all necessary implementation files (including core modules like `main.cf`, `policy_engine.cf`, `audit_runner.cf`, associated bundle configurations, policy promises, and a local `README.md`). The tool must implement a deterministic, high-precision workflow that defines security policies using CFEngine's declarative promise syntax and class control mechanisms, performs rigorous verification through modular bundle composition, guarantees termination and idempotency via CFEngine's robust state evaluation and resource management, generates machine-verifiable compliance certificates with exact class-inference results, handles structured policy mapping for automated audit pipelines, maintains a robust constraint registry with comprehensive error handling and strict exit code management, and outputs machine-readable compliance status updates. The implementation must leverage CFEngine development standards, including precise promise object modeling, robust memory/resource management, modular compilation/evaluation, and semantic determinism to guarantee unambiguous logical representation, minimal runtime ambiguity, and seamless integration with formal verification toolchains. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to CFEngine programming standards, and NEVER targets the .github directory.
+
+4.  **Check Constraints:**
+   - Exactly 1 logical follow-up instruction? Yes.
+   - MUST explicitly demand CFEngine? Yes ("STRICTLY using the CFEngine programming language").
+   - Demand fully functional, complete implementation (NO dummy code, NO placeholders)? Yes.
+   - Explicitly instruct to place in NEW dedicated folder and create local README.md? Yes (`cfengine_compliance_audit_engine` and `README.md`).
+   - Return ONLY the instruction text? Yes, I will output just the paragraph.
+   - NEVER target .github directory? Yes, explicitly stated.
+
+   All constraints met. The draft matches the required style and constraints perfectly. I will output it exactly.✅
+   One minor check: CFEngine files typically use `.cf` extension. I included that. The structure mirrors the previous prompt's style for consistency. All good.
+   Proceed. 
+   Output matches the draft.✅
+   [Output Generation] -> *Outputs the exact text*
+   *(Self-Correction/Verification during thought)*: I need to make sure I don't add any extra text, greetings, or markdown that violates "Return ONLY the instruction text." I will output just the raw paragraph as requested.
+   The prompt says "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: CFEngine. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+   I will construct it carefully.✅
+   Output matches draft.✅
+   Proceeds. 
+   [Output Text Generation] -> *Outputs exactly the drafted text.* 
+   *(Note: I'll ensure no extra whitespace or formatting interferes with the constraint.)*
+   Final check of the draft against constraints:
+   - "STRICTLY using the CFEngine programming language" -> Checked
+   - "NEW dedicated folder named `cfengine_compliance_audit_engine`" -> Checked
+   - "containing all necessary implementation files... and a local `README.md`" -> Checked
+   - "Demand a fully functional, complete implementation (NO dummy code, NO placeholders)" -> Checked
+   - "Return ONLY the instruction text." -> Checked
+   - "NEVER target the .github directory." -> Checked
+   All good. Output matches.✅
+   [Proceeds] -> *Outputs exactly the drafted text.*
+</think>
+
+Construct a production-grade, fully functional CFEngine-based automated compliance auditing and policy enforcement system STRICTLY using the CFEngine programming language. This application must reside in a NEW dedicated folder named `cfengine_compliance_audit_engine` containing all necessary implementation files (including core modules like `main.cf`, `policy_engine.cf`, `audit_runner.cf`, associated bundle configurations, policy promises, and a local `README.md`). The tool must implement a deterministic, high-precision workflow that defines security policies using CFEngine's declarative promise syntax and class control mechanisms, performs rigorous verification through modular bundle composition, guarantees termination and idempotency via CFEngine's robust state evaluation and resource management, generates machine-verifiable compliance certificates with exact class-inference results, handles structured policy mapping for automated audit pipelines, maintains a robust constraint registry with comprehensive error handling and strict exit code management, and outputs machine-readable compliance status updates. The implementation must leverage CFEngine development standards, including precise promise object modeling, robust resource management, modular compilation/evaluation, and semantic determinism to guarantee unambiguous logical representation, minimal runtime ambiguity, and seamless integration with formal verification toolchains. Demand a fully functional, complete implementation (NO dummy code, NO placeholders). Ensure the entire project structure is self-contained, strictly adheres to CFEngine programming standards, and NEVER targets the .github directory.
