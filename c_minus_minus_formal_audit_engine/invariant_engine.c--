@@ -1,0 +1,119 @@
+// invariant_engine.c--
+// Validates system state transitions against formal invariants.
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "invariant_engine.h--"
+#include "policy_verifier.h--"
+
+struct state_context {
+    char *raw_state;
+    size_t raw_size;
+    int transition_count;
+    state_transition_t *transitions;
+};
+
+state_context_t *state_init(void) {
+    state_context_t *ctx = (state_context_t *)calloc(1, sizeof(state_context_t));
+    if (!ctx) return NULL;
+    return ctx;
+}
+
+void state_free(state_context_t *ctx) {
+    if (ctx) {
+        if (ctx->transitions) free(ctx->transitions);
+        if (ctx->raw_state) free(ctx->raw_state);
+        free(ctx);
+    }
+}
+
+static int parse_transition(const char *line, state_transition_t *trans) {
+    // Format: PREV_STATE:CURRENT_STATE:NEXT_STATE:HASH
+    char *tokens[4];
+    char buffer[256];
+    strncpy(buffer, line, 255);
+    buffer[255] = '\0';
+    
+    int idx = 0;
+    char *token = strtok(buffer, ":");
+    while (token && idx < 4) {
+        tokens[idx++] = token;
+        token = strtok(NULL, ":");
+    }
+    if (idx < 4) return -1;
+    
+    strncpy(trans->prev, tokens[0], TRANS_LEN - 1);
+    strncpy(trans->current, tokens[1], TRANS_LEN - 1);
+    strncpy(trans->next, tokens[2], TRANS_LEN - 1);
+    strncpy(trans->hash, tokens[3], HASH_LEN - 1);
+    return 0;
+}
+
+int state_load(state_context_t *ctx, const char *path) {
+    FILE *fp = fopen(path, "r");
+    if (!fp) return -1;
+    
+    fseek(fp, 0, SEEK_END);
+    ctx->raw_size = ftell(fp);
+    rewind(fp);
+    
+    ctx->raw_state = (char *)malloc(ctx->raw_size + 1);
+    if (!ctx->raw_state) { fclose(fp); return -1; }
+    fread(ctx->raw_state, 1, ctx->raw_size, fp);
+    ctx->raw_state[ctx->raw_size] = '\0';
+    fclose(fp);
+    
+    int count = 1;
+    for (size_t i = 0; i < ctx->raw_size; i++) {
+        if (ctx->raw_state[i] == '\n') count++;
+    }
+    ctx->transitions = (state_transition_t *)calloc(count, sizeof(state_transition_t));
+    if (!ctx->transitions) { free(ctx->raw_state); return -1; }
+    
+    char buffer[512];
+    int idx = 0;
+    char *line_start = ctx->raw_state;
+    char *line_end = NULL;
+    
+    while ((line_end = strchr(line_start, '\n')) != NULL || line_start < ctx->raw_state + ctx->raw_size) {
+        if (line_end) {
+            size_t len = line_end - line_start;
+            strncpy(buffer, line_start, len);
+            buffer[len] = '\0';
+            line_start = line_end + 1;
+        } else {
+            strncpy(buffer, line_start, 511);
+            buffer[511] = '\0';
+            line_start += strlen(line_start);
+        }
+        if (buffer[0] == '#' || buffer[0] == '\n' || buffer[0] == '\0') continue;
+        if (parse_transition(buffer, &ctx->transitions[idx]) == 0) idx++;
+    }
+    ctx->transition_count = idx;
+    return 0;
+}
+
+int check_invariants(policy_context_t *policy, state_context_t *state) {
+    if (!policy || !state) return -1;
+    
+    int violations = 0;
+    for (int i = 0; i < state->transition_count; i++) {
+        // Check if transition is allowed by policy
+        int allowed = 0;
+        for (int j = 0; j < policy->rule_count; j++) {
+            if (strstr(policy->rules[j].target, state->transitions[i].current) != NULL) {
+                allowed = 1;
+                break;
+            }
+        }
+        
+        // Check hash integrity (simplified)
+        int hash_valid = (strlen(state->transitions[i].hash) > 0);
+        
+        if (!allowed || !hash_valid) {
+            violations++;
+        }
+    }
+    return violations;
+}

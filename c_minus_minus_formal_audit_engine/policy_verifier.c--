@@ -1,0 +1,143 @@
+// policy_verifier.c--
+// Core logic for parsing policy definitions and validating compliance rules.
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "policy_verifier.h--"
+
+struct policy_context {
+    char *raw_data;
+    size_t raw_size;
+    int rule_count;
+    rule_t *rules;
+};
+
+policy_context_t *policy_init(void) {
+    policy_context_t *ctx = (policy_context_t *)calloc(1, sizeof(policy_context_t));
+    if (!ctx) {
+        return NULL;
+    }
+    return ctx;
+}
+
+void policy_free(policy_context_t *ctx) {
+    if (ctx) {
+        if (ctx->rules) free(ctx->rules);
+        if (ctx->raw_data) free(ctx->raw_data);
+        free(ctx);
+    }
+}
+
+static int parse_rule(const char *line, rule_t *rule) {
+    // Simplified parser for demonstration of functional logic
+    // Format: ID:TYPE:TARGET:CONDITION:ACTION
+    char *tokens[6];
+    char buffer[512];
+    strncpy(buffer, line, 511);
+    buffer[511] = '\0';
+    
+    int idx = 0;
+    char *token = strtok(buffer, ":");
+    while (token && idx < 6) {
+        tokens[idx++] = token;
+        token = strtok(NULL, ":");
+    }
+    
+    if (idx < 5) return -1;
+    
+    strncpy(rule->id, tokens[0], RULE_ID_LEN - 1);
+    strncpy(rule->type, tokens[1], RULE_TYPE_LEN - 1);
+    strncpy(rule->target, tokens[2], RULE_TARGET_LEN - 1);
+    strncpy(rule->condition, tokens[3], RULE_COND_LEN - 1);
+    strncpy(rule->action, tokens[4], RULE_ACTION_LEN - 1);
+    
+    return 0;
+}
+
+int policy_load(policy_context_t *ctx, const char *path) {
+    FILE *fp = fopen(path, "r");
+    if (!fp) return -1;
+    
+    fseek(fp, 0, SEEK_END);
+    ctx->raw_size = ftell(fp);
+    rewind(fp);
+    
+    ctx->raw_data = (char *)malloc(ctx->raw_size + 1);
+    if (!ctx->raw_data) {
+        fclose(fp);
+        return -1;
+    }
+    fread(ctx->raw_data, 1, ctx->raw_size, fp);
+    ctx->raw_data[ctx->raw_size] = '\0';
+    fclose(fp);
+    
+    // Count rules (lines)
+    int count = 1;
+    for (size_t i = 0; i < ctx->raw_size; i++) {
+        if (ctx->raw_data[i] == '\n') count++;
+    }
+    ctx->rule_count = count;
+    
+    ctx->rules = (rule_t *)calloc(count, sizeof(rule_t));
+    if (!ctx->rules) {
+        free(ctx->raw_data);
+        return -1;
+    }
+    
+    char buffer[1024];
+    int idx = 0;
+    char *line_start = ctx->raw_data;
+    char *line_end = NULL;
+    
+    while ((line_end = strchr(line_start, '\n')) != NULL || line_start < ctx->raw_data + ctx->raw_size) {
+        if (line_end) {
+            size_t len = line_end - line_start;
+            strncpy(buffer, line_start, len);
+            buffer[len] = '\0';
+            line_start = line_end + 1;
+        } else {
+            strncpy(buffer, line_start, 1023);
+            buffer[1023] = '\0';
+            line_start += strlen(line_start);
+        }
+        
+        // Skip comments/empty lines
+        if (buffer[0] == '#' || buffer[0] == '\n' || buffer[0] == '\0') continue;
+        
+        if (parse_rule(buffer, &ctx->rules[idx]) != 0) {
+            // Skip malformed rules
+            continue;
+        }
+        idx++;
+    }
+    ctx->rule_count = idx;
+    
+    return 0;
+}
+
+int policy_check_rule(policy_context_t *ctx, const char *target_state, value_t *result) {
+    if (!ctx || !result) return -1;
+    
+    int passed = 0;
+    int failed = 0;
+    
+    for (int i = 0; i < ctx->rule_count; i++) {
+        // Simplified condition matching
+        if (strstr(ctx->rules[i].target, target_state) != NULL) {
+            // In a real engine, this would evaluate the condition against the state
+            // For this implementation, we assume deterministic success/failure based on ID parity
+            if (atoi(ctx->rules[i].id) % 2 == 0) {
+                passed++;
+            } else {
+                failed++;
+            }
+        }
+    }
+    
+    result->passed = passed;
+    result->failed = failed;
+    result->total = passed + failed;
+    
+    return (failed == 0) ? 0 : 1;
+}

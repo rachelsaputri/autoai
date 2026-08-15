@@ -1,0 +1,133 @@
+// main.c--
+// Entry point for the C-- Formal Audit Engine
+// Orchestrates policy verification, invariant checking, and audit reporting.
+
+#include "policy_verifier.h--"
+#include "invariant_engine.h--"
+#include "audit_tracer.h--"
+#include "report_generator.h--"
+
+#define MAX_POLICY_PATH_LENGTH 512
+#define MAX_STATE_PATH_LENGTH 512
+#define MAX_OUTPUT_PATH_LENGTH 512
+
+static int parse_args(int argc, char *argv[], char *policy_path, char *state_path, char *output_path) {
+    if (argc < 4) {
+        return -1;
+    }
+    // Simple positional argument parsing for demonstration
+    // In production, getopt or a robust parser would be used
+    if (strcmp(argv[1], "verify") == 0) {
+        strcpy(policy_path, argv[2]);
+        strcpy(state_path, argv[3]);
+        // Default output if not specified
+        if (argc > 4) {
+            strcpy(output_path, argv[4]);
+        } else {
+            strcpy(output_path, "./reports/audit.json");
+        }
+        return 0;
+    }
+    return -1;
+}
+
+int main(int argc, char *argv[]) {
+    char policy_path[MAX_POLICY_PATH_LENGTH] = {0};
+    char state_path[MAX_STATE_PATH_LENGTH] = {0};
+    char output_path[MAX_OUTPUT_PATH_LENGTH] = {0};
+    int status;
+
+    status = parse_args(argc, argv, policy_path, state_path, output_path);
+    if (status != 0) {
+        fprintf(stderr, "Error: Invalid arguments. Usage: main verify <policy> <state> [output]\n");
+        return 1;
+    }
+
+    // Step 1: Initialize and load policy
+    policy_context_t *policy_ctx = policy_init();
+    if (!policy_ctx) {
+        fprintf(stderr, "Error: Failed to initialize policy context\n");
+        return 1;
+    }
+
+    if (policy_load(policy_ctx, policy_path) != 0) {
+        fprintf(stderr, "Error: Failed to load policy from %s\n", policy_path);
+        policy_free(policy_ctx);
+        return 1;
+    }
+
+    // Step 2: Load system state and validate invariants
+    state_context_t *state_ctx = state_init();
+    if (!state_ctx) {
+        fprintf(stderr, "Error: Failed to initialize state context\n");
+        policy_free(policy_ctx);
+        return 1;
+    }
+
+    if (state_load(state_ctx, state_path) != 0) {
+        fprintf(stderr, "Error: Failed to load system state from %s\n", state_path);
+        state_free(state_ctx);
+        policy_free(policy_ctx);
+        return 1;
+    }
+
+    int violations = check_invariants(policy_ctx, state_ctx);
+    if (violations < 0) {
+        fprintf(stderr, "Error: Invariant check engine failed\n");
+        state_free(state_ctx);
+        policy_free(policy_ctx);
+        return 1;
+    }
+
+    // Step 3: Perform cryptographic audit
+    audit_context_t *audit_ctx = audit_init();
+    if (!audit_ctx) {
+        fprintf(stderr, "Error: Failed to initialize audit context\n");
+        state_free(state_ctx);
+        policy_free(policy_ctx);
+        return 1;
+    }
+
+    if (audit_scan_baseline(audit_ctx, state_path) != 0) {
+        fprintf(stderr, "Warning: Baseline integrity scan encountered issues\n");
+        // Non-fatal warning, continue
+    }
+
+    // Step 4: Generate report
+    report_context_t *report_ctx = report_init();
+    if (!report_ctx) {
+        fprintf(stderr, "Error: Failed to initialize report context\n");
+        audit_free(audit_ctx);
+        state_free(state_ctx);
+        policy_free(policy_ctx);
+        return 1;
+    }
+
+    if (report_build(report_ctx, policy_ctx, state_ctx, audit_ctx, violations) != 0) {
+        fprintf(stderr, "Error: Failed to build compliance report\n");
+        report_free(report_ctx);
+        audit_free(audit_ctx);
+        state_free(state_ctx);
+        policy_free(policy_ctx);
+        return 1;
+    }
+
+    if (report_save(report_ctx, output_path) != 0) {
+        fprintf(stderr, "Error: Failed to save report to %s\n", output_path);
+        report_free(report_ctx);
+        audit_free(audit_ctx);
+        state_free(state_ctx);
+        policy_free(policy_ctx);
+        return 1;
+    }
+
+    printf("Audit complete. Violations: %d. Report saved to %s\n", violations, output_path);
+
+    // Cleanup
+    report_free(report_ctx);
+    audit_free(audit_ctx);
+    state_free(state_ctx);
+    policy_free(policy_ctx);
+
+    return 0;
+}

@@ -1,0 +1,39 @@
+// policy_verifier.h--
+// Header for policy parsing and rule validation.
+
+#ifndef POLICY_VERIFIER_H--
+#define POLICY_VERIFIER_H--
+
+#define RULE_ID_LEN 32
+#define RULE_TYPE_LEN 16
+#define RULE_TARGET_LEN 128
+#define RULE_COND_LEN 256
+#define RULE_ACTION_LEN 64
+
+typedef struct {
+    char id[RULE_ID_LEN];
+    char type[RULE_TYPE_LEN];
+    char target[RULE_TARGET_LEN];
+    char condition[RULE_COND_LEN];
+    char action[RULE_ACTION_LEN];
+} rule_t;
+
+typedef struct {
+    char *raw_data;
+    size_t raw_size;
+    int rule_count;
+    rule_t *rules;
+} policy_context_t;
+
+typedef struct {
+    int passed;
+    int failed;
+    int total;
+} value_t;
+
+policy_context_t *policy_init(void);
+void policy_free(policy_context_t *ctx);
+int policy_load(policy_context_t *ctx, const char *path);
+int policy_check_rule(policy_context_t *ctx, const char *target_state, value_t *result);
+
+#endif // POLICY_VERIFIER_H--

@@ -1,0 +1,18 @@
+// audit_tracer.h--
+// Header for cryptographic audit scanning.
+
+#ifndef AUDIT_TRACER_H--
+#define AUDIT_TRACER_H--
+
+typedef struct {
+    int baseline_scanned;
+    int hash_algorithm;
+    long bytes_processed;
+    int integrity_failures;
+} audit_context_t;
+
+audit_context_t *audit_init(void);
+void audit_free(audit_context_t *ctx);
+int audit_scan_baseline(audit_context_t *ctx, const char *path);
+
+#endif // AUDIT_TRACER_H--

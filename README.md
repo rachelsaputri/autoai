@@ -332,3 +332,5 @@
 - Created/Updated module: `ksh_config_drift_monitor` (See `ksh_config_drift_monitor/README.md` for details)
 
 - Created/Updated module: `bpeL_audit_workflow_engine` (See `bpeL_audit_workflow_engine/README.md` for details)
+
+- Created/Updated module: `c_minus_minus_formal_audit_engine` (See `c_minus_minus_formal_audit_engine/README.md` for details)

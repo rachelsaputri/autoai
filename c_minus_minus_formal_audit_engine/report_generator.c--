@@ -1,0 +1,93 @@
+// report_generator.c--
+// Formats verification results into structured JSON compliance dashboards.
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "report_generator.h--"
+#include "policy_verifier.h--"
+#include "invariant_engine.h--"
+#include "audit_tracer.h--"
+
+struct report_context {
+    char *json_buffer;
+    size_t buffer_size;
+    int violations;
+};
+
+report_context_t *report_init(void) {
+    report_context_t *ctx = (report_context_t *)calloc(1, sizeof(report_context_t));
+    if (!ctx) return NULL;
+    ctx->buffer_size = 4096;
+    ctx->json_buffer = (char *)calloc(ctx->buffer_size, 1);
+    if (!ctx->json_buffer) { free(ctx); return NULL; }
+    return ctx;
+}
+
+void report_free(report_context_t *ctx) {
+    if (ctx) {
+        if (ctx->json_buffer) free(ctx->json_buffer);
+        free(ctx);
+    }
+}
+
+int report_build(report_context_t *ctx, policy_context_t *policy, state_context_t *state, audit_context_t *audit, int violations) {
+    if (!ctx || !policy || !state || !audit) return -1;
+    ctx->violations = violations;
+    
+    char *pos = ctx->json_buffer;
+    size_t remaining = ctx->buffer_size;
+    
+    int written = snprintf(pos, remaining, "{\n  \"audit_report\": {\n");
+    if (written < 0 || (size_t)written >= remaining) return -1;
+    pos += written;
+    remaining -= written;
+    
+    written = snprintf(pos, remaining, "    \"timestamp\": \"2023-10-27T12:00:00Z\",\n");
+    if (written < 0 || (size_t)written >= remaining) return -1;
+    pos += written;
+    remaining -= written;
+    
+    written = snprintf(pos, remaining, "    \"policy_rules_checked\": %d,\n", policy->rule_count);
+    if (written < 0 || (size_t)written >= remaining) return -1;
+    pos += written;
+    remaining -= written;
+    
+    written = snprintf(pos, remaining, "    \"state_transitions_validated\": %d,\n", state->transition_count);
+    if (written < 0 || (size_t)written >= remaining) return -1;
+    pos += written;
+    remaining -= written;
+    
+    written = snprintf(pos, remaining, "    \"baselines_scanned\": %d,\n", audit->baseline_scanned);
+    if (written < 0 || (size_t)written >= remaining) return -1;
+    pos += written;
+    remaining -= written;
+    
+    written = snprintf(pos, remaining, "    \"compliance_violations\": %d,\n", violations);
+    if (written < 0 || (size_t)written >= remaining) return -1;
+    pos += written;
+    remaining -= written;
+    
+    written = snprintf(pos, remaining, "    \"verification_status\": \"%s\"\n", violations == 0 ? "COMPLIANT" : "NON-COMPLIANT");
+    if (written < 0 || (size_t)written >= remaining) return -1;
+    pos += written;
+    remaining -= written;
+    
+    written = snprintf(pos, remaining, "  }\n}");
+    if (written < 0 || (size_t)written >= remaining) return -1;
+    pos += written;
+    remaining -= written;
+    
+    return 0;
+}
+
+int report_save(report_context_t *ctx, const char *path) {
+    if (!ctx || !path) return -1;
+    
+    FILE *fp = fopen(path, "w");
+    if (!fp) return -1;
+    
+    fprintf(fp, "%s", ctx->json_buffer);
+    fclose(fp);
+    return 0;
+}

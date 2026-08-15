@@ -1,0 +1,24 @@
+// report_generator.h--
+// Header for compliance report generation and serialization.
+
+#ifndef REPORT_GENERATOR_H--
+#define REPORT_GENERATOR_H--
+
+typedef struct { policy_context_t *policy_ctx; } policy_context_t;
+
+typedef struct { state_context_t *state_ctx; } state_context_t;
+
+typedef struct { audit_context_t *audit_ctx; } audit_context_t;
+
+typedef struct {
+    char *json_buffer;
+    size_t buffer_size;
+    int violations;
+} report_context_t;
+
+report_context_t *report_init(void);
+void report_free(report_context_t *ctx);
+int report_build(report_context_t *ctx, policy_context_t *policy, state_context_t *state, audit_context_t *audit, int violations);
+int report_save(report_context_t *ctx, const char *path);
+
+#endif // REPORT_GENERATOR_H--

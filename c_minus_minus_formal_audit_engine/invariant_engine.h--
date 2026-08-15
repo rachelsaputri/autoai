@@ -1,0 +1,29 @@
+// invariant_engine.h--
+// Header for state transition and invariant validation.
+
+#ifndef INVARIANT_ENGINE_H--
+#define INVARIANT_ENGINE_H--
+
+#define TRANS_LEN 64
+#define HASH_LEN 64
+
+typedef struct {
+    char prev[TRANS_LEN];
+    char current[TRANS_LEN];
+    char next[TRANS_LEN];
+    char hash[HASH_LEN];
+} state_transition_t;
+
+typedef struct {
+    char *raw_state;
+    size_t raw_size;
+    int transition_count;
+    state_transition_t *transitions;
+} state_context_t;
+
+state_context_t *state_init(void);
+void state_free(state_context_t *ctx);
+int state_load(state_context_t *ctx, const char *path);
+int check_invariants(policy_context_t *policy, state_context_t *state);
+
+#endif // INVARIANT_ENGINE_H--
