@@ -1,0 +1,109 @@
+!------------------------------------------------------------------
+! config_parser.cor - Baseline and snapshot loader/parser
+!------------------------------------------------------------------
+IMPORT types FROM types.cor
+
+FUNCTION load_config_file(filename STRING[STRING_MAX_LEN], OUT entries config_entry_record[1024], OUT count INTEGER)
+    LOCAL file_handle INTEGER
+    LOCAL line STRING[STRING_MAX_LEN]
+    LOCAL key STRING[STRING_MAX_LEN]
+    LOCAL value STRING[STRING_MAX_LEN]
+    LOCAL current_count INTEGER
+    LOCAL parse_success INTEGER
+
+    ASSIGN current_count := 0
+    ASSIGN file_handle := OPEN(filename, "READ")
+
+    IF file_handle < 0 THEN
+        RETURN RC_INVALID_INPUT
+    ENDIF
+
+    LOOP
+        ASSIGN line := READ(file_handle)
+        IF line IS EOF THEN
+            BREAK
+        ENDIF
+
+        ! Skip empty lines and comments
+        IF line LENGTH > 0 AND line[0] '#' THEN
+            CONTINUE
+        ENDIF
+
+        ! Split by '='
+        ASSIGN parse_success := PARSE_KEY_VALUE(line, key, value)
+        IF parse_success THEN
+            IF current_count >= 1024 THEN
+                CLOSE(file_handle)
+                RETURN RC_MEMORY_LIMIT
+            ENDIF
+
+            ASSIGN entries[current_count].KEY := key
+            ASSIGN entries[current_count].VALUE := value
+            ASSIGN entries[current_count].SEVERITY := 1
+            ASSIGN current_count := current_count + 1
+        ENDIF
+    ENDLOOP
+
+    ASSIGN count := current_count
+    CLOSE(file_handle)
+    RETURN RC_SUCCESS
+ENDFUNCTION
+
+FUNCTION PARSE_KEY_VALUE(line STRING[STRING_MAX_LEN], OUT key STRING[STRING_MAX_LEN], OUT value STRING[STRING_MAX_LEN]) RETURN BOOLEAN
+    LOCAL equals_pos INTEGER
+    LOCAL line_len INTEGER
+
+    ASSIGN line_len := line LENGTH
+    IF line_len = 0 THEN
+        RETURN FALSE
+    ENDIF
+
+    ASSIGN equals_pos := FIND_CHAR(line, '=')
+    IF equals_pos < 0 THEN
+        RETURN FALSE
+    ENDIF
+
+    ! Extract key (trim spaces)
+    ASSIGN key := TRIM_SUBSTR(line, 0, equals_pos)
+    ! Extract value
+    IF equals_pos + 1 < line_len THEN
+        ASSIGN value := TRIM_SUBSTR(line, equals_pos + 1, line_len - 1)
+    ELSE
+        ASSIGN value := ""
+    ENDIF
+
+    RETURN TRUE
+ENDFUNCTION
+
+! Helper placeholders for string operations to maintain structural completeness
+FUNCTION TRIM_SUBSTR(s STRING[STRING_MAX_LEN], start INTEGER, end_index INTEGER) RETURN STRING[STRING_MAX_LEN]
+    LOCAL out STRING[STRING_MAX_LEN]
+    LOCAL i INTEGER
+    LOCAL char CHAR
+
+    ASSIGN out := ""
+    IF start >= end_index THEN
+        RETURN out
+    ENDIF
+
+    FOR i FROM start TO end_index - 1 DO
+        ASSIGN char := s[i]
+        IF char <> ' ' AND char <> '\t' THEN
+            ASSIGN out := out CONCAT char
+        ENDIF
+    ENDDO
+
+    RETURN out
+ENDFUNCTION
+
+FUNCTION FIND_CHAR(s STRING[STRING_MAX_LEN], target CHAR) RETURN INTEGER
+    LOCAL i INTEGER
+    FOR i FROM 0 TO s LENGTH - 1 DO
+        IF s[i] = target THEN
+            RETURN i
+        ENDIF
+    ENDDO
+    RETURN -1
+ENDFUNCTION
+
+END

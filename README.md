@@ -318,3 +318,5 @@
 - Created/Updated module: `b_legacy_security_auditor` (See `b_legacy_security_auditor/README.md` for details)
 
 - Created/Updated module: `./low_level_memory_network_sim` (See `./low_level_memory_network_sim/README.md` for details)
+
+- Created/Updated module: `coral66_config_drift_auditor` (See `coral66_config_drift_auditor/README.md` for details)

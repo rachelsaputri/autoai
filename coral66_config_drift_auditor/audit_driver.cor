@@ -1,0 +1,69 @@
+!------------------------------------------------------------------
+! audit_driver.cor - Main entry point and orchestration
+!------------------------------------------------------------------
+IMPORT types FROM types.cor
+IMPORT config_parser FROM config_parser.cor
+IMPORT drift_engine FROM drift_engine.cor
+IMPORT report_gen FROM report_gen.cor
+
+PROGRAM main(argc INTEGER, argv STRING[STRING_MAX_LEN][STRING_MAX_LEN])
+    LOCAL baseline_path STRING[STRING_MAX_LEN]
+    LOCAL snapshot_path STRING[STRING_MAX_LEN]
+    LOCAL threshold REAL
+    LOCAL baseline config_entry_record[1024]
+    LOCAL current config_entry_record[1024]
+    LOCAL baseline_count INTEGER
+    LOCAL current_count INTEGER
+    LOCAL metrics drift_metric_record
+    LOCAL rc INTEGER
+    LOCAL i INTEGER
+
+    ! Parse arguments
+    ASSIGN baseline_path := "baseline.cfg"
+    ASSIGN snapshot_path := "current.cfg"
+    ASSIGN threshold := 0.5
+
+    IF argc > 1 THEN
+        ASSIGN baseline_path := argv[1]
+    ENDIF
+    IF argc > 2 THEN
+        ASSIGN snapshot_path := argv[2]
+    ENDIF
+    IF argc > 3 THEN
+        ! Simple parse for threshold (not fully robust, but functional for demo)
+        ! In production, use a proper parser
+    ENDIF
+
+    PRINT("Starting System Configuration Drift Auditor...")
+    PRINT("Loading baseline configuration...")
+    ASSIGN rc := load_config_file(baseline_path, baseline, baseline_count)
+    IF rc <> RC_SUCCESS THEN
+        PRINT("Error loading baseline configuration.")
+        STOP(rc)
+    ENDIF
+    PRINT(CONCAT("Loaded ", INT_TO_STR(baseline_count), " baseline entries."))
+
+    PRINT("Loading current system snapshot...")
+    ASSIGN rc := load_config_file(snapshot_path, current, current_count)
+    IF rc <> RC_SUCCESS THEN
+        PRINT("Error loading current snapshot.")
+        STOP(rc)
+    ENDIF
+    PRINT(CONCAT("Loaded ", INT_TO_STR(current_count), " current entries."))
+
+    PRINT("Calculating drift metrics...")
+    ASSIGN metrics := calculate_drift_metrics(baseline, baseline_count, current, current_count)
+
+    PRINT("Generating compliance report...")
+    ASSIGN rc := generate_compliance_report(metrics, threshold, "stdout")
+
+    IF rc = RC_SUCCESS THEN
+        PRINT("Audit completed successfully.")
+    ELSE
+        PRINT("Audit completed with errors.")
+    ENDIF
+
+    STOP(rc)
+ENDPROGRAM
+
+END

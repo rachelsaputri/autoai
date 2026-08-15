@@ -1,0 +1,125 @@
+!------------------------------------------------------------------
+! report_gen.cor - Compliance report formatting and output
+!------------------------------------------------------------------
+IMPORT types FROM types.cor
+
+FUNCTION generate_compliance_report(metrics drift_metric_record, threshold REAL, target STRING[STRING_MAX_LEN]) RETURN INTEGER
+    LOCAL status STRING[STRING_MAX_LEN]
+    LOCAL line STRING[STRING_MAX_LEN]
+    LOCAL output_file INTEGER
+
+    IF metrics.DRIFT_SCORE <= threshold THEN
+        ASSIGN status := "COMPLIANT"
+    ELSE
+        ASSIGN status := "NON_COMPLIANT"
+    ENDIF
+
+    ASSIGN line := "==================================================\n"
+    PRINT(line)
+    ASSIGN line := "SYSTEM CONFIGURATION DRIFT AUDIT REPORT\n"
+    PRINT(line)
+    ASSIGN line := "==================================================\n"
+    PRINT(line)
+    ASSIGN line := CONCAT("Baseline Entries: ", INT_TO_STR(metrics.TOTAL_BASELINE))
+    PRINT(line)
+    ASSIGN line := CONCAT("Current Entries: ", INT_TO_STR(metrics.TOTAL_CURRENT))
+    PRINT(line)
+    ASSIGN line := CONCAT("Missing From Current: ", INT_TO_STR(metrics.MISSING_FROM_CURRENT))
+    PRINT(line)
+    ASSIGN line := CONCAT("Extra In Current: ", INT_TO_STR(metrics.EXTRA_IN_CURRENT))
+    PRINT(line)
+    ASSIGN line := CONCAT("Drift Score: ", REAL_TO_STR(metrics.DRIFT_SCORE, 4))
+    PRINT(line)
+    ASSIGN line := CONCAT("Threshold: ", REAL_TO_STR(threshold, 2))
+    PRINT(line)
+    ASSIGN line := CONCAT("Status: ", status)
+    PRINT(line)
+    ASSIGN line := "==================================================\n"
+    PRINT(line)
+
+    RETURN RC_SUCCESS
+ENDFUNCTION
+
+FUNCTION INT_TO_STR(val INTEGER) RETURN STRING[STRING_MAX_LEN]
+    LOCAL out STRING[STRING_MAX_LEN]
+    LOCAL temp INTEGER
+    LOCAL chars STRING[20]
+    LOCAL i INTEGER
+    LOCAL len INTEGER
+
+    ASSIGN out := ""
+    ASSIGN temp := val
+    IF temp = 0 THEN
+        ASSIGN out := "0"
+        RETURN out
+    ENDIF
+    IF temp < 0 THEN
+        ASSIGN out := "-"
+        ASSIGN temp := -temp
+    ENDIF
+
+    ASSIGN chars := "0123456789"
+    ASSIGN i := 0
+    LOOP
+        IF temp = 0 THEN
+            BREAK
+        ENDIF
+        ASSIGN out[i] := chars[temp % 10]
+        ASSIGN temp := temp / 10
+        ASSIGN i := i + 1
+    ENDDO
+
+    ASSIGN len := i
+    FOR i FROM 0 TO (len / 2) - 1 DO
+        temp := out[i]
+        out[i] := out[len - 1 - i]
+        out[len - 1 - i] := temp
+    ENDDO
+
+    RETURN out
+ENDFUNCTION
+
+FUNCTION REAL_TO_STR(val REAL, decimals INTEGER) RETURN STRING[STRING_MAX_LEN]
+    LOCAL int_part INTEGER
+    LOCAL frac_part INTEGER
+    LOCAL frac_str STRING[STRING_MAX_LEN]
+    LOCAL temp INTEGER
+    LOCAL i INTEGER
+    LOCAL out STRING[STRING_MAX_LEN]
+
+    IF val < 0 THEN
+        ASSIGN val := -val
+        ASSIGN out := "-"
+    ELSE
+        ASSIGN out := ""
+    ENDIF
+
+    ASSIGN int_part := TRUNC(val)
+    ASSIGN frac_part := TRUNC((val - int_part) * 10000)
+
+    ASSIGN out := out CONCAT INT_TO_STR(int_part)
+    IF decimals > 0 THEN
+        ASSIGN out := out CONCAT "."
+    ENDIF
+
+    IF decimals = 0 THEN
+        RETURN out
+    ENDIF
+
+    ASSIGN frac_str := INT_TO_STR(frac_part)
+    ASSIGN i := 0
+    IF frac_str LENGTH < decimals THEN
+        LOOP
+            IF i >= decimals - frac_str LENGTH THEN
+                BREAK
+            ENDIF
+            ASSIGN out := out CONCAT "0"
+            ASSIGN i := i + 1
+        ENDDO
+    ENDIF
+    ASSIGN out := out CONCAT frac_str
+
+    RETURN out
+ENDFUNCTION
+
+END

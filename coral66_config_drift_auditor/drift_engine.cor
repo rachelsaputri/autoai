@@ -1,0 +1,71 @@
+!------------------------------------------------------------------
+! drift_engine.cor - Deviation detection and scoring engine
+!------------------------------------------------------------------
+IMPORT types FROM types.cor
+
+FUNCTION calculate_drift_metrics(baseline config_entry_record[1024], baseline_count INTEGER, current config_entry_record[1024], current_count INTEGER) RETURN drift_metric_record
+    LOCAL metrics drift_metric_record
+    LOCAL i INTEGER
+    LOCAL j INTEGER
+    LOCAL key_match INTEGER
+    LOCAL missing INTEGER
+    LOCAL extra INTEGER
+    LOCAL total_keys INTEGER
+    LOCAL mismatch_weight REAL
+    LOCAL score REAL
+
+    ASSIGN metrics.MISSING_FROM_CURRENT := 0
+    ASSIGN metrics.EXTRA_IN_CURRENT := 0
+    ASSIGN metrics.DRIFT_SCORE := 0.0
+
+    ! Count missing and mismatched
+    FOR i FROM 0 TO baseline_count - 1 DO
+        ASSIGN key_match := 0
+        FOR j FROM 0 TO current_count - 1 DO
+            IF baseline[i].KEY = current[j].KEY THEN
+                IF baseline[i].VALUE <> current[j].VALUE THEN
+                    ASSIGN metrics.DRIFT_SCORE := metrics.DRIFT_SCORE + 0.5
+                ENDIF
+                ASSIGN key_match := 1
+                BREAK
+            ENDIF
+        ENDDO
+        IF key_match = 0 THEN
+            ASSIGN metrics.MISSING_FROM_CURRENT := metrics.MISSING_FROM_CURRENT + 1
+        ENDIF
+    ENDDO
+
+    ! Count extra in current
+    FOR j FROM 0 TO current_count - 1 DO
+        ASSIGN key_match := 0
+        FOR i FROM 0 TO baseline_count - 1 DO
+            IF current[j].KEY = baseline[i].KEY THEN
+                ASSIGN key_match := 1
+                BREAK
+            ENDIF
+        ENDDO
+        IF key_match = 0 THEN
+            ASSIGN metrics.EXTRA_IN_CURRENT := metrics.EXTRA_IN_CURRENT + 1
+        ENDIF
+    ENDDO
+
+    ! Calculate total keys involved
+    ASSIGN total_keys := baseline_count + metrics.EXTRA_IN_CURRENT
+    IF total_keys > 0 THEN
+        ASSIGN mismatch_weight := 1.0 / total_keys
+    ELSE
+        ASSIGN mismatch_weight := 0.0
+    ENDIF
+
+    ASSIGN score := metrics.MISSING_FROM_CURRENT * mismatch_weight + metrics.EXTRA_IN_CURRENT * mismatch_weight
+    IF score > 1.0 THEN
+        ASSIGN score := 1.0
+    ENDIF
+    ASSIGN metrics.DRIFT_SCORE := score
+    ASSIGN metrics.TOTAL_BASELINE := baseline_count
+    ASSIGN metrics.TOTAL_CURRENT := current_count
+
+    RETURN metrics
+ENDFUNCTION
+
+END

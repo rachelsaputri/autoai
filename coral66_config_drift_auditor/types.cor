@@ -1,0 +1,37 @@
+!------------------------------------------------------------------
+! types.cor - Shared type definitions and constants for drift auditor
+!------------------------------------------------------------------
+! Define string length limits
+DEFINE STRING_MAX_LEN := 256
+
+! Define record structures for configuration keys and values
+TYPE config_entry_record
+    KEY STRING[STRING_MAX_LEN]
+    VALUE STRING[STRING_MAX_LEN]
+    SEVERITY INTEGER ! 0=INFO, 1=WARN, 2=CRIT
+    BOUNDED END record
+
+! Define record structures for snapshots and baselines
+TYPE snapshot_record
+    TIMESTAMP INTEGER
+    ENTRY_COUNT INTEGER
+    ENTRIES config_entry_record[1024]
+    BOUNDED END record
+
+! Define record structures for drift metrics
+TYPE drift_metric_record
+    TOTAL_BASELINE INTEGER
+    TOTAL_CURRENT INTEGER
+    MISSING_FROM_CURRENT INTEGER
+    EXTRA_IN_CURRENT INTEGER
+    DRIFT_SCORE REAL
+    BOUNDED END record
+
+! Define return codes
+DEFINE RC_SUCCESS INTEGER := 0
+DEFINE RC_INVALID_INPUT INTEGER := 1
+DEFINE RC_MEMORY_LIMIT INTEGER := 2
+DEFINE RC_PARSE_ERROR INTEGER := 3
+DEFINE RC_RUNTIME_ERROR INTEGER := 4
+
+END
