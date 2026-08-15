@@ -1,0 +1,31 @@
+#include <audit_parser.h>
+
+// Parse raw audit event into structured format
+ParsedEvent* parse_event(AuditEvent* raw) {
+    ParsedEvent* parsed = alloc_parsed_event();
+
+    // Extract timestamp
+    parsed->timestamp = extract_timestamp(raw);
+
+    // Extract source
+    parsed->source = extract_source(raw);
+
+    // Extract event type
+    parsed->event_type = extract_event_type(raw);
+
+    // Extract severity
+    parsed->severity = extract_severity(raw);
+
+    // Extract details
+    parsed->details = extract_details(raw);
+
+    return parsed;
+}
+
+// Free parsed event
+void free_parsed_event(ParsedEvent* event) {
+    if (event == NULL) return;
+    free(event->source);
+    free(event->details);
+    free(event);
+}

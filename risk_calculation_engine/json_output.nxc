@@ -1,0 +1,38 @@
+#include <json_formatter.h>
+
+// Format risk vector as JSON payload
+JsonPayload* format_json(RiskVector* vector) {
+    JsonPayload* payload = alloc_json_payload();
+
+    // Build JSON string
+    payload->content = format_to_json_string(vector);
+
+    return payload;
+}
+
+// Format vector to JSON string
+char* format_to_json_string(RiskVector* vector) {
+    // Example JSON structure
+    char buffer[256];
+    snprintf(buffer, sizeof(buffer),
+        "{\"risk_id\": %d, \"normalized_score\": %d, \"category\": \"%s\"}",
+        vector->risk_id,
+        vector->normalized_score,
+        vector->category
+    );
+
+    return copy_string(buffer);
+}
+
+// Output payload to destination
+void output_payload(JsonPayload* payload) {
+    // In a real implementation, this might write to a file or send over a network
+    printf("%s\n", payload->content);
+}
+
+// Free JSON payload
+void free_json_payload(JsonPayload* payload) {
+    if (payload == NULL) return;
+    free(payload->content);
+    free(payload);
+}

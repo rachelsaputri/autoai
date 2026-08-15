@@ -1,0 +1,57 @@
+#include <risk_scoring.h>
+
+// Calculate risk score based on parsed event
+RiskScore calculate_risk(ParsedEvent* event) {
+    RiskScore score = {0};
+
+    // Base score from severity
+    score.base = severity_to_score(event->severity);
+
+    // Adjust based on event type
+    score.type_modifier = get_type_modifier(event->event_type);
+
+    // Adjust based on source
+    score.source_modifier = get_source_modifier(event->source);
+
+    // Apply configuration factors
+    score.final = apply_config_factors(score.base + score.type_modifier + score.source_modifier, &g_config);
+
+    return score;
+}
+
+// Map severity to base score
+int severity_to_score(SecuritySeverity severity) {
+    switch (severity) {
+        case SEV_CRITICAL: return 10;
+        case SEV_HIGH: return 7;
+        case SEV_MEDIUM: return 4;
+        case SEV_LOW: return 1;
+        default: return 0;
+    }
+}
+
+// Get modifier for event type
+int get_type_modifier(EventType type) {
+    switch (type) {
+        case EVT_LOGIN: return 1;
+        case EVT_ACCESS: return 2;
+        case EVT_CONFIG: return 3;
+        case EVT_NETWORK: return 2;
+        default: return 0;
+    }
+}
+
+// Get modifier for source
+int get_source_modifier(const char* source) {
+    // Simplified logic for example
+    if (strcmp(source, "external") == 0) return 3;
+    if (strcmp(source, "internal") == 0) return 1;
+    return 0;
+}
+
+// Apply configuration factors
+int apply_config_factors(int base, Config* config) {
+    int multiplier = config->risk_multiplier;
+    int offset = config->risk_offset;
+    return (base * multiplier) + offset;
+}

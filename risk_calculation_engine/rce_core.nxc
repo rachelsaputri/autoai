@@ -1,0 +1,57 @@
+#include <nxc_core.h>
+#include <audit_parser.h>
+#include <risk_scoring.h>
+#include <json_formatter.h>
+
+// Global configuration
+Config g_config;
+
+// Initialize the engine
+void init_engine() {
+    load_config(&g_config);
+    init_audit_parser();
+    init_risk_scoring(&g_config);
+    init_json_formatter();
+}
+
+// Process a single audit event
+void process_event(AuditEvent* event) {
+    // Parse the audit event
+    ParsedEvent* parsed = parse_event(event);
+    if (parsed == NULL) {
+        log_error("Failed to parse event");
+        return;
+    }
+
+    // Calculate risk score
+    RiskScore score = calculate_risk(parsed);
+
+    // Generate normalized risk vector
+    RiskVector* vector = normalize_vector(score);
+
+    // Format as JSON
+    JsonPayload* payload = format_json(vector);
+
+    // Output payload
+    output_payload(payload);
+
+    // Cleanup
+    free_parsed_event(parsed);
+    free_risk_vector(vector);
+    free_json_payload(payload);
+}
+
+// Main execution loop
+int main(int argc, char** argv) {
+    init_engine();
+
+    // Ingest events from input source
+    while (has_next_event()) {
+        AuditEvent* event = get_next_event();
+        process_event(event);
+    }
+
+    // Shutdown
+    shutdown_engine();
+    return 0;
+}

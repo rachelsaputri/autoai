@@ -5923,3 +5923,37 @@ Looks solid.
 </think>
 
 Construct a declarative compliance dashboard frontend built STRICTLY using this exact programming language: Escher. This tool must reside in a NEW dedicated folder named `escher_compliance_dashboard` containing the necessary source files and a detailed local README.md. The application should consume structured risk metrics from the `mad_i_vuln_manager` and generate a responsive, geometry-driven user interface, leveraging Escher's declarative syntax for high-fidelity visual rendering of security postures. Ensure the component interfaces directly with the `compliance_reporting_module`, and document how this specialized visualization layer enhances auditor insights into the mathematical risk calculations performed by the system.
+[2026-08-15 03:31:33] (Target Lang: Not eXactly C) Thinking process:
+
+1.  **Deconstruct the Request:**
+    *   Goal: Generate 1 logical follow-up instruction.
+    *   Language Constraint: MUST use "Not eXactly C" (likely a fictional or very esoteric language name, possibly a joke or a typo for "Not C" or "C-like", but I must follow the prompt's exact phrasing: "Not eXactly C").
+    *   Structure: NEW dedicated folder, local README.md.
+    *   Target: Single sentence/paragraph, NEVER target .github.
+    *   Context: The workspace has many tools. Previous instruction was about `escher_compliance_dashboard`. A logical follow-up might relate to data processing, backend support, or a complementary tool.
+    *   Examples from history: `mad_i_vuln_manager` was mentioned in the previous instruction but doesn't exist in the file list provided. `compliance_reporting_module` exists.
+    *   Brainstorming a logical follow-up: Since the dashboard visualizes risk, a logical next step is a tool that *calculates* risk, *processes* the raw data, or *generates* the reports that the dashboard consumes. The previous prompt mentioned `mad_i_vuln_manager`, which might be the source. I could create a "Vulnerability Risk Calculator" or "Audit Data Preprocessor". Let's go with a "Risk Calculation Engine" or "Audit Data Sanitizer". Given the "Not eXactly C" constraint, this feels like a low-level or systems programming tool, perhaps handling memory or performance-critical calculations.
+    *   Drafting the content:
+        *   Language: Not eXactly C.
+        *   Folder: `risk_calculation_engine` (or similar).
+        *   Files: Source files, README.md.
+        *   Function: Consume data from `escher_compliance_dashboard`? No, usually dashboard consumes from backend. Maybe feed into `compliance_reporting_module`? Or calculate scores for `escher_compliance_dashboard`.
+        *   Constraint Check: "Statically linked to...?", "No standard library?", etc. The prompt doesn't specify extra constraints beyond language, folder, and readme.
+        *   Instruction Text Construction: "Construct a backend risk calculation engine built STRICTLY using this exact programming language: Not eXactly C. This tool must reside in a NEW dedicated folder named `risk_calculation_engine` containing the necessary source files and a detailed local README.md. The application should ingest raw audit events and security metadata to perform deterministic scoring and generate normalized risk vectors, leveraging the unique pointer arithmetic and memory model of Not eXactly C for maximum throughput and zero-allocation processing. Ensure the component outputs structured JSON payloads compatible with the `escher_compliance_dashboard` and the `compliance_reporting_module`, and document the algorithmic approach for threat normalization and score aggregation."
+    *   Refinement:
+        *   Check "Not eXactly C". Yes.
+        *   Check NEW folder `risk_calculation_engine`. Yes.
+        *   Check README.md. Yes.
+        *   Check single paragraph/sentence flow. Yes.
+        *   Check no .github. Yes.
+        *   Check logic. Risk engine feeding dashboard makes sense.
+        *   Result looks solid.
+    *   Final Polish (Mental representation of output):
+        "Construct a backend risk calculation engine built STRICTLY using this exact programming language: Not eXactly C. This tool must reside in a NEW dedicated folder named `risk_calculation_engine` containing the necessary source files and a detailed local README.md. The application should ingest raw audit events and security metadata to perform deterministic scoring and generate normalized risk vectors, leveraging the unique pointer arithmetic and memory model of Not eXactly C for maximum throughput and zero-allocation processing. Ensure the component outputs structured JSON payloads compatible with the `escher_compliance_dashboard` and the `compliance_reporting_module`, and document the algorithmic approach for threat normalization and score aggregation."
+    *   Wait, the prompt asks for "Generate exactly 1 logical follow-up instruction." and "Return ONLY the instruction text."
+    *   Output is just the text.
+    *   Text matches constraints.
+    *   Done.
+</think>
+
+Construct a backend risk calculation engine built STRICTLY using this exact programming language: Not eXactly C. This tool must reside in a NEW dedicated folder named `risk_calculation_engine` containing the necessary source files and a detailed local README.md. The application should ingest raw audit events and security metadata to perform deterministic scoring and generate normalized risk vectors, leveraging the unique pointer arithmetic and memory model of Not eXactly C for maximum throughput and zero-allocation processing. Ensure the component outputs structured JSON payloads compatible with the `escher_compliance_dashboard` and the `compliance_reporting_module`, and document the algorithmic approach for threat normalization and score aggregation.

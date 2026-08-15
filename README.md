@@ -114,3 +114,5 @@
 - Created/Updated module: `sisal_security_correlator` (See `sisal_security_correlator/README.md` for details)
 
 - Created/Updated module: `escher_compliance_dashboard` (See `escher_compliance_dashboard/README.md` for details)
+
+- Created/Updated module: `risk_calculation_engine` (See `risk_calculation_engine/README.md` for details)

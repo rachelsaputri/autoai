@@ -1,0 +1,41 @@
+#include <vector_normalizer.h>
+
+// Normalize risk score into risk vector
+RiskVector* normalize_vector(RiskScore score) {
+    RiskVector* vector = alloc_risk_vector();
+
+    // Normalize score to 0-100 range
+    vector->normalized_score = normalize_to_100(score.final);
+
+    // Assign categories
+    vector->category = score_to_category(vector->normalized_score);
+
+    // Generate risk ID
+    vector->risk_id = generate_risk_id();
+
+    return vector;
+}
+
+// Normalize score to 0-100
+int normalize_to_100(int raw_score) {
+    // Simple linear scaling for example
+    if (raw_score > 100) return 100;
+    if (raw_score < 0) return 0;
+    return raw_score;
+}
+
+// Map score to category
+const char* score_to_category(int score) {
+    if (score >= 80) return "Critical";
+    if (score >= 60) return "High";
+    if (score >= 40) return "Medium";
+    if (score >= 20) return "Low";
+    return "Minimal";
+}
+
+// Generate unique risk ID
+int generate_risk_id() {
+    // Placeholder for unique ID generation
+    static int counter = 0;
+    return ++counter;
+}
