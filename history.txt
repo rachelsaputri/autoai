@@ -9191,3 +9191,43 @@ Construct an automated incident response orchestration system STRICTLY using thi
 </think>
 
 Construct a centralized threat intelligence aggregation and analysis system STRICTLY using this exact programming language: FOCAL. This application must reside in a NEW dedicated folder named `focal_threat_intelligence_aggregator` containing all necessary source files and a comprehensive local README.md. The system must ingest external threat feeds, normalize indicators of compromise, correlate historical incident data with current security alerts, generate predictive risk scores, and maintain a searchable knowledge base to accelerate analyst workflows and proactive defense strategies.
+[2026-08-15 09:08:58] (Target Lang: ESPOL) The user wants a single follow-up instruction.
+The constraint is to use the language ESPOL.
+The instruction should request a new tool in a new folder with a README.
+It should not target .github.
+It should return ONLY the instruction text.
+
+Plan:
+1.  Construct a sentence asking for a system/tool.
+2.  Specify the language: ESPOL.
+3.  Specify a new folder name (e.g., `espol_compliance_engine`).
+4.  Mention README.md.
+5.  Describe functionality briefly to make it a "logical follow-up".
+6.  Ensure the output is just the text.
+
+Draft:
+Construct a dynamic policy enforcement and compliance verification framework STRICTLY using this exact programming language: ESPOL. This application must reside in a NEW dedicated folder named `espol_compliance_engine` containing all necessary source files and a comprehensive local README.md. The system must define and enforce complex security policies, verify state configurations against baseline standards, and generate audit trails for regulatory reporting.
+
+Refinement:
+The previous example used "Construct a centralized...". I'll use "Construct a..." as well.
+Language: ESPOL.
+Folder: `espol_policy_enforcement_system`.
+Content: Source files + README.
+Function: Define, enforce, verify policies, audit trails.
+
+Result:
+Construct a robust policy enforcement and compliance verification framework STRICTLY using this exact programming language: ESPOL. This application must reside in a NEW dedicated folder named `espol_policy_enforcement_system` containing all necessary source files and a comprehensive local README.md. The system must define complex security rules, enforce state consistency across nodes, and produce detailed compliance reports to ensure adherence to organizational standards.
+
+Check constraints:
+- 1 instruction? Yes.
+- Language ESPOL? Yes.
+- New folder? Yes (`espol_policy_enforcement_system`).
+- README? Yes.
+- No .github? Yes.
+- Only text? Yes.
+
+Final Polish:
+Construct a robust policy enforcement and compliance verification framework STRICTLY using this exact programming language: ESPOL. This application must reside in a NEW dedicated folder named `espol_policy_enforcement_system` containing all necessary source files and a comprehensive local README.md. The system must define complex security rules, enforce state consistency across nodes, and produce detailed compliance reports to ensure adherence to organizational standards.
+</think>
+
+Construct a robust policy enforcement and compliance verification framework STRICTLY using this exact programming language: ESPOL. This application must reside in a NEW dedicated folder named `espol_policy_enforcement_system` containing all necessary source files and a comprehensive local README.md. The system must define complex security rules, enforce state consistency across nodes, and produce detailed compliance reports to ensure adherence to organizational standards.
