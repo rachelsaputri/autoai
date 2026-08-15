@@ -382,3 +382,5 @@
 - Created/Updated module: `chill_compliance_orchestrator` (See `chill_compliance_orchestrator/README.md` for details)
 
 - Created/Updated module: `chip8_compliance_orchestrator` (See `chip8_compliance_orchestrator/README.md` for details)
+
+- Created/Updated module: `chomski_compliance_orchestrator` (See `chomski_compliance_orchestrator/README.md` for details)

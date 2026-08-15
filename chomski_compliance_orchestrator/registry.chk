@@ -1,0 +1,99 @@
+import types.chk
+
+/**
+ * Audit registry management and logging module.
+ * Maintains an append-only, cryptographically secure audit log.
+ * Handles transaction logging, policy load tracking, and evaluation recording.
+ */
+
+/**
+ * Initializes the audit registry.
+ * Creates or opens the audit log file and sets up secure storage.
+ */
+function init(path: string, verbose: bool) -> Registry {
+    reg: Registry = Registry.new()
+    reg.path = path
+    reg.verbose = verbose
+    reg.log = open_log_file(path)
+    return reg
+}
+
+/**
+ * Logs a policy load event to the audit registry.
+ */
+function log_policy_load(policy_id: string, file_path: string) {
+    entry: AuditEntry = AuditEntry.init()
+    entry.event_type = EventType.POLICY_LOAD
+    entry.policy_id = policy_id
+    entry.file_path = file_path
+    entry.timestamp = datetime.now()
+    entry.metadata = "Policy loaded successfully."
+    write_log_entry(entry)
+    if verbose {
+        log.debug("Logged policy load: {}", policy_id)
+    }
+}
+
+/**
+ * Logs a compliance evaluation event to the audit registry.
+ * Records the result, compliance score, and risk metrics.
+ */
+function log_evaluation(result: ComplianceResult, dry_run: bool) {
+    entry: AuditEntry = AuditEntry.init()
+    entry.event_type = EventType.EVALUATION
+    entry.policy_id = result.policy_id
+    entry.dataset_id = result.dataset_id
+    entry.compliance_score = result.compliance_score
+    entry.risk_score = result.risk_score
+    entry.timestamp = datetime.now()
+    entry.metadata = format_evaluation_metadata(result)
+    if dry_run {
+        entry.metadata += " [DRY RUN]"
+    }
+    write_log_entry(entry)
+    if verbose {
+        log.debug("Logged evaluation for policy {}: score={}", result.policy_id, result.compliance_score)
+    }
+}
+
+/**
+ * Formats evaluation metadata into a standardized string.
+ */
+function format_evaluation_metadata(result: ComplianceResult) -> string {
+    violations_count: int = result.violations.length
+    return format("Violations: {}, Compliance: {:.2f}%, Risk: {:.2f}%",
+        violations_count, result.compliance_score, result.risk_score)
+}
+
+/**
+ * Opens or creates the audit log file with secure permissions.
+ */
+function open_log_file(path: string) -> FileHandle {
+    handle: FileHandle = file.open(path, "a")
+    if handle == null {
+        throw RegistryError("Failed to open audit log file: {}", path)
+    }
+    file.set_permissions(handle, "0640")
+    return handle
+}
+
+/**
+ * Writes an audit entry to the log file with cryptographic integrity check.
+ * Appends a hash of the entry to prevent tampering.
+ */
+function write_log_entry(entry: AuditEntry) {
+    serialized: string = entry.serialize()
+    hash: string = crypto.hash(serialized)
+    log_line: string = format("{}|{}|{}", entry.timestamp, hash, serialized)
+    file.write(log_line)
+    file.flush()
+}
+
+/**
+ * Registry error handling module.
+ */
+module RegistryError extends Exception {
+    constructor(message: string) {
+        super(message)
+    }
+}

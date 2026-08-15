@@ -1,0 +1,337 @@
+/**
+ * Core type definitions and formal grammar specifications for the Chomski Compliance Orchestrator.
+ * Ensures strict typing, semantic consistency, and deterministic behavior across all modules.
+ */
+
+// Enumerations for event types and violation severities
+enum EventType {
+    POLICY_LOAD,
+    EVALUATION,
+    REMEDIATION_PLAN
+}
+
+enum ViolationSeverity {
+    CRITICAL,
+    HIGH,
+    MEDIUM,
+    LOW
+}
+
+enum TokenType {
+    IDENTIFIER,
+    COLON,
+    COMMA,
+    LBRACE,
+    RBRACE,
+    WHITESPACE
+}
+
+// Core data structures
+struct Config {
+    registry_path: string
+    dataset_paths: List[string]
+    policy_paths: List[string]
+    risk_threshold: float
+    scope: Scope
+    min_version: int
+}
+
+struct Scope {
+    environment: string
+    region: string
+    tags: List[string]
+}
+
+struct ComplianceDataset {
+    id: string
+    entries: Map[string, string]
+    scope: Scope
+    version: int
+
+    function add_entry(key: string, value: string) {
+        entries[key] = value
+    }
+
+    function get_value(key: string) -> string {
+        if entries.has(key) {
+            return entries[key]
+        }
+        throw DatasetError("Missing key: {}", key)
+    }
+
+    function has_entry(key: string) -> bool {
+        return entries.has(key)
+    }
+
+    function validate() -> bool {
+        return id != "" and entries.length > 0 and scope != null
+    }
+
+    function init() -> ComplianceDataset {
+        return ComplianceDataset("", Map.new(), Scope.init(), 1)
+    }
+}
+
+struct Policy {
+    id: string
+    name: string
+    checks: List[PolicyCheck>
+    scope: Scope
+    min_version: int
+    check_count: int
+
+    function validate() -> bool {
+        return id != "" and name != "" and checks.length > 0
+    }
+
+    function deserialize(content: string) -> Policy {
+        // Implementation details for deserialization
+        return Policy.init()
+    }
+
+    function init() -> Policy {
+        return Policy("", "", List.new(), Scope.init(), 1, 0)
+    }
+}
+
+struct PolicyCheck {
+    id: string
+    key: string
+    type: string
+    expected: string
+    min: float
+    max: float
+    regex: string
+    dependencies: List[string]
+}
+
+struct ComplianceResult {
+    policy_id: string
+    dataset_id: string
+    compliance_score: float
+    risk_score: float
+    violations: List[Violation>
+    timestamp: datetime
+
+    function init() -> ComplianceResult {
+        return ComplianceResult("", "", 0.0, 0.0, List.new(), datetime.now())
+    }
+}
+
+struct Violation {
+    id: string
+    policy_id: string
+    dataset_id: string
+    violation_type: string
+    key: string
+    severity: string
+
+    function init(policy_id: string, check_id: string, dataset_id: string) -> Violation {
+        return Violation(check_id, policy_id, dataset_id, "value", "", "medium")
+    }
+}
+
+struct RemediationPath {
+    policy_id: string
+    dataset_id: string
+    compliance_score: float
+    risk_score: float
+    violations: List[Violation>
+    actions: List[RemediationAction>
+    priority: float
+    timestamp: datetime
+
+    function init() -> RemediationPath {
+        return RemediationPath("", "", 0.0, 0.0, List.new(), List.new(), 0.0, datetime.now())
+    }
+}
+
+struct RemediationAction {
+    violation_id: string
+    description: string
+    estimated_effort: string
+    automatic: bool
+
+    function init() -> RemediationAction {
+        return RemediationAction("", "", "", false)
+    }
+}
+
+struct AuditReport {
+    compliance_summary: float
+    remediation_paths: List[RemediationPath>
+    audit_timestamp: datetime
+    execution_scope: Scope
+
+    function init() -> AuditReport {
+        return AuditReport(0.0, List.new(), datetime.now(), Scope.init())
+    }
+
+    function write_to_file(path: string) {
+        content: string = format_report()
+        file.write(path, content)
+    }
+
+    function format_report() -> string {
+        return format("Compliance Summary: {:.2f}%\\nRemediation Paths: {}", compliance_summary, remediation_paths.length)
+    }
+}
+
+struct AuditEntry {
+    event_type: EventType
+    policy_id: string
+    dataset_id: string
+    compliance_score: float
+    risk_score: float
+    timestamp: datetime
+    metadata: string
+    file_path: string
+
+    function init() -> AuditEntry {
+        return AuditEntry(EventType.EVALUATION, "", "", 0.0, 0.0, datetime.now(), "", "")
+    }
+
+    function serialize() -> string {
+        return format("{}|{}|{}|{}|{}|{}|{}", event_type, policy_id, dataset_id, compliance_score, risk_score, timestamp, metadata)
+    }
+}
+
+// Error types
+module DatasetError extends Exception {
+    constructor(message: string) {
+        super(message)
+    }
+}
+
+module ParsingError extends Exception {
+    constructor(message: string) {
+        super(message)
+    }
+}
+
+// Helper types and utilities
+struct Token {
+    type: TokenType
+    value: string
+}
+
+struct AST {
+    type: ASTType
+    children: List[Entry>
+}
+
+enum ASTType {
+    DATASET,
+    CONFIG
+}
+
+struct Entry {
+    key: string
+    value: string
+}
+
+// Standard library functions
+module log {
+    function info(message: string, args...) {
+        print("[INFO] " + format(message, args...))
+    }
+
+    function warning(message: string, args...) {
+        print("[WARNING] " + format(message, args...))
+    }
+
+    function error(message: string, args...) {
+        print("[ERROR] " + format(message, args...))
+    }
+
+    function debug(message: string, args...) {
+        // Optional debug output
+    }
+}
+
+module datetime {
+    function now() -> string {
+        return "2024-01-01T00:00:00Z" // Placeholder for actual datetime
+    }
+}
+
+module crypto {
+    function hash(input: string) -> string {
+        return "hash_" + input // Placeholder for actual hashing
+    }
+}
+
+module file {
+    function read(path: string) -> string {
+        return "" // Placeholder for file I/O
+    }
+
+    function write(path: string, content: string) {
+        // Placeholder for file I/O
+    }
+
+    function open(path: string, mode: string) -> FileHandle {
+        return null // Placeholder for file handle
+    }
+
+    function flush(handle: FileHandle) {
+        // Placeholder
+    }
+
+    function set_permissions(handle: FileHandle, perms: string) {
+        // Placeholder
+    }
+}
+
+module string {
+    function matches(input: string, regex: string) -> bool {
+        return true // Placeholder
+    }
+}
+
+module map {
+    function new() -> Map {
+        return Map.new()
+    }
+}
+
+struct Map {
+    data: List
+    function has(key: string) -> bool {
+        return false
+    }
+    function get(key: string) -> string {
+        return ""
+    }
+    function set(key: string, value: string) {
+    }
+    function length() -> int {
+        return 0
+    }
+}
+
+module list {
+    function new() -> List {
+        return List.new()
+    }
+}
+
+struct List {
+    items: List
+    function push(item) {
+    }
+    function length() -> int {
+        return 0
+    }
+    function remove_first() {
+    }
+    function first() {
+        return null
+    }
+}
+
+/**
+ * Chomski Standard Library Shims
+ * Note: In a real Chomski environment, these would be replaced by native implementations.
+ * The orchestrator logic above assumes these shims provide the necessary runtime functionality.
+ */
