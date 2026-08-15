@@ -1,34 +1,31 @@
-# Interactive Diagnostic Tool
+# Interactive Chapel Diagnostic Tool
 
-## Overview
-This project provides an interactive diagnostic and visualization tool for security and system health monitoring.
+An interactive, fully functioning diagnostic tool written in Chapel.
 
 ## Features
-- Real-time system health visualization
-- Interactive query interface for system diagnostics
-- Anomaly detection and alerting
-- Historical data analysis
+
+- Real-time system diagnostics
+- Interactive CLI interface
+- System health monitoring
+- Configuration validation
+- Security policy compliance checking
+- Resource utilization analysis
 
 ## Usage
-Run the following command to start the diagnostic tool:
 
 ```bash
-poplog diagnostic_tool.p
+chpl interactive_diagnostic_tool.chpl
 ```
 
-Or use the interactive shell:
+## Configuration
 
-```bash
-poplog
-> run_diagnostic_tool();
-```
+The tool can be configured through command-line arguments or a configuration file.
 
-## Dependencies
-- Poplog
-- Pop11
+## Requirements
 
-## Contributing
-Contributions are welcome! Please feel free to submit a Pull Request.
+- Chapel compiler (version 1.30+)
+- POSIX-compliant operating system
 
 ## License
-This project is licensed under the MIT License.
+
+MIT License
