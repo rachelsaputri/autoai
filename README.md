@@ -138,3 +138,5 @@
 - Created/Updated module: `api_traffic_analyzer` (See `api_traffic_analyzer/README.md` for details)
 
 - Created/Updated module: `squeak_encryption_tool` (See `squeak_encryption_tool/README.md` for details)
+
+- Created/Updated module: `binary_integrity_verifier` (See `binary_integrity_verifier/README.md` for details)
