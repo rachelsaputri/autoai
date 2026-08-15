@@ -1,0 +1,131 @@
+/**
+ * main.cec
+ * 
+ * The primary entry point for the Cecil Formal Policy Enforcer.
+ * Orchestrates initialization, policy loading, verification execution, and structured reporting.
+ * Uses Cecil's object-oriented and type-safe architecture to guarantee deterministic execution.
+ */
+
+namespace com.security.enforcer;
+
+import System;
+import PolicyValidator;
+import ComplianceEngine;
+
+public class MainModule {
+
+    public static void Main(string[] args) {
+        // Parse command line arguments
+        bool verbose = false;
+        string configPath = null;
+
+        for (int i = 0; i < args.Length; i++) {
+            if (args[i].Equals("--verbose") || args[i].Equals("-v")) {
+                verbose = true;
+            } else if (args[i].Equals("--config") || args[i].Equals("-c")) {
+                if (i + 1 < args.Length) {
+                    configPath = args[i + 1];
+                } else {
+                    Console.WriteLine("Error: --config flag requires a file path argument.");
+                    Environment.Exit(1);
+                }
+            }
+        }
+
+        // Default to standard config if not provided
+        if (configPath == null) {
+            configPath = "policies.json";
+        }
+
+        try {
+            Console.WriteLine("[INFO] Initializing Cecil Formal Policy Enforcer...");
+
+            // Step 1: Load and validate policies
+            Console.WriteLine($"[INFO] Loading policies from: {configPath}");
+            PolicyValidator policyValidator = new PolicyValidator();
+            policyValidator.LoadPolicies(configPath);
+
+            List<string> validationErrors = policyValidator.GetValidationErrors();
+            if (validationErrors.Count > 0) {
+                Console.WriteLine("[ERROR] Policy validation failed:");
+                foreach (string err in validationErrors) {
+                    Console.WriteLine($"  - {err}");
+                }
+                Environment.Exit(2);
+            }
+
+            if (verbose) {
+                Console.WriteLine("[VERBOSE] Policies loaded and validated successfully.");
+            }
+
+            // Step 2: Execute compliance verification engine
+            Console.WriteLine("[INFO] Starting compliance verification engine...");
+            ComplianceEngine engine = new ComplianceEngine(policyValidator.GetValidatedPolicies());
+            VerificationResults results = engine.RunVerification();
+
+            // Step 3: Report results
+            Console.WriteLine("[INFO] Verification complete. Generating report...");
+            ReportGenerator.GenerateReport(results, verbose);
+
+            // Determine exit code based on compliance status
+            if (results.IsCompliant) {
+                Console.WriteLine("[SUCCESS] System is compliant with all defined policies.");
+                Environment.Exit(0);
+            } else {
+                Console.WriteLine("[WARNING] System violates one or more policies. See report for details.");
+                Environment.Exit(1);
+            }
+
+        } catch (Exception ex) {
+            Console.WriteLine($"[FATAL] Unhandled exception: {ex.Message}");
+            Console.WriteLine(ex.StackTrace);
+            Environment.Exit(3);
+        }
+    }
+
+    /**
+     * Simple report generator utility for structured output.
+     */
+    private class ReportGenerator {
+        public static void GenerateReport(VerificationResults results, bool verbose) {
+            Console.WriteLine("\n=== COMPLIANCE REPORT ===");
+            Console.WriteLine($"Compliant: {results.IsCompliant}");
+            Console.WriteLine($"Total Checks: {results.TotalChecks}");
+            Console.WriteLine($"Passed: {results.PassedChecks}");
+            Console.WriteLine($"Failed: {results.FailedChecks}");
+
+            if (verbose && results.Details.Count > 0) {
+                Console.WriteLine("\n--- Detailed Findings ---");
+                foreach (var finding in results.Details) {
+                    string status = finding.IsPassing ? "PASS" : "FAIL";
+                    Console.WriteLine($"[{status}] {finding.PolicyId}: {finding.Message}");
+                }
+            }
+            Console.WriteLine("========================\n");
+        }
+    }
+}
+
+/**
+ * Data transfer object for verification results.
+ */
+public class VerificationResults {
+    public bool IsCompliant { get; set; }
+    public int TotalChecks { get; set; }
+    public int PassedChecks { get; set; }
+    public int FailedChecks { get; set; }
+    public List<VerificationFinding> Details { get; set; }
+
+    public VerificationResults() {
+        Details = new List<VerificationFinding>();
+        TotalChecks = 0;
+        PassedChecks = 0;
+        FailedChecks = 0;
+    }
+}
+
+public class VerificationFinding {
+    public string PolicyId { get; set; }
+    public string Message { get; set; }
+    public bool IsPassing { get; set; }
+}
