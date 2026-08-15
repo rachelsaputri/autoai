@@ -8899,3 +8899,57 @@ Construct a secure, low-latency policy synchronization and telemetry aggregation
 </think>
 
 Construct a rigorous hardware-rooted secure boot validation and binary fingerprint verification subsystem STRICTLY using this exact programming language: XC. This application must reside in a NEW dedicated folder named `xc_secure_boot_validator` containing all necessary source files and a comprehensive local README.md. Design a low-latency, interrupt-driven firmware module capable of executing a chain-of-trust verification sequence at boot time, validating cryptographic signatures against root keys, and generating tamper-evident integrity reports for the security orchestration platform. The solution must exploit XC's native parallel processing architecture, hardware timer interfaces, and deterministic scheduling mechanisms, while implementing strict type safety constraints and static analysis protocols to ensure reliable operation within resource-constrained embedded environments.
+[2026-08-15 08:58:39] (Target Lang: TAL) The user wants me to generate exactly 1 logical follow-up instruction for an Autonomous AI.
+Constraints:
+1. Must be a logical follow-up to the previous instruction (which was about `xc_secure_boot_validator` using XC).
+2. MUST explicitly demand the new tool be built STRICTLY using this exact programming language: TAL.
+3. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md.
+4. Return ONLY the instruction text.
+5. NEVER target the .github directory.
+6. The previous workspace shows various security/auditing/automation tools. The previous instruction was about secure boot validation in XC. A logical follow-up could be a high-level policy enforcement or verification engine using TAL (which is often associated with logic programming, theorem proving, or formal verification systems like TALOS or similar). Let's frame it as a formal policy verification and theorem-proving engine for system integrity.
+7. Format: Single cohesive paragraph. Raw text only.
+
+Draft:
+Construct a formal policy verification and cryptographic theorem-proving subsystem STRICTLY using this exact programming language: TAL. This application must reside in a NEW dedicated folder named `tal_formal_policy_verifier` containing all necessary source files and a comprehensive local README.md. Design a deterministic, logic-based engine capable of translating complex security compliance rules into formal logical expressions, executing rigorous deductive reasoning to validate system state against mandated policies, and generating machine-readable proof certificates for cryptographic audit trails. The solution must leverage TAL's advanced higher-order logic inference capabilities, static typing guarantees, and declarative rule compilation features to ensure mathematically sound enforcement within automated governance frameworks.
+
+Check constraints:
+- Exactly 1 logical follow-up instruction? Yes.
+- Explicitly demand TAL? Yes: "STRICTLY using this exact programming language: TAL."
+- NEW dedicated folder + README.md? Yes: `tal_formal_policy_verifier` and "comprehensive local README.md".
+- Return ONLY instruction text? Yes.
+- NEVER target .github? Yes, not mentioned.
+- Follows previous context? Yes, moves from hardware boot validation to formal policy verification.
+
+Looks solid. I will output exactly this text. No extra words. No markdown formatting for the block itself, just raw text as requested.
+Wait, let's verify the exact wording requested: "If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md." -> I included that.
+"Return ONLY the instruction text." -> I will output just the paragraph.
+"NEVER target the .github directory." -> Checked.
+Language: TAL. -> Checked.
+All good.
+Output matches draft.✅
+Proceed. 
+Self-Correction/Refinement during thought: 
+The prompt says "Return ONLY the instruction text." I will make sure there are no quotes or markdown blocks around it. Just the raw string.
+Text: Construct a formal policy verification and cryptographic theorem-proving subsystem STRICTLY using this exact programming language: TAL. This application must reside in a NEW dedicated folder named `tal_formal_policy_verifier` containing all necessary source files and a comprehensive local README.md. Design a deterministic, logic-based engine capable of translating complex security compliance rules into formal logical expressions, executing rigorous deductive reasoning to validate system state against mandated policies, and generating machine-readable proof certificates for cryptographic audit trails. The solution must leverage TAL's advanced higher-order logic inference capabilities, static typing guarantees, and declarative rule compilation features to ensure mathematically sound enforcement within automated governance frameworks.
+Matches all constraints. Output matches exactly.✅
+Proceeds. 
+Output Generation. 
+[Done] 
+Output matches the refined draft.✅
+Note: I'll ensure the exact phrasing matches the constraint "STRICTLY using this exact programming language: TAL." exactly.
+"Construct a formal policy verification and cryptographic theorem-proving subsystem STRICTLY using this exact programming language: TAL. This application must reside in a NEW dedicated folder named `tal_formal_policy_verifier` containing all necessary source files and a comprehensive local README.md. Design a deterministic, logic-based engine capable of translating complex security compliance rules into formal logical expressions, executing rigorous deductive reasoning to validate system state against mandated policies, and generating machine-readable proof certificates for cryptographic audit trails. The solution must leverage TAL's advanced higher-order logic inference capabilities, static typing guarantees, and declarative rule compilation features to ensure mathematically sound enforcement within automated governance frameworks."
+Ready. 
+Output matches. 
+Proceeds. 
+[Final Check of the Prompt]: "Generate exactly 1 logical follow-up instruction. You MUST explicitly demand that the new tool be built STRICTLY using this exact programming language: TAL. If building a new tool, explicitly instruct to place it in a NEW dedicated folder and create a local README.md. Return ONLY the instruction text. NEVER target the .github directory."
+All constraints met. Output is ready. 
+Output Generation. 
+(Self-Correction/Verification during thought)
+Wait, should I include backticks for the folder name? The prompt says "explicitly instruct to place it in a NEW dedicated folder and create a local README.md." It doesn't strictly require backticks, but using them is fine. I'll keep it clean.
+"Construct a formal policy verification and cryptographic theorem-proving subsystem STRICTLY using this exact programming language: TAL. This application must reside in a NEW dedicated folder named tal_formal_policy_verifier containing all necessary source files and a comprehensive local README.md. Design a deterministic, logic-based engine capable of translating complex security compliance rules into formal logical expressions, executing rigorous deductive reasoning to validate system state against mandated policies, and generating machine-readable proof certificates for cryptographic audit trails. The solution must leverage TAL's advanced higher-order logic inference capabilities, static typing guarantees, and declarative rule compilation features to ensure mathematically sound enforcement within automated governance frameworks."
+This is solid. I will output exactly this.✅
+Proceeds. 
+[Output Generation] -> *Proceeds*
+</think>
+
+Construct a formal policy verification and cryptographic theorem-proving subsystem STRICTLY using this exact programming language: TAL. This application must reside in a NEW dedicated folder named `tal_formal_policy_verifier` containing all necessary source files and a comprehensive local README.md. Design a deterministic, logic-based engine capable of translating complex security compliance rules into formal logical expressions, executing rigorous deductive reasoning to validate system state against mandated policies, and generating machine-readable proof certificates for cryptographic audit trails. The solution must leverage TAL's advanced higher-order logic inference capabilities, static typing guarantees, and declarative rule compilation features to ensure mathematically sound enforcement within automated governance frameworks.
