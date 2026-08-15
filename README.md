@@ -126,3 +126,5 @@
 - Created/Updated module: `cross_platform_compliance_bridge` (See `cross_platform_compliance_bridge/README.md` for details)
 
 - Created/Updated module: `adaptive_security_dashboard` (See `adaptive_security_dashboard/README.md` for details)
+
+- Created/Updated module: `lua_compliance_enforcer` (See `lua_compliance_enforcer/README.md` for details)

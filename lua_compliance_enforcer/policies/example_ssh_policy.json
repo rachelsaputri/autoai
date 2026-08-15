@@ -1,0 +1,13 @@
+{
+  "policy_id": "ssh-001",
+  "description": "Ensure SSH is configured to use a non-standard port",
+  "check": {
+    "type": "file_content",
+    "path": "/etc/ssh/sshd_config",
+    "pattern": "^Port 22$"
+  },
+  "enforcement": {
+    "type": "alert",
+    "action": "notify_security_team"
+  }
+}
