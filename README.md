@@ -122,3 +122,5 @@
 - Created/Updated module: `s3_data_lifecycle_manager` (See `s3_data_lifecycle_manager/README.md` for details)
 
 - Created/Updated module: `windows_security_baseline_agent` (See `windows_security_baseline_agent/README.md` for details)
+
+- Created/Updated module: `cross_platform_compliance_bridge` (See `cross_platform_compliance_bridge/README.md` for details)
