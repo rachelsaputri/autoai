@@ -1,0 +1,33 @@
+' SB Security Audit Scanner
+' Main Entry Point
+
+' Import modules
+Import "sb_security_audit_scanner.FileIntegrity"
+Import "sb_security_audit_scanner.ComplianceChecker"
+Import "sb_security_audit_scanner.PermissionAuditor"
+Import "sb_security_audit_scanner.ReportGenerator"
+
+' Configuration
+TargetDirectory = "C:\SecurityAudit"
+ReportDirectory = "sb_security_audit_scanner\reports"
+
+Sub Main
+    ' Initialize report generator
+    ReportGenerator.Initialize(ReportDirectory)
+    
+    ' Perform file integrity check
+    FileIntegrity.Analyze(TargetDirectory)
+    
+    ' Check configuration compliance
+    ComplianceChecker.Validate(TargetDirectory)
+    
+    ' Audit permissions
+    PermissionAuditor.CheckAll(TargetDirectory)
+    
+    ' Generate final report
+    ReportGenerator.Finalize("SecurityAudit_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".sbreport")
+    
+    TextWindow.WriteLine("Audit complete. Report saved.")
+EndSub
+
+Main()

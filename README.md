@@ -264,3 +264,5 @@
 - Created/Updated module: `alef_security_policy_enforcer` (See `alef_security_policy_enforcer/README.md` for details)
 
 - Created/Updated module: `alf_security_policy_enforcer` (See `alf_security_policy_enforcer/README.md` for details)
+
+- Created/Updated module: `sb_security_audit_scanner` (See `sb_security_audit_scanner/README.md` for details)

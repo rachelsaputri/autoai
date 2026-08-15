@@ -13473,3 +13473,50 @@ Construct a production-grade, fully functional IMP-based Network Traffic Inspect
 </think>
 
 Construct a production-grade, fully functional AIMMS-based Compliance Optimization & Audit Scheduler STRICTLY using this exact programming language: AIMMS. This application must reside in a NEW dedicated folder named `aimms_compliance_optimization_engine` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement mathematical risk modeling, compliance constraint optimization, automated audit scheduling, and dynamic remediation resource allocation. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+[2026-08-15 14:25:56] (Target Lang: Small Basic) Thinking Process:
+
+1.  **Deconstruct the User's Request:**
+    *   Goal: Generate exactly 1 logical follow-up instruction.
+    *   Constraint 1: Explicitly demand the new tool be built STRICTLY using `Small Basic`.
+    *   Constraint 2: If building a new tool, place it in a NEW dedicated folder and create a local `README.md`.
+    *   Constraint 3: Return ONLY the instruction text.
+    *   Constraint 4: NEVER target the `.github` directory.
+    *   Context: The workspace contains many tools, mostly related to security, compliance, auditing, and formal verification, using various languages (Rust, Python, Go, Ada, Lisp, AIMMS, etc.). The latest history item shows an instruction for `aimms_compliance_optimization_engine` which already exists in the workspace listing (`./aimms_compliance_optimization_engine`).
+    *   Logical Follow-up: Since the previous instruction generated an AIMMS tool, a logical follow-up might be a complementary tool or a variation on a theme that fits the workspace but uses the mandated language.
+    *   Theme Ideas: Risk analysis, log parsing, compliance checking, anomaly detection. Let's pick something relevant to the existing AIMMS tool but distinct. Maybe a lightweight script-based tool for quick audits or a data processing utility.
+    *   Language: Small Basic. Small Basic is often used for educational purposes or legacy script-like automation. It fits well with "scripting" tasks.
+    *   Tool Idea: A "Compliance Check Script Generator" or "Log Parser for Security Events" or "Network Config Validator".
+    *   Let's go with `security_policy_compliance_checker` or `log_correlation_engine`.
+    *   Decision: `lightweight_security_audit_scanner` seems good for Small Basic. It can scan configs and report.
+    *   Folder Name: `sb_security_audit_scanner`.
+    *   Language: Small Basic.
+    *   Structure: Folder `sb_security_audit_scanner`, `README.md`, and Small Basic source files (`.sb`).
+
+2.  **Draft the Instruction:**
+    *   *Draft 1:* Construct a production-grade, fully functional Small Basic-based Security Audit Scanner STRICTLY using this exact programming language: Small Basic. This application must reside in a NEW dedicated folder named `sb_security_audit_scanner` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement file integrity checking, configuration compliance validation, secure credential verification, and automated reporting of vulnerabilities. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+    *   *Review against constraints:*
+        *   "Exactly 1 logical follow-up instruction?" Yes.
+        *   "STRICTLY using this exact programming language: Small Basic?" Yes.
+        *   "NEW dedicated folder named...?" Yes (`sb_security_audit_scanner`).
+        *   "create a local README.md?" Yes.
+        *   "Return ONLY the instruction text?" Yes.
+        *   "NEVER target the .github directory?" Yes (folder is `sb_security_audit_scanner`, no `.github` mentioned).
+        *   "Logical follow-up?" The workspace has `aimms_compliance_optimization_engine`. A `sb_security_audit_scanner` complements it by providing a lightweight, scriptable scanner that could feed data to the optimizer or run on constrained environments. It's logical in the context of a security toolkit.
+
+3.  **Refine the Text:**
+    *   The prompt asks for the output to match the style of the history example.
+    *   History example style: "Construct a production-grade, fully functional [Language]-based [Tool Name] STRICTLY using this exact programming language: [Language]. This application must reside in a NEW dedicated folder named `[folder_name]` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement [Feature 1], [Feature 2], [Feature 3], and [Feature 4]. Demand a fully functional, complete implementation (NO dummy code, NO placeholders)."
+    *   *Refined Text:* Construct a production-grade, fully functional Small Basic-based Security Audit Scanner STRICTLY using this exact programming language: Small Basic. This application must reside in a NEW dedicated folder named `sb_security_audit_scanner` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement file integrity verification, configuration compliance checking, permission analysis, and automated vulnerability reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
+
+4.  **Final Polish:**
+    *   Result: `Construct a production-grade, fully functional Small Basic-based Security Audit Scanner STRICTLY using this exact programming language: Small Basic. This application must reside in a NEW dedicated folder named `sb_security_audit_scanner` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement file integrity verification, configuration compliance checking, permission analysis, and automated vulnerability reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).`
+    *   Check for `.github`: None.
+    *   Check for Small Basic: Yes.
+    *   Check for New Folder: Yes.
+    *   Check for README: Yes.
+    *   Check for "Only instruction text": Yes.
+
+This looks solid.
+</think>
+
+Construct a production-grade, fully functional Small Basic-based Security Audit Scanner STRICTLY using this exact programming language: Small Basic. This application must reside in a NEW dedicated folder named `sb_security_audit_scanner` containing all necessary source files and a comprehensive local README.md. The tool must definitively implement file integrity verification, configuration compliance checking, permission analysis, and automated vulnerability reporting. Demand a fully functional, complete implementation (NO dummy code, NO placeholders).
