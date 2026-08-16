@@ -1,0 +1,123 @@
+to escapeString
+  output word "\" replaceWord (char \"") "\"\" replaceWord (char \\) "\\\\ input
+end
+
+to parseJSON :input
+  make "tokens tokenizeJSON :input
+  make "stack []
+  make "current null
+  foreach [processToken] :tokens
+  output :current
+end
+
+to processToken :token
+  ifelse equalp :token "{" [
+    ifelse emptyp :stack [
+      make "current []
+    ] [
+      make "current [" :current "]
+    ]
+    push :stack "obj
+  ] [
+    ifelse equalp :token "[" [
+      push :stack "arr
+      push [] :stack
+    ] [
+      ifelse equalp :token "}" [
+        make "current pop :stack
+        ifelse equalp first :stack "obj [
+          make "current [" :current "]
+          pop :stack
+        ] [
+          make :stack butfirst :stack
+        ]
+      ] [
+        ifelse equalp :token "]" [
+          make :stack pop :stack
+          make :current first :stack
+          make :stack butfirst :stack
+        ] [
+          ifelse equalp :token "," [] [
+            push :token :stack
+          ] [
+            error "Invalid JSON structure"
+          ]
+        ]
+      ]
+    ]
+  ]
+end
+
+to tokenizeJSON :input
+  ifequalp :input "" [output []]
+  make "head first :input
+  ifelse equalp :head "[" [output word ["[] tokenizeJSON butfirst :input]]
+  ifelse equalp :head "]" [output word ["]] tokenizeJSON butfirst :input]]
+  ifelse equalp :head "{" [output word ["{}] tokenizeJSON butfirst :input]]
+  ifelse equalp :head "}" [output word ["]} tokenizeJSON butfirst :input]]
+  ifelse equalp :head "," [output word [",] tokenizeJSON butfirst :input]]
+  ifelse equalp :head " " [output tokenizeJSON butfirst :input]
+  output word ["string] tokenizeJSON butfirst :input
+end
+
+to parseCSV :input
+  make "lines split :input (char 10)
+  make "records []
+  ifequalp :lines [] [output []]
+  make "headers first :lines
+  foreach [parseRow] butfirst :lines
+  output :records
+end
+
+to parseRow :line
+  ifequalp :line "" [output []]
+  make "fields split :line (char 44)
+  make "record []
+  foreach [trim] :fields
+  output :record
+end
+
+to parseFixedWidth :input :positions
+  make "lines split :input (char 10)
+  make "records []
+  foreach [parseFWRow] :lines
+  output :records
+end
+
+to parseFWRow :line
+  ifequalp :line "" [output []]
+  make "record []
+  make "idx 0
+  foreach [p] :positions [
+    make "record lput substring :line :idx p :record
+    make "idx :idx + :p
+  ]
+  output :record
+end
+
+to main
+  ifelse equalp count :input 0 [
+    print "Usage: logo_data_extraction_parser <data_file> <format>"
+    stop
+  ]
+  make "format second :input
+  make "data readfile first :input
+  ifelse equalp :format "csv" [
+    print "Parsing CSV data..."
+    print parseCSV :data
+  ] [
+    ifelse equalp :format "json" [
+      print "Parsing JSON data..."
+      print parseJSON :data
+    ] [
+      ifelse equalp :format "fixed" [
+        print "Parsing Fixed-Width data..."
+        print parseFixedWidth :data [10 20 30]
+      ] [
+        print "Unknown format specified. Supported formats: csv, json, fixed"
+      ]
+    ]
+  ]
+end
+
+main
