@@ -1,0 +1,1 @@
+name: data_processing_utilities\ndescription: A minimal, functional data processing toolkit in Dart.\nversion: 1.0.0\n\nenvironment:\n  sdk: \">=3.0.0 \\u003C4.0.0\"\n\ndependencies:\n  path: \">=1.8.0 \\u003C2.0.0\"\n\ndev_dependencies:\n  lints: \">=2.0.0 \\u003C3.0.0\"
