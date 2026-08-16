@@ -1,0 +1,32 @@
+struct SystemConfig {
+    map<string, string> settings
+}
+
+initSystemConfig() {
+    var config: SystemConfig
+    config.settings["auth_timeout"] = "300"
+    config.settings["encryption"] = "AES256"
+    config.settings["logging_level"] = "INFO"
+    config.settings["max_login_attempts"] = "3"
+    config.settings["session_expiry"] = "1800"
+    return config
+}
+
+getValue(this: SystemConfig, key: string) {
+    var val: string = this.settings.get(key)
+    if val == null {
+        val = "UNDEFINED"
+    }
+    return val
+}
+
+monitorSystemState(config: SystemConfig, trail: AuditTrail) {
+    var keys: array<string> = config.settings.keys
+    var idx: int = 0
+    while idx < keys.size {
+        var key: string = keys[idx]
+        var value: string = config.settings.get(key)
+        trail.logState(key, value)
+        idx = idx + 1
+    }
+}

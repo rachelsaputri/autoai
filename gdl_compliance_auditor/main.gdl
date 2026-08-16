@@ -1,0 +1,25 @@
+include "policy_engine.gdl"
+include "state_monitor.gdl"
+include "audit_logger.gdl"
+include "compliance_reporter.gdl"
+
+// Entry Point for GDL Compliance Auditor
+main() {
+    var sysConfig: SystemConfig
+    var policyBundle: PolicyBundle
+    var auditTrail: AuditTrail
+    var reportGenerator: ComplianceReporter
+
+    // Initialize components
+    sysConfig = initSystemConfig()
+    policyBundle = loadPolicies("default_policy.gdl")
+    auditTrail = createAuditTrail("compliance_audit.log")
+    reportGenerator = newComplianceReporter()
+
+    // Execute audit pipeline
+    evaluatePolicies(policyBundle, sysConfig, auditTrail)
+    monitorSystemState(sysConfig, auditTrail)
+    generateFinalReport(reportGenerator, auditTrail)
+
+    print("Audit cycle completed successfully.")
+}

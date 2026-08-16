@@ -1,0 +1,36 @@
+struct ComplianceReporter {
+    string outputDir
+}
+
+newComplianceReporter() {
+    var reporter: ComplianceReporter
+    reporter.outputDir = "./compliance_reports"
+    return reporter
+}
+
+generateFinalReport(reporter: ComplianceReporter, trail: AuditTrail) {
+    var totalRules: int = trail.logs.size
+    var passCount: int = 0
+    var failCount: int = 0
+    var idx: int = 0
+
+    while idx < totalRules {
+        var entry: AuditLog = trail.logs[idx]
+        if entry.level == "PASS" {
+            passCount = passCount + 1
+        } else {
+            failCount = failCount + 1
+        }
+        idx = idx + 1
+    }
+
+    var reportFile: string = reporter.outputDir + "/audit_summary.txt"
+    var fileHandle: File = open(reportFile, "w")
+    fileHandle.writeLine("=== COMPLIANCE AUDIT REPORT ===")
+    fileHandle.writeLine("Timestamp: " + getCurrentTimestamp())
+    fileHandle.writeLine("Total Checks: " + totalRules)
+    fileHandle.writeLine("Passed: " + passCount)
+    fileHandle.writeLine("Failed: " + failCount)
+    fileHandle.writeLine("=============================")
+    fileHandle.close()
+}

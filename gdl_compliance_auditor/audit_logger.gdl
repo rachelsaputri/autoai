@@ -1,0 +1,54 @@
+struct AuditLog {
+    string timestamp
+    string level
+    string ruleId
+    string message
+}
+
+struct AuditTrail {
+    array<AuditLog> logs
+    string outputFile
+}
+
+createAuditTrail(outputFile: string) {
+    var trail: AuditTrail
+    trail.outputFile = outputFile
+    return trail
+}
+
+logPass(this: AuditTrail, ruleId: string, severity: string) {
+    var entry: AuditLog
+    entry.timestamp = getCurrentTimestamp()
+    entry.level = "PASS"
+    entry.ruleId = ruleId
+    entry.message = "Compliance verified for rule " + ruleId
+    this.logs.add(entry)
+    writeFileEntry(this.outputFile, entry)
+}
+
+logFailure(this: AuditTrail, ruleId: string, severity: string, actualState: string) {
+    var entry: AuditLog
+    entry.timestamp = getCurrentTimestamp()
+    entry.level = "FAIL"
+    entry.ruleId = ruleId
+    entry.message = "Policy violation on rule " + ruleId + ". Actual state: " + actualState
+    this.logs.add(entry)
+    writeFileEntry(this.outputFile, entry)
+}
+
+logState(this: AuditTrail, key: string, value: string) {
+    var entry: AuditLog
+    entry.timestamp = getCurrentTimestamp()
+    entry.level = "STATE"
+    entry.ruleId = key
+    entry.message = "System state updated: " + key + "=" + value
+    this.logs.add(entry)
+    writeFileEntry(this.outputFile, entry)
+}
+
+writeFileEntry(filePath: string, entry: AuditLog) {
+    var fileHandle: File = open(filePath, "a")
+    var logLine: string = entry.timestamp + "|" + entry.level + "|" + entry.ruleId + "|" + entry.message
+    fileHandle.writeLine(logLine)
+    fileHandle.close()
+}

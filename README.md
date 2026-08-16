@@ -472,3 +472,5 @@
 - Created/Updated module: `sssl_compliance_verifier` (See `sssl_compliance_verifier/README.md` for details)
 
 - Created/Updated module: `genie_compliance_auditor` (See `genie_compliance_auditor/README.md` for details)
+
+- Created/Updated module: `gdl_compliance_auditor` (See `gdl_compliance_auditor/README.md` for details)

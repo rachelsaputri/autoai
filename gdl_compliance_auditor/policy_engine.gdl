@@ -1,0 +1,49 @@
+struct PolicyRule {
+    string ruleId
+    string condition
+    string expectedState
+    string severity
+}
+
+struct PolicyBundle {
+    array<PolicyRule> rules
+}
+
+loadPolicies(filePath: string) {
+    var bundle: PolicyBundle
+    var fileHandle: File
+
+    fileHandle = open(filePath, "r")
+    if fileHandle == null {
+        throw Error("Policy file not found: " + filePath)
+    }
+
+    var line: string
+    while fileHandle.readLine(line) {
+        var rule: PolicyRule
+        rule.ruleId = parseLineField(line, 0)
+        rule.condition = parseLineField(line, 1)
+        rule.expectedState = parseLineField(line, 2)
+        rule.severity = parseLineField(line, 3)
+        bundle.rules.add(rule)
+    }
+
+    fileHandle.close()
+    return bundle
+}
+
+evaluatePolicies(bundle: PolicyBundle, config: SystemConfig, trail: AuditTrail) {
+    var idx: int = 0
+    while idx < bundle.rules.size {
+        var rule: PolicyRule = bundle.rules[idx]
+        var currentState: string = config.getValue(rule.condition)
+        var passed: boolean = (currentState == rule.expectedState)
+
+        if passed {
+            trail.logPass(rule.ruleId, rule.severity)
+        } else {
+            trail.logFailure(rule.ruleId, rule.severity, currentState)
+        }
+        idx = idx + 1
+    }
+}
