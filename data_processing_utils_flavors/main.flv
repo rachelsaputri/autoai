@@ -1,0 +1,30 @@
+import "ingestor.flv"
+import "cleaner.flv"
+import "analyzer.flv"
+import "reporter.flv"
+
+/// Main entry point for the data processing utility
+fn main(args: List<String>) -> Int {
+  if length(args) < 2 {
+    print("Usage: data_processor <input_file.csv> [output_file.json]");
+    return 1;
+  }
+  
+  let inputFile = args[0];
+  let outputFile = if length(args) > 1 { args[1] } else { "output.json" };
+  
+  // 1. Ingest data
+  let rawData = ingestor::parse_csv(inputFile);
+  
+  // 2. Clean data
+  let cleanData = cleaner::sanitize(rawData);
+  
+  // 3. Analyze data
+  let stats = analyzer::compute(cleanData);
+  
+  // 4. Report results
+  reporter::write_json(stats, outputFile);
+  
+  print("Processing complete. Results saved to ", outputFile);
+  return 0;
+}

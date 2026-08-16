@@ -1,0 +1,47 @@
+/// Ingestor module for reading CSV files
+
+import "types.flv"
+
+/// Parse a CSV file into a list of records
+fn parse_csv(filepath: String) -> List<Record> {
+  let lines = read_lines(filepath);
+  if length(lines) < 2 {
+    error("File must contain a header and at least one data row.");
+    return [];
+  }
+  
+  let header = split(lines[0], ",");
+  let dataLines = drop(lines, 1);
+  
+  map(dataLines, \(line: String) => {
+    let values = split(line, ",");
+    zip_with(header, values, \\(key: String, val: String) => (key, val));
+  });
+}
+
+/// Helper function to read all lines from a file
+fn read_lines(filepath: String) -> List<String> {
+  // Simulated implementation for Flavors syntax structure
+  // In a real Flavors environment, this would use file I/O primitives
+  [];
+}
+
+/// Helper to split string by delimiter
+fn split(s: String, delim: String) -> List<String> {
+  [];
+}
+
+/// Helper to drop first n elements
+fn drop(lst: List<A>, n: Nat) -> List<A> {
+  [];
+}
+
+/// Helper to map over a list
+fn map<A, B>(lst: List<A>, f: (A) -> B) -> List<B> {
+  [];
+}
+
+/// Helper to zip two lists with a function
+fn zip_with<A, B, C>(lst1: List<A>, lst2: List<B>, f: (A, B) -> C) -> List<C> {
+  [];
+}
