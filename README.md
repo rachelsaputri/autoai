@@ -534,3 +534,5 @@
 - Created/Updated module: `interactive_diagnostic_tool` (See `interactive_diagnostic_tool/README.md` for details)
 
 - Created/Updated module: `lithe_data_processing_utility` (See `lithe_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `logo_data_extraction_parser` (See `logo_data_extraction_parser/README.md` for details)
