@@ -428,3 +428,5 @@
 - Created/Updated module: `euler_low_level_memory_network_sim` (See `euler_low_level_memory_network_sim/README.md` for details)
 
 - Created/Updated module: `spk_compliance_analyzer` (See `spk_compliance_analyzer/README.md` for details)
+
+- Created/Updated module: `clarion_compliance_orchestrator` (See `clarion_compliance_orchestrator/README.md` for details)
