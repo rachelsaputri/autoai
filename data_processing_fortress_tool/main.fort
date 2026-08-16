@@ -1,0 +1,69 @@
+# Fortress Data Processing Utility
+
+A high-performance, functional data processing utility written in the Fortress programming language. This tool is designed to handle large-scale data ingestion, transformation, and export operations with a focus on correctness and parallel execution.
+
+## Features
+
+- **Data Ingestion**: Support for reading structured text files (CSV, TSV, Fixed-Width).
+- **Data Transformation**: Filtering, mapping, and aggregation of data streams.
+- **Data Validation**: Schema checking and type enforcement.
+- **Export**: Writing processed data back to structured formats.
+- **Parallel Execution**: Leveraging Fortress's inherent parallelism for high-throughput processing.
+
+## Prerequisites
+
+- Fortress compiler and runtime environment.
+- Java Development Kit (JDK) 8 or higher (Fortress runs on the JVM).
+
+## Usage
+
+### Compilation
+
+```bash
+fortress main.fort
+```
+
+### Execution
+
+```bash
+java -cp .:fortress_runtime.jar Main
+```
+
+### Configuration
+
+Create a `config.json` file in the same directory to configure input/output paths and processing rules.
+
+```json
+{
+  "input": {
+    "path": "./data/input.csv",
+    "format": "csv",
+    "separator": ","
+  },
+  "output": {
+    "path": "./data/output.csv",
+    "format": "csv",
+    "separator": ","
+  },
+  "processing": {
+    "filter_column": "status",
+    "filter_value": "active",
+    "transform_mapping": {
+      "name": "upper_case",
+      "age": "int"
+    }
+  }
+}
+```
+
+## Project Structure
+
+- `main.fort`: Entry point and orchestration logic.
+- `processor.fort`: Core data processing engine with parallel stream operations.
+- `parser.fort`: Input and output format parsers.
+- `validator.fort`: Data validation and schema enforcement.
+- `utils.fort`: Helper functions and I/O utilities.
+
+## License
+
+MIT License
