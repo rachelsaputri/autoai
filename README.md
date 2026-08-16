@@ -500,3 +500,5 @@
 - Created/Updated module: `jython_compliance_audit_engine` (See `jython_compliance_audit_engine/README.md` for details)
 
 - Created/Updated module: `k_compliance_auditor` (See `k_compliance_auditor/README.md` for details)
+
+- Created/Updated module: `karel_security_policy_verifier` (See `karel_security_policy_verifier/README.md` for details)
