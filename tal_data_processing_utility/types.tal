@@ -1,0 +1,49 @@
+#ifndef TYPES_TAL
+#define TYPES_TAL
+
+#include <stddef.h>
+
+typedef enum { LOG_DEBUG, LOG_INFO, LOG_WARN, LOG_ERROR } LogLevel;
+
+typedef struct {
+    char field_name[64];
+    char data_type[32];
+    int is_required;
+    int is_primary_key;
+} FieldDefinition;
+
+typedef struct {
+    FieldDefinition *fields;
+    int field_count;
+} Schema;
+
+typedef struct {
+    char value[256];
+    int is_null;
+} FieldValue;
+
+typedef struct {
+    FieldValue *values;
+    int value_count;
+    int is_valid;
+} Record;
+
+typedef struct {
+    Record *records;
+    int record_count;
+    int capacity;
+    Schema schema;
+} Dataset;
+
+typedef struct {
+    char input_file[256];
+    char output_file[256];
+    LogLevel log_level;
+    int batch_size;
+} Config;
+
+#define MAX_FIELDS 64
+#define MAX_RECORDS 100000
+#define MAX_VALUE_LENGTH 256
+
+#endif // TYPES_TAL

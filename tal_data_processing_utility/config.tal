@@ -1,0 +1,31 @@
+#include <stdio.h>
+#include <string.h>
+#include "types.tal"
+
+int load_config(Config *config) {
+    if (config == NULL) {
+        fprintf(stderr, "Error: NULL config pointer\n");
+        return 0;
+    }
+
+    // Set default configuration
+    config->log_level = LOG_INFO;
+    config->batch_size = 1000;
+    
+    // Initialize output filename
+    strcpy(config->output_file, "output.csv");
+    
+    return 1;
+}
+
+void set_log_level(Config *config, LogLevel level) {
+    if (config != NULL) {
+        config->log_level = level;
+    }
+}
+
+void set_batch_size(Config *config, int size) {
+    if (config != NULL && size > 0) {
+        config->batch_size = size;
+    }
+}

@@ -1,0 +1,38 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "types.tal"
+
+int report_output(Dataset *dataset, const char *filename) {
+    FILE *file = fopen(filename, "w");
+    if (!file) {
+        fprintf(stderr, "Error: Cannot create output file %s\n", filename);
+        return 0;
+    }
+
+    // Write header
+    for (int i = 0; i < dataset->schema.field_count; i++) {
+        if (i > 0) fprintf(file, ",");
+        fprintf(file, "%s", dataset->schema.fields[i].field_name);
+    }
+    fprintf(file, "\n");
+
+    // Write data
+    for (int i = 0; i < dataset->record_count; i++) {
+        Record *record = &dataset->records[i];
+        
+        for (int j = 0; j < record->value_count; j++) {
+            if (j > 0) fprintf(file, ",");
+            if (record->values[j].is_null) {
+                fprintf(file, "NULL");
+            } else {
+                fprintf(file, "%s", record->values[j].value);
+            }
+        }
+        fprintf(file, "\n");
+    }
+
+    fclose(file);
+    printf("Report generated: %s\n", filename);
+    return 1;
+}

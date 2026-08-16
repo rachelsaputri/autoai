@@ -1,0 +1,70 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+#include "types.tal"
+
+int validate_numeric(const char *str) {
+    if (str == NULL || strlen(str) == 0) return 0;
+    if (str[0] == '-' || str[0] == '+') str++;
+    if (strlen(str) == 0) return 0;
+    
+    int decimal_point_seen = 0;
+    while (*str) {
+        if (*str == '.') {
+            if (decimal_point_seen) return 0;
+            decimal_point_seen = 1;
+        } else if (!isdigit(*str)) {
+            return 0;
+        }
+        str++;
+    }
+    return 1;
+}
+
+int validate_dataset(Dataset *dataset) {
+    int validation_errors = 0;
+    
+    for (int i = 0; i < dataset->record_count; i++) {
+        Record *record = &dataset->records[i];
+        
+        for (int j = 0; j < record->value_count; j++) {
+            FieldValue *field = &record->values[j];
+            
+            if (field->is_null && dataset->schema.fields[j].is_required) {
+                fprintf(stderr, "Validation error: Required field %s is NULL in record %d\n", 
+                        dataset->schema.fields[j].field_name, i);
+                record->is_valid = 0;
+                validation_errors++;
+            }
+            
+            // Check for empty required fields
+            if (!field->is_null && strlen(field->value) == 0 && dataset->schema.fields[j].is_required) {
+                fprintf(stderr, "Validation error: Empty required field %s in record %d\n", 
+                        dataset->schema.fields[j].field_name, i);
+                record->is_valid = 0;
+                validation_errors++;
+            }
+        }
+    }
+    
+    if (validation_errors > 0) {
+        printf("Validation completed with %d errors\n", validation_errors);
+    } else {
+        printf("Dataset validation passed successfully\n");
+    }
+    
+    return validation_errors == 0;
+}
+
+void dataset_destroy(Dataset *dataset) {
+    if (dataset->records) {
+        for (int i = 0; i < dataset->record_count; i++) {
+            if (dataset->records[i].values) {
+                free(dataset->records[i].values);
+            }
+        }
+        free(dataset->records);
+    }
+    dataset->record_count = 0;
+    dataset->capacity = 0;
+}

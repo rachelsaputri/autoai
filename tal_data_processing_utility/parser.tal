@@ -1,0 +1,64 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "types.tal"
+
+int parse_input(Dataset *dataset, const char *filename) {
+    FILE *file = fopen(filename, "r");
+    if (!file) {
+        fprintf(stderr, "Error: Cannot open file %s\n", filename);
+        return 0;
+    }
+
+    char line[1024];
+    int line_number = 0;
+
+    // Initialize dataset
+    dataset->records = (Record *)malloc(MAX_RECORDS * sizeof(Record));
+    dataset->capacity = MAX_RECORDS;
+    dataset->record_count = 0;
+
+    // Read header to define schema
+    if (fgets(line, sizeof(line), file)) {
+        line_number++;
+        char *token = strtok(line, ",");
+        int field_idx = 0;
+
+        while (token && field_idx < MAX_FIELDS) {
+            strncpy(dataset->schema.fields[field_idx].field_name, token, 63);
+            dataset->schema.fields[field_idx].field_name[63] = '\0';
+            dataset->schema.fields[field_idx].is_required = 1;
+            field_idx++;
+            token = strtok(NULL, ",");
+        }
+        dataset->schema.field_count = field_idx;
+    }
+
+    // Read data rows
+    while (fgets(line, sizeof(line), file) && dataset->record_count < MAX_RECORDS) {
+        line_number++;
+        char *copy = strdup(line);
+        char *token = strtok(copy, ",");
+        int value_idx = 0;
+
+        Record *record = &dataset->records[dataset->record_count];
+        record->values = (FieldValue *)malloc(MAX_FIELDS * sizeof(FieldValue));
+        record->value_count = 0;
+        record->is_valid = 1;
+
+        while (token && value_idx < MAX_FIELDS) {
+            strncpy(record->values[value_idx].value, token, 255);
+            record->values[value_idx].value[255] = '\0';
+            record->values[value_idx].is_null = 0;
+            value_idx++;
+            token = strtok(NULL, ",");
+        }
+        record->value_count = value_idx;
+        dataset->record_count++;
+        free(copy);
+    }
+
+    fclose(file);
+    printf("Parsed %d records from %s\n", dataset->record_count, filename);
+    return 1;
+}

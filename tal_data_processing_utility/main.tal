@@ -1,0 +1,67 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include "types.tal"
+#include "parser.tal"
+#include "processor.tal"
+#include "validator.tal"
+#include "reporter.tal"
+#include "config.tal"
+
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        printf("Usage: %s <input_file>\n", argv[0]);
+        return 1;
+    }
+
+    Config config;
+    config.input_file = argv[1];
+    config.output_file = "output.csv";
+    config.log_level = LOG_INFO;
+    config.batch_size = 1000;
+
+    if (!load_config(&config)) {
+        fprintf(stderr, "Error: Failed to load default config\n");
+        return 1;
+    }
+
+    Dataset dataset;
+    if (!dataset_init(&dataset, config.batch_size)) {
+        fprintf(stderr, "Error: Failed to initialize dataset\n");
+        return 1;
+    }
+
+    if (!parse_input(&dataset, config.input_file)) {
+        fprintf(stderr, "Error: Failed to parse input file\n");
+        dataset_destroy(&dataset);
+        return 1;
+    }
+
+    printf("Parsed %ld records successfully\n", dataset.record_count);
+
+    if (!validate_dataset(&dataset)) {
+        fprintf(stderr, "Error: Dataset validation failed\n");
+        dataset_destroy(&dataset);
+        return 1;
+    }
+
+    printf("Dataset validation passed\n");
+
+    if (!transform_dataset(&dataset)) {
+        fprintf(stderr, "Error: Data transformation failed\n");
+        dataset_destroy(&dataset);
+        return 1;
+    }
+
+    printf("Data transformation completed\n");
+
+    if (!report_output(&dataset, config.output_file)) {
+        fprintf(stderr, "Error: Failed to generate report\n");
+        dataset_destroy(&dataset);
+        return 1;
+    }
+
+    printf("Processing complete. Output saved to %s\n", config.output_file);
+    dataset_destroy(&dataset);
+    return 0;
+}

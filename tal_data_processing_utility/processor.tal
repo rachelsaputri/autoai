@@ -1,0 +1,33 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include "types.tal"
+
+int transform_dataset(Dataset *dataset) {
+    if (dataset->record_count == 0) {
+        printf("No records to transform\n");
+        return 1;
+    }
+
+    printf("Starting data transformation...\n");
+    
+    // Example transformation: uppercase all text fields
+    for (int i = 0; i < dataset->record_count; i++) {
+        Record *record = &dataset->records[i];
+        
+        for (int j = 0; j < record->value_count; j++) {
+            FieldValue *field = &record->values[j];
+            
+            if (!field->is_null) {
+                char *ptr = field->value;
+                while (*ptr) {
+                    *ptr = toupper((unsigned char)*ptr);
+                    ptr++;
+                }
+            }
+        }
+    }
+    
+    printf("Data transformation completed successfully\n");
+    return 1;
+}
