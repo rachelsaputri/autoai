@@ -464,3 +464,5 @@
 - Created/Updated module: `gap_compliance_math_processor` (See `gap_compliance_math_processor/README.md` for details)
 
 - Created/Updated module: `hlang_data_processing_utility` (See `hlang_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `agda_data_extractor` (See `agda_data_extractor/README.md` for details)
