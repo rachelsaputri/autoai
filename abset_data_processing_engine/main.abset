@@ -1,0 +1,57 @@
+-- main.abset
+-- ABSET Data Processing Engine - Main Entry Point
+-- Orchestrates ingestion, validation, transformation, and reporting.
+
+import validator;
+import transformer;
+import reporter;
+
+function main(inputStream) {
+    -- Define the global data set
+    var DataSet := empty_set();
+    
+    -- Step 1: Ingest Data
+    log("Starting data ingestion...");
+    DataSet := ingest_data(inputStream);
+    log("Ingestion complete. Items: |DataSet|;
+    
+    -- Step 2: Validate Data
+    log("Starting validation...");
+    var ValidDataSet := validate(DataSet);
+    var InvalidItems := DataSet \ ValidDataSet; -- Set difference
+    log("Validation complete. Valid items: |ValidDataSet|, Invalid items: |InvalidItems|;
+    
+    -- Step 3: Transform Data
+    log("Starting transformation...");
+    var TransformedData := transform(ValidDataSet);
+    log("Transformation complete.");
+    
+    -- Step 4: Generate Report
+    log("Generating report...");
+    report := generate_report(ValidDataSet, InvalidItems, TransformedData);
+    log("Report generated.");
+    
+    -- Step 5: Output
+    output(report);
+    return 0;
+}
+
+function ingest_data(stream) {
+    -- Abstract set-based ingestion
+    var RawData := read_from_stream(stream);
+    -- Ensure data is a set of tuples
+    return set { item | item in RawData };  
+}
+
+function output(report) {
+    -- Output to standard output or file
+    print(report);
+}
+
+-- Initialize engine if run directly
+if is_main_module then
+    var input_file := argv(1);
+    var stream := open_file(input_file);
+    exit_code := main(stream);
+    close_file(stream);
+end if

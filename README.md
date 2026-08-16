@@ -544,3 +544,5 @@
 - Created/Updated module: `orc_cryptographic_toolkit` (See `orc_cryptographic_toolkit/README.md` for details)
 
 - Created/Updated module: `mathematica_compliance_data_processor` (See `mathematica_compliance_data_processor/README.md` for details)
+
+- Created/Updated module: `abset_data_processing_engine` (See `abset_data_processing_engine/README.md` for details)

@@ -1,0 +1,39 @@
+-- transformer.abset
+-- ABSET Data Processing Engine - Transformation Module
+-- Applies functional transformations to data sets.
+
+function transform(dataSet) {
+    -- Apply mapping function to each element
+    var TransformedSet := map { transform_item(item) | item in dataSet };
+    
+    -- Apply filtering to remove nulls
+    var CleanSet := set { item | item in TransformedSet AND item != null };
+    
+    return CleanSet;
+}
+
+function transform_item(item) {
+    -- Normalize fields
+    var NormalizedName := normalize_string(item.name);
+    var NormalizedTimestamp := parse_timestamp(item.timestamp);
+    
+    -- Create transformed tuple
+    var newItem := {
+        "id": item.id,
+        "name": NormalizedName,
+        "timestamp": NormalizedTimestamp,
+        "processed": true
+    };
+    
+    return newItem;
+}
+
+function normalize_string(str) {
+    -- Trim and lowercase
+    return lower(trim(str));
+}
+
+function parse_timestamp(ts) {
+    -- Convert string to date object
+    return datetime_parse(ts);
+}
