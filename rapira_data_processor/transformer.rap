@@ -1,0 +1,8 @@
+fn transform(data: Vec<Data>) -> Vec<ProcessedData> {
+    data.into_iter().map(|d| {
+        ProcessedData {
+            value: d.value * 2,
+            timestamp: d.timestamp,
+        }
+    }).collect()
+}

@@ -1,0 +1,16 @@
+use parser;
+use transformer;
+use validator;
+use output;
+
+fn main() {
+    let rawData = parser.parseInput();
+    let transformed = transformer.transform(rawData);
+    let isValid = validator.validate(transformed);
+    
+    if isValid {
+        output.generate(transformed);
+    } else {
+        println('Validation failed');
+    }
+}

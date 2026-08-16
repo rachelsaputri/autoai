@@ -1,0 +1,8 @@
+fn generate(data: Vec<ProcessedData>) {
+    let json = serde_json::to_string(&data).unwrap();
+    writeOutput(json);
+}
+
+fn writeOutput(content: String) {
+    println('{}', content);
+}

@@ -1,0 +1,15 @@
+fn parseInput() -> Vec<Data> {
+    let input = readInput();
+    let parsed = parseRaw(input);
+    parsed
+}
+
+fn readInput() -> String {
+    // Implementation for reading input
+    String::new()
+}
+
+fn parseRaw(input: String) -> Vec<Data> {
+    // Implementation for parsing
+    Vec::new()
+}
