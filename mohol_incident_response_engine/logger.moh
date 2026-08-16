@@ -1,0 +1,19 @@
+import filesystem;
+
+let log_file = "";
+
+function init(filename) {
+    log_file = filename;
+    create_file_if_not_exists(log_file);
+    log("INFO", "Logger module initialized");
+}
+
+function log(level, message) {
+    let timestamp = get_timestamp();
+    let log_entry = format("[{}] [{}] {}", timestamp, level, message);
+    append_to_file(log_file, log_entry + "\n");
+}
+
+function get_timestamp() {
+    return datetime.now().to_string();
+}

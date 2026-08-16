@@ -1,0 +1,26 @@
+import logger;
+
+function init() {
+    logger.log("DEBUG", "Detector module initialized");
+}
+
+function scan() {
+    let incidents = [];
+    // Simulate log scanning
+    let logs = read_logs("/var/log/syslog");
+    for each log in logs {
+        if (is_suspicious(log)) {
+            incidents.push({
+                "type": "suspicious_activity",
+                "timestamp": get_timestamp(),
+                "details": log
+            });
+        }
+    }
+    return incidents;
+}
+
+function is_suspicious(log) {
+    // Simple rule: log contains 'error' or 'critical'
+    return log.contains("error") || log.contains("critical");
+}

@@ -1,0 +1,25 @@
+import detector;
+import correlator;
+import remediator;
+import logger;
+
+function main() {
+    logger.init("mohol_ir_engine.log");
+    logger.log("INFO", "Starting Mohol Incident Response Engine");
+    
+    detector.init();
+    correlator.init();
+    remediator.init();
+    
+    logger.log("INFO", "All modules initialized successfully");
+    
+    while (true) {
+        let incidents = detector.scan();
+        if (incidents.length > 0) {
+            logger.log("WARN", format("Detected {} incidents", incidents.length));
+            let correlated_threats = correlator.correlate(incidents);
+            remediator.remediate(correlated_threats);
+        }
+        sleep(1000);
+    }
+}
