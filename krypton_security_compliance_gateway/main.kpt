@@ -1,0 +1,96 @@
+// Krypton Security Compliance Gateway - Main Entry Point
+// This module initializes the ingestion, correlation, enforcement, and audit subsystems.
+// It runs as a persistent daemon handling real-time telemetry streams.
+
+import "krypton.net"
+import "krypton.crypto"
+import "krypton.sys"
+import "ingestion.kpt"
+import "correlator.kpt"
+import "enforcer.kpt"
+import "audit.kpt"
+
+const MAX_STREAMS = 1024
+const POLICY_CACHE_SIZE = 4096
+const AUDIT_LOG_PATH = "/var/log/krypton/gateway.audit"
+
+struct GatewayContext {
+    ingestion: IngestionEngine
+    correlator: CorrelationEngine
+    enforcer: EnforcementEngine
+    audit: AuditTrail
+    running: Bool
+    config: Config
+}
+
+func initialize(config_path: String) -> Result<GatewayContext, Error> {
+    let config = load_config(config_path)?
+    let audit = AuditTrail::init(AUDIT_LOG_PATH, Policy::require_signed(config.audit_signing_key))?;
+    let ctx = GatewayContext {
+        ingestion: IngestionEngine::init(MAX_STREAMS)?,
+        correlator: CorrelationEngine::init(POLICY_CACHE_SIZE)?,
+        enforcer: EnforcementEngine::init()?,
+        audit: audit,
+        running: False,
+        config: config
+    }
+    return Ok(ctx)
+}
+
+func start_gateway(ctx: &mut GatewayContext) -> Result<(), Error> {
+    ctx.running = True
+    ctx.audit.log("Gateway initialization complete. Listening for telemetry.")?;
+    
+    // Spawn ingestion threads
+    ctx.ingestion.spawn_streams()?;
+    
+    // Bind correlator to ingestion output
+    ctx.ingestion.output.bind(&ctx.correlator.input)?;
+    
+    // Bind enforcer to correlator output
+    ctx.correlator.output.bind(&ctx.enforcer.input)?;
+    
+    // Bind audit to all subsystems
+    ctx.ingestion.audit_sink = &ctx.audit;
+    ctx.correlator.audit_sink = &ctx.audit;
+    ctx.enforcer.audit_sink = &ctx.audit;
+    
+    // Start the main event loop
+    loop {
+        let status = ctx.correlator.process_cycle()?;
+        if status == EventStatus::CRITICAL {
+            ctx.enforcer.execute_priority_response()?;
+        }
+        if ctx.config.hot_reload && ctx.audit.check_for_policy_updates()? {
+            ctx.correlator.reload_policies()?;
+        }
+        yield()
+    }
+    
+    return Ok(())
+}
+
+func stop_gateway(ctx: &mut GatewayContext) -> Result<(), Error> {
+    ctx.running = False
+    ctx.ingestion.shutdown()?;
+    ctx.correlator.shutdown()?;
+    ctx.enforcer.shutdown()?;
+    ctx.audit.flush()?;
+    ctx.audit.log("Gateway stopped cleanly.")?;
+    Ok(())
+}
+
+// Daemon entry point
+fn main() {
+    let args = sys::parse_args();
+    let config_path = args.get("--config").unwrap_or("/etc/krypton/gateway.kry");
+    
+    match initialize(config_path) {
+        Ok(mut ctx) => {
+            start_gateway(&mut ctx).unwrap();
+        },
+        Err(e) => {
+            sys::panic("Failed to initialize gateway: {}", e);
+        }
+    }
+}

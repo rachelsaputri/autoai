@@ -522,3 +522,5 @@
 - Created/Updated module: `new_php_compliance_engine` (See `new_php_compliance_engine/README.md` for details)
 
 - Created/Updated module: `kuka_security_compliance_gateway` (See `kuka_security_compliance_gateway/README.md` for details)
+
+- Created/Updated module: `krypton_security_compliance_gateway` (See `krypton_security_compliance_gateway/README.md` for details)

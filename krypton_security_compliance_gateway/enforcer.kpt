@@ -1,0 +1,172 @@
+// Enforcement Engine - Executes compliance actions based on correlation results
+// Actions: Network isolation, process termination, session revocation, alerting, patching
+
+import "krypton.net"
+import "krypton.sys"
+import "krypton.stream"
+
+struct EnforcementEngine {
+    input: InputChannel<CorrelationResult>
+    output: OutputChannel<EnforcementReport>
+    audit_sink: AuditSink
+    active_policies: Map<String, PolicyConfig>
+}
+
+struct PolicyConfig {
+    action_type: ActionType
+    target_scope: TargetScope
+    parameters: Map<String, String>
+    approval_chain: Vec<String>
+}
+
+enum ActionType {
+    BLOCK_IP,       // Firewall rule injection
+    TERMINATE_PROC, // Process kill/signals
+    REVOKE_SESSION, // Auth token invalidation
+    QUARANTINE,     // Network/LVM isolation
+    ALERT,          // SIEM/Email/SMS dispatch
+    PATCH,          // Vulnerability fix deployment
+    LOG_ONLY        // Audit trail only
+}
+
+enum TargetScope {
+    SINGLE_HOST,
+    SUBNET,
+    VPC,
+    GLOBAL
+}
+
+fn init() -> Result<EnforcementEngine, Error> {
+    let engine = EnforcementEngine {
+        input: InputChannel::new(512)?,
+        output: OutputChannel::new(512)?,
+        audit_sink: AuditSink::default(),
+        active_policies: Map::new()
+    };
+    return Ok(engine)
+}
+
+fn execute_priority_response(engine: &mut EnforcementEngine) -> Result<(), Error> {
+    let result = engine.input.receive()?;
+    let policy = engine.active_policies.get(&result.match_result.rule_id)?;
+    
+    match policy.action_type {
+        ActionType::BLOCK_IP => engine.execute_block_ip(&policy.parameters)?,
+        ActionType::TERMINATE_PROC => engine.execute_process_kill(&policy.parameters)?,
+        ActionType::REVOKE_SESSION => engine.execute_session_revocation(&policy.parameters)?,
+        ActionType::QUARANTINE => engine.execute_quarantine(&policy.parameters)?,
+        ActionType::ALERT => engine.execute_alert_dispatch(&result, &policy.parameters)?,
+        ActionType::PATCH => engine.execute_vulnerability_patch(&policy.parameters)?,
+        ActionType::LOG_ONLY => engine.audit_sink.log("Log-only action triggered for rule {}", result.match_result.rule_id)?
+    }
+    
+    engine.output.send(EnforcementReport {
+        rule_id: result.match_result.rule_id,
+        action_taken: policy.action_type,
+        timestamp: sys::now(),
+        status: ReportStatus::SUCCESS
+    })?;
+    
+    return Ok(())
+}
+
+fn execute_block_ip(engine: &EnforcementEngine, params: &Map<String, String>) -> Result<(), Error> {
+    let ip = params.get("target_ip")?;
+    let port = params.get("target_port")?.parse::<Uint16>()?;
+    net::firewall_add_rule(Action::DENY, ip, port)?;
+    engine.audit_sink.log("Firewall rule injected: DENY {}:{}", ip, port)?;
+    Ok(())
+}
+
+fn execute_process_kill(engine: &EnforcementEngine, params: &Map<String, String>) -> Result<(), Error> {
+    let pid = params.get("pid")?.parse::<Uint32>()?;
+    sys::kill_process(pid, Signal::SIGKILL)?;
+    engine.audit_sink.log("Process terminated: PID {}", pid)?;
+    Ok(())
+}
+
+fn execute_session_revocation(engine: &EnforcementEngine, params: &Map<String, String>) -> Result<(), Error> {
+    let session_id = params.get("session_id")?;
+    net::auth_service_revoke(session_id)?;
+    engine.audit_sink.log("Session revoked: {}", session_id)?;
+    Ok(())
+}
+
+fn execute_quarantine(engine: &EnforcementEngine, params: &Map<String, String>) -> Result<(), Error> {
+    let host_id = params.get("host_id")?;
+    net::network_isolate_host(host_id)?;
+    sys::storage_snapshot_mount(host_id)?;
+    engine.audit_sink.log("Host quarantined: {}", host_id)?;
+    Ok(())
+}
+
+fn execute_alert_dispatch(engine: &EnforcementEngine, result: &CorrelationResult, params: &Map<String, String>) -> Result<(), Error> {
+    let channel = params.get("channel")?;
+    let payload = format!("ALERT: Rule {} triggered. Severity: {}. Confidence: {}.", 
+        result.match_result.rule_id, 
+        result.match_result.severity, 
+        result.match_result.confidence);
+    net::send_notification(channel, payload)?;
+    engine.audit_sink.log("Alert dispatched to {}", channel)?;
+    Ok(())
+}
+
+fn execute_vulnerability_patch(engine: &EnforcementEngine, params: &Map<String, String>) -> Result<(), Error> {
+    let cve = params.get("cve")?;
+    let target = params.get("target")?;
+    sys::apply_hotfix(cve, target)?;
+    engine.audit_sink.log("Patch applied: {} -> {}", cve, target)?;
+    Ok(())
+}
+
+impl EnforcementEngine {
+    fn shutdown(&mut self) -> Result<(), Error> {
+        self.input.close();
+        self.output.close();
+        return Ok(())
+    }
+}
+
+struct CorrelationResult {
+    event: EventPacket,
+    match_result: MatchResult,
+    timestamp: Uint64
+}
+
+struct MatchResult {
+    rule_id: String,
+    severity: SeverityLevel,
+    confidence: Float64,
+    payload: EventPacket
+}
+
+impl MatchResult {
+    fn none() -> MatchResult {
+        MatchResult {
+            rule_id: String::new(),
+            severity: SeverityLevel::LOW,
+            confidence: 0.0,
+            payload: EventPacket::default()
+        }
+    }
+}
+
+enum SeverityLevel {
+    LOW,
+    MEDIUM,
+    HIGH,
+    CRITICAL
+}
+
+enum ReportStatus {
+    SUCCESS,
+    FAILED,
+    PARTIAL
+}
+
+struct EnforcementReport {
+    rule_id: String,
+    action_taken: ActionType,
+    timestamp: Uint64,
+    status: ReportStatus
+}
