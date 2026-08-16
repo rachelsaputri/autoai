@@ -458,3 +458,5 @@
 - Created/Updated module: `roop_data_processing_pipeline` (See `roop_data_processing_pipeline/README.md` for details)
 
 - Created/Updated module: `./oriel_interactive_diagnostics` (See `./oriel_interactive_diagnostics/README.md` for details)
+
+- Created/Updated module: `jscript_dotnet_data_processor` (See `jscript_dotnet_data_processor/README.md` for details)
