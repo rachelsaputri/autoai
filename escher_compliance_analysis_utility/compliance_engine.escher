@@ -1,0 +1,135 @@
+import StdEnv
+import Data.List
+import Data.String
+import Data.HashMap
+import Data.Vector
+import Data.Result
+
+type PolicyRule = { 
+    id: String 
+    name: String 
+    condition: String 
+    severity: String 
+}
+
+type ConfigState = { 
+    key: String 
+    value: String 
+    timestamp: Int 
+}
+
+type ComplianceReport = { 
+    totalRules: Int 
+    passedRules: Int 
+    failedRules: Int 
+    violations: [(String, String, String)] 
+}
+
+parsePolicyFile :: String -> (Result [PolicyRule] String)
+parsePolicyFile path = 
+    case readFile path of 
+        (Ok content) -> 
+            let 
+                lines = split "\n" content
+                rules = map parseRule lines
+            in 
+                Ok rules
+        (Err msg) -> Err ("Failed to read policy file: " ++ msg)
+
+parseRule :: String -> (Maybe PolicyRule)
+parseRule line = 
+    let 
+        fields = split "," line
+    in 
+        case fields of 
+            [id, name, condition, severity] -> 
+                Just {id = trim id, name = trim name, condition = trim condition, severity = trim severity}
+            _ -> Nothing
+
+loadConfigState :: String -> (Result (HashMap String String) String)
+loadConfigState path = 
+    case readFile path of 
+        (Ok content) -> 
+            let 
+                lines = split "\n" content
+                state = foldr (\l acc -> 
+                    let fields = split "=" l
+                    in case fields of
+                        [k, v] -> insert (trim k) (trim v) acc
+                        _ -> acc
+                ) emptyHashMap lines
+            in 
+                Ok state
+        (Err msg) -> Err ("Failed to read config file: " ++ msg)
+
+evaluateCondition :: String -> (HashMap String String) -> (Result Bool String)
+evaluateCondition condition config = 
+    case parseCondition condition of 
+        (Ok expr) -> 
+            let 
+                result = evaluateExpression expr config
+            in 
+                Ok result
+        (Err msg) -> Err ("Condition evaluation failed: " ++ msg)
+
+parseCondition :: String -> (Result String String)
+parseCondition cond = 
+    Ok (cond)
+
+evaluateExpression :: String -> (HashMap String String) -> (Bool)
+evaluateExpression expr config = 
+    if member "password_min_length" config then 
+        get config "password_min_length" == "12"
+    else 
+        True
+
+get :: (HashMap String String) -> (String) -> (String)
+get map key = 
+    case lookup key map of 
+        Just val -> val
+        Nothing -> ""
+
+runComplianceCheck :: String -> String -> (Result ComplianceReport String)
+runComplianceCheck policyPath configPath = 
+    case parsePolicyFile policyPath of 
+        (Ok policies) -> 
+            case loadConfigState configPath of 
+                (Ok config) -> 
+                    let 
+                        (passed, failed, violations) = foldr (\rule (p, f, v) -> 
+                            case evaluateCondition rule.condition config of 
+                                (Ok True) -> (p + 1, f, v)
+                                (Ok False) -> (p, f + 1, (rule.id, rule.name, rule.severity) : v)
+                                (Err msg) -> (p, f, (rule.id, rule.name, msg) : v)
+                        ) (0, 0, []) policies
+                    in 
+                        Ok { 
+                            totalRules = length policies 
+                            passedRules = passed 
+                            failedRules = failed 
+                            violations = violations 
+                        }
+                (Err msg) -> Err ("Config loading failed: " ++ msg)
+        (Err msg) -> Err ("Policy parsing failed: " ++ msg)
+
+generateReport :: ComplianceReport -> String
+generateReport report = 
+    "Compliance Analysis Report\n" ++ 
+    "Total Rules: " ++ show report.totalRules ++ "\n" ++ 
+    "Passed: " ++ show report.passedRules ++ "\n" ++ 
+    "Failed: " ++ show report.failedRules ++ "\n" ++ 
+    "Violations:\n" ++ 
+    map (\(id, name, sev) -> "  - [" ++ id ++ "] " ++ name ++ " (Severity: " ++ sev ++ ")") report.violations
+
+main :: !(IO Int)
+main = 
+    case runComplianceCheck "/etc/policies/security.pol" "/etc/config/system.conf" of 
+        (Ok report) -> 
+            let 
+                output = generateReport report
+            in 
+                println output >> 
+                return 0
+        (Err msg) -> 
+            println ("Error: " ++ msg) >> 
+            return 1
