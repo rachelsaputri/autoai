@@ -1,0 +1,81 @@
+PROGRAM LOG_DATA
+*===============================================================================
+* PROGRAM: LOG_DATA
+* LANGUAGE: DIBOL
+* DESCRIPTION: Routines for logging errors and warnings
+*===============================================================================
+
+*===============================================================================
+* LOG ERROR
+*===============================================================================
+LOG_ERROR:
+    MSG = MSG
+    CODE = CODE
+    
+    * Append to log file
+    WRITE LOG_FILE TO "ERROR" 
+                FROM MSG
+                FROM CODE
+    
+    RETURN 0
+
+*===============================================================================
+* LOG WARNING
+*===============================================================================
+LOG_WARNING:
+    MSG = MSG
+    CODE = CODE
+    
+    * Append to log file
+    WRITE LOG_FILE TO "WARNING" 
+                FROM MSG
+                FROM CODE
+    
+    RETURN 0
+
+*===============================================================================
+* LOG INFO
+*===============================================================================
+LOG_INFO:
+    MSG = MSG
+    CODE = CODE
+    
+    * Append to log file
+    WRITE LOG_FILE TO "INFO" 
+                FROM MSG
+                FROM CODE
+    
+    RETURN 0
+
+*===============================================================================
+* CLEAR LOG FILE
+*===============================================================================
+CLEAR_LOG_FILE:
+    * Truncate log file
+    OPEN LOG_FILE FOR OUTPUT
+    CLOSE LOG_FILE
+    RETURN 0
+
+*===============================================================================
+* READ LOG FILE
+*===============================================================================
+READ_LOG_FILE:
+    * Read log file into memory
+    OPEN LOG_FILE FOR INPUT
+    LOOP
+        READ LOG_FILE INTO LINE
+        IF EOF THEN EXIT LOOP
+        STORE LINE INTO LOG_BUFFER
+    END LOOP
+    CLOSE LOG_FILE
+    RETURN 0
+
+*===============================================================================
+* GENERATE LOG REPORT
+*===============================================================================
+GENERATE_LOG_REPORT:
+    * Generate a summary report from log file
+    * ... (Complex logic omitted for brevity) ...
+    RETURN 0
+
+END PROGRAM

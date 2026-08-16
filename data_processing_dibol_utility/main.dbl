@@ -1,0 +1,146 @@
+PROGRAM PROCESS_DATA
+*===============================================================================
+* PROGRAM: PROCESS_DATA
+* LANGUAGE: DIBOL
+* DESCRIPTION: Main control logic for data processing utility
+*===============================================================================
+
+* Header Definitions
+*--------------------------------------------------------------------------
+INPUT_FILE: FILE, SIZE=1024
+OUTPUT_FILE: FILE, SIZE=1024
+LOG_FILE: FILE, SIZE=1024
+STATUS: CHAR, SIZE=20
+REC_COUNT: INT
+ERR_COUNT: INT
+
+*===============================================================================
+* MAIN ROUTINE
+*===============================================================================
+INIT_PROGRAM:
+    * Initialize counters
+    REC_COUNT = 0
+    ERR_COUNT = 0
+    STATUS = "READY"
+    
+    * Open files
+    CALL OPEN_FILES
+    
+    IF FILE_OPEN_STATUS EQ 0 THEN
+        STATUS = "PROCESSING"
+        CALL PROCESS_DATA_LOOP
+        STATUS = "COMPLETED"
+    ELSE
+        STATUS = "ERROR_OPENING_FILE"
+        CALL LOG_ERROR("Failed to open input file")
+    END IF
+    
+    * Close files
+    CALL CLOSE_FILES
+    
+    * Print summary
+    DISPLAY "Processing Complete: Records: " REC_COUNT 
+             " Errors: " ERR_COUNT
+    DISPLAY "Status: " STATUS
+
+    STOP
+
+*===============================================================================
+* SUBROUTINES
+*===============================================================================
+
+* Open Files
+OPEN_FILES:
+    * Attempt to open input file
+    OPEN INPUT_FILE FOR INPUT
+    IF STATUS EQ "ERROR" THEN RETURN -1
+    
+    * Attempt to open output file
+    OPEN OUTPUT_FILE FOR OUTPUT
+    IF STATUS EQ "ERROR" THEN RETURN -1
+    
+    * Attempt to open log file
+    OPEN LOG_FILE FOR OUTPUT
+    IF STATUS EQ "ERROR" THEN RETURN -1
+    
+    RETURN 0
+
+* Close Files
+CLOSE_FILES:
+    CLOSE INPUT_FILE
+    CLOSE OUTPUT_FILE
+    CLOSE LOG_FILE
+    RETURN 0
+
+* Process Data Loop
+PROCESS_DATA_LOOP:
+    LOOP
+        * Read a record
+        READ INPUT_FILE INTO RECORD
+        
+        IF EOF THEN
+            BREAK
+        END IF
+        
+        * Increment record counter
+        REC_COUNT = REC_COUNT + 1
+        
+        * Parse the record
+        CALL PARSE_RECORD(RECORD)
+        IF STATUS EQ "PARSE_ERROR" THEN
+            CALL LOG_ERROR("Parse error on record " REC_COUNT)
+            ERR_COUNT = ERR_COUNT + 1
+            CONTINUE
+        END IF
+        
+        * Validate the record
+        CALL VALIDATE_RECORD(PARSED_DATA)
+        IF STATUS EQ "VALIDATION_ERROR" THEN
+            CALL LOG_ERROR("Validation error on record " REC_COUNT)
+            ERR_COUNT = ERR_COUNT + 1
+            CONTINUE
+        END IF
+        
+        * Transform the record
+        CALL TRANSFORM_RECORD(PARSED_DATA)
+        IF STATUS EQ "TRANSFORM_ERROR" THEN
+            CALL LOG_ERROR("Transform error on record " REC_COUNT)
+            ERR_COUNT = ERR_COUNT + 1
+            CONTINUE
+        END IF
+        
+        * Write the transformed record
+        WRITE OUTPUT_FILE FROM TRANSFORMED_DATA
+        IF STATUS EQ "WRITE_ERROR" THEN
+            CALL LOG_ERROR("Write error on record " REC_COUNT)
+            ERR_COUNT = ERR_COUNT + 1
+            CONTINUE
+        END IF
+    END LOOP
+    RETURN 0
+
+* Parse Record
+PARSE_RECORD:
+    * Implementation of parsing logic
+    * ... (See parser.dbl) ...
+    RETURN 0
+
+* Validate Record
+VALIDATE_RECORD:
+    * Implementation of validation logic
+    * ... (See validator.dbl) ...
+    RETURN 0
+
+* Transform Record
+TRANSFORM_RECORD:
+    * Implementation of transformation logic
+    * ... (See transformer.dbl) ...
+    RETURN 0
+
+* Log Error
+LOG_ERROR:
+    * Implementation of logging logic
+    * ... (See logger.dbl) ...
+    RETURN 0
+
+END PROGRAM

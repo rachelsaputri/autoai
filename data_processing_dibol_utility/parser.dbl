@@ -1,0 +1,108 @@
+PROGRAM PARSE_DATA
+*===============================================================================
+* PROGRAM: PARSE_DATA
+* LANGUAGE: DIBOL
+* DESCRIPTION: Routines for parsing various data formats
+*===============================================================================
+
+*===============================================================================
+* PARSE DELIMITED RECORD
+*===============================================================================
+PARSE_DELIMITED:
+    INPUT REC
+    DELIMITER = ","
+    FIELD_COUNT = 0
+    IN_FIELD = 0
+    FIELD_BUF = ""
+    
+    LOOP
+        * Read character
+        READ REC INTO CHAR POS=POS
+        IF EOF THEN EXIT LOOP
+        
+        IF CHAR EQ DELIMITER THEN
+            * End of field
+            FIELD_COUNT = FIELD_COUNT + 1
+            FIELD_BUF = FIELD_BUF + CHAR
+            PUT FIELD_BUF INTO FIELD(FIELD_COUNT)
+            FIELD_BUF = ""
+        ELSE IF CHAR NE " " OR IN_FIELD EQ 1 THEN
+            * Part of field
+            IN_FIELD = 1
+            FIELD_BUF = FIELD_BUF + CHAR
+        END IF
+    END LOOP
+    
+    * Handle last field
+    IF FIELD_BUF NE "" THEN
+        FIELD_COUNT = FIELD_COUNT + 1
+        PUT FIELD_BUF INTO FIELD(FIELD_COUNT)
+    END IF
+    
+    RETURN FIELD_COUNT
+
+*===============================================================================
+* PARSE FIXED-WIDTH RECORD
+*===============================================================================
+PARSE_FIXED_WIDTH:
+    INPUT REC
+    START = 1
+    END = 0
+    FIELD_COUNT = 0
+    
+    LOOP
+        CALL GET_FIELD_SPEC(FIELD_COUNT, START, END)
+        IF END EQ 0 THEN EXIT LOOP
+        
+        FIELD_COUNT = FIELD_COUNT + 1
+        SUBSTRING START TO END FROM REC INTO FIELD(FIELD_COUNT)
+    END LOOP
+    
+    RETURN FIELD_COUNT
+
+*===============================================================================
+* GET FIELD SPECIFICATION
+*===============================================================================
+GET_FIELD_SPEC:
+    FIELD_NUM = FIELD_NUM + 1
+    START = FIELD_SPEC(FIELD_NUM).START
+    END = FIELD_SPEC(FIELD_NUM).END
+    RETURN START, END
+
+*===============================================================================
+* PARSE JSON-LIKE STRUCTURE
+*===============================================================================
+PARSE_JSON_LIKE:
+    INPUT REC
+    FIELD_COUNT = 0
+    BRACE_DEPTH = 0
+    IN_STRING = 0
+    ESCAPE = 0
+    
+    LOOP
+        READ REC INTO CHAR POS=POS
+        IF EOF THEN EXIT LOOP
+        
+        IF CHAR EQ '"' AND ESCAPE EQ 0 THEN
+            IN_STRING = NOT IN_STRING
+        END IF
+        
+        IF CHAR EQ '{' AND IN_STRING EQ 0 THEN
+            BRACE_DEPTH = BRACE_DEPTH + 1
+        ELSE IF CHAR EQ '}' AND IN_STRING EQ 0 THEN
+            BRACE_DEPTH = BRACE_DEPTH - 1
+        END IF
+        
+        IF ESCAPE EQ 0 AND CHAR EQ '"' THEN
+            ESCAPE = 1
+        ELSE IF ESCAPE EQ 1 THEN
+            ESCAPE = 0
+        END IF
+    END LOOP
+    
+    * Parse based on brace depth and string context
+    * ... (Complex logic omitted for brevity) ...
+    
+    RETURN FIELD_COUNT
+
+END PROGRAM
