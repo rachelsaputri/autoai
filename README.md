@@ -450,3 +450,5 @@
 - Created/Updated module: `data_processing_utils_flavors` (See `data_processing_utils_flavors/README.md` for details)
 
 - Created/Updated module: `gpss_api_interaction_engine` (See `gpss_api_interaction_engine/README.md` for details)
+
+- Created/Updated module: `ocaml_data_processing_utility` (See `ocaml_data_processing_utility/README.md` for details)
