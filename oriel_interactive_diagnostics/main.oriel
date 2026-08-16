@@ -1,0 +1,86 @@
+MODULE main;
+IMPORT stdio, stdlib;
+
+TYPE DiagnosticTask = FUNCTION() RETURN Integer;
+
+FUNCTION run_diagnostics(tasks: List(DiagnosticTask)): Integer;
+    var i, count: Integer;
+    var task: DiagnosticTask;
+    var result: Integer;
+    count = 0;
+    FOR task IN tasks DO
+        result = task();
+        IF result != 0 THEN
+            count = count + 1;
+        END;
+    END;
+    RETURN count;
+END;
+
+FUNCTION log_error(msg: String): Integer;
+    PRINT("ERROR: ", msg);
+    RETURN -1;
+END;
+
+FUNCTION log_info(msg: String): Integer;
+    PRINT("INFO: ", msg);
+    RETURN 0;
+END;
+
+FUNCTION check_disk_space(): Integer;
+    var usage: Float;
+    usage = 0.75; // Simulated disk usage
+    IF usage > 0.90 THEN
+        RETURN log_error("Disk space critical");
+    ELSE
+        RETURN log_info("Disk space OK");
+    END;
+END;
+
+FUNCTION check_memory_usage(): Integer;
+    var usage: Float;
+    usage = 0.60; // Simulated memory usage
+    IF usage > 0.85 THEN
+        RETURN log_error("Memory usage high");
+    ELSE
+        RETURN log_info("Memory usage OK");
+    END;
+END;
+
+FUNCTION check_network_connectivity(): Integer;
+    var status: Integer;
+    status = 1; // 0: OK, 1: Error
+    IF status != 0 THEN
+        RETURN log_error("Network connectivity lost");
+    ELSE
+        RETURN log_info("Network connectivity OK");
+    END;
+END;
+
+FUNCTION interactive_menu(): Integer;
+    var input: String;
+    PRINT("Interactive Diagnostic Tool");
+    PRINT("--------------------------");
+    PRINT("1. Run Full Diagnostic");
+    PRINT("2. Check Disk Space");
+    PRINT("3. Check Memory Usage");
+    PRINT("4. Check Network");
+    PRINT("5. Exit");
+    PRINT("> ");
+    input = READ_LINE();
+    CASE input OF
+        "1": run_diagnostics([check_disk_space, check_memory_usage, check_network_connectivity]);
+        "2": check_disk_space();
+        "3": check_memory_usage();
+        "4": check_network_connectivity();
+        "5": RETURN 0;
+        OTHERWISE:
+            log_error("Invalid input");
+            interactive_menu();
+    ENDCASE;
+    RETURN 0;
+END;
+
+FUNCTION main(): Integer;
+    RETURN interactive_menu();
+END;
