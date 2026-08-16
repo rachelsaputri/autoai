@@ -1,0 +1,75 @@
+-- NetworkProtocol.miis
+-- Simulates a simple network protocol with packet queuing, transmission, and collision detection.
+
+CLASS NetworkProtocol
+    FIELD packet_queue: List<Packet>;
+    FIELD sent_count: Integer;
+    FIELD recv_count: Integer;
+    FIELD collision_count: Integer;
+    FIELD bandwidth: Integer; -- Packets per simulation tick
+    FIELD is_channel_busy: Boolean;
+
+    CLASS Packet
+        FIELD id: Integer;
+        FIELD data: String;
+        FIELD source: String;
+        FIELD dest: String;
+        FIELD timestamp: Integer;
+    END CLASS
+
+    CONSTRUCTOR Initialize()
+        SELF.packet_queue := NEW List<Packet>();
+        SELF.sent_count := 0;
+        SELF.recv_count := 0;
+        SELF.collision_count := 0;
+        SELF.bandwidth := 5;
+        SELF.is_channel_busy := FALSE;
+        LOG "NetworkProtocol Initialized."
+    END CONSTRUCTOR
+
+    METHOD SendPacket(data: String, source: String = "NodeA", dest: String = "NodeB")
+        IF SELF.is_channel_busy AND RANDOM(10) > 8 THEN
+            -- Simulate collision
+            SELF.collision_count := SELF.collision_count + 1;
+            LOG "Collision detected for packet from " source;
+            RETURN;
+        END IF
+
+        packet := NEW Packet();
+        packet.id := SELF.sent_count + SELF.recv_count;
+        packet.data := data;
+        packet.source := source;
+        packet.dest := dest;
+        packet.timestamp := SYSTEM_TIME();
+
+        SELF.packet_queue.Add(packet);
+        LOG "Packet Sent: " data " from " source " to " dest;
+    END METHOD
+
+    METHOD ProcessPending()
+        -- Simulate transmission and reception
+        IF SELF.packet_queue.Count() > 0 THEN
+            SELF.is_channel_busy := TRUE;
+
+            -- Process up to bandwidth limit
+            processed := 0;
+            WHILE SELF.packet_queue.Count() > 0 AND processed < SELF.bandwidth DO
+                packet := SELF.packet_queue.First();
+                SELF.packet_queue.Remove(packet);
+                SELF.recv_count := SELF.recv_count + 1;
+                SELF.sent_count := SELF.sent_count + 1;
+                LOG "Packet Received: " packet.data " at " packet.dest;
+                processed := processed + 1;
+            END WHILE
+
+            SELF.is_channel_busy := FALSE;
+        END IF
+    END METHOD
+
+    METHOD PrintStats()
+        LOG "Network Stats:";
+        LOG "  Packets Sent: " SELF.sent_count;
+        LOG "  Packets Received: " SELF.recv_count;
+        LOG "  Collisions: " SELF.collision_count;
+    END METHOD
+END CLASS

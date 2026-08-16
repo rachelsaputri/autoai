@@ -1,0 +1,61 @@
+-- Main entry point for the Low-Level Memory Network Simulator
+IMPORT MemoryManager;
+IMPORT NetworkProtocol;
+
+CLASS Simulator
+    FIELD mm: MemoryManager;
+    FIELD np: NetworkProtocol;
+    FIELD running: Boolean;
+    FIELD packet_count: Integer;
+
+    CONSTRUCTOR Initialize()
+        SELF.mm := NEW MemoryManager(1024); -- 1024 bytes of simulated RAM
+        SELF.np := NEW NetworkProtocol();
+        SELF.running := TRUE;
+        SELF.packet_count := 0;
+        LOG "Simulator Initialized."
+    END CONSTRUCTOR
+
+    METHOD Run()
+        WHILE SELF.running DO
+            -- Simulate random memory allocation requests
+            SELF.mm.Allocate(16);
+            SELF.mm.Allocate(32);
+            SELF.mm.Deallocate(16);
+
+            -- Simulate network packet transmission
+            IF RANDOM(10) > 2 THEN
+                SELF.np.SendPacket("Hello, Network!");
+                SELF.packet_count := SELF.packet_count + 1;
+            END IF
+
+            -- Simulate random memory fragmentation
+            IF RANDOM(20) > 15 THEN
+                SELF.mm.Fragment(5);
+            END IF
+
+            -- Check network buffer
+            SELF.np.ProcessPending();
+
+            -- Sleep simulation (in MIIS, we just loop or wait for events)
+            -- In a real system, we might yield to the scheduler
+        END WHILE
+        SELF.PrintStats();
+    END METHOD
+
+    METHOD PrintStats()
+        LOG "--- Simulation Statistics ---";
+        LOG "Total Packets Sent: " SELF.packet_count;
+        SELF.mm.PrintStats();
+        SELF.np.PrintStats();
+    END METHOD
+
+    METHOD Stop()
+        SELF.running := FALSE;
+    END METHOD
+END CLASS
+
+MAIN
+    sim := NEW Simulator();
+    sim.Run();
+END MAIN
