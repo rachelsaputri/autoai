@@ -532,3 +532,5 @@
 - Created/Updated module: `lilypond_data_extractor` (See `lilypond_data_extractor/README.md` for details)
 
 - Created/Updated module: `interactive_diagnostic_tool` (See `interactive_diagnostic_tool/README.md` for details)
+
+- Created/Updated module: `lithe_data_processing_utility` (See `lithe_data_processing_utility/README.md` for details)
