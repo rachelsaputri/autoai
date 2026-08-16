@@ -1,0 +1,30 @@
+! PARSER Module
+MODULE parser;
+  IMPORT types;
+
+  FUNCTION parseRecord(inputLine STRING(256)) RETURN types.RecordType
+    VAR id, value IS INTEGER;
+    VAR status IS STRING(20);
+    BEGIN
+      ! Simple parsing logic for demonstration
+      id := TO_INTEGER(SUBSTRING(inputLine, 1, 8));
+      value := TO_REAL(SUBSTRING(inputLine, 9, 12));
+      status := TRIM(SUBSTRING(inputLine, 21, 20));
+      RETURN NEW RecordType(id, value, status);
+    END;
+
+  FUNCTION parseInput(dataStream STRING(1000)) RETURN ARRAY OF types.RecordType
+    VAR lines IS ARRAY OF STRING(256);
+    VAR records IS ARRAY OF types.RecordType;
+    VAR i IS INTEGER;
+    BEGIN
+      lines := SPLIT(dataStream, '\n');
+      INITIALIZE records TO EMPTY;
+      FOR i := 0 TO LENGTH(lines) - 1 DO
+        IF LENGTH(TRIM(lines[i])) > 0 THEN
+          ADD TO records parseRecord(lines[i]);
+        ENDIF;
+      ENDFOR;
+      RETURN records;
+    END;
+ENDMODULE;

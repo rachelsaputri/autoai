@@ -490,3 +490,5 @@
 - Created/Updated module: `./faust_data_processing_pipeline` (See `./faust_data_processing_pipeline/README.md` for details)
 
 - Created/Updated module: `tal_data_processing_utility` (See `tal_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `coral66_data_processing_utility` (See `coral66_data_processing_utility/README.md` for details)

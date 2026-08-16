@@ -1,0 +1,32 @@
+! TRANSFORMER Module
+MODULE transformer;
+  IMPORT types;
+
+  FUNCTION transformRecord(record types.RecordType) RETURN types.ProcessedRecord
+    VAR transformedValue IS REAL;
+    VAR validationStatus IS STRING(20);
+    BEGIN
+      ! Transformation: multiply value by 1.5 and round
+      transformedValue := ROUND(record.value * 1.5, 2);
+      ! Validation status based on original value
+      IF record.value > 100 THEN
+        validationStatus := "High Value";
+      ELSEIF record.value < 0 THEN
+        validationStatus := "Negative Value";
+      ELSE
+        validationStatus := "Standard";
+      ENDIF;
+      RETURN NEW ProcessedRecord(record.id, transformedValue, validationStatus);
+    END;
+
+  FUNCTION transformAllRecords(records ARRAY OF types.RecordType) RETURN ARRAY OF types.ProcessedRecord
+    VAR processed IS ARRAY OF types.ProcessedRecord;
+    VAR i IS INTEGER;
+    BEGIN
+      INITIALIZE processed TO EMPTY;
+      FOR i := 0 TO LENGTH(records) - 1 DO
+        ADD TO processed transformRecord(records[i]);
+      ENDFOR;
+      RETURN processed;
+    END;
+ENDMODULE;

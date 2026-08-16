@@ -1,0 +1,19 @@
+! TYPES Module
+typename
+  RecordType IS
+    FIELD id IS INTEGER,
+    FIELD value IS REAL,
+    FIELD status IS STRING(20);
+  ENDTYPENAME;
+
+  ProcessedRecord IS
+    FIELD id IS INTEGER,
+    FIELD transformedValue IS REAL,
+    FIELD validationStatus IS STRING(20);
+  ENDTYPENAME;
+
+  Configuration IS
+    FIELD maxRecords IS INTEGER,
+    FIELD outputMode IS STRING(10);
+  ENDTYPENAME;
+ENDTYPENAME;

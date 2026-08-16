@@ -1,0 +1,45 @@
+! PROCESSOR Module
+MODULE processor;
+  IMPORT types, parser, transformer, validator;
+
+  MODULE output;
+    FUNCTION formatOutput(record types.ProcessedRecord) RETURN STRING(100)
+      BEGIN
+      RETURN CONCAT(CONCAT(CONCAT("ID: ", TO_STRING(record.id)), " | Value: ", TO_STRING(record.transformedValue)), " | Status: ", record.validationStatus);
+      END;
+
+    PROCEDURE printRecord(record types.ProcessedRecord)
+      BEGIN
+      WRITE(formatOutput(record));
+      END;
+
+    PROCEDURE printAllRecords(records ARRAY OF types.ProcessedRecord)
+      VAR i IS INTEGER;
+      BEGIN
+      WRITE("--- Processed Records ---");
+      FOR i := 0 TO LENGTH(records) - 1 DO
+        printRecord(records[i]);
+      ENDFOR;
+      WRITE("-------------------------");
+      END;
+  ENDMODULE;
+
+  PROCEDURE processData(inputData STRING(1000))
+    VAR parsedRecords IS ARRAY OF types.RecordType;
+    VAR validRecords IS ARRAY OF types.RecordType;
+    VAR processedRecords IS ARRAY OF types.ProcessedRecord;
+    BEGIN
+      parsedRecords := parser.parseInput(inputData);
+      validRecords := validator.validateAllRecords(parsedRecords);
+      processedRecords := transformer.transformAllRecords(validRecords);
+      output.printAllRecords(processedRecords);
+    END;
+
+  PROCEDURE main()
+    VAR input IS STRING(1000);
+    BEGIN
+    WRITE("Enter data to process (end with EOF):");
+    READLN(input);
+    processData(input);
+    END;
+ENDMODULE;
