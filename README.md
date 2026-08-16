@@ -502,3 +502,5 @@
 - Created/Updated module: `k_compliance_auditor` (See `k_compliance_auditor/README.md` for details)
 
 - Created/Updated module: `karel_security_policy_verifier` (See `karel_security_policy_verifier/README.md` for details)
+
+- Created/Updated module: `karell_++_compliance_enforcement_orchestrator` (See `karell_++_compliance_enforcement_orchestrator/README.md` for details)
