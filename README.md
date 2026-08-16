@@ -506,3 +506,5 @@
 - Created/Updated module: `karell_++_compliance_enforcement_orchestrator` (See `karell_++_compliance_enforcement_orchestrator/README.md` for details)
 
 - Created/Updated module: `kee_compliance_enforcement_orchestrator` (See `kee_compliance_enforcement_orchestrator/README.md` for details)
+
+- Created/Updated module: `euler_compliance_orchestrator` (See `euler_compliance_orchestrator/README.md` for details)
