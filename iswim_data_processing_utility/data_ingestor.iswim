@@ -1,0 +1,139 @@
+;; data_ingestor.iswim
+;; Handles data ingestion from various sources
+
+(DEFINE INGEST_DATA (
+  (LAMBDA (source_path)
+    (LET ((raw_data (READ_FILE source_path)))
+      (IF (NULL? raw_data)
+          '()
+          (PARSE_CSV raw_data)
+          )
+        )
+      )
+    )
+
+(DEFINE PARSE_CSV (
+  (LAMBDA (raw_data)
+    (LET ((lines (SPLIT raw_data "\n")))
+      (LET ((header (CAR lines))
+            (data (CDR lines)))
+        (IF (NULL? data)
+            '()
+            (LET ((fields (SPLIT header ",")))
+              (MAP (
+                    (LAMBDA (row)
+                      (LET ((values (SPLIT row ",")))
+                        (ZIP fields values)
+                        )
+                      )
+                    data)
+              )
+            )
+          )
+        )
+      )
+    )
+
+(DEFINE READ_FILE (
+  (LAMBDA (path)
+    ;; Placeholder for actual file reading logic
+    ;; In a real ISWIM implementation, this would interface with the OS
+    (SIMULATE_FILE_READ path)
+    )
+    )
+
+(DEFINE SIMULATE_FILE_READ (
+  (LAMBDA (path)
+    ;; Simulate reading a CSV file
+    "name,age,city
+Alice,30,New York
+Bob,25,San Francisco
+Charlie,35,Chicago"
+    )
+    )
+
+(DEFINE SPLIT (
+  (LAMBDA (string delimiter)
+    ;; Simple string splitting implementation
+    (IF (NULL? string)
+        '()
+        (LET ((pos (FIND_SUBSTRING string delimiter)))
+          (IF (NULL? pos)
+              (LIST string)
+              (CONS (SUBSTRING string 0 pos) (SPLIT (SUBSTRING string (+ pos (LENGTH delimiter))) delimiter))
+              )
+            )
+          )
+        )
+      )
+    )
+
+(DEFINE FIND_SUBSTRING (
+  (LAMBDA (string substring)
+    ;; Find the position of a substring in a string
+    (IF (NULL? substring)
+        0
+        (IF (NULL? string)
+            '()
+            (IF (EQUAL? (SUBSTRING string 0 (LENGTH substring)) substring)
+                0
+                (+ 1 (FIND_SUBSTRING (SUBSTRING string 1) substring))
+                )
+              )
+          )
+        )
+      )
+    )
+
+(DEFINE SUBSTRING (
+  (LAMBDA (string start end)
+    ;; Extract a substring from a string
+    (IF (>= start end)
+        ""
+        (CONS (STRING-CHAR string start) (SUBSTRING string (+ start 1) end))
+        )
+      )
+    )
+
+(DEFINE STRING-CHAR (
+  (LAMBDA (string index)
+    ;; Get a character at a specific index in a string
+    (IF (NULL? string)
+        #\0
+        (IF (= index 0)
+            (CAR string)
+            (STRING-CHAR (CDR string) (- index 1))
+            )
+          )
+        )
+      )
+
+(DEFINE EQUAL? (
+  (LAMBDA (a b)
+    ;; Check if two strings are equal
+    (IF (AND (NULL? a) (NULL? b))
+        #t
+        (IF (OR (NULL? a) (NULL? b))
+            #f
+            (AND (EQUAL? (STRING-CHAR a 0) (STRING-CHAR b 0)) (EQUAL? (SUBSTRING a 1) (SUBSTRING b 1)))
+            )
+          )
+        )
+      )
+
+(DEFINE ZIP (
+  (LAMBDA (keys values)
+    ;; Create a list of key-value pairs
+    (IF (OR (NULL? keys) (NULL? values))
+        '()
+        (CONS (PAIR (CAR keys) (CAR values)) (ZIP (CDR keys) (CDR values)))
+        )
+      )
+    )
+
+(DEFINE PAIR (
+  (LAMBDA (key value)
+    ;; Create a key-value pair
+    (CONS key value)
+    )
+  )

@@ -1,0 +1,24 @@
+;; main.iswim
+;; Entry point for the ISWIM Data Processing Utility
+
+(DEFINE main (
+  (LAMBDA ()
+    (LET ((input_data (INGEST_DATA "./input_data.csv"))
+          (config (LOAD_CONFIG "./config.iswim")))
+      
+      (IF (NOT (NULL? input_data))
+          (
+           (LET ((transformed_data (TRANSFORM_DATA input_data config))
+                 (validated_data (VALIDATE_DATA transformed_data)))
+             
+             (EXPORT_DATA validated_data "./output_data.csv")
+             "Processing completed successfully.")
+           )
+          "No data to process."
+          )
+          )
+        )
+      )
+
+;; Execute main function
+(main)

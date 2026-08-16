@@ -1,0 +1,70 @@
+;; data_validator.iswim
+;; Validates data integrity and quality
+
+(DEFINE VALIDATE_DATA (
+  (LAMBDA (data)
+    (LET ((validation_rules (GET_CONFIG_VALUE "validation_rules")))
+      (IF (NULL? validation_rules)
+          data
+          (REDUCE (
+                  (LAMBDA (rule processed_data)
+                    (APPLY_VALIDATION_RULE rule processed_data)
+                    )
+                  data
+                  validation_rules)
+          )
+        )
+      )
+    )
+  )
+
+(DEFINE APPLY_VALIDATION_RULE (
+  (LAMBDA (rule data)
+    (LET ((type (CAR rule))
+          (params (CDR rule)))
+      (CASE type
+            ("REQUIRED_FIELDS" (FILTER (
+                                        (LAMBDA (record)
+                                          (ALL_REQUIRED_FIELDS_PRESENT record (CAR params))
+                                          )
+                                        data)
+                                        )
+                             )
+            ("MAX_LENGTH" (FILTER (
+                                    (LAMBDA (record)
+                                      (LET ((field (CADR rule))
+                                            (max_len (CADDR rule)))
+                                        (IF (NULL? (GET_VALUE record field))
+                                            #t
+                                            (<= (LENGTH (CDR (GET_VALUE record field))) max_len)
+                                            )
+                                          )
+                                      )
+                                    data)
+                                    )
+                             )
+            (_ data)
+            )
+      )
+    )
+  )
+
+(DEFINE ALL_REQUIRED_FIELDS_PRESENT (
+  (LAMBDA (record fields)
+    ;; Check if all required fields are present in a record
+    (IF (NULL? fields)
+        #t
+        (AND (NOT (NULL? (GET_VALUE record (CAR fields)))) (ALL_REQUIRED_FIELDS_PRESENT record (CDR fields)))
+        )
+      )
+    )
+
+(DEFINE LENGTH (
+  (LAMBDA (list)
+    ;; Calculate the length of a list
+    (IF (NULL? list)
+        0
+        (+ 1 (LENGTH (CDR list)))
+        )
+      )
+    )
