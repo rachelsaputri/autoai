@@ -1,0 +1,120 @@
+;; data_transformer.iswim
+;; Handles data transformation using functional pipelines
+
+(DEFINE TRANSFORM_DATA (
+  (LAMBDA (data config)
+    (LET ((transformations (GET_CONFIG_VALUE config "transformations")))
+      (IF (NULL? transformations)
+          data
+          (REDUCE (
+                  (LAMBDA (transformation processed_data)
+                    (APPLY_TRANSFORMATION transformation processed_data)
+                    )
+                  data
+                  transformations)
+          )
+        )
+      )
+    )
+  )
+
+(DEFINE GET_CONFIG_VALUE (
+  (LAMBDA (config key)
+    ;; Retrieve a value from the configuration
+    (IF (NULL? config)
+        '()
+        (IF (EQUAL? (CAR (CAR config)) key)
+            (CDR (CAR config))
+            (GET_CONFIG_VALUE (CDR config) key)
+            )
+          )
+        )
+      )
+    )
+
+(DEFINE APPLY_TRANSFORMATION (
+  (LAMBDA (transformation data)
+    (LET ((type (CAR transformation))
+          (params (CDR transformation)))
+      (CASE type
+            ("UPPERCASE" (MAP (
+                               (LAMBDA (record)
+                                 (MAP (
+                                       (LAMBDA (pair)
+                                         (IF (EQUAL? (CAR pair) "name")
+                                             (PAIR (CAR pair) (UPPERCASE (CDR pair)))
+                                             pair)
+                                         )
+                                       record))
+                               data)
+                               )
+                             )
+            ("FILTER_AGE" (FILTER (
+                                    (LAMBDA (record)
+                                      (LET ((age (GET_VALUE record "age")))
+                                        (IF (NULL? age)
+                                            #t
+                                            (> (PARSE_INTEGER (CDR age)) (CAR params))
+                                            )
+                                          )
+                                      )
+                                    data)
+                                    )
+                             )
+            (_ data)
+            )
+      )
+    )
+  )
+
+(DEFINE UPPERCASE (
+  (LAMBDA (string)
+    ;; Convert string to uppercase
+    (IF (NULL? string)
+        ""
+        (LET ((char (CAR string)))
+          (IF (>= char #\a) (<= char #\z))
+              (CONS (- char (- #\a #\A)) (UPPERCASE (CDR string)))
+              string)
+          )
+        )
+      )
+    )
+
+(DEFINE GET_VALUE (
+  (LAMBDA (record key)
+    ;; Get a value from a record by key
+    (IF (NULL? record)
+        '()
+        (IF (EQUAL? (CAR (CAR record)) key)
+            (CAR record)
+            (GET_VALUE (CDR record) key)
+            )
+          )
+        )
+      )
+    )
+
+(DEFINE PARSE_INTEGER (
+  (LAMBDA (string)
+    ;; Parse a string to an integer
+    (IF (NULL? string)
+        0
+        (+ (* (PARSE_INTEGER (CDR string)) 10) (- (CAR string) #\0))
+        )
+      )
+    )
+
+(DEFINE FILTER (
+  (LAMBDA (predicate list)
+    ;; Filter a list based on a predicate
+    (IF (NULL? list)
+        '()
+        (IF (predicate (CAR list))
+            (CONS (CAR list) (FILTER predicate (CDR list)))
+            (FILTER predicate (CDR list))
+            )
+          )
+        )
+      )
+    )
