@@ -510,3 +510,5 @@
 - Created/Updated module: `euler_compliance_orchestrator` (See `euler_compliance_orchestrator/README.md` for details)
 
 - Created/Updated module: `able_compliance_data_extractor` (See `able_compliance_data_extractor/README.md` for details)
+
+- Created/Updated module: `kixtart_compliance_auditor` (See `kixtart_compliance_auditor/README.md` for details)
