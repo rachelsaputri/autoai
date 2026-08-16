@@ -474,3 +474,5 @@
 - Created/Updated module: `genie_compliance_auditor` (See `genie_compliance_auditor/README.md` for details)
 
 - Created/Updated module: `rapira_data_processor` (See `rapira_data_processor/README.md` for details)
+
+- Created/Updated module: `haxe_data_processing_utility` (See `haxe_data_processing_utility/README.md` for details)
