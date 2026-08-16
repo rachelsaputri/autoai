@@ -1,0 +1,66 @@
+C MAIN GPSS API INTERACTION ENGINE
+C SIMULATES DATA TRANSFER AND API INTERACTIONS
+
+C INITIALIZATION
+10     QUEUE INITIALIZE 100        C Initialize queue for max 100 transactions
+20     QUEUE INITIALIZE 50        C Initialize queue for API responses
+30     INITIALIZE 1000            C Initialize random number generator
+
+C LOAD API CONFIGURATION
+40     FORMAT API_CONFIG.TXT      C Read API endpoint configuration
+50     GET FILE API_CONFIG.TXT    C Load API details
+60     SET API_ENDPOINT $1        C Store endpoint URL
+70     SET API_METHOD $2          C Store HTTP method (GET/POST)
+80     SET API_TIMEOUT $3         C Store timeout value
+90     PARSE API_CONFIG.TXT       C Parse configuration data
+
+C START TRANSACTIONS
+100    GENERATE 0,0               C Generate first transaction immediately
+110    QUEUE ENTRY TRANSACTIONS   C Add to processing queue
+120    TEST FIN                  C Check for end condition
+130    SEIZE API_GATEWAY          C Take API gateway resource
+140    TRANSFER END_CHECK         C Check if we should end
+150    START API_TRANSACTION      C Start API transaction logic
+
+C API TRANSACTION LOGIC
+160    TRANSFER SEND_REQUEST      C Send request to API
+170    SEND_REQUEST               C Label for sending request
+180    SET REQUEST_PAYLOAD $4     C Set request payload from data
+190    EXECUTE HTTP_SEND          C Simulate HTTP send operation
+200    TEST HTTP_STATUS           C Check HTTP status
+210    TRANSFER RECEIVE_RESPONSE  C If success, receive response
+220    TRANSFER LOG_ERROR         C If error, log error
+230    RECEIVE_RESPONSE           C Label for receiving response
+240    SET RESPONSE_BODY $5       C Set response body
+250    PARSE_RESPONSE $5          C Parse response data
+260    TRANSFER VALIDATE_DATA     C Validate parsed data
+270    LOG_ERROR                  C Label for logging errors
+280    WRITE LOG_FILE ERROR_MSG   C Write error to log
+290    RELEASE API_GATEWAY        C Release API gateway
+300    TRANSFER PROCESS_NEXT      C Process next transaction
+310    VALIDATE_DATA              C Label for data validation
+320    TEST DATA_INTEGRITY        C Check data integrity
+330    TRANSFER STORE_DATA        C If valid, store data
+340    TRANSFER LOG_ERROR         C If invalid, log error
+350    STORE_DATA                 C Label for storing data
+360    WRITE STORE_FILE $5        C Write data to storage
+370    RELEASE API_GATEWAY        C Release API gateway
+380    PROCESS_NEXT               C Label for next transaction
+390    QUEUE EXIT TRANSACTIONS    C Remove from queue
+400    TEST FIN                   C Check for end condition
+410    DEPART TRANSACTIONS        C Depart transaction
+420    TRANSFER START TRANSACTIONS C Go back to start
+430    END                        C End simulation
+
+C RESOURCES
+440    GATEWAY 1 API_GATEWAY      C Define API gateway resource
+450    LOG_FILE LOG.TXT           C Define log file
+460    STORE_FILE DATA.JSON       C Define data storage file
+
+C DATA STRUCTURES
+470    FORMAT API_CONFIG.TXT      C Format for API config
+480    FORMAT RESPONSE_BODY.TXT   C Format for response body
+490    FORMAT ERROR_LOG.TXT       C Format for error log
+500    FORMAT DATA_RECORD.TXT     C Format for data records
+
+C END OF MAIN GPSS API INTERACTION ENGINE
