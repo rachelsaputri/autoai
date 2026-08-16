@@ -492,3 +492,5 @@
 - Created/Updated module: `tal_data_processing_utility` (See `tal_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `coral66_data_processing_utility` (See `coral66_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `plsql_compliance_framework` (See `plsql_compliance_framework/README.md` for details)
