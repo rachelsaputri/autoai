@@ -482,3 +482,5 @@
 - Created/Updated module: `mumps_data_processing_utility` (See `mumps_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `./data_processing_utils_4` (See `./data_processing_utils_4/README.md` for details)
+
+- Created/Updated module: `datatrieve_data_processing_utility` (See `datatrieve_data_processing_utility/README.md` for details)
