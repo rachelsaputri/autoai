@@ -508,3 +508,5 @@
 - Created/Updated module: `kee_compliance_enforcement_orchestrator` (See `kee_compliance_enforcement_orchestrator/README.md` for details)
 
 - Created/Updated module: `euler_compliance_orchestrator` (See `euler_compliance_orchestrator/README.md` for details)
+
+- Created/Updated module: `able_compliance_data_extractor` (See `able_compliance_data_extractor/README.md` for details)

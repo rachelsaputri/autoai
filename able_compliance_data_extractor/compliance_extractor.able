@@ -1,0 +1,48 @@
+-- Compliance Extractor Main Module (ABLE)
+-- Entry point for the ABLE Compliance Data Extractor
+
+MODULE compliance_extractor
+
+IMPORT config_parser
+IMPORT extractor_engine
+IMPORT reporter
+IMPORT compliance_rules
+
+PROCEDURE main()
+    BEGIN
+        DECLARE config_file_path STRING
+        DECLARE extraction_results LIST
+        DECLARE violations LIST
+        DECLARE exit_code INT
+
+        -- Set default configuration path
+        SET config_file_path = "/etc/compliance/baseline.cfg"
+
+        TRY
+            -- Parse the configuration file
+            CALL config_parser.parse(config_file_path, config_file_path)
+
+            -- Run extraction engine
+            SET extraction_results = extractor_engine.run_extraction(config_file_path)
+
+            -- Validate against compliance rules
+            SET violations = compliance_rules.evaluate(extraction_results)
+
+            -- Generate and print report
+            CALL reporter.generate_report(violations)
+
+            IF length(violations) > 0 THEN
+                SET exit_code = 1
+            ELSE
+                SET exit_code = 0
+            ENDIF
+
+        CATCH error
+            PRINT "Extraction failed: " + error.message
+            SET exit_code = 2
+        ENDTRY
+
+        RETURN exit_code
+    END
+
+END MODULE

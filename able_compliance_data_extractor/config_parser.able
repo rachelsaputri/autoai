@@ -1,0 +1,42 @@
+-- Configuration Parser Module (ABLE)
+-- Handles reading and parsing of compliance configuration files
+
+MODULE config_parser
+
+TYPE config_entry
+    ATTRIBUTE key STRING
+    ATTRIBUTE value STRING
+    ATTRIBUTE source_file STRING
+END TYPE
+
+GLOBAL config_data LIST OF config_entry
+
+FUNCTION parse(file_path STRING) RETURN INT
+    BEGIN
+        DECLARE file_handle INT
+        DECLARE line STRING
+        DECLARE entry config_entry
+
+        SET file_handle = OPEN(file_path, READ)
+
+        IF file_handle == -1 THEN
+            RETURN 1 -- Error opening file
+        ENDIF
+
+        WHILE READ_LINE(file_handle, line) DO
+            IF line.startswith("#") THEN
+                CONTINUE -- Skip comments
+            ENDIF
+
+            SET entry.key = line.split("=")[0].trim()
+            SET entry.value = line.split("=")[1].trim()
+            SET entry.source_file = file_path
+
+            APPEND config_data entry
+        ENDWHILE
+
+        CLOSE(file_handle)
+        RETURN 0 -- Success
+    END
+
+END MODULE

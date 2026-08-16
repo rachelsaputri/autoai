@@ -1,0 +1,37 @@
+-- Extraction Engine Module (ABLE)
+-- Extracts relevant security and compliance attributes from parsed data
+
+MODULE extractor_engine
+
+IMPORT config_parser
+
+TYPE extracted_record
+    ATTRIBUTE username STRING
+    ATTRIBUTE uid INT
+    ATTRIBUTE permissions STRING
+    ATTRIBUTE service_name STRING
+END TYPE
+
+FUNCTION run_extraction(file_path STRING) RETURN LIST OF extracted_record
+    BEGIN
+        DECLARE records LIST OF extracted_record
+        DECLARE record extracted_record
+        DECLARE raw_data LIST OF config_parser.config_entry
+
+        SET raw_data = config_parser.config_data
+
+        FOREACH raw_data.
+            IF .value.contains("service") THEN
+                SET record.service_name = .value.split("-")[0]
+                SET record.permissions = .value.split(":")[1] IF exists(.value, ":") ELSE "default"
+            ELSEIF .value.contains("user") THEN
+                SET record.username = .value.split(":")[0]
+                SET record.uid = INT(.value.split(":")[1]) IF length(.value.split(":")) > 1 ELSE -1
+            ENDIF
+            APPEND records record
+        ENDFOREACH
+
+        RETURN records
+    END
+
+END MODULE

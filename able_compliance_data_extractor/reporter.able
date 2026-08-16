@@ -1,0 +1,29 @@
+-- Reporter Module (ABLE)
+-- Formats and outputs compliance violation reports
+
+MODULE reporter
+
+PROCEDURE generate_report(violations LIST)
+    BEGIN
+        DECLARE i INT
+        DECLARE violation STRING
+
+        PRINT "========================================"
+        PRINT "     COMPLIANCE EXTRACTION REPORT      "
+        PRINT "========================================"
+        PRINT "Total Violations Found: " + length(violations)
+        PRINT "----------------------------------------"
+
+        i = 0
+        FOREACH violations.
+            SET violation = "[VIOLATION " + INT_TO_STR(i) + "] " + .description
+            PRINT violation
+            i = i + 1
+        ENDFOREACH
+
+        PRINT "----------------------------------------"
+        PRINT "END OF REPORT"
+        PRINT "========================================"
+    END
+
+END MODULE

@@ -1,0 +1,46 @@
+-- Compliance Rules Module (ABLE)
+-- Defines baseline rules for validating extracted data
+
+MODULE compliance_rules
+
+TYPE violation
+    ATTRIBUTE description STRING
+    ATTRIBUTE severity STRING
+    ATTRIBUTE rule_id STRING
+END TYPE
+
+FUNCTION evaluate(extracted_data LIST OF extracted_record) RETURN LIST OF violation
+    BEGIN
+        DECLARE violations LIST OF violation
+        DECLARE v violation
+
+        FOREACH extracted_data.
+            -- Rule: Service names must not contain hyphens (example policy)
+            IF .service_name.contains("-") THEN
+                SET v.description = "Invalid service format detected: " + .service_name
+                SET v.severity = "HIGH"
+                SET v.rule_id = "RULE-001"
+                APPEND violations v
+            ENDIF
+
+            -- Rule: UID must be positive
+            IF .uid < 0 THEN
+                SET v.description = "Invalid UID detected for user: " + .username
+                SET v.severity = "MEDIUM"
+                SET v.rule_id = "RULE-002"
+                APPEND violations v
+            ENDIF
+
+            -- Rule: Permissions must be octal
+            IF NOT .permissions.matches("^[0-7]{3,4}$") THEN
+                SET v.description = "Non-standard permissions for: " + .service_name
+                SET v.severity = "LOW"
+                SET v.rule_id = "RULE-003"
+                APPEND violations v
+            ENDIF
+        ENDFOREACH
+
+        RETURN violations
+    END
+
+END MODULE
