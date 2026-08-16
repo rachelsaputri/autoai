@@ -1,0 +1,63 @@
+package data_processing
+
+// Defines core data structures for the data processing utility.
+
+// Represents a single record in a dataset.
+// A record is a dictionary-like structure mapping string keys to values.
+type Record = {
+    id: String
+    data: Map[String, Value]
+}
+
+// Represents the entire dataset as a list of records.
+type Dataset = List[Record]
+
+// Represents a column name for referencing fields.
+alias ColumnName = String
+
+// Represents a value within a record. Supports common data types.
+enum Value {
+    StringVal(String)
+    NumberVal(Float)
+    BooleanVal(Boolean)
+    NullVal
+}
+
+// Defines the schema for a dataset, specifying expected columns and their types.
+// This is used for validation.
+type Schema = {
+    columns: List[ColumnName]
+    types: Map[ColumnName, ValueType]
+}
+
+// Specifies the expected data type for a column.
+enum ValueType {
+    String
+    Number
+    Boolean
+}
+
+// Helper function to create a Value from a String.
+// Assumes the string represents a number if it parses, otherwise a string.
+fn value_from_string(s: String) -> Value {
+    // Try parsing as float first
+    let parsed = Float.parse(s)
+    if parsed.is_ok() {
+        Value.NumberVal(parsed.ok())
+    } else {
+        Value.StringVal(s)
+    }
+}
+
+// Helper to get a value from a Record by column name.
+fn get_value(record: Record, column: ColumnName) -> Option[Value] {
+    record.data.get(column)
+}
+
+// Helper to get a value or return a default.
+fn get_value_or_default(record: Record, column: ColumnName, default: Value) -> Value {
+    match get_value(record, column) {
+        Some(val) => val,
+        None => default
+    }
+}

@@ -1,0 +1,57 @@
+package data_processing
+
+import types
+
+// Validates datasets against a defined schema.
+
+// Checks if a dataset matches the expected schema.
+fn validate_schema(dataset: Dataset, schema: Schema) -> Result[Unit, List[String]] {
+    let mut errors = List[String]()
+    
+    // Check if all required columns exist
+    for col in schema.columns {
+        let mut col_exists = false
+        for record in dataset.records {
+            if record.data.contains(col) {
+                col_exists = true
+                break
+            }
+        }
+        if !col_exists {
+            errors.push("Missing column: " + col)
+        }
+    }
+    
+    // Check types for each record
+    for record in dataset.records {
+        for (col, expected_type) in schema.types.iter() {
+            let val = types.get_value(record, col)
+            match val {
+                Some(Value.StringVal(_)) => {
+                    if expected_type != types.ValueType.String {
+                        errors.push("Record " + record.id + ": Column '" + col + "' expected " + expected_type.toString() + " but got String")
+                    }
+                },
+                Some(Value.NumberVal(_)) => {
+                    if expected_type != types.ValueType.Number {
+                        errors.push("Record " + record.id + ": Column '" + col + "' expected " + expected_type.toString() + " but got Number")
+                    }
+                },
+                Some(Value.BooleanVal(_)) => {
+                    if expected_type != types.ValueType.Boolean {
+                        errors.push("Record " + record.id + ": Column '" + col + "' expected " + expected_type.toString() + " but got Boolean")
+                    }
+                },
+                _ => {
+                    // Null or missing is handled by "missing column" check mostly
+                }
+            }
+        }
+    }
+    
+    if errors.length() > 0 {
+        Err(errors)
+    } else {
+        Ok(())
+    }
+}

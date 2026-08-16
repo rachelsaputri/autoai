@@ -1,0 +1,91 @@
+package data_processing
+
+import parser
+import processor
+import validator
+import exporter
+import types
+
+// Main entry point for the Data Processing Utility.
+
+fn main() {
+    println("Starting Data Processing Utility...")
+    
+    // 1. Sample Data
+    let sample_json = "[{\"id\": \"1\", \"name\": \"Alice\", \"age\": \"30\", \"active\": \"true\"}, {\"id\": \"2\", \"name\": \"Bob\", \"age\": \"25\", \"active\": \"true\"}, {\"id\": \"3\", \"name\": \"Charlie\", \"age\": \"35\", \"active\": \"false\"}]"
+    
+    // 2. Parse Data
+    let dataset = match parser.parse_data(sample_json, "json") {
+        Ok(ds) => ds,
+        Err(e) => {
+            println("Parse Error: " + e)
+            return
+        }
+    }
+    println("Loaded " + dataset.records.length().to_string() + " records.")
+    
+    // 3. Define Schema
+    let schema = Schema {
+        columns: ["id", "name", "age", "active"],
+        types: Map[String, ValueType]() {
+            "id": ValueType.String,
+            "name": ValueType.String,
+            "age": ValueType.Number,
+            "active": ValueType.Boolean
+        }
+    }
+    
+    // 4. Validate Data
+    match validator.validate_schema(dataset, schema) {
+        Ok(_) => println("Data validation passed."),
+        Err(errors) => {
+            println("Validation Errors:")
+            for err in errors {
+                println(" - " + err)
+            }
+        }
+    }
+    
+    // 5. Filter Data (Age > 25)
+    let filtered = processor.filter(dataset, (record: Record) => {
+        let age_val = types.get_value_or_default(record, "age", Value.NumberVal(0))
+        match age_val {
+            Value.NumberVal(a) => a > 25.0,
+            _ => false
+        }
+    })
+    println("Filtered records (age > 25): " + filtered.records.length().to_string())
+    
+    // 6. Transform Data (Add a new column: is_senior)
+    let transformed = processor.transform(filtered, (record: Record) => {
+        let age_val = types.get_value_or_default(record, "age", Value.NumberVal(0))
+        let is_senior = match age_val {
+            Value.NumberVal(a) => a >= 65.0,
+            _ => false
+        }
+        let mut new_data = Map[String, Value]()
+        for (k, v) in record.data.iter() {
+            new_data.insert(k, v)
+        }
+        new_data.insert("is_senior", Value.BooleanVal(is_senior))
+        Record { id: record.id, data: new_data }
+    })
+    
+    // 7. Aggregate Data
+    let aggregation = processor.aggregate(transformed, ["age"], ["sum", "mean", "count", "min", "max"])
+    println("Aggregation for 'age':")
+    for (key, metrics) in aggregation.iter() {
+        println("  Column: " + key)
+        for (metric, val) in metrics.iter() {
+            println("    " + metric + ": " + val.toString())
+        }
+    }
+    
+    // 8. Export Data
+    match exporter.export_to_file(transformed, "./output.json", "json") {
+        Ok(_) => println("Export successful."),
+        Err(e) => println("Export failed: " + e)
+    }
+    
+    println("Processing complete.")
+}
