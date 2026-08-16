@@ -1,0 +1,3 @@
+USING: data-extractor ;
+
+"col1,col2,col3\n1,2,3\n4,5,6" run-extraction
