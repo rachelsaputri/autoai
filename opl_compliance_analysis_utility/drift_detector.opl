@@ -1,0 +1,49 @@
+%drift_detector.opl
+% Logic for detecting configuration drift
+
+Structure ConfigBaseline
+    Key As String
+    ExpectedValue As String
+    LastKnownGood As String
+End Structure
+
+Function CompareStateToBaseline(current_state As SystemState, baseline As Array(ConfigBaseline)) As Array(DriftReport)
+    Declare drifts As Array(DriftReport)
+    Declare current_settings As Map(String, String)
+    
+    Call ExportCurrentSettings(current_state, current_settings)
+    
+    For Each item In baseline
+        Declare current_val As String
+        If current_settings.Has(item.Key) Then
+            Set current_val = current_settings.Get(item.Key)
+        Else
+            Set current_val = "MISSING"
+        End If
+        
+        If current_val <> item.ExpectedValue Then
+            Declare dr As DriftReport
+            Set dr.key = item.Key
+            Set dr.expected = item.ExpectedValue
+            Set dr.actual = current_val
+            Call AddDrift(drifts, dr)
+        End If
+    Next
+    
+    Return drifts
+End Function
+
+Function CalculateDriftScore(drifts As Array(DriftReport)) As Float
+    Declare total_weight As Float = 0.0
+    Declare weighted_violations As Float = 0.0
+    
+    For Each dr In drifts
+        Declare weight As Float = GetSeverityWeight(dr.key)
+        Set total_weight = total_weight + weight
+        Set weighted_violations = weighted_violations + (weight * 1.0)
+    Next
+    
+    If total_weight == 0 Then Return 100.0
+    
+    Return ((total_weight - weighted_violations) / total_weight) * 100.0
+End Function

@@ -1,0 +1,48 @@
+%report_generator.opl
+% Report generation and formatting logic
+
+Structure AuditReport
+    Timestamp As DateTime
+    ComplianceScore As Float
+    TotalRules As Integer
+    PassedRules As Integer
+    FailedRules As Integer
+    Drifts As Array(DriftReport)
+    Recommendations As Array(String)
+End Structure
+
+Function GenerateReport(report As AuditReport)
+    Declare file_path As String = "reports/audit_" + FormatDateTime(report.Timestamp) + ".txt"
+    Declare content As String
+    
+    Call AppendLine(content, "==================================================")
+    Call AppendLine(content, "       COMPLIANCE AUDIT REPORT")
+    Call AppendLine(content, "==================================================")
+    Call AppendLine(content, "Timestamp: " + FormatDateTime(report.Timestamp))
+    Call AppendLine(content, "Compliance Score: " + ToString(report.ComplianceScore) + "%")
+    Call AppendLine(content, "--------------------------------------------------")
+    Call AppendLine(content, "Summary:")
+    Call AppendLine(content, "  Total Rules: " + ToString(report.TotalRules))
+    Call AppendLine(content, "  Passed: " + ToString(report.PassedRules))
+    Call AppendLine(content, "  Failed: " + ToString(report.FailedRules))
+    Call AppendLine(content, "--------------------------------------------------")
+    
+    If report.Drifts.Count > 0 Then
+        Call AppendLine(content, "Drift Detected:")
+        For Each dr In report.Drifts
+            Call AppendLine(content, "  - " + dr.key + ": Expected[" + dr.expected + "] Actual[" + dr.actual + "]")
+        Next
+    End If
+    
+    If report.Recommendations.Count > 0 Then
+        Call AppendLine(content, "Recommendations:")
+        For Each rec In report.Recommendations
+            Call AppendLine(content, "  * " + rec)
+        Next
+    End If
+    
+    Call AppendLine(content, "==================================================")
+    
+    Call WriteToFile(file_path, content)
+    Log("Report saved to " + file_path)
+End Function

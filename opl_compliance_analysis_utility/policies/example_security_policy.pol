@@ -1,0 +1,12 @@
+# Example Security Policy for Compliance Analysis
+# Format: RuleType:Condition=ExpectedValue
+
+Rule: ACCESS_CONTROL: SSH_PORT=22
+Rule: CONFIGURATION: FIREWALL_STATE=enabled
+Rule: CONFIGURATION: LOG_LEVEL=verbose
+Rule: DATA_INTEGRITY: SSH_KEY_PERMISSIONS=600
+Rule: ACCESS_CONTROL: ROOT_LOGIN=disabled
+Rule: CONFIGURATION: NTP_SYNC=enabled
+
+# Policy Priority: HIGH
+Priority: 100

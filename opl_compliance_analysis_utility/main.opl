@@ -1,0 +1,31 @@
+%main.opl
+% Main entry point for the OPL Compliance Analysis Utility
+
+Include "compliance_engine.opl"
+Include "drift_detector.opl"
+Include "report_generator.opl"
+
+Function Main()
+    Declare config As Config
+    Declare policies As Array(Policy)
+    Declare current_state As SystemState
+    Declare audit_report As AuditReport
+
+    % Initialize configuration
+    Call InitializeConfig(config)
+
+    % Load policies
+    Call LoadPolicies(config.policy_directory, policies)
+
+    % Capture current system state
+    Call CaptureState(current_state)
+
+    % Run compliance engine
+    Call ExecuteComplianceEngine(policies, current_state, audit_report)
+
+    % Generate report
+    Call GenerateReport(audit_report)
+
+    Log("Compliance analysis completed successfully.")
+    Return 0
+End Function

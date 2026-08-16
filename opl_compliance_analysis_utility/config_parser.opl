@@ -1,0 +1,44 @@
+%config_parser.opl
+% Utility for reading configuration and policy files
+
+Structure AppConfig
+    policy_directory As String
+    output_directory As String
+    log_level As String
+    strict_mode As Boolean
+End Structure
+
+Function InitializeConfig(config As AppConfig)
+    Declare default_config_file As String = "opl_compliance.config"
+    
+    If FileExists(default_config_file) Then
+        Declare file_content As String
+        Call ReadFile(default_config_file, file_content)
+        
+        Set config.policy_directory = ExtractValue(file_content, "policy_dir")
+        Set config.output_directory = ExtractValue(file_content, "output_dir")
+        Set config.log_level = ExtractValue(file_content, "log_level")
+        Set config.strict_mode = ExtractBoolean(file_content, "strict_mode")
+    Else
+        Set config.policy_directory = "./policies"
+        Set config.output_directory = "./reports"
+        Set config.log_level = "INFO"
+        Set config.strict_mode = False
+    End If
+    
+    Call EnsureDirectoryExists(config.output_directory)
+End Function
+
+Function ExtractValue(content As String, key As String) As String
+    Declare pattern As String = key + "="
+    Declare start_index As Integer = StringIndexOf(content, pattern)
+    
+    If start_index == -1 Then Return ""
+    
+    Set start_index = start_index + Length(pattern)
+    Declare end_index As Integer = StringIndexOf(content, "\n", start_index)
+    
+    If end_index == -1 Then Return StringSubstring(content, start_index)
+    
+    Return StringSubstring(content, start_index, end_index - start_index)
+End Function
