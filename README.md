@@ -516,3 +516,5 @@
 - Created/Updated module: `text_formatting_cleaner` (See `text_formatting_cleaner/README.md` for details)
 
 - Created/Updated module: `krl_compliance_policy_verifier` (See `krl_compliance_policy_verifier/README.md` for details)
+
+- Created/Updated module: `kuka_compliance_policy_verifier` (See `kuka_compliance_policy_verifier/README.md` for details)
