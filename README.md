@@ -496,3 +496,5 @@
 - Created/Updated module: `plsql_compliance_framework` (See `plsql_compliance_framework/README.md` for details)
 
 - Created/Updated module: `kaleidoscope_compliance_auditor` (See `kaleidoscope_compliance_auditor/README.md` for details)
+
+- Created/Updated module: `jython_compliance_audit_engine` (See `jython_compliance_audit_engine/README.md` for details)
