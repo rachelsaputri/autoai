@@ -540,3 +540,5 @@
 - Created/Updated module: `./mag_ecc_crypto_toolkit` (See `./mag_ecc_crypto_toolkit/README.md` for details)
 
 - Created/Updated module: `data_processing_utility_idl` (See `data_processing_utility_idl/README.md` for details)
+
+- Created/Updated module: `orc_cryptographic_toolkit` (See `orc_cryptographic_toolkit/README.md` for details)
