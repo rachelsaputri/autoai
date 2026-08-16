@@ -1,0 +1,34 @@
+sshd_config:
+  - target: "PermitRootLogin"
+    expected: "no"
+    severity: "critical"
+  - target: "PasswordAuthentication"
+    expected: "no"
+    severity: "high"
+  - target: "X11Forwarding"
+    expected: "no"
+    severity: "medium"
+
+firewall_config:
+  - target: "default_policy"
+    expected: "DROP"
+    severity: "critical"
+  - target: "ssh_port_open"
+    expected: "true"
+    severity: "high"
+
+user_access_policy:
+  - target: "max_logon_failures"
+    expected: "3"
+    severity: "medium"
+  - target: "password_min_length"
+    expected: "12"
+    severity: "high"
+
+encryption_policy:
+  - target: "tls_version"
+    expected: "1.2"
+    severity: "critical"
+  - target: "cipher_strength"
+    expected: "256"
+    severity: "critical"
