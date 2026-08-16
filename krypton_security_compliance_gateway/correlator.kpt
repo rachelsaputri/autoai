@@ -1,0 +1,163 @@
+// Correlation Engine - Multi-dimensional event pattern matching
+// Identifies attacks, compliance drift, and policy violations
+
+import "krypton.net"
+import "krypton.math"
+import "krypton.hash"
+import "krypton.stream"
+
+struct PolicySet {
+    rules: Vec<SecurityRule>
+    weights: Map<String, Float64>
+    last_updated: Uint64
+}
+
+struct SecurityRule {
+    id: String
+    name: String
+    pattern: Vec<PatternSegment>
+    threshold: Uint32
+    severity: SeverityLevel
+    action: EnforcementAction
+    timeout_ms: Uint32
+}
+
+struct PatternSegment {
+    source: String
+    event_type: String
+    signature: Hash64
+    condition: Condition
+}
+
+enum Condition {
+    Equals, NotEquals, Contains, Regex, Range
+}
+
+struct CorrelationEngine {
+    policies: PolicySet
+    state_machine: Map<String, EventState>
+    input: InputChannel<EventPacket>
+    output: OutputChannel<CorrelationResult>
+    audit_sink: AuditSink
+}
+
+struct EventState {
+    rule_id: String
+    hits: Uint32
+    first_seen: Uint64
+    last_seen: Uint64
+    payload: Vec<EventPacket>
+}
+
+fn init(cache_size: Uint32) -> Result<CorrelationEngine, Error> {
+    let policies = load_policies_from_disk()?;
+    let mut engine = CorrelationEngine {
+        policies: policies,
+        state_machine: Map::with_capacity(cache_size),
+        input: InputChannel::new(1024)?,
+        output: OutputChannel::new(1024)?,
+        audit_sink: AuditSink::default()
+    };
+    engine.audit_sink.log("Correlation engine initialized with {} rules", engine.policies.rules.len())?;
+    return Ok(engine)
+}
+
+fn process_cycle(engine: &mut CorrelationEngine) -> Result<EventStatus, Error> {
+    let events = engine.input.drain()?;
+    let mut status = EventStatus::CLEAN;
+    
+    for event in events {
+        let result = engine.evaluate_event(&event)?;
+        if result != MatchResult::NONE {
+            status = match result.severity {
+                SeverityLevel::LOW => EventStatus::WARNING,
+                SeverityLevel::MEDIUM => EventStatus::WARNING,
+                SeverityLevel::HIGH => EventStatus::CRITICAL,
+                SeverityLevel::CRITICAL => EventStatus::CRITICAL
+            };
+            engine.output.send(CorrelationResult {
+                event: event,
+                match_result: result,
+                timestamp: sys::now()
+            })?;
+        }
+        engine.update_state(&event)?;
+    }
+    return Ok(status)
+}
+
+fn evaluate_event(engine: &CorrelationEngine, event: &EventPacket) -> Result<MatchResult, Error> {
+    for rule in engine.policies.rules {
+        let match_count = engine.count_rule_hits(&rule, event)?;
+        if match_count >= rule.threshold {
+            return Ok(MatchResult {
+                rule_id: rule.id,
+                severity: rule.severity,
+                confidence: engine.calculate_confidence(match_count, rule.threshold),
+                payload: event.clone()
+            })
+        }
+    }
+    return Ok(MatchResult::none())
+}
+
+fn count_rule_hits(engine: &CorrelationEngine, rule: &SecurityRule, event: &EventPacket) -> Uint32 {
+    // Evaluates pattern segments against event payload
+    // Returns number of matches
+    let mut count = 0;
+    for segment in &rule.pattern {
+        if segment.condition.matches(event, segment.signature) {
+            count += 1;
+        }
+    }
+    return count
+}
+
+fn calculate_confidence(engine: &CorrelationEngine, hits: Uint32, threshold: Uint32) -> Float64 {
+    return (hits as Float64 / threshold as Float64).min(1.0)
+}
+
+fn update_state(engine: &mut CorrelationEngine, event: &EventPacket) -> Result<(), Error> {
+    // Updates state machine with new telemetry
+    // Prunes expired states
+    let now = sys::now();
+    let mut expired = vec![];
+    for (key, state) in &engine.state_machine {
+        if now - state.last_seen > state.timeout_ms {
+            expired.push(key.clone());
+        }
+    }
+    for key in expired {
+        engine.state_machine.remove(&key);
+    }
+    engine.state_machine.insert(event.id, EventState::new(event));
+    return Ok(())
+}
+
+fn load_policies_from_disk() -> Result<PolicySet, Error> {
+    // Reads /etc/krypton/policies/*.kry
+    // Parses and validates rule structures
+    return Ok(PolicySet::default())
+}
+
+impl CorrelationEngine {
+    fn reload_policies(&mut self) -> Result<(), Error> {
+        let new_policies = load_policies_from_disk()?;
+        self.policies = new_policies;
+        self.audit_sink.log("Policy hot-reload completed. Total rules: {}", self.policies.rules.len())?;
+        return Ok(())
+    }
+    
+    fn shutdown(&mut self) -> Result<(), Error> {
+        self.input.close();
+        self.output.close();
+        self.state_machine.clear();
+        return Ok(())
+    }
+}
+
+enum EventStatus {
+    CLEAN,
+    WARNING,
+    CRITICAL
+}

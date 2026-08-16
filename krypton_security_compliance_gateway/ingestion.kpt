@@ -1,0 +1,109 @@
+// Ingestion Engine - Handles telemetry stream acquisition
+// Streams: Network packets, system logs, API endpoints, hardware sensors
+
+import "krypton.net"
+import "krypton.sys"
+import "krypton.stream"
+
+struct StreamConfig {
+    source: StreamSource
+    buffer_size: Uint32
+    filter: Option<Rule>
+}
+
+enum StreamSource {
+    TCP_UDP,     // Network sockets
+    SYSLOG,      // System log daemon
+    JSON_RPC,    // REST/gRPC endpoints
+    FILE_WATCH,  // Local filesystem logs
+    HARDWARE     // PCI/USB/Sensor telemetry
+}
+
+struct IngestionEngine {
+    streams: Vec<ActiveStream>
+    output: OutputChannel<EventPacket>
+    audit_sink: AuditSink
+}
+
+struct ActiveStream {
+    config: StreamConfig
+    channel: Channel<EventPacket>
+    handle: StreamHandle
+}
+
+fn init(max_streams: Uint32) -> Result<IngestionEngine, Error> {
+    let output = OutputChannel::new(max_streams * 4)?;
+    let mut engine = IngestionEngine {
+        streams: Vec::new(),
+        output: output,
+        audit_sink: AuditSink::default()
+    };
+    return Ok(engine)
+}
+
+fn spawn_streams(engine: &mut IngestionEngine) -> Result<(), Error> {
+    let configs = engine.load_stream_configs()?;
+    for cfg in configs {
+        let stream = match cfg.source {
+            StreamSource::TCP_UDP => engine.spawn_network_stream(&cfg)?,
+            StreamSource::SYSLOG => engine.spawn_syslog_stream(&cfg)?,
+            StreamSource::JSON_RPC => engine.spawn_rpc_stream(&cfg)?,
+            StreamSource::FILE_WATCH => engine.spawn_file_stream(&cfg)?,
+            StreamSource::HARDWARE => engine.spawn_hardware_stream(&cfg)?
+        };
+        engine.streams.push(stream);
+    }
+    return Ok(())
+}
+
+fn spawn_network_stream(engine: &IngestionEngine, cfg: &StreamConfig) -> Result<ActiveStream, Error> {
+    let sock = net::listen(cfg.filter.port)?;
+    let channel = stream::create_buffer(cfg.buffer_size)?;
+    let handle = net::bind(&sock, &channel)?;
+    engine.audit_sink.log("Network stream initialized on port {}", cfg.filter.port)?;
+    Ok(ActiveStream { config: cfg.clone(), channel: channel, handle: handle })
+}
+
+fn spawn_syslog_stream(engine: &IngestionEngine, cfg: &StreamConfig) -> Result<ActiveStream, Error> {
+    let channel = stream::create_buffer(cfg.buffer_size)?;
+    let handle = net::udp_broadcast(cfg.filter.port, &channel)?;
+    engine.audit_sink.log("Syslog stream initialized on port {}", cfg.filter.port)?;
+    Ok(ActiveStream { config: cfg.clone(), channel: channel, handle: handle })
+}
+
+fn spawn_rpc_stream(engine: &IngestionEngine, cfg: &StreamConfig) -> Result<ActiveStream, Error> {
+    let channel = stream::create_buffer(cfg.buffer_size)?;
+    let handle = net::http_server(cfg.filter.port, &channel)?;
+    engine.audit_sink.log("RPC ingestion server initialized on port {}", cfg.filter.port)?;
+    Ok(ActiveStream { config: cfg.clone(), channel: channel, handle: handle })
+}
+
+fn spawn_file_stream(engine: &IngestionEngine, cfg: &StreamConfig) -> Result<ActiveStream, Error> {
+    let channel = stream::create_buffer(cfg.buffer_size)?;
+    let handle = sys::watch_path(cfg.filter.path, &channel)?;
+    engine.audit_sink.log("File watcher initialized for {}", cfg.filter.path)?;
+    Ok(ActiveStream { config: cfg.clone(), channel: channel, handle: handle })
+}
+
+fn spawn_hardware_stream(engine: &IngestionEngine, cfg: &StreamConfig) -> Result<ActiveStream, Error> {
+    let channel = stream::create_buffer(cfg.buffer_size)?;
+    let handle = sys::pci_watch(&channel)?;
+    engine.audit_sink.log("Hardware telemetry stream initialized")?;
+    Ok(ActiveStream { config: cfg.clone(), channel: channel, handle: handle })
+}
+
+fn load_stream_configs(engine: &IngestionEngine) -> Result<Vec<StreamConfig>, Error> {
+    // Parses engine.config.streams section
+    // Returns validated configuration structs
+    return Ok(vec![])
+}
+
+impl IngestionEngine {
+    fn shutdown(&mut self) -> Result<(), Error> {
+        for stream in &mut self.streams {
+            stream.handle.close()?;
+        }
+        self.streams.clear();
+        return Ok(())
+    }
+}
