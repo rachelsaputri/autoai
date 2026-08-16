@@ -1,0 +1,113 @@
+package data_processing
+
+import types
+
+// Parses raw data strings into structured Datasets.
+
+// Parses a simple JSON-like string into a Dataset.
+// This is a simplified parser for demonstration purposes.
+// It expects a format like: [{"id": "1", "age": "30"}, ...]
+fn parse_json_data(json_str: String) -> Result[Dataset, String] {
+    // In a real implementation, this would use a proper JSON parser library.
+    // For this utility, we simulate parsing by splitting and mapping.
+    
+    // Remove surrounding brackets
+    let cleaned = json_str.trim()
+    if cleaned.starts_with("[") {
+        cleaned = cleaned.substring(1, cleaned.length() - 1)
+    }
+    
+    // Split by "}, {" to get individual records (simplified)
+    // Note: This is a naive split and won't handle commas inside strings.
+    let record_strs = cleaned.split("}, {")
+    
+    let mut records = List[Record]()
+    let mut i = 0
+    for record_str in record_strs {
+        // Clean up each record string
+        let clean_rec = record_str.trim()
+        let clean_rec = clean_rec.replace("{", "").replace("}", "")
+        
+        // Parse key-value pairs
+        let data = Map[String, Value]()
+        let pairs = clean_rec.split(",")
+        for pair in pairs {
+            let kv = pair.split(":")
+            if kv.length() >= 2 {
+                let key = kv[0].trim().replace("\"", "")
+                let val_str = kv[1].trim().replace("\"", "")
+                let val = types.value_from_string(val_str)
+                data.insert(key, val)
+            }
+        }
+        
+        // Assign a default ID if not present
+        let id = match data.get("id") {
+            Some(Value.StringVal(id_str)) => id_str,
+            _ => "auto_id_" + i.to_string()
+        }
+        
+        records.push(Record { id: id, data: data })
+        i = i + 1
+    }
+    
+    Ok(Dataset { records: records })
+}
+
+// Parses a CSV-like string into a Dataset.
+// Format: id,name,age\n1,Alice,30\n2,Bob,25
+fn parse_csv_data(csv_str: String) -> Result[Dataset, String] {
+    let lines = csv_str.split("\n")
+    if lines.length() < 2 {
+        return Err("CSV data must contain at least a header and one row")
+    }
+    
+    // First line is header
+    let header = lines[0].split(",")
+    
+    let mut records = List[Record]()
+    let mut i = 1
+    for line in lines.slice(1) {
+        if line.trim() == "" {
+            continue
+        }
+        
+        let values = line.split(",")
+        if values.length() != header.length() {
+            return Err("Row length mismatch in CSV")
+        }
+        
+        let data = Map[String, Value]()
+        let mut id = ""
+        for j = 0; j < header.length(); j = j + 1 {
+            let col = header[j].trim()
+            let val_str = values[j].trim()
+            let val = types.value_from_string(val_str)
+            data.insert(col, val)
+            if col == "id" {
+                id = match val {
+                    Value.StringVal(s) => s,
+                    _ => "auto_id_" + i.to_string()
+                }
+            }
+        }
+        
+        if id == "" {
+            id = "auto_id_" + i.to_string()
+        }
+        
+        records.push(Record { id: id, data: data })
+        i = i + 1
+    }
+    
+    Ok(Dataset { records: records })
+}
+
+// Main parser dispatcher
+fn parse_data(input: String, format: String) -> Result[Dataset, String] {
+    match format.toLowerCase() {
+        "json" => parse_json_data(input),
+        "csv" => parse_csv_data(input),
+        _ => Err("Unsupported format: " + format)
+    }
+}

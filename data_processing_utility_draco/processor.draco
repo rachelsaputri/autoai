@@ -1,0 +1,117 @@
+package data_processing
+
+import types
+
+// Core data processing logic: filtering, transforming, aggregating.
+
+// Filters a dataset based on a predicate function.
+fn filter(dataset: Dataset, predicate: (Record) -> Boolean) -> Dataset {
+    let mut filtered_records = List[Record]()
+    for record in dataset.records {
+        if predicate(record) {
+            filtered_records.push(record)
+        }
+    }
+    Dataset { records: filtered_records }
+}
+
+// Transforms each record in the dataset by applying a function.
+fn transform(dataset: Dataset, transform_fn: (Record) -> Record) -> Dataset {
+    let mut transformed_records = List[Record]()
+    for record in dataset.records {
+        let new_record = transform_fn(record)
+        transformed_records.push(new_record)
+    }
+    Dataset { records: transformed_records }
+}
+
+// Aggregates numeric columns in the dataset.
+// Computes sum, mean, count, min, max for each specified column.
+fn aggregate(dataset: Dataset, columns: List[ColumnName], metrics: List[String]) -> Map[ColumnName, Map[String, Float]] {
+    let mut results = Map[ColumnName, Map[String, Float>>()
+    
+    for col in columns {
+        let mut sum = 0.0
+        let mut count = 0
+        let mut min = Float.INFINITY
+        let mut max = -Float.INFINITY
+        
+        for record in dataset.records {
+            match types.get_value(record, col) {
+                Some(Value.NumberVal(val)) => {
+                    sum = sum + val
+                    count = count + 1
+                    if val < min { min = val }
+                    if val > max { max = val }
+                },
+                _ => {} // Ignore non-numeric values
+            }
+        }
+        
+        let mut col_results = Map[String, Float>()
+        if metrics.contains("sum") {
+            col_results.insert("sum", sum)
+        }
+        if metrics.contains("mean") {
+            let mean = if count > 0 { sum / count } else { 0.0 }
+            col_results.insert("mean", mean)
+        }
+        if metrics.contains("count") {
+            col_results.insert("count", Float(count))
+        }
+        if metrics.contains("min") {
+            col_results.insert("min", if count > 0 { min } else { 0.0 })
+        }
+        if metrics.contains("max") {
+            col_results.insert("max", if count > 0 { max } else { 0.0 })
+        }
+        
+        results.insert(col, col_results)
+    }
+    
+    results
+}
+
+// Joins two datasets on a common key column.
+fn join(left_ds: Dataset, right_ds: Dataset, left_key: ColumnName, right_key: ColumnName) -> Dataset {
+    let mut joined_records = List[Record]()
+    
+    for left_record in left_ds.records {
+        let left_val = types.get_value(left_record, left_key)
+        for right_record in right_ds.records {
+            let right_val = types.get_value(right_record, right_key)
+            match (left_val, right_val) {
+                (Some(Value.StringVal(lv)), Some(Value.StringVal(rv))) if lv == rv => {
+                    // Merge records: Right side values override left if keys collide
+                    let mut merged_data = Map[String, Value]()
+                    for (k, v) in left_record.data.iter() {
+                        merged_data.insert(k, v)
+                    }
+                    for (k, v) in right_record.data.iter() {
+                        merged_data.insert(k, v)
+                    }
+                    joined_records.push(Record { 
+                        id: left_record.id, 
+                        data: merged_data 
+                    })
+                },
+                (Some(Value.NumberVal(lv)), Some(Value.NumberVal(rv))) if lv == rv => {
+                    let mut merged_data = Map[String, Value]()
+                    for (k, v) in left_record.data.iter() {
+                        merged_data.insert(k, v)
+                    }
+                    for (k, v) in right_record.data.iter() {
+                        merged_data.insert(k, v)
+                    }
+                    joined_records.push(Record { 
+                        id: left_record.id, 
+                        data: merged_data 
+                    })
+                },
+                _ => {}
+            }
+        }
+    }
+    
+    Dataset { records: joined_records }
+}

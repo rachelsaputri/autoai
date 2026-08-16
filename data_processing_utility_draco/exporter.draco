@@ -1,0 +1,74 @@
+package data_processing
+
+import types
+
+// Exports processed data to various formats.
+
+// Converts a Value to its string representation for JSON export.
+fn value_to_string(val: Value) -> String {
+    match val {
+        Value.StringVal(s) => '"' + s + '"',
+        Value.NumberVal(n) => n.toString(),
+        Value.BooleanVal(b) => b.toString(),
+        Value.NullVal => "null"
+    }
+}
+
+// Exports a Dataset to a JSON-like string.
+fn dataset_to_json(dataset: Dataset) -> String {
+    let mut json = "["
+    let mut first = true
+    for record in dataset.records {
+        if !first {
+            json = json + ", "
+        }
+        first = false
+        
+        json = json + "{"
+        let mut first_key = true
+        for (key, val) in record.data.iter() {
+            if !first_key {
+                json = json + ", "
+            }
+            first_key = false
+            json = json + '"' + key + '": ' + value_to_string(val)
+        }
+        json = json + "}"
+    }
+    json = json + "]"
+    json
+}
+
+// Writes a Dataset to a file.
+// This is a simulated file write for the utility.
+fn export_to_file(dataset: Dataset, filepath: String, format: String) -> Result[Unit, String] {
+    let content = match format.toLowerCase() {
+        "json" => dataset_to_json(dataset),
+        "csv" => {
+            // Simple CSV export
+            if dataset.records.length() == 0 {
+                ""
+            } else {
+                let header = dataset.records[0].data.keys().join(",")
+                let mut csv = header + "\n"
+                for record in dataset.records {
+                    let values = List[String]()
+                    for key in dataset.records[0].data.keys() {
+                        match record.data.get(key) {
+                            Some(val) => values.push(value_to_string(val).replace("\"", "")),
+                            None => values.push("")
+                        }
+                    }
+                    csv = csv + values.join(",") + "\n"
+                }
+                csv
+            }
+        },
+        _ => "Unsupported export format: " + format
+    }
+    
+    // In a real system, this would write to disk.
+    // Here we just return success.
+    println("Exported data to " + filepath)
+    Ok(())
+}
