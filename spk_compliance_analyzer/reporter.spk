@@ -1,0 +1,61 @@
+;; SP/k Compliance Analyzer - Reporter
+;; Generates compliance reports from violation data.
+
+;; Generate report file
+GenerateReport(Violations, OutputDir) := {
+    Timestamp <- GetTimestamp();
+    Filename <- "compliance_report_" + Timestamp + ".txt";
+    FilePath <- OutputDir + "/" + Filename;
+    
+    ReportContent <- "";
+    ReportContent <- ReportContent + "========================================\n";
+    ReportContent <- ReportContent + "COMPLIANCE ANALYSIS REPORT\n";
+    ReportContent <- ReportContent + "Generated: " + Timestamp + "\n";
+    ReportContent <- ReportContent + "========================================\n\n";
+    
+    ReportContent <- ReportContent + "SUMMARY\n";
+    ReportContent <- ReportContent + "Total Violations: " + ToString(Length(Violations)) + "\n\n";
+    
+    ReportContent <- ReportContent + "DETAILS\n";
+    ReportContent <- ReportContent + "--------\n";
+    
+    If (Length(Violations) == 0) {
+        ReportContent <- ReportContent + "No violations detected. System is compliant.\n";
+    } Else {
+        Index <- 1;
+        ForEach Violation IN Violations {
+            ReportContent <- ReportContent + ToString(Index) + ". [" + Violation.severity + "] " + Violation.rule_name + "\n";
+            ReportContent <- ReportContent + "   Policy: " + Violation.policy_file + "\n";
+            ReportContent <- ReportContent + "   Expected: " + ToString(Violation.expected_value) + "\n";
+            ReportContent <- ReportContent + "   Current:  " + ToString(Violation.current_value) + "\n";
+            ReportContent <- ReportContent + "   Remediation: Apply rule logic for " + Violation.rule_name + "\n\n";
+            Index <- Index + 1;
+        };
+    };
+    
+    ReportContent <- ReportContent + "========================================\n";
+    ReportContent <- ReportContent + "END OF REPORT\n";
+    ReportContent <- ReportContent + "========================================\n";
+    
+    WriteFile(FilePath, ReportContent);
+    Return FilePath;
+};
+
+;; Get current timestamp
+GetTimestamp() := {
+    ;; Placeholder for system time retrieval
+    Return "2023-10-27_12-00-00";
+};
+
+;; Write string to file
+WriteFile(Path, Content) := {
+    ;; Placeholder for actual file writing implementation
+    ;; In a real SP/k environment, this would use system I/O primitives.
+    Print("[Reporter] Writing to: " + Path);
+};
+
+;; Create directory if it doesn't exist
+CreateDirectory(Path) := {
+    ;; Placeholder for directory creation
+    Print("[Reporter] Ensuring directory exists: " + Path);
+};

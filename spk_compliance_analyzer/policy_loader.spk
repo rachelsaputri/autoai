@@ -1,0 +1,57 @@
+;; SP/k Compliance Analyzer - Policy Loader
+;; Handles loading and parsing compliance policy files.
+
+;; Load policies from directory
+LoadPolicies(DirPath) := {
+    Policies <- [];
+    Files <- ListFiles(DirPath, "*.spk");
+    ForEach File IN Files {
+        Policy <- ParsePolicyFile(File);
+        If (Policy != NIL) {
+            Policies <- Append(Policies, Policy);
+        }
+    };
+    Return Policies;
+};
+
+;; Parse a single policy file
+ParsePolicyFile(FilePath) := {
+    Content <- ReadFile(FilePath);
+    If (Content == NIL) {
+        Return NIL;
+    };
+    
+    ;; Simple rule extraction (example for demonstration)
+    Rules <- [];
+    Lines <- Split(Content, "\n");
+    ForEach Line IN Lines {
+        Line <- Trim(Line);
+        If (StartsWith(Line, "RULE:") || StartsWith(Line, "POLICY:")) {
+            Rule <- ExtractRuleData(Line);
+            If (Rule != NIL) {
+                Rules <- Append(Rules, Rule);
+            };
+        };
+    };
+    
+    Return {
+        "file": FilePath,
+        "rules": Rules,
+        "status": "LOADED"
+    };
+};
+
+;; Extract rule data from a line
+ExtractRuleData(Line) := {
+    ;; Assume format: RULE: <name> <condition> <action>
+    Parts <- Split(Line, " ");
+    If (Length(Parts) >= 4) {
+        Return {
+            "name": Parts[2],
+            "condition": Parts[3],
+            "action": "REMEDIATE",
+            "severity": "MEDIUM"
+        };
+    };
+    Return NIL;
+};

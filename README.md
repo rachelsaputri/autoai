@@ -426,3 +426,5 @@
 - Created/Updated module: `data_processing_utility_ease` (See `data_processing_utility_ease/README.md` for details)
 
 - Created/Updated module: `euler_low_level_memory_network_sim` (See `euler_low_level_memory_network_sim/README.md` for details)
+
+- Created/Updated module: `spk_compliance_analyzer` (See `spk_compliance_analyzer/README.md` for details)

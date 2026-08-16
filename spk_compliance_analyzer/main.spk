@@ -1,0 +1,44 @@
+;; SP/k Compliance Analyzer - Main Entry Point
+;; This script orchestrates the compliance checking workflow.
+
+include "policy_loader.spk"
+include "drift_engine.spk"
+include "reporter.spk"
+
+;; Configuration
+POLICY_DIR <- "."
+BASELINE_STATE <- "./baseline_state.json"
+OUTPUT_DIR <- "./reports"
+
+;; Main Execution Flow
+Main() := {
+    Print("Starting SP/k Compliance Analyzer...");
+    
+    ;; Load policies
+    PolicyList <- LoadPolicies(POLICY_DIR);
+    If (PolicyList == NIL) {
+        Print("Error: No policies loaded. Exiting.");
+        HALT(1);
+    }
+    
+    ;; Load baseline state
+    Baseline <- LoadState(BASELINE_STATE);
+    If (Baseline == NIL) {
+        Print("Error: Baseline state not found. Creating new baseline...");
+        Baseline <- CaptureCurrentState();
+        SaveState(Baseline, BASELINE_STATE);
+    }
+    
+    ;; Run drift engine
+    Violations <- RunDriftEngine(PolicyList, Baseline);
+    
+    ;; Generate report
+    CreateDirectory(OUTPUT_DIR);
+    ReportPath <- GenerateReport(Violations, OUTPUT_DIR);
+    
+    Print("Compliance check complete. Report saved to: " + ReportPath);
+    Print("Total Violations: " + ToString(Length(Violations)));
+}
+
+;; Run the main process
+Main();
