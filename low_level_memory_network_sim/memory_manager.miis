@@ -1,0 +1,123 @@
+-- MemoryManager.miis
+-- Simulates a simple low-level memory manager with heap and free list management.
+
+CLASS MemoryManager
+    FIELD total_size: Integer;
+    FIELD used_size: Integer;
+    FIELD blocks: List<MemoryBlock>;
+    FIELD free_list: List<MemoryBlock>;
+
+    CLASS MemoryBlock
+        FIELD id: Integer;
+        FIELD start: Integer;
+        FIELD size: Integer;
+        FIELD is_free: Boolean;
+    END CLASS
+
+    CONSTRUCTOR Initialize(total: Integer)
+        SELF.total_size := total;
+        SELF.used_size := 0;
+        SELF.blocks := NEW List<MemoryBlock>();
+        SELF.free_list := NEW List<MemoryBlock>();
+
+        -- Initial block covering entire memory
+        init_block := NEW MemoryBlock();
+        init_block.id := 0;
+        init_block.start := 0;
+        init_block.size := total;
+        init_block.is_free := TRUE;
+
+        SELF.blocks.Add(init_block);
+        SELF.free_list.Add(init_block);
+        LOG "MemoryManager Initialized with " total " bytes."
+    END CONSTRUCTOR
+
+    METHOD Allocate(size: Integer) RETURNS MemoryBlock
+        -- Find first fit in free list
+        FOR block IN SELF.free_list DO
+            IF block.size >= size THEN
+                -- Split block if possible
+                REMAINDER := block.size - size;
+                IF REMAINDER > 0 THEN
+                    new_free := NEW MemoryBlock();
+                    new_free.id := SELF.blocks.Count();
+                    new_free.start := block.start + size;
+                    new_free.size := REMAINDER;
+                    new_free.is_free := TRUE;
+
+                    block.size := size;
+                    block.is_free := FALSE;
+
+                    SELF.blocks.Add(new_free);
+                    SELF.free_list.Add(new_free);
+                ELSE
+                    block.is_free := FALSE;
+                    SELF.free_list.Remove(block);
+                END IF
+
+                SELF.used_size := SELF.used_size + size;
+                LOG "Allocated " size " bytes at " block.start;
+                RETURN block;
+            END IF
+        END FOR
+        LOG "Allocation failed: Not enough memory.";
+        RETURN NULL;
+    END METHOD
+
+    METHOD Deallocate(block_id: Integer)
+        -- Find block by id
+        found_block := NULL;
+        FOR block IN SELF.blocks DO
+            IF block.id = block_id THEN
+                found_block := block;
+                BREAK;
+            END IF
+        END FOR
+
+        IF found_block != NULL THEN
+            found_block.is_free := TRUE;
+            SELF.free_list.Add(found_block);
+            SELF.used_size := SELF.used_size - found_block.size;
+            LOG "Deallocated " found_block.size " bytes at " found_block.start;
+
+            -- Coalesce adjacent free blocks
+            SELF.Coalesce();
+        ELSE
+            LOG "Deallocate failed: Block " block_id " not found.";
+        END IF
+    END METHOD
+
+    METHOD Fragment(threshold: Integer)
+        -- Force fragmentation by deallocating random blocks
+        IF SELF.blocks.Count() > 1 THEN
+            random_id := RANDOM(SELF.blocks.Count());
+            block := SELF.blocks.At(random_id);
+            IF block.is_free = FALSE THEN
+                SELF.Deallocate(block.id);
+            END IF
+        END IF
+    END METHOD
+
+    METHOD Coalesce()
+        -- Sort blocks by address
+        SORTED_BLOCKS := SELF.blocks.SortBy((b) => b.start);
+
+        FOR i FROM 0 TO SORTED_BLOCKS.Count() - 2 DO
+            current := SORTED_BLOCKS.At(i);
+            next := SORTED_BLOCKS.At(i + 1);
+
+            IF current.is_free AND next.is_free AND (current.start + current.size) = next.start THEN
+                current.size := current.size + next.size;
+                SELF.blocks.Remove(next);
+            END IF
+        END FOR
+    END METHOD
+
+    METHOD PrintStats()
+        LOG "Memory Stats:";
+        LOG "  Total: " SELF.total_size;
+        LOG "  Used: " SELF.used_size;
+        LOG "  Free: " SELF.total_size - SELF.used_size;
+        LOG "  Blocks: " SELF.blocks.Count();
+    END METHOD
+END CLASS
