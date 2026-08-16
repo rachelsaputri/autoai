@@ -536,3 +536,5 @@
 - Created/Updated module: `lithe_data_processing_utility` (See `lithe_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `logo_data_extraction_parser` (See `logo_data_extraction_parser/README.md` for details)
+
+- Created/Updated module: `./mag_ecc_crypto_toolkit` (See `./mag_ecc_crypto_toolkit/README.md` for details)
