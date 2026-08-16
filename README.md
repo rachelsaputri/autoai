@@ -438,3 +438,5 @@
 - Created/Updated module: `opl_compliance_analysis_utility` (See `opl_compliance_analysis_utility/README.md` for details)
 
 - Created/Updated module: `escher_compliance_analysis_utility` (See `escher_compliance_analysis_utility/README.md` for details)
+
+- Created/Updated module: `espol_compliance_analysis_utility` (See `espol_compliance_analysis_utility/README.md` for details)
