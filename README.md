@@ -486,3 +486,5 @@
 - Created/Updated module: `datatrieve_data_processing_utility` (See `datatrieve_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `iswim_data_processing_utility` (See `iswim_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `./faust_data_processing_pipeline` (See `./faust_data_processing_pipeline/README.md` for details)
