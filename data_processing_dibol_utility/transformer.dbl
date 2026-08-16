@@ -1,0 +1,103 @@
+PROGRAM TRANSFORM_DATA
+*===============================================================================
+* PROGRAM: TRANSFORM_DATA
+* LANGUAGE: DIBOL
+* DESCRIPTION: Routines for transforming data
+*===============================================================================
+
+*===============================================================================
+* NORMALIZE TEXT
+*===============================================================================
+NORMALIZE_TEXT:
+    TEXT = TEXT
+    UPPER = UPPER
+    TRIM = TRIM
+    
+    IF TRIM EQ "YES" THEN
+        TEXT = TRIM(TEXT)
+    END IF
+    
+    IF UPPER EQ "YES" THEN
+        TEXT = UPPER_CASE(TEXT)
+    END IF
+    
+    RETURN TEXT
+
+*===============================================================================
+* CONVERT NUMERIC FORMAT
+*===============================================================================
+CONVERT_NUMERIC:
+    NUM = NUM
+    FROM_FORMAT = FROM_FORMAT
+    TO_FORMAT = TO_FORMAT
+    
+    * Convert from source format to standard numeric
+    STD_NUM = PARSE_NUMERIC(NUM, FROM_FORMAT)
+    
+    * Convert to target format
+    RESULT = FORMAT_NUMERIC(STD_NUM, TO_FORMAT)
+    
+    RETURN RESULT
+
+*===============================================================================
+* MAP VALUES
+*===============================================================================
+MAP_VALUES:
+    VALUE = VALUE
+    MAP_TABLE = MAP_TABLE
+    
+    IF IN(VALUE, MAP_TABLE.KEYS) THEN
+        RETURN MAP_TABLE.VALUE(INDEX)
+    ELSE
+        RETURN VALUE
+    END IF
+
+*===============================================================================
+* AGGREGATE DATA
+*===============================================================================
+AGGREGATE_DATA:
+    FIELD_COUNT = FIELD_COUNT
+    AGG_FUNC = AGG_FUNC
+    GROUP_FIELD = GROUP_FIELD
+    
+    IF AGG_FUNC EQ "SUM" THEN
+        RESULT = SUM(FIELDS)
+    ELSE IF AGG_FUNC EQ "AVG" THEN
+        RESULT = AVG(FIELDS)
+    ELSE IF AGG_FUNC EQ "MAX" THEN
+        RESULT = MAX(FIELDS)
+    ELSE IF AGG_FUNC EQ "MIN" THEN
+        RESULT = MIN(FIELDS)
+    ELSE IF AGG_FUNC EQ "COUNT" THEN
+        RESULT = COUNT(FIELDS)
+    END IF
+    
+    RETURN RESULT
+
+*===============================================================================
+* ENCRYPT DATA
+*===============================================================================
+ENCRYPT_DATA:
+    DATA = DATA
+    KEY = KEY
+    
+    * Basic encryption (for demonstration)
+    * In production, use a robust cryptographic library
+    RESULT = XOR_ENCRYPT(DATA, KEY)
+    
+    RETURN RESULT
+
+*===============================================================================
+* HASH DATA
+*===============================================================================
+HASH_DATA:
+    DATA = DATA
+    ALGORITHM = ALGORITHM
+    
+    * Basic hashing (for demonstration)
+    * In production, use a robust cryptographic library
+    RESULT = HASH(DATA, ALGORITHM)
+    
+    RETURN RESULT
+
+END PROGRAM

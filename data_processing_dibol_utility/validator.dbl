@@ -1,0 +1,109 @@
+PROGRAM VALIDATE_DATA
+*===============================================================================
+* PROGRAM: VALIDATE_DATA
+* LANGUAGE: DIBOL
+* DESCRIPTION: Routines for validating parsed data
+*===============================================================================
+
+*===============================================================================
+* VALIDATE FIELD LENGTH
+*===============================================================================
+VALIDATE_FIELD_LENGTH:
+    FIELD = FIELD
+    MIN_LEN = MIN_LEN
+    MAX_LEN = MAX_LEN
+    
+    LEN = LENGTH(FIELD)
+    IF LEN LT MIN_LEN THEN
+        RETURN "SHORT"
+    ELSE IF LEN GT MAX_LEN THEN
+        RETURN "LONG"
+    END IF
+    
+    RETURN "OK"
+
+*===============================================================================
+* VALIDATE FIELD TYPE
+*===============================================================================
+VALIDATE_FIELD_TYPE:
+    FIELD = FIELD
+    EXPECTED_TYPE = EXPECTED_TYPE
+    
+    CASE EXPECTED_TYPE
+        WHEN "NUMERIC"
+            IF NOT IS_NUMERIC(FIELD) THEN
+                RETURN "INVALID_TYPE"
+            END IF
+        WHEN "ALPHANUMERIC"
+            IF NOT IS_ALPHANUMERIC(FIELD) THEN
+                RETURN "INVALID_TYPE"
+            END IF
+        WHEN "DATE"
+            IF NOT IS_DATE(FIELD) THEN
+                RETURN "INVALID_TYPE"
+            END IF
+        WHEN "CURRENCY"
+            IF NOT IS_CURRENCY(FIELD) THEN
+                RETURN "INVALID_TYPE"
+            END IF
+        OTHERWISE
+            RETURN "OK"
+    END CASE
+    
+    RETURN "OK"
+
+*===============================================================================
+* VALIDATE FIELD VALUE
+*===============================================================================
+VALIDATE_FIELD_VALUE:
+    FIELD = FIELD
+    MIN_VAL = MIN_VAL
+    MAX_VAL = MAX_VAL
+    VALID_VALUES = VALID_VALUES
+    
+    IF NOT EMPTY(VALID_VALUES) THEN
+        IF NOT IN(FIELD, VALID_VALUES) THEN
+            RETURN "OUT_OF_RANGE"
+        END IF
+    ELSE IF NOT EMPTY(MIN_VAL) AND NOT EMPTY(MAX_VAL) THEN
+        IF FIELD LT MIN_VAL THEN
+            RETURN "BELOW_MIN"
+        ELSE IF FIELD GT MAX_VAL THEN
+            RETURN "ABOVE_MAX"
+        END IF
+    END IF
+    
+    RETURN "OK"
+
+*===============================================================================
+* VALIDATE RECORD COMPLETENESS
+*===============================================================================
+VALIDATE_RECORD_COMPLETENESS:
+    FIELD_COUNT = FIELD_COUNT
+    REQUIRED_FIELDS = REQUIRED_FIELDS
+    
+    LOOP I = 1 TO FIELD_COUNT
+        IF REQUIRED_FIELDS[I] EQ 1 AND FIELD(I) = "" THEN
+            RETURN "MISSING_FIELD " I
+        END IF
+    END LOOP
+    
+    RETURN "OK"
+
+*===============================================================================
+* VALIDATE BUSINESS RULES
+*===============================================================================
+VALIDATE_BUSINESS_RULES:
+    FIELD_COUNT = FIELD_COUNT
+    RULES = RULES
+    
+    LOOP I = 1 TO FIELD_COUNT
+        CALL EVALUATE_RULES(FIELD(I), RULES)
+        IF RESULT EQ "ERROR" THEN
+            RETURN "RULE_VIOLATION"
+        END IF
+    END LOOP
+    
+    RETURN "OK"
+
+END PROGRAM
