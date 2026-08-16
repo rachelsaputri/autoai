@@ -538,3 +538,5 @@
 - Created/Updated module: `logo_data_extraction_parser` (See `logo_data_extraction_parser/README.md` for details)
 
 - Created/Updated module: `./mag_ecc_crypto_toolkit` (See `./mag_ecc_crypto_toolkit/README.md` for details)
+
+- Created/Updated module: `data_processing_utility_idl` (See `data_processing_utility_idl/README.md` for details)
