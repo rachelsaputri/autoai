@@ -1,0 +1,71 @@
+// exporter.roop
+// Module for saving processed data to various formats
+
+rule save(dataset, file_path) {
+  // Determine output format based on extension
+  let ext = get_extension(file_path)
+
+  if ext == "json" then
+    write_json(dataset, file_path)
+  else if ext == "csv" then
+    write_csv(dataset, file_path)
+  else
+    print("Error: Unsupported format " + ext)
+  end
+}
+
+rule write_json(data, file_path) {
+  let content = serialize_to_json(data)
+  let file_handle = open(file_path, "write")
+  write(file_handle, content)
+  close(file_handle)
+}
+
+rule write_csv(data, file_path) {
+  if data.empty() then return end
+
+  let headers = data[0].keys()
+  let rows = []
+
+  for record in data do
+    let fields = headers.map(h => record[h]).join(",")
+    rows.push(fields)
+  end
+
+  let csv_content = headers.join(",") + newline + rows.join(newline)
+  let file_handle = open(file_path, "write")
+  write(file_handle, csv_content)
+  close(file_handle)
+}
+
+rule get_extension(file_path) -> ext {
+  let parts = split(file_path, ".")
+  if parts.length() > 1 then
+    return parts[parts.length() - 1]
+  end
+  return ""
+}
+
+rule serialize_to_json(data) -> json_str {
+  // Simplified JSON serialization for ROOP
+  let arr_str = "["
+  for i in 0 to data.length() - 1 do
+    let record = data[i]
+    arr_str = arr_str + "{" 
+    let keys = record.keys()
+    for j in 0 to keys.length() - 1 do
+      let k = keys[j]
+      let v = record[k]
+      arr_str = arr_str + '"' + k + '": "' + v + '"'
+      if j < keys.length() - 1 then
+        arr_str = arr_str + ","
+      end
+    end
+    arr_str = arr_str + "}"
+    if i < data.length() - 1 then
+      arr_str = arr_str + ","
+    end
+  end
+  arr_str = arr_str + "]"
+  return arr_str
+}

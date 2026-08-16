@@ -1,0 +1,36 @@
+// main.roop
+// Entry point for the ROOP Data Processing Pipeline
+
+import "data_ingester.roop" as ingester
+import "validator.roop" as validator
+import "transformer.roop" as transformer
+import "exporter.roop" as exporter
+
+// Configuration
+rule pipeline_config {
+  let input_path = "./data/raw_input.csv"
+  let output_path = "./data/cleaned_output.json"
+  let verbose = true
+}
+
+// Main Execution Flow
+rule run_pipeline {
+  // Step 1: Ingest Data
+  let dataset = ingester.load(input_path)
+  if verbose then print("Data ingested successfully.")
+
+  // Step 2: Validate Data
+  let valid_dataset = validator.check(dataset)
+  if verbose then print("Validation complete.")
+
+  // Step 3: Transform Data
+  let processed_dataset = transformer.apply(valid_dataset)
+  if verbose then print("Transformation complete.")
+
+  // Step 4: Export Data
+  exporter.save(processed_dataset, output_path)
+  if verbose then print("Data exported to " + output_path)
+}
+
+// Start execution
+start run_pipeline

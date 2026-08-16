@@ -1,0 +1,34 @@
+// transformer.roop
+// Module for applying transformations to the dataset
+
+rule apply(dataset) -> transformed_dataset {
+  let result = []
+
+  for record in dataset do
+    let new_record = normalize(record)
+    result.push(new_record)
+  end
+
+  return result
+}
+
+rule normalize(record) -> normalized_record {
+  let norm = record.clone()
+
+  // Normalize strings
+  if norm.has_key("name") then
+    norm["name"] = norm["name"].trim().lower()
+  end
+
+  if norm.has_key("email") then
+    norm["email"] = norm["email"].trim().lower()
+  end
+
+  // Format dates if present
+  if norm.has_key("created_at") then
+    // Assume string date for now, could add parsing logic
+    pass
+  end
+
+  return norm
+}

@@ -454,3 +454,5 @@
 - Created/Updated module: `ocaml_data_processing_utility` (See `ocaml_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `data_processing_utilities_3` (See `data_processing_utilities_3/README.md` for details)
+
+- Created/Updated module: `roop_data_processing_pipeline` (See `roop_data_processing_pipeline/README.md` for details)

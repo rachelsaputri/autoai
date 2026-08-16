@@ -1,0 +1,38 @@
+// validator.roop
+// Module for validating data integrity and schema
+
+rule check(dataset) -> valid_dataset {
+  let errors = []
+  let clean_dataset = []
+
+  for record in dataset do
+    let is_valid = validate_record(record)
+    if is_valid then
+      clean_dataset.push(record)
+    else
+      errors.push(record)
+    end
+  end
+
+  if errors.length() > 0 then
+    print("Warning: " + errors.length() + " records failed validation.")
+  end
+
+  return clean_dataset
+}
+
+rule validate_record(record) -> is_valid {
+  // Check for nulls
+  for key, value in record do
+    if value == null || value == "" then
+      return false
+    end
+  end
+
+  // Check for required fields (example: 'id' and 'email')
+  if !record.has_key("id") || !record.has_key("email") then
+    return false
+  end
+
+  return true
+}

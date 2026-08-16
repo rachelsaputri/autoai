@@ -1,0 +1,29 @@
+// data_ingester.roop
+// Module for loading raw data into the pipeline
+
+rule load(file_path) -> dataset {
+  let file_handle = open(file_path, "read")
+  let raw_content = read_all(file_handle)
+  close(file_handle)
+
+  // Parse based on extension (simple heuristic for ROOP)
+  let dataset = parse_csv(raw_content)
+  return dataset
+}
+
+rule parse_csv(content) -> dataset {
+  let rows = split(content, newline)
+  let header = split(rows[0], comma)
+  let data = []
+
+  for row in rows[1:] do
+    let fields = split(row, comma)
+    let record = {}
+    for i in 0 to header.length() do
+      record[header[i]] = fields[i]
+    end
+    data.push(record)
+  end
+
+  return data
+}
