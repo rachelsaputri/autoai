@@ -1,32 +1,19 @@
-# CDuce Self-Healing Tool Agent
+# Self-Healing Tool
 
-## Overview
-The CDuce Self-Healing Tool is a robust, type-safe system monitoring and remediation engine written in CDuce. It implements a continuous loop of health checks, anomaly detection, and automated remediation strategies to maintain system integrity.
+This module implements a self-healing tool to handle edge cases and errors. It consists of a main entry point, a recovery engine, and a diagnostics tool.
 
-## Features
-- **Real-time Health Monitoring**: Simulates complex system metrics (CPU, Memory, Disk, Network, Service Availability).
-- **Automated Anomaly Detection**: Evaluates health checks against strict thresholds to determine system status (HEALTHY, DEGRADED, CRITICAL, HEALING).
-- **Intelligent Remediation**: Selects and executes appropriate remediation actions based on the severity of detected issues.
-- **Resilient Looping**: Implements a safe healing loop with configurable maximum iterations to prevent infinite loops.
-- **Strict Type Safety**: Leverages CDuce's powerful type system to ensure data consistency and prevent runtime type errors.
+## Components
 
-## Files
-- `CDuce_SelfHealing_Agent.cduce`: The main source code containing all logic.
+- `main.lisaac`: Main entry point that monitors the system state and triggers recovery when necessary.
+- `RECOVERY_ENGINE.lisaac`: Manages the recovery process, including standard recovery and emergency shutdown.
+- `DIAGNOSTICS_TOOL.lisaac`: Handles system diagnostics and monitoring, determining the current system state.
 
-## How to Run
-1. Ensure CDuce is installed and available in your system PATH.
-2. Execute the tool using the CDuce interpreter:
-   ```bash
-   cduce CDuce_SelfHealing_Agent.cduce
-   ```
+## Usage
 
-## Logic Breakdown
-1. **Health Checks**: The engine periodically simulates fetching system metrics and evaluates them against predefined thresholds.
-2. **Status Evaluation**: Based on the results, the system transitions between states (HEALTHY -> DEGRADED -> CRITICAL).
-3. **Remediation**: If the system is not HEALTHY, the engine selects appropriate actions (e.g., restart service, purge cache, rotate logs) and applies them.
-4. **Healing Loop**: The process repeats until the system reaches a HEALTHY state or the maximum number of iterations is reached.
+1. Compile the Lisaac modules using the Lisaac compiler.
+2. Run the compiled executable.
+3. The system will start monitoring its state and automatically attempt to recover from errors.
 
-## Extensibility
-- New health checks can be added by modifying the `execute_health_checks` function.
-- New remediation strategies can be implemented by extending the `RemediationAction` type and the `select_remediation` logic.
-- Thresholds and limits can be easily adjusted for different system environments.
+## License
+
+This code is provided as-is for demonstration purposes.

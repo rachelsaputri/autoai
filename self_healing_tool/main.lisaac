@@ -1,0 +1,36 @@
+SELF_HEALING_TOOL
+
+SELF_HEALING_TOOL inherits from OBJECT
+  -- Main entry point for the self-healing tool.
+
+  run is
+    -- Initialize system components
+    diagnostics_tool := DIAGNOSTICS_TOOL new;
+    recovery_engine := RECOVERY_ENGINE new;
+    recovery_engine.initialize(diagnostics_tool);
+    
+    -- Start monitoring loop
+    loop for true do
+      state := diagnostics_tool.monitor_state();
+      case state of
+        NORMAL: 
+          -- System operating normally, wait
+          wait(10);
+        ERROR: 
+          -- Trigger recovery
+          recovery_engine.trigger_recovery();
+        CRITICAL: 
+          -- Emergency shutdown
+          recovery_engine.emergency_shutdown();
+          break;
+        else:
+          -- Unknown state, log and wait
+          error("Unknown system state");
+          wait(5);
+      end;
+    end;
+  end;
+  
+  diagnostics_tool: DIAGNOSTICS_TOOL;
+  recovery_engine: RECOVERY_ENGINE;
+END
