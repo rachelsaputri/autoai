@@ -468,3 +468,5 @@
 - Created/Updated module: `agda_data_extractor` (See `agda_data_extractor/README.md` for details)
 
 - Created/Updated module: `kixtart_compliance_auditor` (See `kixtart_compliance_auditor/README.md` for details)
+
+- Created/Updated module: `sssl_compliance_verifier` (See `sssl_compliance_verifier/README.md` for details)
