@@ -518,3 +518,5 @@
 - Created/Updated module: `krl_compliance_policy_verifier` (See `krl_compliance_policy_verifier/README.md` for details)
 
 - Created/Updated module: `nec_compliance_policy_verifier` (See `nec_compliance_policy_verifier/README.md` for details)
+
+- Created/Updated module: `kuka_compliance_verifier` (See `kuka_compliance_verifier/README.md` for details)
