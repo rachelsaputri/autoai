@@ -478,3 +478,5 @@
 - Created/Updated module: `data_processing_utilities_hume` (See `data_processing_utilities_hume/README.md` for details)
 
 - Created/Updated module: `cshell_data_processing_pipeline` (See `cshell_data_processing_pipeline/README.md` for details)
+
+- Created/Updated module: `mumps_data_processing_utility` (See `mumps_data_processing_utility/README.md` for details)
