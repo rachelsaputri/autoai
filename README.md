@@ -446,3 +446,5 @@
 - Created/Updated module: `data_processing_utils_2` (See `data_processing_utils_2/README.md` for details)
 
 - Created/Updated module: `factor_complex_data_extractor` (See `factor_complex_data_extractor/README.md` for details)
+
+- Created/Updated module: `data_processing_utils_flavors` (See `data_processing_utils_flavors/README.md` for details)
