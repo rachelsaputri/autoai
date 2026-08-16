@@ -514,3 +514,5 @@
 - Created/Updated module: `kixtart_compliance_auditor` (See `kixtart_compliance_auditor/README.md` for details)
 
 - Created/Updated module: `text_formatting_cleaner` (See `text_formatting_cleaner/README.md` for details)
+
+- Created/Updated module: `krl_compliance_policy_verifier` (See `krl_compliance_policy_verifier/README.md` for details)
