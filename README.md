@@ -556,3 +556,5 @@
 - Created/Updated module: `mohol_dataset_cleaning_tool` (See `mohol_dataset_cleaning_tool/README.md` for details)
 
 - Created/Updated module: `./text_formatting_cleaner` (See `./text_formatting_cleaner/README.md` for details)
+
+- Created/Updated module: `./cecil_data_processing_engine` (See `./cecil_data_processing_engine/README.md` for details)
