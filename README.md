@@ -674,3 +674,5 @@
 - Created/Updated module: `mimic_data_processing_utility` (See `mimic_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `bash_data_processing_utility` (See `bash_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `awk_data_processing_utility` (See `awk_data_processing_utility/README.md` for details)
