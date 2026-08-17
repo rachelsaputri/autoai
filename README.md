@@ -658,3 +658,5 @@
 - Created/Updated module: `sensecompliance_framework` (See `sensecompliance_framework/README.md` for details)
 
 - Created/Updated module: `aj_compliance_monitor` (See `aj_compliance_monitor/README.md` for details)
+
+- Created/Updated module: `assembly_kernel_integrity_agent` (See `assembly_kernel_integrity_agent/README.md` for details)
