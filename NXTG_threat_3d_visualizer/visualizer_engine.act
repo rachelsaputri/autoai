@@ -1,0 +1,86 @@
+; ================================================================= ; ; NXTG Threat 3D Visualizer Engine - Action! ; ; ================================================================= ; ; Memory definitions for 3D threat visualization ; ; ================================================================= ; 
+Card X, Y, Z, SCALE=2, FOV=128 ; Fixed-point coordinates for 3D space
+Byte SCREEN_WIDTH=320, SCREEN_HEIGHT=200
+Int CX, CY, CRX, CRY, CRZ ; Camera rotation axes
+
+; ================================================================= ; ; Fixed-Point Math Helpers ; ; ================================================================= ;
+INT FUNC FP_Mul(INT a, INT b)
+  RETURN (a * b) / 256
+END
+
+INT FUNC FP_Div(INT a, INT b)
+  RETURN (a * 256) / b
+END
+
+; ================================================================= ; ; 3D Projection Logic ; ; ================================================================= ;
+INT FUNC Project3D(INT x, INT y, INT z)
+  ; Translate relative to camera
+  INT tx = x - CX, ty = y - CY, tz = z - CRZ
+  
+  ; Rotate around Y axis (yaw)
+  INT cosY = FP_Div(128, 1), sinY = 0 ; Placeholder for rotation matrix logic
+  INT rx = tx * cosY + tz * sinY
+  INT rz = -tx * sinY + tz * cosY
+  
+  ; Rotate around X axis (pitch)
+  INT cosX = FP_Div(128, 1), sinX = 0
+  INT ry = ty * cosX - rz * sinX
+  INT rz = ty * sinX + rz * cosX
+  
+  ; Perspective projection
+  IF rz < 1 THEN rz = 1 FI
+  INT px = FP_Mul(rx, FOV) / rz + 160
+  INT py = FP_Mul(ry, FOV) / rz + 100
+  
+  RETURN (py * 320) + px
+END
+
+; ================================================================= ; ; Main Visualization Loop ; ; ================================================================= ;
+PROC Main()
+  ; Initialize graphics (Mode 6 or 7 depending on Atari 8-bit)
+  ; VBI=12 : PLOT(0,0) TO(319,199) TO(0,0) : COLOR=0
+  
+  CX=0 ; CY=0 ; CRZ=128
+  CRX=0 ; CRY=0 ; CRZ=0
+  
+  ; Sample threat vector data (X, Y, Z, Intensity)
+  ; In a real scenario, this would be fed by a network daemon or STIX feed
+  BYTE ARRAY threats[4][3] = (
+    (10, 20, 30),
+    (40, 10, 50),
+    (60, 50, 20),
+    (30, 60, 40)
+  )
+  
+  WHILE TRUE
+    ; Clear screen (fast fill)
+    BYTE POINTER scr = SCREEN
+    FOR i=0 TO 15999
+      scr(i) = 0
+    OD
+    
+    ; Project and draw threats
+    FOR i=0 TO 3
+      INT x=threats(i,0), y=threats(i,1), z=threats(i,2)
+      INT p = Project3D(x,y,z)
+      
+      ; Draw simple dot or crosshair at projected coordinate
+      ; PLOT(p MOD 320, p/320)
+    OD
+    
+    ; Connect threats with lines to show attack paths
+    FOR i=0 TO 2
+      INT p1 = Project3D(threats(i,0), threats(i,1), threats(i,2))
+      INT p2 = Project3D(threats(i+1,0), threats(i+1,1), threats(i+1,2))
+      ; PLOT(p1 MOD 320, p1/320) TO(p2 MOD 320, p2/320) : COLOR=12
+    OD
+    
+    ; Check for ESC key to exit
+    BYTE key = INPUT()
+    IF key=27 THEN BREAK FI
+  OD
+END
+
+; ================================================================= ; ; Entry Point ; ; ================================================================= ;
+Main()
+RETURN
