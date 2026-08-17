@@ -1,0 +1,10 @@
+1,Password Complexity,Authentication,8,true
+2,TLS Enforcement,Encryption,9,true
+3,Least Privilege,Access,7,true
+4,Audit Logging,Logging,6,true
+5,Daily Backups,Backup,5,true
+6,Session Timeout,Authentication,6,true
+7,Data Encryption at Rest,Encryption,8,true
+8,Role-Based Access Control,Access,7,true
+9,Log Retention Policy,Logging,5,true
+10,Disaster Recovery Test,Backup,7,true

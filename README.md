@@ -652,3 +652,5 @@
 - Created/Updated module: `arc_policy_verification_engine` (See `arc_policy_verification_engine/README.md` for details)
 
 - Created/Updated module: `xotcl_compliance_policy_verifier` (See `xotcl_compliance_policy_verifier/README.md` for details)
+
+- Created/Updated module: `msl_compliance_verification_framework` (See `msl_compliance_verification_framework/README.md` for details)
