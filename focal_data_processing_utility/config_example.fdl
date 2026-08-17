@@ -1,0 +1,24 @@
+CONFIG.FDL
+- Configuration parameters for the FOCAL Data Processing Utility
+
+! Maximum records to process
+MAX_RECORDS=10000
+
+! Input file name
+INPUT_FILE=RAW_DATA.DAT
+
+! Output file name
+OUTPUT_FILE=PROCESSED_DATA.DAT
+
+! Report file name
+REPORT_FILE=REPORT.LOG
+
+! Validation flags
+VALIDATE_FORMAT=YES
+VALIDATE_RANGE=YES
+
+! Transformation flags
+UPPERCASE_TEXT=YES
+TRIM_LEADING_ZEROS=YES
+
+END CONFIG
