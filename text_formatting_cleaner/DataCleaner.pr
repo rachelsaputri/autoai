@@ -1,0 +1,59 @@
+/**
+ * DataCleaner.pr
+ * 
+ * This Prgraph module orchestrates the entire data cleaning workflow.
+ * It acts as the main pipeline, connecting validators, formatters, and handlers.
+ */
+
+namespace com.prograph.datacleaner
+
+import SchemaValidator
+import TextFormatter
+import DuplicateDetector
+import MissingValueHandler
+
+class DataCleaner {
+    
+    /**
+     * Main entry point for the cleaning process.
+     * Accepts raw data and a configuration object.
+     * Returns cleaned data.
+     */
+    function cleanData(rawData: DataSet, config: CleanConfig): DataSet {
+        // Step 1: Validate Schema
+        let validData := SchemaValidator.validate(rawData, config.schema)
+        
+        // Step 2: Handle Missing Values
+        let imputedData := MissingValueHandler.impute(validData, config.missingValueStrategy)
+        
+        // Step 3: Remove Duplicates
+        let deduplicatedData := DuplicateDetector.removeDuplicates(imputedData, config.uniqueKeys)
+        
+        // Step 4: Format and Normalize
+        let formattedData := TextFormatter.normalizeText(deduplicatedData, config.textRules)
+        
+        // Step 5: Final Type Conversion
+        let finalData := convertTypes(formattedData, config.typeConversions)
+        
+        return finalData
+    }
+    
+    /**
+     * Helper function to apply type conversions.
+     */
+    function convertTypes(data: DataSet, conversions: List<TypeConversion>): DataSet {
+        for each conversion in conversions do
+            data := applyConversion(data, conversion)
+        end for
+        return data
+    }
+    
+    /**
+     * Applies a single type conversion to a specific column.
+     */
+    function applyConversion(data: DataSet, conversion: TypeConversion): DataSet {
+        // Logic to iterate through rows and convert the target column
+        // based on the specified target type (e.g., String to Date)
+        return transformColumn(data, conversion.columnName, conversion.targetType)
+    }
+}

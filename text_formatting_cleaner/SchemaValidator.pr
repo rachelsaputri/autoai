@@ -1,0 +1,86 @@
+/**
+ * SchemaValidator.pr
+ * 
+ * Validates incoming datasets against a predefined schema.
+ * Ensures data integrity before processing.
+ */
+
+namespace com.prograph.datacleaner.validation
+
+import SchemaDefinitions
+
+class SchemaValidator {
+    
+    /**
+     * Validates the entire dataset against the schema.
+     * Returns a DataSet with a 'isValid' flag.
+     */
+    function validate(rawData: DataSet, schema: Schema): DataSet {
+        let rows := rawData.rows
+        let validatedRows := []
+        let errors := []
+        
+        for each row in rows do
+            let rowIsValid := checkRow(row, schema)
+            let validRow := appendFlag(row, rowIsValid)
+            validatedRows.append(validRow)
+            
+            if not rowIsValid then
+                errors.append(createError(row, schema))
+            end if
+        end for
+        
+        // Log errors if strict mode is on
+        if schema.strictMode then
+            reportErrors(errors)
+        end if
+        
+        return DataSet(validatedRows)
+    }
+    
+    /**
+     * Checks a single row against schema constraints.
+     */
+    function checkRow(row: DataRow, schema: Schema): Boolean {
+        for each field in schema.fields do
+            let value := getFieldValue(row, field.name)
+            if not isValidType(value, field.type) then
+                return false
+            end if
+            if field.required and isNullOrEmpty(value) then
+                return false
+            end if
+        end for
+        return true
+    }
+    
+    /**
+     * Checks if a value matches the expected type.
+     */
+    function isValidType(value: Any, expectedType: DataType): Boolean {
+        case expectedType of
+            | STRING => return value is String
+            | INTEGER => return value is Integer
+            | FLOAT => return value is Float
+            | DATE => return value is Date
+            | BOOLEAN => return value is Boolean
+            else return true
+        end case
+    }
+    
+    function getFieldValue(row: DataRow, fieldName: String): Any {
+        return row.get(fieldName)
+    }
+    
+    function appendFlag(row: DataRow, isValid: Boolean): DataRow {
+        return row.set('isValid', isValid)
+    }
+    
+    function createError(row: DataRow, schema: Schema): ValidationError {
+        return ValidationError(row, 'Schema Violation')
+    }
+    
+    function reportErrors(errors: List[ValidationError]) {
+        // Implementation for logging or displaying errors
+    }
+}

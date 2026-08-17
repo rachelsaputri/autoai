@@ -1,0 +1,94 @@
+/**
+ * MissingValueHandler.pr
+ * 
+ * Handles imputation or removal of missing/null values.
+ */
+
+namespace com.prograph.datacleaner.imputation
+
+import StatCalculator
+
+class MissingValueHandler {
+    
+    /**
+     * Processes the dataset to handle missing values according to the strategy.
+     */
+    function impute(data: DataSet, strategy: MissingValueStrategy): DataSet {
+        let rows := data.rows
+        let processedRows := []
+        
+        // Calculate stats if needed for mean/median imputation
+        let stats := calculateColumnStats(data, strategy.columns)
+        
+        for each row in rows do
+            let newRow := row.clone()
+            
+            for each colName in strategy.columns do
+                let value := newRow.get(colName)
+                
+                if isMissing(value) then
+                    let replacement := resolveReplacement(strategy.mode, colName, stats)
+                    newRow.set(colName, replacement)
+                end if
+            end for
+            
+            processedRows.append(newRow)
+        end for
+        
+        return DataSet(processedRows)
+    }
+    
+    /**
+     * Determines the replacement value based on the strategy mode.
+     */
+    function resolveReplacement(mode: ImputeMode, colName: String, stats: Map[String, Any]): Any {
+        case mode of
+            | CONSTANT => return strategy.defaultValue
+            | MEAN => return stats.get(colName + '_mean')
+            | MEDIAN => return stats.get(colName + '_median')
+            | MODE => return stats.get(colName + '_mode')
+            | NULL => return null
+            else => return null
+        end case
+    }
+    
+    /**
+     * Calculates basic statistics for a list of columns.
+     */
+    function calculateColumnStats(data: DataSet, columns: List[String]): Map[String, Any] {
+        let statsMap := Map()
+        
+        for each col in columns do
+            let values := extractColumn(data, col)
+            if values.isNonNumeric() then
+                // Handle categorical stats for mode
+                statsMap.set(col + '_mode', StatCalculator.getMode(values))
+            else
+                // Handle numeric stats
+                statsMap.set(col + '_mean', StatCalculator.getMean(values))
+                statsMap.set(col + '_median', StatCalculator.getMedian(values))
+            end if
+        end for
+        
+        return statsMap
+    }
+    
+    /**
+     * Extracts all values from a specific column.
+     */
+    function extractColumn(data: DataSet, colName: String): List[Any] {
+        let values := []
+        for each row in data.rows do
+            values.append(row.get(colName))
+        end for
+        return values
+    }
+    
+    /**
+     * Checks if a value is considered missing.
+     */
+    function isMissing(value: Any): Boolean {
+        return value is null or 
+               (value is String and value.toString.trim.isEmpty())
+    }
+}

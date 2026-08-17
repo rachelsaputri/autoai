@@ -1,0 +1,107 @@
+/**
+ * TextFormatter.pr
+ * 
+ * Handles all string normalization and formatting tasks.
+ */
+
+namespace com.prograph.datacleaner.formatting
+
+class TextFormatter {
+    
+    /**
+     * Normalizes all text fields in the dataset according to rules.
+     */
+    function normalizeText(data: DataSet, rules: TextRules): DataSet {
+        let rows := data.rows
+        let formattedRows := []
+        
+        for each row in rows do
+            let newRow := row.clone()
+            
+            for each rule in rules do
+                if rule.enabled then
+                    let fieldVal := getFieldValue(newRow, rule.column)
+                    let newVal := applyRule(fieldVal, rule)
+                    newRow.set(rule.column, newVal)
+                end if
+            end for
+            
+            formattedRows.append(newRow)
+        end for
+        
+        return DataSet(formattedRows)
+    }
+    
+    /**
+     * Applies a specific formatting rule to a value.
+     */
+    function applyRule(value: Any, rule: TextRule): Any {
+        if rule.type == NORMALIZE_CASE then
+            return handleCase(value, rule.caseMode)
+        else if rule.type == TRIM_WHITESPACE then
+            return handleTrim(value)
+        else if rule.type == REMOVE_SPECIAL_CHARS then
+            return handleSanitize(value, rule.keepChars)
+        else if rule.type == REPLACE_PATTERN then
+            return handleRegexReplace(value, rule.pattern, rule.replacement)
+        else
+            return value
+        end if
+    }
+    
+    /**
+     * Handles case conversion (UPPER, LOWER, TITLE).
+     */
+    function handleCase(value: Any, caseMode: CaseMode): Any {
+        if value is not String then return value
+        let str := value.toString
+        case caseMode of
+            | UPPER => return str.toUpperCase
+            | LOWER => return str.toLowerCase
+            | TITLE => return str.toTitleCase
+            else => return str
+        end case
+    }
+    
+    /**
+     * Handles trimming leading and trailing whitespace.
+     */
+    function handleTrim(value: Any): Any {
+        if value is not String then return value
+        return value.toString.trim
+    }
+    
+    /**
+     * Removes unwanted special characters.
+     */
+    function handleSanitize(value: Any, keepChars: String): Any {
+        if value is not String then return value
+        let str := value.toString
+        let sanitized := []
+        
+        for each char in str do
+            if keepChars.includes(char) or isAlphanumeric(char) then
+                sanitized.append(char)
+            end if
+        end for
+        
+        return sanitized.join('')
+    }
+    
+    /**
+     * Replaces text based on regex pattern.
+     */
+    function handleRegexReplace(value: Any, pattern: String, replacement: String): Any {
+        if value is not String then return value
+        return regexSubstitute(value.toString, pattern, replacement)
+    }
+    
+    /**
+     * Checks if a character is alphanumeric.
+     */
+    function isAlphanumeric(char: Char): Boolean {
+        return (char >= 'a' and char <= 'z') or 
+               (char >= 'A' and char <= 'Z') or 
+               (char >= '0' and char <= '9')
+    }
+}

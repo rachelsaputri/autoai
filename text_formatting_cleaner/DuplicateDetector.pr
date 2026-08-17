@@ -1,0 +1,48 @@
+/**
+ * DuplicateDetector.pr
+ * 
+ * Identifies and removes duplicate records from the dataset.
+ */
+
+namespace com.prograph.datacleaner.deduplication
+
+class DuplicateDetector {
+    
+    /**
+     * Removes duplicate rows based on specified unique keys.
+     */
+    function removeDuplicates(data: DataSet, uniqueKeys: List[String]): DataSet {
+        let seenKeys := Set()
+        let uniqueRows := []
+        
+        for each row in data.rows do
+            let key := generateKey(row, uniqueKeys)
+            
+            if not seenKeys.contains(key) then
+                seenKeys.add(key)
+                uniqueRows.append(row)
+            end if
+        end for
+        
+        return DataSet(uniqueRows)
+    }
+    
+    /**
+     * Generates a unique key string from a row based on the keys list.
+     */
+    function generateKey(row: DataRow, keys: List[String]): String {
+        let keyParts := []
+        
+        for each keyName in keys do
+            let value := row.get(keyName)
+            // Convert value to string safely for hashing
+            if value is null then
+                keyParts.append('NULL')
+            else
+                keyParts.append(value.toString)
+            end if
+        end for
+        
+        return keyParts.join('|')
+    }
+}

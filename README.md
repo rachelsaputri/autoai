@@ -588,3 +588,5 @@
 - Created/Updated module: `oz_data_processing_utility` (See `oz_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `api_data_transfer_gateway` (See `api_data_transfer_gateway/README.md` for details)
+
+- Created/Updated module: `text_formatting_cleaner` (See `text_formatting_cleaner/README.md` for details)
