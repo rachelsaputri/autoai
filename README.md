@@ -632,3 +632,5 @@
 - Created/Updated module: `algol60_compliance_verification_engine` (See `algol60_compliance_verification_engine/README.md` for details)
 
 - Created/Updated module: `hyp_compliance_data_processor` (See `hyp_compliance_data_processor/README.md` for details)
+
+- Created/Updated module: `alf_compliance_data_processor` (See `alf_compliance_data_processor/README.md` for details)

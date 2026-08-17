@@ -1,0 +1,39 @@
+-- Main entry point for ALF Compliance Data Processor
+MODULE main;
+IMPORTS io, parser, validator, transformer, reporter;
+
+PROCEDURE main()
+    VAR
+        raw_data STRING;
+        parsed_data LIST OF RECORD;
+        validated_data LIST OF RECORD;
+        transformed_data LIST OF RECORD;
+        report STRING;
+    BEGIN
+        -- 1. Ingest raw data
+        io.println("Starting Compliance Data Processor...");
+        raw_data := io.read_file("data/input_compliance.csv");
+
+        -- 2. Parse data
+        io.println("Parsing raw data...");
+        parsed_data := parser.parse_csv(raw_data);
+
+        -- 3. Validate data
+        io.println("Validating parsed data...");
+        validated_data := validator.validate(parsed_data);
+
+        -- 4. Transform data
+        io.println("Transforming validated data...");
+        transformed_data := transformer.standardize(validated_data);
+
+        -- 5. Generate report
+        io.println("Generating compliance report...");
+        report := reporter.generate_report(transformed_data);
+        io.write_file("data/output_report.json", report);
+
+        io.println("Processing complete. Report generated.");
+    END main;
+
+BEGIN
+    main();
+END main.
