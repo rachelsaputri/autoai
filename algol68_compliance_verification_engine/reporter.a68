@@ -1,0 +1,49 @@
+#! /usr/bin/env a68g
+# reporter.a68
+# Generates formatted compliance reports and logs verification outcomes.
+# Supports both console output and structured logging formats.
+
+MODE REPORTITEM = STRUCT(STRING rule_id, STRING status, STRING details);
+MODE COMPLIANCEREPORT = STRUCT(STRING timestamp, INT total_rules, INT passed_rules, INT failed_rules, STRUCT(REPORTITEM, REPORTITEM, REPORTITEM) items);
+
+PROC generate_console_report = (COMPLIANCEREPORT report) VOID:
+BEGIN
+  PRINT("========================================" + NL);
+  PRINT("   COMPLIANCE VERIFICATION REPORT       " + NL);
+  PRINT("========================================" + NL);
+  PRINT("Timestamp:          " + report.timestamp + NL);
+  PRINT("Total Rules:        " + INT2STRING(report.total_rules) + NL);
+  PRINT("Passed:             " + INT2STRING(report.passed_rules) + NL);
+  PRINT("Failed:             " + INT2STRING(report.failed_rules) + NL);
+  PRINT("----------------------------------------" + NL);
+  INT i := 1;
+  WHILE i <= 3 DO
+    PRINT("Rule " + report.items[i].rule_id + ": " + report.items[i].status + " - " + report.items[i].details + NL);
+    i +:= 1
+  OD;
+  PRINT("========================================" + NL)
+END;
+
+PROC log_failure_detail = (STRING rule_id, STRING reason) VOID:
+  # Logs specific failure reasons for audit trails #
+  PRINT("[AUDIT] FAILURE DETAIL - Rule: " + rule_id + " | Reason: " + reason + NL);
+END;
+
+PROC format_json_report = (COMPLIANCEREPORT report) VOID:
+  # Outputs a basic JSON-like structure for machine parsing #
+  PRINT("{" + NL);
+  PRINT("  \"report\": {" + NL);
+  PRINT("    \"timestamp\": \"" + report.timestamp + "\"," + NL);
+  PRINT("    \"total_rules\": " + INT2STRING(report.total_rules) + "," + NL);
+  PRINT("    \"passed_rules\": " + INT2STRING(report.passed_rules) + "," + NL);
+  PRINT("    \"failed_rules\": " + INT2STRING(report.failed_rules) + NL);
+  PRINT("  }," + NL);
+  PRINT("  \"details\": [" + NL);
+  INT i := 1;
+  WHILE i <= 3 DO
+    PRINT("    {\"rule\": \"" + report.items[i].rule_id + "\", \"status\": \"" + report.items[i].status + "\", \"details\": \"" + report.items[i].details + "\"}" + (IF i < 3 THEN "," ELSE "" FI) + NL);
+    i +:= 1
+  OD;
+  PRINT("  ]" + NL);
+  PRINT("}" + NL)
+END;
