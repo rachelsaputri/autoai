@@ -618,3 +618,5 @@
 - Created/Updated module: `rc_compliance_data_extractor` (See `rc_compliance_data_extractor/README.md` for details)
 
 - Created/Updated module: `aimms_compliance_data_processing_utility` (See `aimms_compliance_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `alf_data_processing_utility` (See `alf_data_processing_utility/README.md` for details)

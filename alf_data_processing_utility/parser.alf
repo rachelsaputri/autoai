@@ -1,0 +1,35 @@
+FUNCTION parseData(inputFile STRING)
+    LOG fileHandle
+    STRING line
+    LIST parsedFields
+
+    OPEN fileHandle FOR READ FROM inputFile
+    IF fileHandle IS NULL
+        PRINT "Error: Could not open file for parsing."
+        RETURN
+    END IF
+
+    READ fileHandle INTO line
+    WHILE NOT (EOF fileHandle)
+        parsedFields = split(line, ",")
+        IF validateFields(parsedFields) THEN
+            PROCESS parsedFields
+        ELSE
+            PRINT "Validation failed for line: " + line
+        END IF
+        READ fileHandle INTO line
+    END WHILE
+
+    CLOSE fileHandle FROM READ
+END FUNCTION
+
+FUNCTION validateFields(fields LIST) BOOLEAN
+    IF length(fields) < 2 THEN
+        RETURN FALSE
+    END IF
+    RETURN TRUE
+END FUNCTION
+
+FUNCTION PROCESS(fields LIST)
+    PRINT "Processing fields: " + toString(fields)
+END FUNCTION
