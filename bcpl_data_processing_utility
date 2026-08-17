@@ -1,0 +1,36 @@
+### BCPL Data Processing Utility
+
+This project implements a robust data processing utility written in BCPL (Basic Combined Programming Language). 
+
+It provides core functionality for:
+- **Data Ingestion**: Reading raw input streams.
+- **Transformation**: Processing and cleaning data structures.
+- **Validation**: Ensuring data integrity.
+- **Export**: Writing processed results to output streams.
+
+#### Files
+- `main.bcpl`: The entry point and orchestration logic.
+- `ingestor.bcpl`: Handles data reading and parsing.
+- `transformer.bcpl`: Performs data manipulation and enrichment.
+- `validator.bcpl`: Validates data against defined rules.
+- `reporter.bcpl`: Generates and writes final reports.
+- `config.bcpl`: Configuration management.
+- `types.bcpl`: Shared type definitions and constants.
+
+#### Usage
+1. Compile the BCPL sources using a BCPL compiler (e.g., BCPL Light or a legacy compiler).
+2. Link the objects together.
+3. Execute the resulting binary.
+
+#### Example Command
+```bash
+bcpl -c main.bcpl
+cpl -c ingestor.bcpl
+cpl -c transformer.bcpl
+cpl -c validator.bcpl
+cpl -c reporter.bcpl
+cpl -c config.bcpl
+cpl -c types.bcpl
+link main.o ingestor.o transformer.o validator.o reporter.o config.o types.o
+data_processing_utility input.txt output.txt
+```
