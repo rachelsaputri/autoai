@@ -628,3 +628,5 @@
 - Created/Updated module: `spark_compliance_drift_analyzer` (See `spark_compliance_drift_analyzer/README.md` for details)
 
 - Created/Updated module: `golang_compliance_drift_detector` (See `golang_compliance_drift_detector/README.md` for details)
+
+- Created/Updated module: `algol60_compliance_verification_engine` (See `algol60_compliance_verification_engine/README.md` for details)
