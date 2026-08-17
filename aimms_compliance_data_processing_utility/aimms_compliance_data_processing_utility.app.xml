@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aimms-project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="aimms.xsd">
+  <name>AimmsComplianceDataProcessingUtility</name>
+  <version>1.0</version>
+  <entry-point>main</entry-point>
+  <project-type>executable</project-type>
+  <includes>
+    <include>aimms_compliance_data_processing_utility.inc</include>
+  </includes>
+</aimms-project>
