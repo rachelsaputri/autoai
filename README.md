@@ -614,3 +614,5 @@
 - Created/Updated module: `simula_data_processing_engine` (See `simula_data_processing_engine/README.md` for details)
 
 - Created/Updated module: `data_processing_actionscript_utility` (See `data_processing_actionscript_utility/README.md` for details)
+
+- Created/Updated module: `rc_compliance_data_extractor` (See `rc_compliance_data_extractor/README.md` for details)

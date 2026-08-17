@@ -1,0 +1,71 @@
+program main
+    use std::io::File
+    use std::io::Stdin
+    use std::io::Print
+    use std::array::Array
+
+    function split(str : string, delim : string) : array[string]
+        var result : array[string] = []
+        var current : string = ""
+        var i : int = 0
+        var len : int = length(str)
+        var delim_len : int = length(delim)
+
+        while i < len
+            var found : bool = false
+            var j : int = 0
+            while j < delim_len && (i + j) < len
+                if str[i + j] == delim[j]
+                    j += 1
+                else
+                    break
+                end
+            end
+            if j == delim_len
+                found = true
+                append(result, current)
+                current = ""
+                i += delim_len
+            else
+                current += str[i]
+                i += 1
+            end
+        end
+        append(result, current)
+        return result
+    end
+
+    function parse_line(line : string) : void
+        var fields : array[string] = split(line, ",")
+        for field in fields
+            print(field)
+        end
+    end
+
+    function main(args : array[string]) : int
+        var filename : string = ""
+        if length(args) > 1
+            filename = args[1]
+        end
+
+        var file : File
+        if filename != ""
+            file = File::open(filename, "r")
+        else
+            file = Stdin
+        end
+
+        if file == null
+            print("Error: Could not open file")
+            return 1
+        end
+
+        var line : string
+        while file::read_line(line)
+            parse_line(line)
+        end
+
+        file::close()
+        return 0
+    end
+end program
