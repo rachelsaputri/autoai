@@ -1,23 +1,24 @@
-# OCaml Data Processing Utility
+# OCaml Data Processing Utility (DPU)
 
-A modular, functional utility for processing datasets in OCaml.
+This module provides a robust data processing utility for OCaml. It includes functionality for parsing, transforming, validating, and exporting data in various formats.
 
 ## Features
+- **Parsing**: Parse CSV, JSON, and text data.
+- **Transformation**: Normalize, transform, and filter data.
+- **Validation**: Validate data against schemas.
+- **Export**: Export processed data to CSV, JSON, or text.
 
-- **CSV Parsing**: Efficiently reads and parses CSV files into structured records.
-- **Data Transformation**: Applies functional mappings and filters to datasets.
-- **Statistics**: Computes basic statistical metrics (mean, variance, standard deviation) for numeric columns.
-- **Output Formatting**: Supports outputting processed data back to CSV or JSON formats.
+## Installation
+No additional dependencies are required beyond the standard OCaml distribution and `ocamlbuild` or `dune`.
 
 ## Usage
-
+### Basic Example
 ```ocaml
-#use "topfind";;
-#require "csv";;
+open Dpu
 
 let () =
-  let dataset = Dpu.load_csv "data.csv" in
-  let processed = Dpu.filter (fun row -> row.Dpu.["age"] > 18) dataset in
-  Dpu.save_csv processed "filtered_data.csv";
-  printf "Processed %d records.%d" (List.length processed)
+  let data = load_csv "input.csv" in
+  let transformed = transform data in
+  let validated = validate transformed in
+  save_csv validated "output.csv"
 ```

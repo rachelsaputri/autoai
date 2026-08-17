@@ -1,103 +1,174 @@
-(* OCaml Data Processing Utility *)
+open Yojson.Basic.Util
 
-module type Dataset = sig
-  type t
-  val empty : t
-  val of_string_list : string list -> t
-  val to_string_list : t -> string list
-  val length : t -> int
-  val get : t -> int -> string option
-  val map : (string -> string) -> t -> t
-  val filter : (string -> bool) -> t -> t
-  val head : t -> string option
-  val tail : t -> t
-end
+(* Types for the DPU *)
 
-module StringDataset : Dataset = struct
-  type t = string list
-  let empty = []
-  let of_string_list s = s
-  let to_string_list s = s
-  let length = List.length
-  let get lst idx =
-    try Some (List.nth lst idx)
-    with _ -> None
-  let map f = List.map f
-  let filter f = List.filter f
-  let head = function
-    | [] -> None
-    | h::_ -> Some h
-  let tail = function
-    | [] -> []
-    | _::t -> t
-end
+(** Represents a row in a dataset. *)
+type row = string list
 
-let load_csv filename =
-  let ic = open_in filename in
-  let rec read_lines acc =
-    try
-      let line = input_line ic in
-      read_lines (line :: acc)
-    with End_of_file ->
-      close_in ic;
-      List.rev acc
+(** Represents the full dataset. *)
+type dataset = {
+  headers : string list ;
+  rows : row list ;
+} ;;
+
+(** Represents a validation rule. *)
+type validation_rule =
+  | Regex of string
+  | Length of int * int
+  | Range of float * float
+  | Required ;;
+
+(** Represents a schema for validation. *)
+type schema = {
+  fields : (string * validation_rule list) list ;
+} ;;
+
+(** Represents a transformation rule. *)
+type transform_rule =
+  | Trim
+  | ToLowercase
+  | ToUppercase
+  | Convert of string * string ;;
+
+(* Parsing functions *)
+
+(** Parse a CSV string into a dataset. *)
+let parse_csv content =
+  let lines = Str.split (Str.regexp "\\n") content in
+  let headers = List.hd lines |> Str.split (Str.regexp ",") |> List.map String.trim in
+  let rows = List.tl lines |> List.filter (fun line -> line <> "") |> List.map (fun line ->
+    Str.split (Str.regexp ",") line |> List.map String.trim
+  ) in
+  { headers; rows }
+
+(** Parse a JSON string into a dataset. *)
+let parse_json content =
+  let json = Yojson.Basic.from_string content in
+  match json with
+  | `Assoc ["headers", `List h; "rows", `List r] ->
+      let headers = h |> List.map (function `String s -> s | _ -> "unknown") in
+      let rows = r |> List.map (function
+        | `List fields -> fields |> List.map (function `String s -> s | _ -> "")
+        | _ -> []
+      ) in
+      { headers; rows }
+  | _ ->
+      { headers = []; rows = [] }
+
+(** Parse a text file into a list of lines. *)
+let parse_text content =
+  content |> Str.split (Str.regexp "\\n") |> List.filter (fun line -> line <> "")
+
+(* Transformation functions *)
+
+(** Apply a single transformation rule to a list of strings. *)
+let apply_transform_rule row rule =
+  match rule with
+  | Trim -> List.map String.trim row
+  | ToLowercase -> List.map String.lowercase_ascii row
+  | ToUppercase -> List.map String.uppercase_ascii row
+  | Convert (from, to_) ->
+      List.map (fun s ->
+        let len_from = String.length from in
+        let len_to = String.length to_ in
+        if len_from = len_to then
+          let b = Buffer.create len_from in
+          let i = ref 0 in
+          while !i < len_from do
+            if s.[!i] = from.[!i] then Buffer.add_char b to_.[!i]
+            else Buffer.add_char b s.[!i];
+            incr i
+          done;
+          Buffer.contents b
+        else s
+      ) row
+  | _ -> row
+
+(** Apply all transformation rules to a dataset. *)
+let transform_dataset dataset rules =
+  let transformed_rows = List.map (fun row ->
+    List.fold_left apply_transform_rule row rules
+  ) dataset.rows in
+  { headers = dataset.headers; rows = transformed_rows }
+
+(* Validation functions *)
+
+(** Validate a single field against a list of rules. *)
+let validate_field field rule =
+  match rule with
+  | Regex pattern ->
+      try
+        let _ = Str.search_forward (Str.regexp pattern) field 0 in
+        true
+      with Not_found -> false
+  | Length (min, max) ->
+      let len = String.length field in
+      len >= min && len <= max
+  | Range (min, max) ->
+      try
+        let value = Float.of_string field in
+        value >= min && value <= max
+      with Failure _ -> false
+  | Required ->
+      field <> ""
+
+(** Validate a row against a schema. *)
+let validate_row row schema =
+  let rec check_fields fields idx =
+    match fields with
+    | [] -> true
+    | (field_name, rules) :: rest ->
+        let field_value = List.nth row idx in
+        let is_valid = List.for_all (validate_field field_value) rules in
+        if is_valid then check_fields rest (idx + 1)
+        else false
   in
-  read_lines []
+  check_fields schema.fields 0
 
-let save_csv filename dataset =
-  let oc = open_out filename in
-  List.iter (fun line -> output_string oc (line ^ "\n")) dataset;
-  close_out oc
+(** Validate all rows in a dataset against a schema. *)
+let validate_dataset dataset schema =
+  let valid_rows = List.filter (validate_row schema) dataset.rows in
+  { headers = dataset.headers; rows = valid_rows }
 
-let filter_records predicate dataset =
-  List.filter predicate dataset
+(* Export functions *)
 
-let map_records transformer dataset =
-  List.map transformer dataset
+(** Export a dataset to a CSV string. *)
+let export_csv dataset =
+  let headers_line = String.concat "," dataset.headers in
+  let rows_lines = List.map (String.concat ",") dataset.rows in
+  let all_lines = headers_line :: rows_lines in
+  String.concat "\\n" all_lines
 
-let calculate_mean values =
-  if List.length values = 0 then 0.0
+(** Export a dataset to a JSON string. *)
+let export_json dataset =
+  let headers_json = dataset.headers |> List.map (fun s -> `String s) |> `List in
+  let rows_json = dataset.rows |> List.map (fun row ->
+    row |> List.map (fun s -> `String s) |> `List
+  ) |> `List in
+  let json = `Assoc ["headers", headers_json; "rows", rows_json] in
+  Yojson.Basic.to_string json
+
+(** Export a list of strings to a text string. *)
+let export_text lines =
+  String.concat "\\n" lines
+
+(* Main processing pipeline *)
+
+(** Process a CSV file. *)
+let process_csv input_file output_file =
+  let content = Sys.opaque_identity (open_in_bin input_file) in
+  let lines = really_input_string content (in_channel_length content) in
+  close_in content;
+  let dataset = parse_csv lines in
+  let transformed = transform_dataset dataset [Trim; ToLowercase] in
+  let validated = validate_dataset transformed { fields = [] } in
+  let output = export_csv validated in
+  let out_channel = open_out_bin output_file in
+  output_string out_channel output;
+  close_out out_channel
+
+let _ =
+  if Array.length Sys.argv >= 3 then
+    process_csv Sys.argv.(1) Sys.argv.(2)
   else
-    let sum = List.fold_left (+.) 0.0 values in
-    sum /. float_of_int (List.length values)
-
-let parse_floats_from_string s =
-  try Some (float_of_string s)
-  with Failure _ -> None
-
-let compute_column_stats dataset col_index =
-  let extract_values = List.map (fun row ->
-    let fields = Str.split (Str.regexp ",") row in
-    if List.length fields > col_index then
-      try Some (float_of_string (List.nth fields col_index))
-      with Failure _ -> None
-    else None
-  ) dataset in
-  let valid_values = List.map_option Some extract_values in
-  let valid_values = List.filter_map (fun x -> x) extract_values in
-  {
-    count = List.length valid_values;
-    mean = calculate_mean valid_values;
-    min = List.fold_left min infinity valid_values;
-    max = List.fold_left max neg_infinity valid_values
-  }
-  and structure is incomplete. I will provide a valid OCaml object literal or record.
-
-  type stats = {
-    count : int;
-    mean : float;
-    min : float;
-    max : float;
-  };
-  
-  let count = List.length valid_values in
-  if count = 0 then { count = 0; mean = 0.0; min = 0.0; max = 0.0 }
-  else {
-    count = count;
-    mean = calculate_mean valid_values;
-    min = List.fold_left min infinity valid_values;
-    max = List.fold_left max neg_infinity valid_values
-  }
-
-let to_json_array dataset =
-  "[" ^ String.concat "," (List.map (fun row -> "\"" ^ Str.global_replace (Str.regexp "\\") "\\\\" (Str.global_replace (Str.regexp "\"") "\\\"" row) ^ "\"") dataset) ^ "]"
+    print_endline "Usage: dpu <input_file> <output_file>"
