@@ -576,3 +576,5 @@
 - Created/Updated module: `awk_data_processing_pipeline` (See `awk_data_processing_pipeline/README.md` for details)
 
 - Created/Updated module: `./objectlogo_diagnostic_tool` (See `./objectlogo_diagnostic_tool/README.md` for details)
+
+- Created/Updated module: `./rlab_cryptography_suite` (See `./rlab_cryptography_suite/README.md` for details)

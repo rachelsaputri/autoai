@@ -1,0 +1,188 @@
+// Elliptic Curve Cryptography Suite
+// Implements ECDSA operations over GF(p)
+
+// --- Constants ---
+// Secp256k1 Parameters (simplified for demonstration)
+p = 2^256 - 2^32 - 977;
+// Order of the base point
+n = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141;
+// Base point G
+Gx = 0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798;
+Gy = 0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8;
+
+// Elliptic Curve: y^2 = x^3 + 7 mod p (a=0, b=7)
+a_curve = 0;
+b_curve = 7;
+
+// --- Helper Functions ---
+
+// Modular Exponentiation: base^exp mod m
+function modpow(base, exp, m)
+    res = 1;
+    base = mod(base, m);
+    while (exp > 0)
+        if (mod(exp, 2) == 1)
+            res = mod(res * base, m);
+        end
+        exp = floor(exp / 2);
+        base = mod(base * base, m);
+    end
+    return res;
+end
+
+// Modular Inverse using Fermat's Little Theorem: a^(p-2) mod p
+function modinv(a, p)
+    return modpow(a, p - 2, p);
+end
+
+// --- EC Point Operations ---
+
+// Point Addition on Elliptic Curve
+function ec_add(P1, P2)
+    if P1 == "O" // Point at Infinity
+        return P2;
+    end
+    if P2 == "O"
+        return P1;
+    end
+    
+    x1 = P1[1]; y1 = P1[2];
+    x2 = P2[1]; y2 = P2[2];
+    
+    if x1 == x2 && y1 == y2
+        // Point Doubling
+        if y1 == 0
+            return "O";
+        end
+        // slope = (3*x1^2 + a) / (2*y1)
+        num = mod(3 * modpow(x1, 2, p) + a_curve, p);
+        den = mod(2 * y1, p);
+        inv_den = modinv(den, p);
+        lam = mod(num * inv_den, p);
+    else
+        // Point Addition
+        // slope = (y2 - y1) / (x2 - x1)
+        num = mod(y2 - y1, p);
+        den = mod(x2 - x1, p);
+        inv_den = modinv(den, p);
+        lam = mod(num * inv_den, p);
+    end
+    
+    // x3 = lambda^2 - x1 - x2
+    x3 = mod(modpow(lam, 2, p) - x1 - x2, p);
+    
+    // y3 = lambda * (x1 - x3) - y1
+    y3 = mod(mod(lam * (mod(x1 - x3, p)) - y1, p), p);
+    
+    return [x3, y3];
+end
+
+// Scalar Multiplication
+function ec_mul(k, P)
+    R = "O";
+    Q = P;
+    k_bits = floor(log2(k)) + 1;
+    
+    for i = 0 to k_bits
+        if mod(k, 2^i) != 0 || (i == 0 && mod(k, 2) != 0)
+           // Simplified binary method
+        end
+    end
+    
+    // Efficient Double-and-Add
+    res = "O";
+    temp_k = k;
+    curr = P;
+    while temp_k > 0
+        if mod(temp_k, 2) == 1
+            res = ec_add(res, curr);
+        end
+        curr = ec_add(curr, curr);
+        temp_k = floor(temp_k / 2);
+    end
+    return res;
+end
+
+// --- ECDSA Implementation ---
+
+function ecdsa_sign(private_key, message_hash)
+    // 1. Select a random integer k in [1, n-1]
+    // For demo, we use a deterministic-like value based on message
+    k = mod(message_hash, n) + 1;
+    if k == 0, k = 1; end
+    
+    // 2. Calculate the curve point (x1, y1) = k * G
+    point = ec_mul(k, [Gx, Gy]);
+    r = point[1];
+    
+    // 3. Calculate s = k^-1 * (hash + r * priv_key) mod n
+    inv_k = modinv(k, n);
+    s = mod(inv_k * (message_hash + r * private_key), n);
+    
+    if s == 0
+        error("Signature invalid: s=0");
+    end
+    
+    return [r, s];
+end
+
+function ecdsa_verify(public_key, message_hash, signature)
+    r = signature[1];
+    s = signature[2];
+    
+    if r < 1 || r > n-1 || s < 1 || s > n-1
+        error("Signature r,s out of range");
+    end
+    
+    // 1. Calculate u1 = hash * s^-1 mod n
+    // 2. Calculate u2 = r * s^-1 mod n
+    inv_s = modinv(s, n);
+    u1 = mod(message_hash * inv_s, n);
+    u2 = mod(r * inv_s, n);
+    
+    // 3. Calculate point (x1, y1) = u1*G + u2*Q
+    // Note: public_key is typically [Qx, Qy]. Assuming input is [Qx, Qy]
+    point1 = ec_mul(u1, [Gx, Gy]);
+    point2 = ec_mul(u2, public_key);
+    
+    sum_point = ec_add(point1, point2);
+    
+    if sum_point == "O"
+        return false;
+    end
+    
+    // 4. v = x1 mod n
+    v = mod(sum_point[1], n);
+    
+    return v == r;
+end
+
+// --- Interactive Demo ---
+
+function run_ecc_demo()
+    print("--- Rlab ECC Suite Demo ---");
+    
+    // 1. Key Generation
+    private_key = 12345; // In real scenarios, this is a large random number
+    public_key = ec_mul(private_key, [Gx, Gy]);
+    
+    print("Private Key: " + private_key);
+    print("Public Key (Qx, Qy): " + public_key[1] + ", " + public_key[2]);
+    
+    // 2. Sign a message
+    message = "Hello Rlab ECC";
+    // Simple hash for demo
+    message_hash = length(message);
+    
+    sig = ecdsa_sign(private_key, message_hash);
+    print("Signature (r, s): " + sig[1] + ", " + sig[2]);
+    
+    // 3. Verify the signature
+    is_valid = ecdsa_verify(public_key, message_hash, sig);
+    print("Signature Valid: " + is_valid);
+    
+    // 4. Verify tampered message
+    tampered_hash = message_hash + 1;
+    is_valid_tampered = ecdsa_verify(public_key, tampered_hash, sig);
+    print("Tampered Signature Valid: " + is_valid_tampered);
+end
