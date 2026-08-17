@@ -1,0 +1,48 @@
+Class DataProcessor;
+Inherit (Application);
+
+-- Data Processing Engine written in Simula
+
+Object Record;
+    Boolean Valid;
+    Text Data;
+    Method Init;
+        Valid := False;
+        Data := '';
+    End Init;
+End Record;
+
+Object Pipeline;
+    List (Record) DataQueue;
+    Boolean Process;
+    Method Init;
+        DataQueue := New List (Record);
+        Process := True;
+    End Init;
+    Method AddRecord (Text InputData);
+        Record NewRec := New Record;
+        NewRec.Data := InputData;
+        NewRec.Valid := InputData <> '';
+        DataQueue.InsEnd (NewRec);
+    End AddRecord;
+    Method Execute;
+        Record Curr;
+        While DataQueue.First <> Null Loop
+            Curr := DataQueue.First;
+            DataQueue.Delete;
+            If Curr.Valid Then
+                PutText (Curr.Data + ' -> Processed\n')
+            Else
+                PutText ('Invalid Record Ignored\n');
+        End Loop;
+    End Execute;
+End Pipeline;
+
+Method Main;
+    Pipeline ProcEngine := New Pipeline;
+    PutText ('Simula Data Processing Engine Started...\n');
+    ProcEngine.AddRecord ('Record Alpha');
+    ProcEngine.AddRecord ('');
+    ProcEngine.AddRecord ('Record Beta');
+    ProcEngine.Execute;
+End Main;
