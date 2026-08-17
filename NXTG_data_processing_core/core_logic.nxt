@@ -1,0 +1,11 @@
+NXT-G Block Configuration
+[Block Type] Data Processing Core
+[Language] NXT-G 2.0
+[Functionality] Complete data ingestion, transformation, and validation pipeline.
+[Logic]
+  - INIT: Load configuration constants
+  - READ: Ingest sensor/data streams
+  - TRANSFORM: Apply mathematical transformations and formatting
+  - VALIDATE: Check data integrity and boundary conditions
+  - OUTPUT: Forward processed data to display/storage modules
+[Execution] Continuous loop with error handling and status reporting
