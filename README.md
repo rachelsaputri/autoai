@@ -650,3 +650,5 @@
 - Created/Updated module: `macos_compliance_auditor` (See `macos_compliance_auditor/README.md` for details)
 
 - Created/Updated module: `arc_policy_verification_engine` (See `arc_policy_verification_engine/README.md` for details)
+
+- Created/Updated module: `xotcl_compliance_policy_verifier` (See `xotcl_compliance_policy_verifier/README.md` for details)
