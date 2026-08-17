@@ -654,3 +654,5 @@
 - Created/Updated module: `xotcl_compliance_policy_verifier` (See `xotcl_compliance_policy_verifier/README.md` for details)
 
 - Created/Updated module: `msl_compliance_verification_framework` (See `msl_compliance_verification_framework/README.md` for details)
+
+- Created/Updated module: `sensecompliance_framework` (See `sensecompliance_framework/README.md` for details)
