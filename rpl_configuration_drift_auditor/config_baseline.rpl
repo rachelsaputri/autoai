@@ -1,0 +1,25 @@
+{
+  "os_version": "9.0",
+  "kernel_modules": ["module_a", "module_b"],
+  "network_ports": {
+    "ssh": 22,
+    "https": 443
+  },
+  "users": {
+    "admin": "active",
+    "guest": "disabled"
+  },
+  "encryption": {
+    "tls_version": "1.3",
+    "cipher_suite": "AES256-GCM"
+  },
+  "firewall": {
+    "enabled": true,
+    "default_policy": "deny"
+  },
+  "logging": {
+    "enabled": true,
+    "level": "INFO",
+    "destination": "/var/log/security.log"
+  }
+}

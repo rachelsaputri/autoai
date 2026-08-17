@@ -642,3 +642,5 @@
 - Created/Updated module: `./threat_intel_aggregator` (See `./threat_intel_aggregator/README.md` for details)
 
 - Created/Updated module: `system_integrity_monitor` (See `system_integrity_monitor/README.md` for details)
+
+- Created/Updated module: `rpl_configuration_drift_auditor` (See `rpl_configuration_drift_auditor/README.md` for details)

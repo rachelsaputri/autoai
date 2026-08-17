@@ -1,0 +1,34 @@
+[
+  {
+    "id": "POL-001",
+    "description": "SSH service must not be accessible on non-standard ports",
+    "requiredSetting": "network_ports.ssh",
+    "expectedValue": 22,
+    "severity": "HIGH",
+    "recommendation": "Restrict SSH access to port 22 only"
+  },
+  {
+    "id": "POL-002",
+    "description": "TLS version must be 1.3 or higher",
+    "requiredSetting": "encryption.tls_version",
+    "expectedValue": "1.3",
+    "severity": "CRITICAL",
+    "recommendation": "Update TLS configuration to version 1.3"
+  },
+  {
+    "id": "POL-003",
+    "description": "Firewall must be enabled with default deny policy",
+    "requiredSetting": "firewall.enabled",
+    "expectedValue": true,
+    "severity": "HIGH",
+    "recommendation": "Enable the system firewall and set default policy to deny"
+  },
+  {
+    "id": "POL-004",
+    "description": "Security logging must be active at INFO level",
+    "requiredSetting": "logging.level",
+    "expectedValue": "INFO",
+    "severity": "MEDIUM",
+    "recommendation": "Ensure security logging is enabled at INFO level or higher"
+  }
+]

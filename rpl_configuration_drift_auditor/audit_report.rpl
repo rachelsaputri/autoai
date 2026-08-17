@@ -1,0 +1,9 @@
+// This file will be populated with the actual audit results when the tool is executed.
+// Structure of the report:
+{
+  "timestamp": "ISO-8601 timestamp",
+  "totalIssues": 0,
+  "drifts": [],
+  "violations": [],
+  "status": "COMPLIANT"
+}
