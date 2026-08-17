@@ -582,3 +582,5 @@
 - Created/Updated module: `ocaml_data_processing_utility` (See `ocaml_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `newlisp_data_processor` (See `newlisp_data_processor/README.md` for details)
+
+- Created/Updated module: `cfml_data_extraction_utility` (See `cfml_data_extraction_utility/README.md` for details)
