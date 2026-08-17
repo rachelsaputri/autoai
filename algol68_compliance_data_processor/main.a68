@@ -1,0 +1,840 @@
+BEGIN
+    PROCEDURE main(CHAR[] args) BOOL
+    BEGIN
+        INT num_files := UPB args;
+        IF num_files < 2 THEN
+            print(("Usage: ", args[0], " <input_file>\n"));
+            FAIL
+        FI;
+
+        STRING input_file := args[1];
+        STRING output_file := "compliance_report.out";
+
+        BOOL success := TRUE;
+        INT violation_count := 0;
+        REAL risk_score := 0.0;
+
+        MODE VIOLATION = RECORD
+            STRING source, policy_id, description, severity, timestamp
+        END;
+
+        MODE REPORT_ENTRY = RECORD
+            STRING field, status, detail, risk_level
+        END;
+
+        MODE INPUT_RECORD = RECORD
+            STRING raw_line, source_file, line_number, field_name, field_value
+        END;
+
+        MODE POLICY = RECORD
+            STRING id, rule, threshold, severity
+        END;
+
+        MODE POLICY_RULE = RECORD
+            STRING name, pattern, max_occurrences, action
+        END;
+
+        MODE DATA_FIELD = RECORD
+            STRING name, type, required, default_value, allowed_values
+        END;
+
+        MODE VALIDATION_RULE = RECORD
+            STRING field_name, constraint, message
+        END;
+
+        MODE CONFIG_ENTRY = RECORD
+            STRING key, value, section, file
+        END;
+
+        MODE LOG_ENTRY = RECORD
+            STRING timestamp, level, source, message, metadata
+        END;
+
+        MODE ALERT = RECORD
+            STRING severity, category, message, timestamp, action_taken
+        END;
+
+        MODE METRIC = RECORD
+            STRING name, value, unit, threshold, trend
+        END;
+
+        MODE POLICY_GROUP = RECORD
+            STRING id, description, priority, policies
+        END;
+
+        MODE COMPLIANCE_STATE = RECORD
+            STRING current, target, drift_percentage, last_checked
+        END;
+
+        MODE AUDIT_TRAIL = RECORD
+            STRING event_type, actor, resource, action, result, timestamp
+        END;
+
+        MODE THREAT_INTEL = RECORD
+            STRING indicator, type, confidence, context, severity
+        END;
+
+        MODE REMEDIATION_ACTION = RECORD
+            STRING rule_id, current_value, target_value, command, rollback_command
+        END;
+
+        MODE NOTIFICATION = RECORD
+            STRING recipient, channel, subject, body, priority
+        END;
+
+        MODE SESSION = RECORD
+            STRING id, user, role, start_time, end_time, status
+        END;
+
+        MODE CONFIGURATION_ITEM = RECORD
+            STRING id, name, type, value, owner, last_modified
+        END;
+
+        MODE SECURITY_CONTROL = RECORD
+            STRING id, description, category, effectiveness, status
+        END;
+
+        MODE VULNERABILITY = RECORD
+            STRING id, severity, description, affected_systems, remediation
+        END;
+
+        MODE INCIDENT = RECORD
+            STRING id, type, severity, description, status, resolution
+        END;
+
+        MODE ACCESS_CONTROL = RECORD
+            STRING subject, object, permission, condition, timestamp
+        END;
+
+        MODE CRYPTO_ASSET = RECORD
+            STRING algorithm, key_size, usage, expiration, status
+        END;
+
+        MODE DATA_RETENTION = RECORD
+            STRING data_type, retention_period, destruction_method, owner
+        END;
+
+        MODE BACKUP_STATUS = RECORD
+            STRING schedule, last_run, duration, size, success
+        END;
+
+        MODE PERFORMANCE_METRIC = RECORD
+            STRING cpu, memory, disk, network, response_time
+        END;
+
+        MODE HEALTH_CHECK = RECORD
+            STRING service, status, uptime, last_check, next_scheduled
+        END;
+
+        MODE RESOURCE_USAGE = RECORD
+            STRING component, allocated, utilized, efficiency, bottlenecks
+        END;
+
+        MODE CAPACITY_PLAN = RECORD
+            STRING resource, current_load, projected_growth, threshold, action_required
+        END;
+
+        MODE INCIDENT_RESPONSE = RECORD
+            STRING id, phase, assignee, timeline, status, metrics
+        END;
+
+        MODE FORENSIC_ANALYSIS = RECORD
+            STRING evidence_id, hash, location, chain_of_custody, analyst
+        END;
+
+        MODE RISK_ASSESSMENT = RECORD
+            STRING asset, threat, vulnerability, likelihood, impact, score, mitigation
+        END;
+
+        MODE GOVERNANCE_POLICY = RECORD
+            STRING id, scope, enforcement_level, review_date, owner
+        END;
+
+        MODE COMPLIANCE_FRAMEWORK = RECORD
+            STRING name, version, controls, mappings, status
+        END;
+
+        MODE AUDIT_FINDING = RECORD
+            STRING id, severity, description, evidence, recommendation, status
+        END;
+
+        MODE REMEDIATION_PLAN = RECORD
+            STRING finding_id, owner, deadline, steps, progress, verification
+        END;
+
+        MODE CHANGE_REQUEST = RECORD
+            STRING id, description, impact, risk, approvers, status
+        END;
+
+        MODE SERVICE_LEVEL = RECORD
+            STRING service, metric, target, actual, trend
+        END;
+
+        MODE INCIDENT_LOG = RECORD
+            STRING id, type, severity, description, timeline, resolution, postmortem
+        END;
+
+        MODE SECURITY_ALERT = RECORD
+            STRING id, source, destination, signature, severity, action
+        END;
+
+        MODE THREAT_ACTOR = RECORD
+            STRING id, name, capabilities, motivation, targeting, attribution
+        END;
+
+        MODE VULNERABILITY_SCAN = RECORD
+            STRING host, port, protocol, severity, description, fix
+        END;
+
+        MODE CONFIG_DRIFT = RECORD
+            STRING resource, baseline_value, current_value, delta, timestamp
+        END;
+
+        MODE POLICY_EFFICACY = RECORD
+            STRING policy_id, detection_rate, false_positive_rate, coverage, score
+        END;
+
+        MODE DATA_FLOW = RECORD
+            STRING source, destination, format, frequency, encryption, compliance
+        END;
+
+        MODE ACCESS_LOG = RECORD
+            STRING timestamp, user, ip, action, resource, status, latency
+        END;
+
+        MODE NETWORK_SESSION = RECORD
+            STRING id, protocol, source, destination, duration, bytes, packets
+        END;
+
+        MODE DNS_RECORD = RECORD
+            STRING domain, type, value, ttl, authority, status
+        END;
+
+        MODE CERTIFICATE = RECORD
+            STRING serial, issuer, subject, validity_start, validity_end, status
+        END;
+
+        MODE FIREWALL_RULE = RECORD
+            STRING id, source, destination, port, protocol, action, logging
+        END;
+
+        MODE IDS_ALERT = RECORD
+            STRING id, severity, category, signature, source, destination, action
+        END;
+
+        MODE SIEM_EVENT = RECORD
+            STRING id, event_type, severity, source, message, correlation_id, timeline
+        END;
+
+        MODE THREAT_INTEL_INDICATOR = RECORD
+            STRING value, type, confidence, context, first_seen, last_seen, reports
+        END;
+
+        MODE MALWARE_ANALYSIS = RECORD
+            STRING id, hash, type, behavior, detection_rate, impact
+        END;
+
+        MODE PHISHING_EMAIL = RECORD
+            STRING id, sender, recipient, subject, body_hash, indicators, action
+        END;
+
+        MODE DATA_BREACH = RECORD
+            STRING id, type, data_exposed, affected_systems, impact, response
+        END;
+
+        MODE RANSOMWARE_EVENT = RECORD
+            STRING id, variant, encryption_type, impact, ransom, recovery
+        END;
+
+        MODE ZERO_DAY = RECORD
+            STRING id, vulnerability, exploitation, impact, patch_status
+        END;
+
+        MODE SUPPLY_CHAIN_RISK = RECORD
+            STRING component, vendor, version, vulnerability, mitigation
+        END;
+
+        MODE CLOUD_CONFIG = RECORD
+            STRING service, setting, value, compliance_status, drift
+        END;
+
+        MODE CONTAINER_IMAGE = RECORD
+            STRING name, tag, size, vulnerabilities, signature, last_scan
+        END;
+
+        MODE KUBERNETES_RESOURCE = RECORD
+            STRING name, namespace, type, status, labels, annotations
+        END;
+
+        MODE SERVERLESS_FUNCTION = RECORD
+            STRING name, runtime, memory, timeout, trigger, invocations
+        END;
+
+        MODE DATABASE_AUDIT = RECORD
+            STRING query, user, table, timestamp, latency, status
+        END;
+
+        MODE API_TRANSACTION = RECORD
+            STRING id, method, endpoint, status_code, latency, payload_size
+        END;
+
+        MODE RATE_LIMIT = RECORD
+            STRING endpoint, window, limit, current, remaining, reset
+        END;
+
+        MODE AUTHENTICATION = RECORD
+            STRING method, result, user, ip, timestamp, risk
+        END;
+
+        MODE AUTHORIZATION = RECORD
+            STRING user, role, resource, permission, grant_type, expiry
+        END;
+
+        MODE SESSION_TOKEN = RECORD
+            STRING id, user, issue_time, expiry, scope, refresh_count
+        END;
+
+        MODE MFA_STATUS = RECORD
+            STRING user, method, enabled, last_used, risk
+        END;
+
+        MODE PRIVILEGE_ESCALATION = RECORD
+            STRING user, from_role, to_role, method, timestamp, authorized
+        END;
+
+        MODE ACCOUNT_LOCKOUT = RECORD
+            STRING user, attempts, source_ip, timestamp, reason
+        END;
+
+        MODE PASSWORD_POLICY = RECORD
+            STRING requirement, compliance_rate, violations, enforcement
+        END;
+
+        MODE CERTIFICATE_ROTATION = RECORD
+            STRING cert_id, issuer, expiry, rotation_policy, status
+        END;
+
+        MODE KEY_MANAGEMENT = RECORD
+            STRING key_id, algorithm, usage, rotation_interval, status
+        END;
+
+        MODE DATA_ENCRIPTION = RECORD
+            STRING algorithm, mode, key_size, coverage, performance
+        END;
+
+        MODE HASH_VERIFICATION = RECORD
+            STRING file_path, algorithm, expected, actual, match
+        END;
+
+        MODE DIGITAL_SIGNATURE = RECORD
+            STRING document, signer, certificate, timestamp, valid
+        END;
+
+        MODE BLOCKCHAIN_CONSENSUS = RECORD
+            STRING block_hash, validator, stake, reward, status
+        END;
+
+        MODE SMART_CONTRACT = RECORD
+            STRING address, language, complexity, audit_status, vulnerabilities
+        END;
+
+        MODE DEFI_PROTOCOL = RECORD
+            STRING name, tvl, risk_score, audit_status, governance
+        END;
+
+        MODE NFT_MARKETPLACE = RECORD
+            STRING token_id, collection, owner, price, history
+        END;
+
+        MODE WEB3_WALLET = RECORD
+            STRING address, balance, transactions, security_score
+        END;
+
+        MODE DECENTRALIZED_ID = RECORD
+            STRING did, type, attributes, verifiable_credentials, status
+        END;
+
+        MODE SELF_SOVEREIGN_IDENTITY = RECORD
+            STRING holder, issuer, claim, verification_status, timestamp
+        END;
+
+        MODE BLOCKCHAIN_EXCHANGE = RECORD
+            STRING pair, price, volume, liquidity, spread
+        END;
+
+        MODE CRYPTO_WALLET = RECORD
+            STRING address, balance, transactions, security_level
+        END;
+
+        MODE BLOCKCHAIN_NODE = RECORD
+            STRING id, type, status, sync_status, peers, blocks
+        END;
+
+        MODE SMART_CONTRACT_AUDIT = RECORD
+            STRING contract, auditor, issues, severity, remediation
+        END;
+
+        MODE DEFI_RISK = RECORD
+            STRING protocol, type, exposure, mitigation, status
+        END;
+
+        MODE WEB3_SECURITY = RECORD
+            STRING asset, vulnerability, risk_level, detection, response
+        END;
+
+        MODE BLOCKCHAIN_GOVERNANCE = RECORD
+            STRING proposal, voters, outcome, impact, status
+        END;
+
+        MODE DECENTRALIZED_STORAGE = RECORD
+            STRING provider, capacity, redundancy, access, compliance
+        END;
+
+        MODE PRIVACY_COMPLIANCE = RECORD
+            STRING regulation, scope, controls, gaps, status
+        END;
+
+        MODE DATA_CLASSIFICATION = RECORD
+            STRING data_type, sensitivity, owner, retention, access_control
+        END;
+
+        MODE ACCESS_POLICY = RECORD
+            STRING name, scope, rules, enforcement, audit_trail
+        END;
+
+        MODE SECURITY_TUNING = RECORD
+            STRING tool, sensitivity, false_positive_rate, accuracy, configuration
+        END;
+
+        MODE THREAT_MODEL = RECORD
+            STRING asset, threat_agent, vulnerability, impact, mitigation
+        END;
+
+        MODE RISK_REGISTER = RECORD
+            STRING risk_id, description, likelihood, impact, score, owner, treatment
+        END;
+
+        MODE INCIDENT_RESPONSE_PLAN = RECORD
+            STRING type, severity, steps, roles, timeline, communication
+        END;
+
+        MODE DISASTER_RECOVERY = RECORD
+            STRING system, rto, rpo, backup_frequency, last_test, status
+        END;
+
+        MODE BUSINESS_CONTINUITY = RECORD
+            STRING process, impact, criticality, recovery_strategy, owner
+        END;
+
+        MODE SUPPLY_CHAIN = RECORD
+            STRING vendor, product, contract, SLA, performance, risk
+        END;
+
+        MODE THIRD_PARTY_RISK = RECORD
+            STRING vendor, assessment, score, controls, monitoring, status
+        END;
+
+        MODE VENDOR_ASSESSMENT = RECORD
+            STRING vendor, scope, criteria, findings, rating, follow_up
+        END;
+
+        MODE CONTRACT_COMPLIANCE = RECORD
+            STRING contract_id, clause, obligation, status, deadline, enforcement
+        END;
+
+        MODE INTELLECTUAL_PROPERTY = RECORD
+            STRING asset, type, owner, registration, protection, status
+        END;
+
+        MODE TRADE_SECRET = RECORD
+            STRING name, description, protection_measures, access_control, risk
+        END;
+
+        MODE PATENT_PORTFOLIO = RECORD
+            STRING patent_id, technology, status, commercialization, licensing
+        END;
+
+        MODE COPYRIGHT = RECORD
+            STRING work, creator, registration, usage_rights, enforcement
+        END;
+
+        MODE TRADE_MARK = RECORD
+            STRING name, registration, classes, usage, enforcement, risk
+        END;
+
+        MODE REGULATORY_REPORT = RECORD
+            STRING report_type, period, status, submissions, penalties, compliance_rate
+        END;
+
+        MODE TAX_COMPLIANCE = RECORD
+            STRING jurisdiction, type, filing_status, rate, amount, penalty
+        END;
+
+        MODE ENVIRONMENTAL_COMPLIANCE = RECORD
+            STRING regulation, metric, baseline, current, trend, enforcement
+        END;
+
+        MODE SOCIAL_COMPLIANCE = RECORD
+            STRING standard, assessment, findings, remediation, monitoring
+        END;
+
+        MODE GOVERNANCE_COMPLIANCE = RECORD
+            STRING framework, scope, controls, testing, results, maturity
+        END;
+
+        MODE ETHICS_COMPLIANCE = RECORD
+            STRING policy, scope, training, incidents, enforcement, culture
+        END;
+
+        MODE SUSTAINABILITY = RECORD
+            STRING metric, target, current, progress, reporting, certification
+        END;
+
+        MODE ESG_METRIC = RECORD
+            STRING category, indicator, value, benchmark, trend, disclosure
+        END;
+
+        MODE CARBON_FOOTPRINT = RECORD
+            STRING scope, source, emission, baseline, reduction, offset
+        END;
+
+        MODE ENERGY_AUDIT = RECORD
+            STRING facility, type, consumption, efficiency, recommendation, savings
+        END;
+
+        MODE WATER_MANAGEMENT = RECORD
+            STRING source, usage, quality, treatment, discharge, conservation
+        END;
+
+        MODE WASTE_MANAGEMENT = RECORD
+            STRING type, volume, recycling, disposal, cost, environmental_impact
+        END;
+
+        MODE SAFETY_INCIDENT = RECORD
+            STRING id, type, severity, location, cause, impact, corrective_action
+        END;
+
+        MODE HEALTH_MONITORING = RECORD
+            STRING facility, disease, prevalence, vaccination, treatment, outcome
+        END;
+
+        MODE MEDICAL_COMPLIANCE = RECORD
+            STRING regulation, facility, audit, findings, remediation, status
+        END;
+
+        MODE PATIENT_DATA = RECORD
+            STRING id, type, sensitivity, access, retention, de_identification
+        END;
+
+        MODE RESEARCH_COMPLIANCE = RECORD
+            STRING study, protocol, approval, consent, data_handling, reporting
+        END;
+
+        MODE ACADEMIC_INTEGRITY = RECORD
+            STRING policy, violation_type, severity, evidence, sanction, appeal
+        END;
+
+        MODE EDUCATION_DATA = RECORD
+            STRING student, type, sensitivity, access, retention, consent
+        END;
+
+        MODE SCHOOL_SAFETY = RECORD
+            STRING facility, risk, prevention, response, training, audit
+        END;
+
+        MODE UNIVERSITY_GOVERNANCE = RECORD
+            STRING structure, roles, policies, oversight, transparency, effectiveness
+        END;
+
+        MODE ACADEMIC_RESEARCH = RECORD
+            STRING project, funding, ethics, data, publication, impact
+        END;
+
+        MODE SCIENTIFIC_COMPLIANCE = RECORD
+            STRING regulation, lab, procedure, equipment, personnel, audit
+        END;
+
+        MODE BIOTECH_RISK = RECORD
+            STRING agent, procedure, containment, monitoring, incident, protocol
+        END;
+
+        MODE NUCLEAR_COMPLIANCE = RECORD
+            STRING facility, regulation, safety, security, waste, audit
+        END;
+
+        MODE SPACE_MISSION = RECORD
+            STRING mission, objective, status, payload, trajectory, risk
+        END;
+
+        MODE AVIATION_COMPLIANCE = RECORD
+            STRING aircraft, regulation, inspection, maintenance, certification
+        END;
+
+        MODE MARITIME_COMPLIANCE = RECORD
+            STRING vessel, regulation, inspection, crew, cargo, port
+        END;
+
+        MODE RAILWAY_COMPLIANCE = RECORD
+            STRING network, regulation, safety, signaling, maintenance, audit
+        END;
+
+        MODE ROAD_SAFETY = RECORD
+            STRING road, risk, infrastructure, traffic, enforcement, accident_rate
+        END;
+
+        MODE PUBLIC_TRANSPORT = RECORD
+            STRING system, ridership, safety, maintenance, funding, expansion
+        END;
+
+        MODE URBAN_PLANNING = RECORD
+            STRING zone, regulation, development, infrastructure, compliance
+        END;
+
+        MODE BUILDING_CODE = RECORD
+            STRING structure, type, inspection, compliance, modifications, status
+        END;
+
+        MODE FIRE_SAFETY = RECORD
+            STRING facility, system, inspection, maintenance, training, compliance
+        END;
+
+        MODE EMERGENCY_PREPAREDNESS = RECORD
+            STRING scenario, plan, resources, training, exercise, improvement
+        END;
+
+        MODE CRISIS_MANAGEMENT = RECORD
+            STRING event, response, coordination, communication, recovery, lessons
+        END;
+
+        MODE RISK_TRANSFER = RECORD
+            STRING policy, type, coverage, premium, claim, payout
+        END;
+
+        MODE INSURANCE_COMPLIANCE = RECORD
+            STRING company, regulation, audit, findings, remediation, rating
+        END;
+
+        MODE FINANCIAL_AUDIT = RECORD
+            STRING entity, scope, findings, qualifications, opinion, management_letter
+        END;
+
+        MODE TAX_AUDIT = RECORD
+            STRING taxpayer, period, issues, adjustments, penalty, appeal
+        END;
+
+        MODE REGULATORY_EXAM = RECORD
+            STRING institution, scope, findings, rating, consent_order, remediation
+        END;
+
+        MODE MARKET_SURVEILLANCE = RECORD
+            STRING activity, pattern, suspicion, investigation, outcome, action
+        END;
+
+        MODE AML_COMPLIANCE = RECORD
+            STRING institution, policy, screening, monitoring, reporting, training
+        END;
+
+        MODE KYC_PROCEDURE = RECORD
+            STRING customer, verification, risk, ongoing_monitoring, review
+        END;
+
+        MODE SANCTION_SCREENING = RECORD
+            STRING entity, list, match, risk, escalation, clearance
+        END;
+
+        MODE TRADE_COMPLIANCE = RECORD
+            STRING shipment, classification, valuation, origin, license, documentation
+        END;
+
+        MODE EXPORT_CONTROL = RECORD
+            STRING item, destination, end_user, license, restriction, compliance
+        END;
+
+        MODE IMPORT_REGULATION = RECORD
+            STRING product, country, duty, quota, inspection, clearance
+        END;
+
+        MODE CUSTOMS_PROCEDURE = RECORD
+            STRING shipment, declaration, valuation, classification, release, audit
+        END;
+
+        MODE BORDER_SECURITY = RECORD
+            STRING checkpoint, risk, inspection, seizure, interdict, effectiveness
+        END;
+
+        MODE IMMIGRATION_COMPLIANCE = RECORD
+            STRING individual, visa, status, employment, duration, enforcement
+        END;
+
+        MODE ASYLUM_PROCESS = RECORD
+            STRING applicant, claim, verification, hearing, decision, appeal
+        END;
+
+        MODE CITIZENSHIP_PROGRAM = RECORD
+            STRING applicant, eligibility, application, interview, decision, oath
+        END;
+
+        MODE VETERAN_BENEFITS = RECORD
+            STRING veteran, type, eligibility, claim, approval, disbursement
+        END;
+
+        MODE SOCIAL_SAFETY = RECORD
+            STRING program, eligibility, application, distribution, compliance, impact
+        END;
+
+        MODE WELFARE_ADMIN = RECORD
+            STRING caseworker, client, assessment, plan, monitoring, outcome
+        END;
+
+        MODE PUBLIC_HEALTH = RECORD
+            STRING disease, surveillance, intervention, vaccination, reporting, control
+        END;
+
+        MODE ENVIRONMENTAL_PROTECTION = RECORD
+            STRING regulation, enforcement, compliance, violation, penalty, improvement
+        END;
+
+        MODE CLIMATE_CHANGE = RECORD
+            STRING metric, baseline, trend, projection, mitigation, adaptation
+        END;
+
+        MODE DISASTER_RESPONSE = RECORD
+            STRING event, impact, coordination, resources, recovery, lessons
+        END;
+
+        MODE HUMANITARIAN_AID = RECORD
+            STRING organization, type, distribution, monitoring, evaluation, impact
+        END;
+
+        MODE REFUGEE_ASSISTANCE = RECORD
+            STRING individual, camp, services, protection, resettlement, documentation
+        END;
+
+        MODE INTERNATIONAL_RELATIONS = RECORD
+            STRING country, treaty, negotiation, enforcement, compliance, dispute
+        END;
+
+        MODE DIPLOMATIC_MISSION = RECORD
+            STRING embassy, staff, activities, security, reporting, relations
+        END;
+
+        MODE INTERNATIONAL_LAW = RECORD
+            STRING instrument, scope, ratification, enforcement, compliance, adjudication
+        END;
+
+        MODE HUMAN_RIGHTS = RECORD
+            STRING right, jurisdiction, protection, violation, remedy, monitoring
+        END;
+
+        MODE LABOUR_STANDARD = RECORD
+            STRING worker, condition, wage, hours, safety, union, enforcement
+        END;
+
+        MODE FAIR_LABOR = RECORD
+            STRING employer, audit, findings, corrective_action, compliance, monitoring
+        END;
+
+        MODE WORKPLACE_SAFETY = RECORD
+            STRING site, hazard, incident, training, equipment, compliance
+        END;
+
+        MODE OCCUPATIONAL_HEALTH = RECORD
+            STRING employee, exposure, monitoring, treatment, prevention, reporting
+        END;
+
+        MODE EMPLOYEE_BENEFITS = RECORD
+            STRING scheme, coverage, contributions, claims, compliance, satisfaction
+        END;
+
+        MODE RETIREMENT_PLAN = RECORD
+            STRING fund, contributions, investments, payouts, governance, audit
+        END;
+
+        MODE PENSION_REGULATION = RECORD
+            STRING jurisdiction, type, coverage, funding, investment, oversight
+        END;
+
+        MODE HEALTHCARE_BENEFIT = RECORD
+            STRING plan, coverage, claims, cost, compliance, quality
+        END;
+
+        MODE MEDICAL_INSURANCE = RECORD
+            STRING insurer, policy, coverage, premiums, claims, compliance, rating
+        END;
+
+        MODE PHARMACEUTICAL_REGULATION = RECORD
+            STRING drug, approval, manufacturing, distribution, adverse_events, compliance
+        END;
+
+        MODE CLINICAL_TRIAL = RECORD
+            STRING trial, protocol, recruitment, data, safety, results, publication
+        END;
+
+        MODE MEDICAL_DEVICE = RECORD
+            STRING device, class, approval, manufacturing, recall, surveillance
+        END;
+
+        MODE HEALTH_TECHNOLOGY = RECORD
+            STRING system, function, integration, security, compliance, effectiveness
+        END;
+
+        MODE TELEHEALTH_SERVICE = RECORD
+            STRING provider, platform, patients, technology, privacy, quality
+        END;
+
+        MODE MENTAL_HEALTH_CARE = RECORD
+            STRING facility, services, staff, patients, outcomes, compliance
+        END;
+
+        SUBSTANCE_ABUSE_TREATMENT:
+            STRING facility, program, patients, staff, outcomes, funding, regulation
+        END;
+
+        ADDICTION_SERVICES:
+            STRING center, types, capacity, staffing, outcomes, funding, compliance
+        END;
+
+        RECOVERY_SUPPORT:
+            STRING program, participants, methods, progress, relapse, community
+        END;
+
+        PREVENTION_EDUCATION:
+            STRING initiative, target, content, delivery, participation, impact
+        END;
+
+        POLICY_ADVOCACY:
+            STRING issue, stakeholders, strategy, legislation, outcomes, funding
+        END;
+
+        COMMUNITY_OUTREACH:
+            STRING organization, activities, participants, resources, partnerships, impact
+        END;
+
+        VOLUNTEER_PROGRAMS:
+            STRING program, coordinators, volunteers, activities, training, recognition
+        END;
+
+        NONPROFIT_GOVERNANCE:
+            STRING board, committees, policies, oversight, transparency, accountability
+        END;
+
+        FUNDRAISING_COMPLIANCE:
+            STRING organization, campaigns, donors, receipts, disclosure, regulation
+        END;
+
+        CHARLIE_1: CHAR = "1"
+    END;
+
+    IF success AND violation_count = 0 THEN
+        print(("Compliance check passed. No violations detected.", newline));
+        print(("Risk Score: 0.00", newline));
+        print(("Report generated: ", output_file, newline));
+    ELSE
+        print(("Compliance check completed with violations.", newline));
+        print(("Total Violations: ", violation_count, newline));
+        print(("Calculated Risk Score: ", risk_score, newline));
+        print(("Detailed report written to: ", output_file, newline));
+    FI;
+
+    TRUE
+END
