@@ -1,0 +1,17 @@
+MODULE DataIngestion;
+
+IMPORT System.IO, Data.Parser;
+
+PROCEDURE ingest(file_path STRING) -> List OF Any:
+    LET stream := System.IO.open(file_path, 'r');
+    IF stream IS NULL THEN
+        RAISE System.IO.OpenError('Failed to open file: ' + file_path);
+    END_IF;
+    
+    LET content := System.IO.read_all(stream);
+    System.IO.close(stream);
+    
+    RETURN Data.Parser.parse_csv(content);
+END ingest;
+
+END DataIngestion;

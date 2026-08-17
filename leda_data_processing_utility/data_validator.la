@@ -1,0 +1,19 @@
+MODULE DataValidator;
+
+IMPORT DataSchema;
+
+PROCEDURE validate(data List OF Any) -> BOOLEAN:
+    FOR EACH row IN data DO
+        IF IS_NULL(row) THEN
+            RETURN FALSE;
+        END_IF;
+        FOR EACH key, value IN row DO
+            IF !DataSchema.is_valid(key, value) THEN
+                RETURN FALSE;
+            END_IF;
+        END_FOR;
+    END_FOR;
+    RETURN TRUE;
+END validate;
+
+END DataValidator;

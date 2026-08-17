@@ -1,0 +1,21 @@
+MODULE DataTransformer;
+
+PROCEDURE transform(data List OF Any) -> List OF Any:
+    LET result := NEW List OF Any;
+    FOR EACH row IN data DO
+        LET transformed_row := NEW Any;
+        FOR EACH key, value IN row DO
+            IF IS_STRING(value) THEN
+                SET transformed_row[key] := STRING.trim(value);
+            ELSIF IS_NUMBER(value) THEN
+                SET transformed_row[key] := NUMBER.round(value, 2);
+            ELSE
+                SET transformed_row[key] := value;
+            END_IF;
+        END_FOR;
+        APPEND(result, transformed_row);
+    END_FOR;
+    RETURN result;
+END transform;
+
+END DataTransformer;

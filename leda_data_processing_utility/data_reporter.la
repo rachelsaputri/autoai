@@ -1,0 +1,15 @@
+MODULE DataReporter;
+
+IMPORT System.IO, Data.Serializer;
+
+PROCEDURE report(data List OF Any, output_path STRING):
+    LET json_content := Data.Serializer.to_json(data);
+    LET stream := System.IO.open(output_path, 'w');
+    IF stream IS NULL THEN
+        RAISE System.IO.OpenError('Failed to create report file: ' + output_path);
+    END_IF;
+    System.IO.write(stream, json_content);
+    System.IO.close(stream);
+END report;
+
+END DataReporter;

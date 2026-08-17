@@ -1,0 +1,27 @@
+MODULE main;
+
+IMPORT DataIngestion, DataTransformer, DataValidator, DataReporter;
+
+BEGIN
+    TRY
+        PRINT 'Starting Leda Data Processing Utility...';
+        
+        LET raw_data := DataIngestion.ingest('./data/input.csv');
+        PRINT 'Data ingestion complete.';
+        
+        LET transformed_data := DataTransformer.transform(raw_data);
+        PRINT 'Data transformation complete.';
+        
+        IF DataValidator.validate(transformed_data) THEN
+            PRINT 'Data validation passed.';
+            DataReporter.report(transformed_data, './reports/output.json');
+            PRINT 'Report generation complete.';
+        ELSE
+            PRINT 'Data validation failed.';
+        END_IF;
+        
+        PRINT 'Processing pipeline finished successfully.';
+    CATCH Exception AS e
+        PRINT 'Error: ' + e.message;
+    END_TRY;
+END main;
