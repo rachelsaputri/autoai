@@ -1,0 +1,80 @@
+;
+; BLISS Compliance Audit System - State Tracker Module
+;
+BLISS STATE_TRACKER = (
+    STORAGE (SIZE = %X10000),
+    ENVIRONMENT
+;
+
+    EXTERNAL
+        POLICY_TABLE,
+        POLICY_COUNT,
+        WRITE_OUTPUT,
+        WRITE_ERROR
+    ;
+
+    BEGIN STATE_TRACKER
+
+        GLOBAL
+            SYSTEM_STATE := RECORD
+                REMOTE_ACCESS_ENABLED: BOOLEAN,
+                MFA_ENABLED: BOOLEAN,
+                ENCRYPTION_ALGORITHM: CHARACTER [20],
+                FIREWALL_STATUS: CHARACTER [20]
+            END,
+            VIOLATION_COUNT := 0
+        ;
+
+        FUNCTION STATE_TRACKER_INIT
+        BEGIN
+            ; Simulate reading actual system state from registry/config
+            SYSTEM_STATE.REMOTE_ACCESS_ENABLED := TRUE
+            SYSTEM_STATE.MFA_ENABLED := FALSE ; Non-compliant default
+            SYSTEM_STATE.ENCRYPTION_ALGORITHM := 'AES_128' ; Non-compliant default
+            SYSTEM_STATE.FIREWALL_STATUS := 'ENABLED'
+            VIOLATION_COUNT := 0
+            WRITE_OUTPUT('STATE_TRACKER: Initialized with current system state')
+        END STATE_TRACKER_INIT
+
+        FUNCTION STATE_TRACKER_EVALUATE
+        BEGIN
+            LOCAL
+                CURRENT_VIOLATIONS := '',
+                I := 0,
+                RESULT := 'COMPLIANT'
+            ;
+
+            WRITE_OUTPUT('STATE_TRACKER: Evaluating compliance...')
+
+            FOR I := 0 TO POLICY_COUNT - 1 DO
+                IF POLICY_TABLE[I].STATUS = 'ACTIVE' THEN
+                    CASE POLICY_TABLE[I].CONSTRAINT
+                        WHEN 'MFA_REQUIRED_FOR_REMOTE_ACCESS' THEN
+                            BEGIN
+                                IF SYSTEM_STATE.REMOTE_ACCESS_ENABLED AND NOT SYSTEM_STATE.MFA_ENABLED THEN
+                                    CURRENT_VIOLATIONS := CURRENT_VIOLATIONS + 'MFA_MISSING '
+                                    VIOLATION_COUNT := VIOLATION_COUNT + 1
+                                    RESULT := 'NON-COMPLIANT'
+                                FI
+                            END
+                        WHEN 'AES_256_REQUIRED_AT_REST' THEN
+                            BEGIN
+                                IF SYSTEM_STATE.ENCRYPTION_ALGORITHM <> 'AES_256' THEN
+                                    CURRENT_VIOLATIONS := CURRENT_VIOLATIONS + 'ENCRYPTION_WEAK '
+                                    VIOLATION_COUNT := VIOLATION_COUNT + 1
+                                    RESULT := 'NON-COMPLIANT'
+                                FI
+                            END
+                    END CASE
+                FI
+            OD
+
+            WRITE_OUTPUT('STATE_TRACKER: Evaluated ' + POLICY_COUNT + ' rules')
+            IF RESULT = 'NON-COMPLIANT' THEN
+                WRITE_OUTPUT('STATE_TRACKER: Violations found: ' + CURRENT_VIOLATIONS)
+            FI
+            RETURN RESULT
+        END STATE_TRACKER_EVALUATE
+
+    END STATE_TRACKER
+);

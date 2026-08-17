@@ -1,0 +1,63 @@
+;
+; BLISS Compliance Audit System - Report Engine Module
+;
+BLISS REPORT_ENGINE = (
+    STORAGE (SIZE = %X10000),
+    ENVIRONMENT
+;
+
+    EXTERNAL
+        POLICY_TABLE,
+        POLICY_COUNT,
+        VIOLATION_COUNT,
+        WRITE_OUTPUT,
+        WRITE_ERROR
+    ;
+
+    BEGIN REPORT_ENGINE
+
+        GLOBAL
+            REPORT_BUFFER := CHARACTER [512]
+        ;
+
+        FUNCTION REPORT_ENGINE_INIT
+        BEGIN
+            WRITE_OUTPUT('REPORT_ENGINE: Initialized')
+        END REPORT_ENGINE_INIT
+
+        FUNCTION REPORT_ENGINE_GENERATE (REPORT_PATH: CHARACTER [256])
+        BEGIN
+            LOCAL
+                I := 0,
+                REPORT_HEADER := '=' * 50
+            ;
+
+            WRITE_OUTPUT('REPORT_ENGINE: Generating report to ' + REPORT_PATH)
+
+            REPORT_BUFFER := REPORT_HEADER + \n
+                           + 'COMPLIANCE AUDIT REPORT' + \n
+                           + REPORT_HEADER + \n + \n
+
+            REPORT_BUFFER := REPORT_BUFFER + 'SYSTEM STATUS: NON-COMPLIANT' + \n
+                           + 'TOTAL RULES EVALUATED: ' + POLICY_COUNT + \n
+                           + 'TOTAL VIOLATIONS FOUND: ' + VIOLATION_COUNT + \n + \n
+                           + 'DETAILED POLICY STATUS:' + \n + \n
+
+            FOR I := 0 TO POLICY_COUNT - 1 DO
+                REPORT_BUFFER := REPORT_BUFFER + 'RULE ' + POLICY_TABLE[I].RULE_ID + \n
+                               + ' | TYPE: ' + POLICY_TABLE[I].RULE_TYPE + \n
+                               + ' | CONSTRAINT: ' + POLICY_TABLE[I].CONSTRAINT + \n
+                               + ' | SEVERITY: ' + POLICY_TABLE[I].SEVERITY + \n
+                               + ' | STATUS: ' + POLICY_TABLE[I].STATUS + \n + \n
+            OD
+
+            REPORT_BUFFER := REPORT_BUFFER + REPORT_HEADER + \n
+                           + 'END OF REPORT' + \n
+                           + REPORT_HEADER
+
+            WRITE_OUTPUT(REPORT_BUFFER)
+            WRITE_OUTPUT('REPORT_ENGINE: Report generation complete')
+        END REPORT_ENGINE_GENERATE
+
+    END REPORT_ENGINE
+);

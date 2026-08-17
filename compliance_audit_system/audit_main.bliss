@@ -1,0 +1,59 @@
+;
+; BLISS Compliance Audit System - Main Module
+;
+BLISS AUDIT_MAIN = (
+    STORAGE (SIZE = %X40000),
+    ENVIRONMENT
+;
+
+    EXTERNAL
+        POLICY_PARSER_INIT,
+        POLICY_PARSER_LOAD,
+        POLICY_PARSER_VALIDATE,
+        STATE_TRACKER_INIT,
+        STATE_TRACKER_EVALUATE,
+        REPORT_ENGINE_INIT,
+        REPORT_ENGINE_GENERATE
+    ;
+
+    BEGIN AUDIT_MAIN
+
+        INITIALIZE SYSTEM
+
+        ; 1. Initialize Policy Parser
+        POLICY_PARSER_INIT()
+
+        ; 2. Load Compliance Policies
+        IF NOT POLICY_PARSER_LOAD('POLICIES/COMPLIANCE.pol') THEN
+            WRITE_ERROR('FATAL: Failed to load compliance policies.')
+            TERMINATE SYSTEM (1)
+        FI
+
+        ; 3. Validate Loaded Policies
+        IF NOT POLICY_PARSER_VALIDATE() THEN
+            WRITE_ERROR('FATAL: Policy validation failed.')
+            TERMINATE SYSTEM (1)
+        FI
+
+        ; 4. Initialize State Tracker
+        STATE_TRACKER_INIT()
+
+        ; 5. Evaluate Current System State
+        EVAL_RESULT := STATE_TRACKER_EVALUATE()
+
+        IF EVAL_RESULT <> 'COMPLIANT' THEN
+            WRITE_OUTPUT('SYSTEM STATE: NON-COMPLIANT')
+            WRITE_OUTPUT('VIOLATIONS DETECTED: ' + EVAL_RESULT)
+        ELSE
+            WRITE_OUTPUT('SYSTEM STATE: COMPLIANT')
+        FI
+
+        ; 6. Generate Final Report
+        REPORT_ENGINE_INIT()
+        REPORT_ENGINE_GENERATE('REPORTS/audit_report.txt')
+
+        WRITE_OUTPUT('AUDIT COMPLETED SUCCESSFULLY')
+        TERMINATE SYSTEM (0)
+
+    END AUDIT_MAIN
+);
