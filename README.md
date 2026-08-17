@@ -592,3 +592,5 @@
 - Created/Updated module: `text_formatting_cleaner` (See `text_formatting_cleaner/README.md` for details)
 
 - Created/Updated module: `neko_diagnostic_viz` (See `neko_diagnostic_viz/README.md` for details)
+
+- Created/Updated module: `rebol_data_processing_pipeline` (See `rebol_data_processing_pipeline/README.md` for details)
