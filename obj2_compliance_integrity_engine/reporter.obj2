@@ -1,0 +1,18 @@
+// reporter.obj2 - Report generation
+
+function print(report) {
+  print("Compliance Report");
+  print("=================");
+  print("Is Compliant: " + report.isCompliant);
+  
+  if (report.violations.length > 0) {
+    print("Violations:");
+    for (let i = 0; i < report.violations.length; i++) {
+      let v = report.violations[i];
+      print("- [" + v.severity + "] " + v.rule + ": Expected " + 
+            JSON.stringify(v.expected) + ", Got " + JSON.stringify(v.actual));
+    }
+  } else {
+    print("No violations found.");
+  }
+}

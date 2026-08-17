@@ -1,0 +1,48 @@
+// parser.obj2 - Binary file parser
+
+import std::io;
+import std::bytes;
+
+function parse(filePath) {
+  // Read binary file into memory
+  let file = io.open(filePath, "rb");
+  if (file == null) {
+    return null;
+  }
+  
+  let data = file.readAll();
+  file.close();
+  
+  if (data == null || data.size == 0) {
+    return null;
+  }
+  
+  // Extract basic information
+  let header = extractHeader(data);
+  let format = detectFormat(data);
+  
+  return {
+    "data": data,
+    "header": header,
+    "format": format,
+    "size": data.size
+  };
+}
+
+function extractHeader(data) {
+  let header = {};
+  header.signature = data.slice(0, 4).toString("hex");
+  header.size = data.size;
+  return header;
+}
+
+function detectFormat(data) {
+  let sig = data.slice(0, 4).toString("hex");
+  if (sig == "7f454c46") {
+    return "ELF";
+  } else if (sig == "4d5a") {
+    return "PE";
+  } else {
+    return "Unknown";
+  }
+}

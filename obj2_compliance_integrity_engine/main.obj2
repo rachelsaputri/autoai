@@ -1,0 +1,50 @@
+// main.obj2 - Entry point for Compliance and Integrity Engine
+
+import parser;
+import verifier;
+import policy_engine;
+import reporter;
+
+function main(argv) {
+  // Parse command line arguments
+  let filePath = "";
+  let policyPath = "";
+  
+  for (let i = 1; i < argv.length; i++) {
+    if (argv[i] == "--file" && i + 1 < argv.length) {
+      filePath = argv[++i];
+    } else if (argv[i] == "--policy" && i + 1 < argv.length) {
+      policyPath = argv[++i];
+    }
+  }
+  
+  if (filePath == "" || policyPath == "") {
+    print("Usage: obj2 main.obj2 --file <binary_path> --policy <policy_path>");
+    return 1;
+  }
+  
+  // Load policy
+  let policy = policy_engine.load(policyPath);
+  if (policy == null) {
+    print("Error: Failed to load policy from " + policyPath);
+    return 1;
+  }
+  
+  // Parse binary file
+  let binaryData = parser.parse(filePath);
+  if (binaryData == null) {
+    print("Error: Failed to parse binary file " + filePath);
+    return 1;
+  }
+  
+  // Compute hash
+  let hash = verifier.computeHash(binaryData);
+  
+  // Check compliance
+  let report = policy_engine.evaluate(binaryData, hash, policy);
+  
+  // Print report
+  reporter.print(report);
+  
+  return report.isCompliant ? 0 : 1;
+}
