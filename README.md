@@ -646,3 +646,5 @@
 - Created/Updated module: `rpl_configuration_drift_auditor` (See `rpl_configuration_drift_auditor/README.md` for details)
 
 - Created/Updated module: `new_act3_compliance_engine` (See `new_act3_compliance_engine/README.md` for details)
+
+- Created/Updated module: `macos_compliance_auditor` (See `macos_compliance_auditor/README.md` for details)
