@@ -1,0 +1,40 @@
+set NODES := {Factory_A, Factory_B, Warehouse_1, Warehouse_2};
+set PRODUCTS := {Widget, Gadget};
+
+data;
+
+param demand := 
+    Widget 100 
+    Gadget 150;
+
+param capacity := 
+    Factory_A 200 
+    Factory_B 200 
+    Warehouse_1 0 
+    Warehouse_2 0;
+
+param production_cost :=
+    [Factory_A, Widget] 10
+    [Factory_A, Gadget] 12
+    [Factory_B, Widget] 11
+    [Factory_B, Gadget] 13
+    [Warehouse_1, Widget] 0
+    [Warehouse_1, Gadget] 0
+    [Warehouse_2, Widget] 0
+    [Warehouse_2, Gadget] 0;
+
+param transport_cost :=
+    [Factory_A, Warehouse_1, Widget] 2
+    [Factory_A, Warehouse_1, Gadget] 3
+    [Factory_A, Warehouse_2, Widget] 4
+    [Factory_A, Warehouse_2, Gadget] 5
+    [Factory_B, Warehouse_1, Widget] 3
+    [Factory_B, Warehouse_1, Gadget] 4
+    [Factory_B, Warehouse_2, Widget] 2
+    [Factory_B, Warehouse_2, Gadget] 3
+    [Warehouse_1, Warehouse_2, Widget] 1
+    [Warehouse_1, Warehouse_2, Gadget] 1
+    [Warehouse_2, Warehouse_1, Widget] 1
+    [Warehouse_2, Warehouse_1, Gadget] 1;
+
+end;

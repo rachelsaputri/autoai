@@ -686,3 +686,5 @@
 - Created/Updated module: `sbl_compliance_monitoring_tool` (See `sbl_compliance_monitoring_tool/README.md` for details)
 
 - Created/Updated module: `qtscript_security_auditor` (See `qtscript_security_auditor/README.md` for details)
+
+- Created/Updated module: `new_optimization_framework` (See `new_optimization_framework/README.md` for details)
