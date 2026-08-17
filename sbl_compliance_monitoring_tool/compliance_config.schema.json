@@ -1,0 +1,41 @@
+# Configuration Schema for SBL Compliance Monitor
+
+This file defines the expected JSON structure for the `compliance_config.json` file used by the compliance monitoring tool.
+
+```json
+{
+  "policies": [
+    {
+      "rule_id": "POL-001",
+      "description": "Restrict root access",
+      "condition": "CHECK role != admin",
+      "action": "DENY",
+      "priority": 1
+    },
+    {
+      "rule_id": "POL-002",
+      "description": "Audit file access",
+      "condition": "CHECK action == read",
+      "action": "LOG",
+      "priority": 2
+    }
+  ],
+  "settings": {
+    "max_log_entries": 10000,
+    "log_level": "info",
+    "alert_email": "admin@example.com"
+  }
+}
+```
+
+## Policy Fields
+- `rule_id`: Unique identifier for the policy
+- `description`: Human-readable description
+- `condition`: SBL condition string to evaluate
+- `action`: Action to take (DENY, LOG, ALERT)
+- `priority`: Integer priority level (lower = higher priority)
+
+## Settings Fields
+- `max_log_entries`: Maximum number of audit records to keep in memory
+- `log_level`: Logging verbosity (debug, info, warn, error)
+- `alert_email`: Email address for violation alerts
