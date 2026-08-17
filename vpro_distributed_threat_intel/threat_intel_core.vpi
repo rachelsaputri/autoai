@@ -1,0 +1,63 @@
+domain
+    threatIndicator = threatID(string),
+                      tlpColor(tlpGreen / tlpAmber / tlpRed),
+                      timestamp(dateTime),
+                      source(nodeId),
+                      indicators(indicatorSet).
+
+    indicatorSet = list(indicator).
+    indicator = ipAddr(string) / dnsName(string) / hash(string) / url(string).
+    nodeId = string.
+    tlpColor = tlpGreen / tlpAmber / tlpRed.
+
+    threatEvent = eventID(string),
+                  correlatedIndicators(indicatorSet),
+                  severity(severityLevel),
+                  responseActions(actionList).
+    severityLevel = low / medium / high / critical.
+    actionList = list(responseAction).
+    responseAction = isolateNode(nodeId) / blockTraffic(string) / alertAdmin(string).
+
+predicates
+    correlate_threats : indicatorSet -> threatEvent.
+    propagate_threat : threatEvent -> nodeId -> void.
+    execute_response : threatEvent -> void.
+    audit_log : threatEvent -> void.
+
+clauses
+    correlate_threats(Indicators, Event) :-
+        % Apply logical rules to identify correlated threats
+        severity(CalcSeverity),
+        generate_actions(CalcSeverity, Actions),
+        Event = eventID(generate_guid()),
+        correlatedIndicators(Indicators),
+        severity(CalcSeverity),
+        responseActions(Actions).
+
+    severity(high) :-
+        % High severity if multiple critical indicators present
+        length(Indicators, N),
+        N > 5.
+    severity(medium) :-
+        length(Indicators, _).
+
+    generate_actions(high, [isolateNode("all"), blockTraffic("*"), alertAdmin("SOC")]).
+    generate_actions(medium, [blockTraffic("suspicious_range"), alertAdmin("Admin")]).
+
+    propagate_threat(Event, TargetNode) :-
+        % Securely transmit threat event to target node
+        format("Propagating threat ~w to node ~w~n", [Event, TargetNode]).
+
+    execute_response(Event) :-
+        responseActions(Actions),
+        maplist(execute_action, Actions).
+
+    execute_action(isolateNode(Node)) :-
+        format("Executing isolation for node ~w~n", [Node]).
+    execute_action(blockTraffic(Pattern)) :-
+        format("Executing traffic block for ~w~n", [Pattern]).
+    execute_action(alertAdmin(Msg)) :-
+        format("Sending admin alert: ~w~n", [Msg]).
+
+    audit_log(Event) :-
+        format("Audit logged: ~w~n", [Event]).

@@ -1,0 +1,37 @@
+domain
+    message = initNode(nodeId),
+              threatBroadcast(threatEvent),
+              heartbeat(nodeId, dateTime),
+              acknowledgment(nodeId, threatEvent).
+
+predicates
+    handle_message : message -> void.
+    send_message : message -> nodeId -> void.
+    maintain_cluster : void.
+
+clauses
+    handle_message(msg(initNode(Id))) :-
+        format("Initializing node ~w~n", [Id]),
+        register_node(Id).
+    handle_message(msg(threatBroadcast(Event))) :-
+        correlate_threats(Event.correlatedIndicators, _),
+        propagate_threat(Event, _).
+    handle_message(msg(heartbeat(Id, _))) :-
+        format("Heartbeat from ~w~n", [Id]),
+        update_node_health(Id, active).
+    handle_message(msg(ack(Id, Event))) :-
+        format("Acknowledgment received from ~w for ~w~n", [Id, Event]).
+
+    send_message(Msg, Target) :-
+        format("Sending message ~w to ~w~n", [Msg, Target]).
+
+    maintain_cluster :-
+        % Periodically check node health and rebalance if necessary
+        format("Cluster maintenance cycle~n").
+
+    register_node(Id) :-
+        asserta(node(Id, active)).
+
+    update_node_health(Id, State) :-
+        retract(node(Id, _)),
+        asserta(node(Id, State)).
