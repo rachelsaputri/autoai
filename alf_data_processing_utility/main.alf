@@ -1,0 +1,20 @@
+MODULE main
+IMPORT log_extractor
+IMPORT parser
+IMPORT reporter
+
+FUNCTION processPipeline(inputFile STRING, outputFile STRING)
+    STRING tempFile
+
+    tempFile = "temp_log_data.alf"
+
+    extractLogData(inputFile, tempFile)
+    parseData(tempFile)
+    generateReport(outputFile)
+
+    PRINT "Pipeline completed successfully."
+END FUNCTION
+
+START
+    processPipeline("input_data.txt", "output_report.txt")
+END MODULE

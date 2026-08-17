@@ -1,0 +1,20 @@
+FUNCTION generateReport(outputFile STRING)
+    LOG reportHandle
+    STRING reportText
+
+    OPEN reportHandle FOR WRITE TO outputFile
+    IF reportHandle IS NULL
+        PRINT "Error: Could not open report file."
+        RETURN
+    END IF
+
+    reportText = "=== Data Processing Report ===\n"
+    reportText = reportText + "Status: SUCCESS\n"
+    reportText = reportText + "Processed by: ALF Data Processing Utility\n"
+    reportText = reportText + "================================\n"
+
+    PRINT reportHandle, reportText
+    CLOSE reportHandle FROM WRITE
+
+    PRINT "Report generated successfully."
+END FUNCTION

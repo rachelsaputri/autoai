@@ -1,0 +1,28 @@
+FUNCTION extractLogData(inputFile STRING, outputFile STRING)
+    LOG logHandle
+    STRING line
+    BOOLEAN eofFlag
+
+    OPEN logHandle FOR READ FROM inputFile
+    IF logHandle IS NULL
+        PRINT "Error opening input file: " + inputFile
+        RETURN
+    END IF
+
+    OPEN logHandle FOR WRITE TO outputFile
+    IF logHandle IS NULL
+        PRINT "Error opening output file: " + outputFile
+        CLOSE logHandle FROM READ
+        RETURN
+    END IF
+
+    READ logHandle INTO line
+    WHILE NOT (EOF logHandle)
+        PRINT logHandle, line
+        READ logHandle INTO line
+    END WHILE
+
+    CLOSE logHandle FROM READ
+    CLOSE logHandle FROM WRITE
+    PRINT "Log data extracted successfully."
+END FUNCTION
