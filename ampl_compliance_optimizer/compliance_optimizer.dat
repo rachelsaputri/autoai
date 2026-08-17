@@ -1,0 +1,72 @@
+/*
+ * COMPLIANCE RISK OPTIMIZATION - DATA FILE
+ * Language: AMPL
+ * Description: Baseline configuration for the compliance optimizer engine
+ */
+
+set DOMAINS := FINANCIAL PRIVACY INFRASTRUCTURE ACCESS;
+
+set CONTROLS := ENCRYPTION MFA MONITORING AUDIT_PATCHING NETWORK_SEGMENTATION BACKUP_RECOVERY;
+
+set SCENARIOS := BREACH FAILURE COMPLIANCE_DRIFT;
+
+param risk_score :=
+    FINANCIAL 85
+    PRIVACY 72
+    INFRASTRUCTURE 65
+    ACCESS 90;
+
+param compliance_weight :=
+    FINANCIAL 0.35
+    PRIVACY 0.25
+    INFRASTRUCTURE 0.20
+    ACCESS 0.20;
+
+param control_effectiveness :=
+    /*          ENCRYPTION MFA MONITORING AUDIT_PATCHING NETWORK_SEGMENTATION BACKUP_RECOVERY */
+    FINANCIAL       0.8   0.3     0.5          0.6                0.2                 0.4
+    PRIVACY         0.7   0.4     0.6          0.5                0.3                 0.3
+    INFRASTRUCTURE  0.6   0.5     0.7          0.8                0.9                 0.7
+    ACCESS          0.5   0.9     0.6          0.7                0.4                 0.5;
+
+param implementation_cost :=
+    /*          ENCRYPTION MFA MONITORING AUDIT_PATCHING NETWORK_SEGMENTATION BACKUP_RECOVERY */
+    FINANCIAL       50    30      40           35                 25                  20
+    PRIVACY         45    25      35           30                 20                  15
+    INFRASTRUCTURE  60    40      55           50                 70                  45
+    ACCESS          35    45      40           30                 25                  25;
+
+param mandatory_coverage :=
+    FINANCIAL 0.6
+    PRIVACY 0.5
+    INFRASTRUCTURE 0.7
+    ACCESS 0.8;
+
+param threshold_violation :=
+    FINANCIAL 20
+    PRIVACY 15
+    INFRASTRUCTURE 18
+    ACCESS 12;
+
+param budget_limit := 200;
+
+param scenario_weight :=
+    BREACH 0.4
+    FAILURE 0.3
+    COMPLIANCE_DRIFT 0.3;
+
+param mandatory_controls :=
+    FINANCIAL ENCRYPTION AUDIT_PATCHING
+    PRIVACY ENCRYPTION MFA
+    INFRASTRUCTURE NETWORK_SEGMENTATION BACKUP_RECOVERY
+    ACCESS MFA MONITORING;
+
+param ACTIVE_CONTROLS :=
+    {(d,c) in FINANCIAL ENCRYPTION, FINANCIAL MFA, FINANCIAL MONITORING,
+     FINANCIAL AUDIT_PATCHING, FINANCIAL NETWORK_SEGMENTATION, FINANCIAL BACKUP_RECOVERY,
+     PRIVACY ENCRYPTION, PRIVACY MFA, PRIVACY MONITORING,
+     PRIVACY AUDIT_PATCHING, PRIVACY NETWORK_SEGMENTATION, PRIVACY BACKUP_RECOVERY,
+     INFRASTRUCTURE ENCRYPTION, INFRASTRUCTURE MFA, INFRASTRUCTURE MONITORING,
+     INFRASTRUCTURE AUDIT_PATCHING, INFRASTRUCTURE NETWORK_SEGMENTATION, INFRASTRUCTURE BACKUP_RECOVERY,
+     ACCESS ENCRYPTION, ACCESS MFA, ACCESS MONITORING,
+     ACCESS AUDIT_PATCHING, ACCESS NETWORK_SEGMENTATION, ACCESS BACKUP_RECOVERY};
