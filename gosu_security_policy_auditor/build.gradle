@@ -1,0 +1,36 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.gosu-lang.gosu' version '1.0.0'
+}
+
+group = 'com.enterprise.security'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.gosu-lang:gosu:1.0.0'
+    implementation 'org.slf4j:slf4j-api:1.7.36'
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.19.0'
+}
+
+application {
+    mainClass = 'gosuproject.Main'
+}
+
+tasks.named('jar') {
+    manifest {
+        attributes(
+            'Main-Class': 'gosuproject.Main',
+            'Built-By': 'Gosu Security Team'
+        )
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

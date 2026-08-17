@@ -1,0 +1,56 @@
+namespace gosuproject
+
+import java.util.List
+import java.util.ArrayList
+import java.util.Map
+
+class DriftDetector {
+    private var _baselineState: Map<String, String> = Map<String, String>()
+    private var _currentState: Map<String, String> = Map<String, String>()
+    private var _driftedItems: List<String> = ArrayList<String>()
+
+    property BaselineState: Map<String, String> {
+        get { return _baselineState }
+        set(value: Map<String, String>) { _baselineState = value }
+    }
+
+    property CurrentState: Map<String, String> {
+        get { return _currentState }
+        set(value: Map<String, String>) { _currentState = value }
+    }
+
+    property DriftedItems: List<String> {
+        get { return _driftedItems }
+        set(value: List<String>) { _driftedItems = value }
+    }
+
+    function DetectDrift(): List<String> {
+        _driftedItems.clear()
+        for each (entry: Map.Entry<String, String> in _currentState.entrySet()) {
+            var key: String = entry.key
+            var currentVal: String = entry.value
+            var baselineVal: String = _baselineState.get(key)
+            if (baselineVal == null) {
+                _driftedItems.add(key + ": NEW_PARAMETER")
+            } else if (!baselineVal.equals(currentVal)) {
+                _driftedItems.add(key + ": DRIFTED(from=" + baselineVal + " to=" + currentVal + ")")
+            }
+        }
+        return _driftedItems
+    }
+
+    function GenerateDriftReport(): String {
+        var report: StringBuilder = StringBuilder("Drift Analysis Report:\n")
+        report.append("----------------------------------------\n")
+        if (_driftedItems.isEmpty()) {
+            report.append("No configuration drift detected. System is compliant.\n")
+        } else {
+            report.append("Drifted Parameters Found: ").append(_driftedItems.size()).append("\n")
+            for each (item: String in _driftedItems) {
+                report.append("  - ").append(item).append("\n")
+            }
+        }
+        report.append("----------------------------------------")
+        return report.toString()
+    }
+}

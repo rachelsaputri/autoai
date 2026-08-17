@@ -1,0 +1,48 @@
+namespace gosuproject
+
+class PolicyRule {
+    private var _ruleId: String = ""
+    private var _description: String = ""
+    private var _severity: String = "HIGH"
+    private var _enabled: Boolean = true
+    private var _conditions: List<String> = ArrayList<String>()
+    private var _remediationSteps: List<String> = ArrayList<String>()
+
+    property RuleId: String {
+        get { return _ruleId }
+        set(value: String) { _ruleId = value }
+    }
+
+    property Description: String {
+        get { return _description }
+        set(value: String) { _description = value }
+    }
+
+    property Severity: String {
+        get { return _severity }
+        set(value: String) { _severity = value }
+    }
+
+    property Enabled: Boolean {
+        get { return _enabled }
+        set(value: Boolean) { _enabled = value }
+    }
+
+    property Conditions: List<String> {
+        get { return _conditions }
+        set(value: List<String>) { _conditions = value }
+    }
+
+    property RemediationSteps: List<String> {
+        get { return _remediationSteps }
+        set(value: List<String>) { _remediationSteps = value }
+    }
+
+    function AddCondition(condition: String) {
+        _conditions.add(condition)
+    }
+
+    function AddRemediationStep(step: String) {
+        _remediationSteps.add(step)
+    }
+}

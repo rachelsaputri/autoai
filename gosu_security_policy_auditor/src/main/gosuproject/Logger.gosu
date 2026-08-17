@@ -1,0 +1,26 @@
+namespace gosuproject
+
+import java.util.Date
+
+class Logger {
+    static function LogInfo(message: String) {
+        print("[INFO] " + new Date().toString() + " - " + message)
+    }
+
+    static function LogWarning(message: String) {
+        print("[WARNING] " + new Date().toString() + " - " + message)
+    }
+
+    static function LogError(message: String) {
+        print("[ERROR] " + new Date().toString() + " - " + message)
+    }
+
+    static function LogDebug(message: String) {
+        print("[DEBUG] " + new Date().toString() + " - " + message)
+    }
+
+    static function LogComplianceResult(policyId: String, passed: Boolean, score: Double) {
+        var status: String = passed ? "PASS" : "FAIL"
+        print("[COMPLIANCE] Policy[" + policyId + "]: " + status + " | Score: " + score)
+    }
+}

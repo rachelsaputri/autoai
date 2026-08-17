@@ -1,0 +1,68 @@
+namespace gosuproject
+
+import java.util.Map
+import java.util.HashMap
+
+class ComplianceScore {
+    private var _totalPolicies: Integer = 0
+    private var _passedPolicies: Integer = 0
+    private var _failedPolicies: Integer = 0
+    private var _scores: Map<String, Double> = HashMap<String, Double>()
+    private var _overallScore: Double = 0.0
+
+    property TotalPolicies: Integer {
+        get { return _totalPolicies }
+        set(value: Integer) { _totalPolicies = value }
+    }
+
+    property PassedPolicies: Integer {
+        get { return _passedPolicies }
+        set(value: Integer) { _passedPolicies = value }
+    }
+
+    property FailedPolicies: Integer {
+        get { return _failedPolicies }
+        set(value: Integer) { _failedPolicies = value }
+    }
+
+    property Scores: Map<String, Double> {
+        get { return _scores }
+        set(value: Map<String, Double>) { _scores = value }
+    }
+
+    property OverallScore: Double {
+        get { return _overallScore }
+        set(value: Double) { _overallScore = value }
+    }
+
+    function Initialize(policyCount: Integer) {
+        _totalPolicies = policyCount
+        _passedPolicies = 0
+        _failedPolicies = 0
+        _scores = HashMap<String, Double>()
+        _overallScore = 0.0
+    }
+
+    function RecordResult(policyId: String, passed: Boolean, weight: Double) {
+        if (passed) {
+            _passedPolicies++
+            _scores[policyId] = 1.0
+        } else {
+            _failedPolicies++
+            _scores[policyId] = 0.0
+        }
+        _overallScore = (_passedPolicies.toDouble() / _totalPolicies.toDouble())
+    }
+
+    function CalculateWeightedScore(weights: Map<String, Double>): Double {
+        var weightedSum: Double = 0.0
+        var totalWeight: Double = 0.0
+        for each (entry: Map.Entry<String, Double> in _scores.entrySet()) {
+            var weight: Double = weights.getOrDefault(entry.key, 1.0)
+            weightedSum += (entry.value * weight)
+            totalWeight += weight
+        }
+        if (totalWeight == 0.0) { return 0.0 }
+        return weightedSum / totalWeight
+    }
+}

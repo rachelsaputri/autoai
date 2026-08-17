@@ -660,3 +660,5 @@
 - Created/Updated module: `aj_compliance_monitor` (See `aj_compliance_monitor/README.md` for details)
 
 - Created/Updated module: `assembly_kernel_integrity_agent` (See `assembly_kernel_integrity_agent/README.md` for details)
+
+- Created/Updated module: `gosu_security_policy_auditor` (See `gosu_security_policy_auditor/README.md` for details)

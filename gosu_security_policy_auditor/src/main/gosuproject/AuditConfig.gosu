@@ -1,0 +1,59 @@
+namespace gosuproject
+
+import java.util.Map
+import java.util.HashMap
+import java.util.List
+import java.util.ArrayList
+
+class AuditConfig {
+    private var _policyPath: String = ""
+    private var _targetSystem: String = ""
+    private var _verbose: Boolean = false
+    private var _outputFormat: String = "json"
+    private var _scoreThreshold: Double = 0.75
+    private var _compliancePolicies: Map<String, PolicyRule> = HashMap<String, PolicyRule>()
+
+    property PolicyPath: String {
+        get { return _policyPath }
+        set(value: String) { _policyPath = value }
+    }
+
+    property TargetSystem: String {
+        get { return _targetSystem }
+        set(value: String) { _targetSystem = value }
+    }
+
+    property Verbose: Boolean {
+        get { return _verbose }
+        set(value: Boolean) { _verbose = value }
+    }
+
+    property OutputFormat: String {
+        get { return _outputFormat }
+        set(value: String) { _outputFormat = value }
+    }
+
+    property ScoreThreshold: Double {
+        get { return _scoreThreshold }
+        set(value: Double) { _scoreThreshold = value }
+    }
+
+    property CompliancePolicies: Map<String, PolicyRule> {
+        get { return _compliancePolicies }
+        set(value: Map<String, PolicyRule>) { _compliancePolicies = value }
+    }
+
+    function AddPolicyRule(id: String, rule: PolicyRule) {
+        _compliancePolicies[id] = rule
+    }
+
+    function ValidateConfig(): Boolean {
+        if (_policyPath.isEmpty() || _targetSystem.isEmpty()) {
+            return false
+        }
+        if (_compliancePolicies.size() == 0) {
+            return false
+        }
+        return true
+    }
+}
