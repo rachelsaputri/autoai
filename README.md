@@ -586,3 +586,5 @@
 - Created/Updated module: `cfml_data_extraction_utility` (See `cfml_data_extraction_utility/README.md` for details)
 
 - Created/Updated module: `oz_data_processing_utility` (See `oz_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `api_data_transfer_gateway` (See `api_data_transfer_gateway/README.md` for details)
