@@ -590,3 +590,5 @@
 - Created/Updated module: `api_data_transfer_gateway` (See `api_data_transfer_gateway/README.md` for details)
 
 - Created/Updated module: `text_formatting_cleaner` (See `text_formatting_cleaner/README.md` for details)
+
+- Created/Updated module: `neko_diagnostic_viz` (See `neko_diagnostic_viz/README.md` for details)
