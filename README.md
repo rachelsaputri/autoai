@@ -568,3 +568,5 @@
 - Created/Updated module: `NXTG_data_processing_core` (See `NXTG_data_processing_core/README.md` for details)
 
 - Created/Updated module: `obj2_compliance_integrity_engine` (See `obj2_compliance_integrity_engine/README.md` for details)
+
+- Created/Updated module: `ispf_mainframe_compliance_automation` (See `ispf_mainframe_compliance_automation/README.md` for details)
