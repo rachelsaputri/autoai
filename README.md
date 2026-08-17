@@ -610,3 +610,5 @@
 - Created/Updated module: `abset_cryptographic_hash_engine` (See `abset_cryptographic_hash_engine/README.md` for details)
 
 - Created/Updated module: `agda_data_extractor` (See `agda_data_extractor/README.md` for details)
+
+- Created/Updated module: `acl2_self_healing_tool` (See `acl2_self_healing_tool/README.md` for details)
