@@ -1,0 +1,42 @@
+(define (parse-policy-file path)
+  (let tokens (lex file path)
+    (parse-policy-tree tokens)))
+
+(define (parse-state-file path)
+  (let tokens (lex file path)
+    (parse-state-tree tokens)))
+
+(define (lex file path)
+  (let content (read file path)
+    (split-into-tokens content)))
+
+(define (parse-policy-tree tokens)
+  (let policy '()
+    (while (not (null? tokens))
+      (let token (pop tokens)
+        (cond
+          ((string= token "define-policy")
+           (set policy (append policy (list 'define-policy (pop tokens)))))
+          ((string= token "condition")
+           (set policy (append policy (list 'condition (pop tokens)))))
+          ((string= token "rule")
+           (set policy (append policy (list 'rule (pop tokens)))))
+          ((string= token "severity")
+           (set policy (append policy (list 'severity (pop tokens)))))
+          ((string= token "description")
+           (set policy (append policy (list 'description (pop tokens))))))))
+    policy))
+
+(define (parse-state-tree tokens)
+  (let state '()
+    (while (not (null? tokens))
+      (let token (pop tokens)
+        (cond
+          ((string= token "define-state")
+           (set state (append state (list 'define-state (pop tokens)))))
+          ((string= token "load-file")
+           (set state (append state (list 'load-file (pop tokens))))))))
+    state))
+
+(define (split-into-tokens content)
+  (str-split content #\space))
