@@ -550,3 +550,5 @@
 - Created/Updated module: `tea_security_diagnostic_visualizer` (See `tea_security_diagnostic_visualizer/README.md` for details)
 
 - Created/Updated module: `low_level_memory_network_sim` (See `low_level_memory_network_sim/README.md` for details)
+
+- Created/Updated module: `text_formatting_cleaner` (See `text_formatting_cleaner/README.md` for details)
