@@ -606,3 +606,5 @@
 - Created/Updated module: `429_Too_Many_Requests_1404621954782116360` (See `429_Too_Many_Requests_1404621954782116360/README.md` for details)
 
 - Created/Updated module: `lis_dataset_cleaning_tool` (See `lis_dataset_cleaning_tool/README.md` for details)
+
+- Created/Updated module: `abset_cryptographic_hash_engine` (See `abset_cryptographic_hash_engine/README.md` for details)
