@@ -1,0 +1,55 @@
+// policy_engine.obj2 - Policy evaluation
+
+import std::io;
+import std::json;
+
+function load(policyPath) {
+  let content = io.readText(policyPath);
+  if (content == null) {
+    return null;
+  }
+  return json.parse(content);
+}
+
+function evaluate(binaryData, hash, policy) {
+  let violations = [];
+  let isCompliant = true;
+  
+  // Check hash
+  if (policy.baselineHash != null && hash != policy.baselineHash) {
+    violations.push({
+      "rule": "hash_match",
+      "expected": policy.baselineHash,
+      "actual": hash,
+      "severity": "critical"
+    });
+    isCompliant = false;
+  }
+  
+  // Check minimum size
+  if (policy.minSize != null && binaryData.size < policy.minSize) {
+    violations.push({
+      "rule": "min_size",
+      "expected": policy.minSize,
+      "actual": binaryData.size,
+      "severity": "warning"
+    });
+    isCompliant = false;
+  }
+  
+  // Check allowed formats
+  if (policy.allowedFormats != null && !policy.allowedFormats.includes(binaryData.format)) {
+    violations.push({
+      "rule": "format_check",
+      "expected": policy.allowedFormats,
+      "actual": binaryData.format,
+      "severity": "error"
+    });
+    isCompliant = false;
+  }
+  
+  return {
+    "isCompliant": isCompliant,
+    "violations": violations
+  };
+}

@@ -1,0 +1,14 @@
+// verifier.obj2 - Cryptographic hashing and integrity verification
+
+import std::crypto;
+
+function computeHash(data) {
+  // Compute SHA-256 hash
+  let hash = crypto.sha256(data);
+  return hash.toString("hex");
+}
+
+function verifyIntegrity(data, expectedHash) {
+  let actualHash = computeHash(data);
+  return actualHash == expectedHash;
+}
