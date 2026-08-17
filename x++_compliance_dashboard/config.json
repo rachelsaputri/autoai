@@ -1,0 +1,29 @@
+{
+  "policies": [
+    {
+      "PolicyId": "POL-001",
+      "Description": "Enforce Strong Password Policy",
+      "Condition": "password_length >= 12",
+      "ActionOnViolation": "AutoCorrect",
+      "Enabled": true
+    },
+    {
+      "PolicyId": "POL-002",
+      "Description": "Disable Insecure Protocols",
+      "Condition": "ftp_enabled == false",
+      "ActionOnViolation": "AlertAdmin",
+      "Enabled": true
+    },
+    {
+      "PolicyId": "POL-003",
+      "Description": "Verify Firewall Rules",
+      "Condition": "default_deny == true",
+      "ActionOnViolation": "LogOnly",
+      "Enabled": true
+    }
+  ],
+  "dashboard": {
+    "refreshInterval": 300,
+    "uiTheme": "dark"
+  }
+}
