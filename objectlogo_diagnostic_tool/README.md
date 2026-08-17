@@ -1,25 +1,16 @@
-# ObjectLOGO Compliance Visualization Tool
+# ObjectLOGO Diagnostic Tool
 
-An interactive diagnostic and visualization tool for compliance auditing, written in ObjectLOGO.
-
-This tool simulates a visual diagnostic interface using ASCII graphics and text-based interaction to audit system compliance based on a set of policies and states.
+This project provides an interactive diagnostic tool built using the ObjectLOGO programming language. It includes a diagnostic engine, a main driver, and a visualizer for real-time feedback.
 
 ## Features
-- Interactive command-line interface
-- ASCII-based visualization of system nodes and connections
-- Compliance status reporting
-- Simulated diagnostic engine
+- Real-time diagnostic analysis
+- Interactive visualizer for system state
+- Modular engine architecture
 
 ## Usage
+Compile and run the ObjectLOGO files using your preferred ObjectLOGO implementation.
 
-Run the main file with an ObjectLOGO interpreter:
-
-```
-logo main.olg
-```
-
-## Components
-
-- `main.olg`: Entry point, handles user interaction and orchestration.
-- `diagnostic_engine.olg`: Core logic for running diagnostics and checking compliance.
-- `visualizer.olg`: Handles ASCII rendering of the system state.
+## Files
+- `main.olg`: Entry point for the diagnostic tool.
+- `diagnostic_engine.olg`: Core logic for running diagnostics.
+- `visualizer.olg`: Handles the visualization of diagnostic results.

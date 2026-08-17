@@ -1,55 +1,22 @@
-; ObjectLOGO Main Entry Point for Compliance Visualization Tool
+CLASS Main {
+  PUBLIC:
+    METHOD Main(args: Array[String]) {
+      diagnostic_engine := DiagnosticEngine::New()
+      diagnostic_engine.Initialize()
 
-INCLUDE "diagnostic_engine.olg"
-INCLUDE "visualizer.olg"
+      visualizer := Visualizer::New()
 
-TO: MAIN
-    PRINT "Initializing Compliance Diagnostic Tool..."
-    PRINT "------------------------------------------"
-    
-    ; Define simulated policies
-    MAKE "POLICIES [
-        [COMPUTE (GET_STATE "node1") = "ACTIVE" ]
-        [COMPUTE (GET_STATE "node2") = "VIOLATION"]
-        [COMPUTE (GET_STATE "node3") = "ACTIVE" ]
-    ]
-    
-    ; Define simulated states
-    MAKE_STATE "node1 "ACTIVE"
-    MAKE_STATE "node2 "VIOLATION"
-    MAKE_STATE "node3 "ACTIVE"
-    
-    ; Run diagnostic
-    RUN_DIAGNOSTIC :POLICIES "node1"
-    
-    ; Render visualization
-    RENDER_DIAGNOSTIC
-    
-    PRINT "\nDiagnostic Run Complete."
-    PRINT "Interactive mode would continue here in a full implementation."
-    
-    ; Pause for user
-    INPUT "Press ENTER to exit..."
-    PEND
+      config := Config::New(1, true)
 
-; Helper functions for state management
-TO: MAKE_STATE NAME VALUE
-    SET (GET_STATE :NAME) :VALUE
-    PEND
+      result1 := diagnostic_engine.RunCheck("memory", config)
+      result2 := diagnostic_engine.RunCheck("cpu", config)
 
-TO: GET_STATE NAME
-    ; In a full ObjectLOGO implementation, this would access a state table
-    ; Here we simulate it with a simple lookup logic for the context
-    ; Since ObjectLOGO is interpreted, we assume a global state table or similar
-    ; For this demo, we rely on the visualizer and engine logic above
-    ; Returning a placeholder
-    PRINT "Simulating state retrieval for " :NAME
-    RETURN "ACTIVE"
-    PEND
+      results_map := diagnostic_engine.GetResults()
 
-TO: SET NAME VALUE
-    ; Placeholder for state setting logic
-    ; In a real implementation, this updates a persistent state store
-    PEND
+      visualizer.RenderResults(results_map)
 
-MAIN
+      PRINT("Diagnostic complete. Processed " + visualizer.GetBufferCount().ToString() + " checks.")
+    }
+}
+
+BEGIN Main::Main(Array[String>::New())

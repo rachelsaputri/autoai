@@ -1,42 +1,24 @@
-TO: VISUALIZE_NODE NODE_NAME X Y STATUS
-    TEESCREEN
-    MOVE TO X Y
-    IF STATUS = "COMPLIANT" THEN
-        COLOR 02  ; Green
-    ELSEIF STATUS = "VIOLATION" THEN
-        COLOR 04  ; Red
-    ELSE
-        COLOR 07  ; White
-    ENDIF
-    PRINT NODE_NAME
-    PEND
+CLASS Visualizer {
+  PRIVATE:
+    RESULTS_BUFFER: List[DiagnosticResult]
+  PUBLIC:
+    METHOD New() {
+      RESULTS_BUFFER := List<DiagnosticResult>::New()
+    }
 
-TO: DRAW_CONNECTION X1 Y1 X2 Y2
-    TEESCREEN
-    MOVE TO X1 Y1
-    PEN DOWN
-    MOVE TO X2 Y2
-    PEN UP
-    PEND
+    METHOD RenderResults(results: Map[String, DiagnosticResult]) {
+      FOR EACH check_name IN results.KeySet() DO {
+        result := results[check_name]
+        this.AppendToBuffer(result)
+        PRINT("[" + result.GetStatus() + "] " + result.GetCheckName() + ": " + result.GetMessage())
+      }
+    }
 
-TO: RENDER_NODES NODES
-    LISTFOR EACH :NODE :NODES
-        VISUALIZE_NODE FIRST :NODE LAST :NODE LAST :NODE
-        PEND
-    PEND
+    METHOD AppendToBuffer(result: DiagnosticResult) {
+      RESULTS_BUFFER.Add(result)
+    }
 
-TO: RENDER_DIAGNOSTIC
-    MAKE "NODES [ ["node1" 10 10 "COMPLIANT"] ["node2" 20 10 "VIOLATION"] ["node3" 15 20 "COMPLIANT"] ]
-    CLSCREEN
-    COLOR 07
-    PRINT "COMPLIANCE DIAGNOSTIC DASHBOARD"
-    PRINT "--------------------------------"
-    
-    RENDER_NODES :NODES
-    
-    DRAW_CONNECTION 10 10 20 10
-    DRAW_CONNECTION 20 10 15 20
-    DRAW_CONNECTION 15 20 10 10
-    
-    PRINT "\nNodes Rendered. Checking Compliance..."
-    PEND
+    METHOD GetBufferCount(): Integer {
+      RETURN RESULTS_BUFFER.Count()
+    }
+}
