@@ -580,3 +580,5 @@
 - Created/Updated module: `./rlab_cryptography_suite` (See `./rlab_cryptography_suite/README.md` for details)
 
 - Created/Updated module: `ocaml_data_processing_utility` (See `ocaml_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `newlisp_data_processor` (See `newlisp_data_processor/README.md` for details)
