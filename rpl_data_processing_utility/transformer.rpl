@@ -1,0 +1,193 @@
+%%RPL
+/* Data transformation functions */
+
+/* Transform rules */
+TRANSFORM_RULES <<
+  {
+    'UPPERCASE' 'STRING' MAP_UPPER
+    'LOWERCASE' 'STRING' MAP_LOWER
+    'CAPITALIZE' 'STRING' MAP_CAPITALIZE
+    'ROUND'    'NUM'    MAP_ROUND
+    'SCALE'    'NUM'    MAP_SCALE
+    'DATE_FORMAT' 'DATE' MAP_DATE_FORMAT
+  }
+>>
+
+/* Map upper */
+MAP_UPPER <<
+  DUP
+  OVER LENGTH
+  SWAP 1 -
+  DO
+    I GET
+    TO_UPPER
+    SWAP I PUT
+  FOR
+>>
+
+/* Map lower */
+MAP_LOWER <<
+  DUP
+  OVER LENGTH
+  SWAP 1 -
+  DO
+    I GET
+    TO_LOWER
+    SWAP I PUT
+  FOR
+>>
+
+/* Map capitalize */
+MAP_CAPITALIZE <<
+  DUP
+  OVER LENGTH
+  SWAP 1 -
+  DO
+    I GET
+    CAPITALIZE_WORD
+    SWAP I PUT
+  FOR
+>>
+
+/* Map round */
+MAP_ROUND <<
+  ROUNDING_PRECISION
+  ROUND_TO_PRECISION
+>>
+
+/* Map scale */
+MAP_SCALE <<
+  SCALE_FACTOR
+  MULTIPLY_BY_FACTOR
+>>
+
+/* Map date format */
+MAP_DATE_FORMAT <<
+  DATE_FORMAT
+  FORMAT_DATE
+>>
+
+/* To upper */
+TO_UPPER <<
+  UPPER_CASE
+>>
+
+/* To lower */
+TO_LOWER <<
+  LOWER_CASE
+>>
+
+/* Capitalize word */
+CAPITALIZE_WORD <<
+  FIRST_CHAR_UPPER
+  REST_LOWER
+  CONCATENATE
+>>
+
+/* Round to precision */
+ROUND_TO_PRECISION <<
+  PRECISION
+  ROUND_TO
+>>
+
+/* Multiply by factor */
+MULTIPLY_BY_FACTOR <<
+  FACTOR
+  MULTIPLY
+>>
+
+/* Format date */
+FORMAT_DATE <<
+  DATE_FORMAT_STRING
+  FORMAT
+>>
+
+/* Upper case */
+UPPER_CASE <<
+  DUP
+  OVER LENGTH
+  SWAP 1 -
+  DO
+    I GET
+    TO_UPPER
+    SWAP I PUT
+  FOR
+>>
+
+/* Lower case */
+LOWER_CASE <<
+  DUP
+  OVER LENGTH
+  SWAP 1 -
+  DO
+    I GET
+    TO_LOWER
+    SWAP I PUT
+  FOR
+>>
+
+/* First char upper */
+FIRST_CHAR_UPPER <<
+  DUP
+  0
+  OVER GET
+  TO_UPPER
+  ROT 1
+  ROT PUT
+>>
+
+/* Rest lower */
+REST_LOWER <<
+  DUP
+  OVER LENGTH
+  1 -
+  SWAP 1 -
+  DO
+    I GET
+    TO_LOWER
+    SWAP I PUT
+  FOR
+>>
+
+/* Concatenate */
+CONCATENATE <<
+  SWAP
+  OVER LENGTH
+  OVER LENGTH
+  +
+  DUP
+  STRDUP
+  ROT
+  OVER LENGTH
+  SWAP OVER
+  OVER
+  OVER
+  +
+  1
+  -
+  DO
+    SWAP I
+    GET
+    ROT I
+    PUT
+  FOR
+  SWAP DROP
+>>
+
+/* Round to */
+ROUND_TO <<
+  PRECISION
+  ROUND
+>>
+
+/* Multiply */
+MULTIPLY <<
+  FACTOR
+  *
+>>
+
+/* Format */
+FORMAT <<
+  DATE_FORMAT_STRING
+  FORMAT
+>>

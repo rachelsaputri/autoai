@@ -1,0 +1,144 @@
+%%RPL
+/* Data validation functions */
+
+/* Check schema */
+CHECK_SCHEMA <<
+  DUP
+  IF TYPE 'LIST' == THEN
+    VALIDATE_LIST_SCHEMA
+  ELSE
+    VALIDATE_SINGLE_SCHEMA
+  END
+>>
+
+/* Validate list schema */
+VALIDATE_LIST_SCHEMA <<
+  DUP
+  OVER SIZE
+  CHECK_MIN_LENGTH
+  CHECK_MAX_LENGTH
+  CHECK_ELEMENT_TYPES
+  CHECK_ELEMENT_VALUES
+>>
+
+/* Validate single schema */
+VALIDATE_SINGLE_SCHEMA <<
+  DUP
+  CHECK_TYPE
+  CHECK_VALUE_RANGE
+  CHECK_FORMAT
+>>
+
+/* Check minimum length */
+CHECK_MIN_LENGTH <<
+  MIN_LENGTH
+  IF
+    SWAP DROP FALSE
+  ELSE
+    SWAP DROP TRUE
+  THEN
+>>
+
+/* Check maximum length */
+CHECK_MAX_LENGTH <<
+  MAX_LENGTH
+  IF
+    SWAP DROP FALSE
+  ELSE
+    SWAP DROP TRUE
+  THEN
+>>
+
+/* Check element types */
+CHECK_ELEMENT_TYPES <<
+  DUP
+  OVER SIZE
+  SWAP 1 -
+  DO
+    I GET
+    EXPECTED_TYPE
+    TYPE_CHECK
+    IF NOT THEN
+      ERROR_TYPE_MISMATCH
+    THEN
+  FOR
+>>
+
+/* Check element values */
+CHECK_ELEMENT_VALUES <<
+  DUP
+  OVER SIZE
+  SWAP 1 -
+  DO
+    I GET
+    EXPECTED_RANGE
+    VALUE_CHECK
+    IF NOT THEN
+      ERROR_VALUE_OUT_OF_RANGE
+    THEN
+  FOR
+>>
+
+/* Check type */
+CHECK_TYPE <<
+  EXPECTED_TYPE
+  TYPE_CHECK
+  IF NOT THEN
+    ERROR_TYPE_MISMATCH
+  END
+>>
+
+/* Check value range */
+CHECK_VALUE_RANGE <<
+  EXPECTED_MIN EXPECTED_MAX
+  CHECK_RANGE
+  IF NOT THEN
+    ERROR_VALUE_OUT_OF_RANGE
+  END
+>>
+
+/* Check format */
+CHECK_FORMAT <<
+  EXPECTED_FORMAT
+  FORMAT_CHECK
+  IF NOT THEN
+    ERROR_FORMAT_MISMATCH
+  END
+>>
+
+/* Type check */
+TYPE_CHECK <<
+  DUP TYPE
+  EXPECTED_TYPE
+  ==
+>>
+
+/* Check range */
+CHECK_RANGE <<
+  DUP
+  EXPECTED_MIN >=
+  EXPECTED_MAX <= AND
+>>
+
+/* Format check */
+FORMAT_CHECK <<
+  DUP EXPECTED_FORMAT ==
+>>
+
+/* Error: Type mismatch */
+ERROR_TYPE_MISMATCH <<
+  'Type mismatch in data validation'
+  ERROR
+>>
+
+/* Error: Value out of range */
+ERROR_VALUE_OUT_OF_RANGE <<
+  'Value out of expected range'
+  ERROR
+>>
+
+/* Error: Format mismatch */
+ERROR_FORMAT_MISMATCH <<
+  'Format mismatch in data validation'
+  ERROR
+>>

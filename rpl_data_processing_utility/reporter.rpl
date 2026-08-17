@@ -1,0 +1,280 @@
+%%RPL
+/* Reporting and output functions */
+
+/* Format output */
+FORMAT_OUTPUT <<
+  DUP
+  IF TYPE 'LIST' == THEN
+    LIST_TO_JSON
+  ELSE
+    SINGLE_TO_JSON
+  END
+>>
+
+/* Create summary */
+CREATE_SUMMARY <<
+  DATA
+  GENERATE_STATS
+  FORMAT_SUMMARY
+>>
+
+/* Generate JSON */
+GENERATE_JSON <<
+  DATA
+  TO_JSON
+>>
+
+/* Display results */
+DISPLAY_RESULTS <<
+  RESULTS
+  DISPLAY
+>>
+
+/* Save results */
+SAVE_RESULTS <<
+  RESULTS
+  OUTPUT_FILE
+  SAVE_TO_FILE
+>>
+
+/* List to JSON */
+LIST_TO_JSON <<
+  DUP
+  OVER SIZE
+  SWAP 1 -
+  DO
+    I GET
+    TO_JSON_ELEMENT
+    SWAP I PUT
+  FOR
+  JSON_ARRAY
+>>
+
+/* Single to JSON */
+SINGLE_TO_JSON <<
+  TO_JSON_ELEMENT
+>>
+
+/* Generate stats */
+GENERATE_STATS <<
+  DATA
+  CALCULATE_MEANS
+  CALCULATE_STD_DEV
+  CALCULATE_SUM
+>>
+
+/* Format summary */
+FORMAT_SUMMARY <<
+  STATS
+  FORMAT_STATS
+>>
+
+/* To JSON */
+TO_JSON <<
+  DUP
+  CASE
+    'LIST' OF LIST_TO_JSON END
+    'STR'  OF STRING_TO_JSON END
+    'NUM'  OF NUM_TO_JSON END
+    'DATE' OF DATE_TO_JSON END
+    TRUE   OF UNKNOWN_TO_JSON END
+  CASE
+>>
+
+/* To JSON element */
+TO_JSON_ELEMENT <<
+  DUP
+  CASE
+    'LIST' OF LIST_TO_JSON END
+    'STR'  OF STRING_TO_JSON END
+    'NUM'  OF NUM_TO_JSON END
+    'DATE' OF DATE_TO_JSON END
+    TRUE   OF UNKNOWN_TO_JSON END
+  CASE
+>>
+
+/* JSON array */
+JSON_ARRAY <<
+  'ARRAY_START'
+  OVER
+  'ARRAY_END'
+  CONCATENATE
+>>
+
+/* String to JSON */
+STRING_TO_JSON <<
+  QUOTE_STRING
+>>
+
+/* Num to JSON */
+NUM_TO_JSON <<
+  NUM_TO_STR
+>>
+
+/* Date to JSON */
+DATE_TO_JSON <<
+  FORMAT_DATE
+>>
+
+/* Unknown to JSON */
+UNKNOWN_TO_JSON <<
+  'NULL'
+>>
+
+/* Quote string */
+QUOTE_STRING <<
+  '"'
+  OVER
+  '"'
+  CONCATENATE
+>>
+
+/* Calculate means */
+CALCULATE_MEANS <<
+  DATA
+  SUM
+  SIZE
+  /
+>>
+
+/* Calculate std dev */
+CALCULATE_STD_DEV <<
+  DATA
+  MEAN
+  DIFF_SQUARE
+  SUM
+  SIZE
+  -
+  SQRT
+>>
+
+/* Calculate sum */
+CALCULATE_SUM <<
+  DATA
+  SUM
+>>
+
+/* Format stats */
+FORMAT_STATS <<
+  STATS
+  JSON_OBJECT
+>>
+
+/* Save to file */
+SAVE_TO_FILE <<
+  FILE_NAME
+  OPEN_FILE
+  WRITE_DATA
+  CLOSE_FILE
+>>
+
+/* Open file */
+OPEN_FILE <<
+  FILE_NAME
+  'W'
+  FOPEN
+>>
+
+/* Write data */
+WRITE_DATA <<
+  FILE_HANDLE
+  DATA
+  FPUTS
+>>
+
+/* Close file */
+CLOSE_FILE <<
+  FILE_HANDLE
+  FCLOSE
+>>
+
+/* JSON object */
+JSON_OBJECT <<
+  '{'
+  OVER
+  '}'
+  CONCATENATE
+>>
+
+/* Sum */
+SUM <<
+  DUP
+  OVER SIZE
+  SWAP 1 -
+  DO
+    I GET
+    ADD_TO_SUM
+  FOR
+>>
+
+/* Mean */
+MEAN <<
+  SUM
+  SIZE
+  /
+>>
+
+/* Diff square */
+DIFF_SQUARE <<
+  MEAN
+  SUBTRACT
+  SQUARE
+>>
+
+/* Square */
+SQUARE <<
+  DUP *
+>>
+
+/* Add to sum */
+ADD_TO_SUM <<
+  SUM
+  +
+>>
+
+/* Subtract */
+SUBTRACT <<
+  -
+>>
+
+/* Num to str */
+NUM_TO_STR <<
+  NUM_TO_STRING
+>>
+
+/* Format date */
+FORMAT_DATE <<
+  DATE_FORMAT_STRING
+  FORMAT
+>>
+
+/* Concatenate */
+CONCATENATE <<
+  SWAP
+  OVER LENGTH
+  OVER LENGTH
+  +
+  DUP
+  STRDUP
+  ROT
+  OVER LENGTH
+  SWAP OVER
+  OVER
+  OVER
+  +
+  1
+  -
+  DO
+    SWAP I
+    GET
+    ROT I
+    PUT
+  FOR
+  SWAP DROP
+>>
+
+/* Fputs */
+FPUTS <<
+  SWAP
+  FDUPLEX
+>>

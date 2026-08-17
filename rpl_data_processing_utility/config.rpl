@@ -1,0 +1,295 @@
+%%RPL
+/* Configuration and settings */
+
+/* Default configuration */
+DEFAULT_CONFIG <<
+  {
+    'INPUT_FORMAT' 'AUTO'
+    'OUTPUT_FORMAT' 'LIST'
+    'VALIDATION_LEVEL' 'STRICT'
+    'LOG_LEVEL' 'INFO'
+    'MAX_ITERATIONS' 1000
+    'DEBUG_MODE' FALSE
+    'MIN_LENGTH' 0
+    'MAX_LENGTH' 1000
+    'EXPECTED_TYPE' 'ANY'
+    'EXPECTED_MIN' 0
+    'EXPECTED_MAX' 1000000
+    'EXPECTED_FORMAT' 'ANY'
+    'ROUNDING_PRECISION' 2
+    'SCALE_FACTOR' 1
+    'DATE_FORMAT' 'YYYY-MM-DD'
+  }
+>>
+
+/* Get configuration */
+GET_CONFIG <<
+  CONFIG
+  FIND
+>>
+
+/* Set configuration */
+SET_CONFIG <<
+  DUP
+  SWAP
+  CONFIG
+  ROT
+  PUT
+>>
+
+/* Validate configuration */
+VALIDATE_CONFIG <<
+  CONFIG
+  CHECK_REQUIRED_FIELDS
+  CHECK_TYPE_CONSTRAINTS
+  CHECK_VALUE_RANGES
+>>
+
+/* Check required fields */
+CHECK_REQUIRED_FIELDS <<
+  REQUIRED_FIELDS
+  OVER
+  DO
+    FIND
+    IF NOT THEN
+      ERROR_MISSING_FIELD
+    THEN
+  FOR
+>>
+
+/* Check type constraints */
+CHECK_TYPE_CONSTRAINTS <<
+  TYPE_CONSTRAINTS
+  OVER
+  DO
+    FIND
+    TYPE_CHECK
+    IF NOT THEN
+      ERROR_TYPE_CONSTRAINT
+    THEN
+  FOR
+>>
+
+/* Check value ranges */
+CHECK_VALUE_RANGES <<
+  VALUE_RANGES
+  OVER
+  DO
+    FIND
+    RANGE_CHECK
+    IF NOT THEN
+      ERROR_VALUE_RANGE
+    THEN
+  FOR
+>>
+
+/* Error: Missing field */
+ERROR_MISSING_FIELD <<
+  'Required configuration field missing'
+  ERROR
+>>
+
+/* Error: Type constraint */
+ERROR_TYPE_CONSTRAINT <<
+  'Configuration type constraint violated'
+  ERROR
+>>
+
+/* Error: Value range */
+ERROR_VALUE_RANGE <<
+  'Configuration value out of range'
+  ERROR
+>>
+
+/* Required fields */
+REQUIRED_FIELDS <<
+  {
+    'INPUT_FORMAT'
+    'OUTPUT_FORMAT'
+    'VALIDATION_LEVEL'
+    'LOG_LEVEL'
+    'MAX_ITERATIONS'
+    'DEBUG_MODE'
+  }
+>>
+
+/* Type constraints */
+TYPE_CONSTRAINTS <<
+  {
+    'INPUT_FORMAT' 'STRING'
+    'OUTPUT_FORMAT' 'STRING'
+    'VALIDATION_LEVEL' 'STRING'
+    'LOG_LEVEL' 'STRING'
+    'MAX_ITERATIONS' 'NUM'
+    'DEBUG_MODE' 'BOOL'
+  }
+>>
+
+/* Value ranges */
+VALUE_RANGES <<
+  {
+    'MAX_ITERATIONS' 0 10000
+  }
+>>
+
+/* Find */
+FIND <<
+  SWAP
+  OVER
+  SWAP
+  DUP
+  OVER LENGTH
+  SWAP 1 -
+  DO
+    I GET
+    SWAP
+    ==
+    IF
+      DROP I
+      TRUE
+      RETURN
+    THEN
+    SWAP
+  FOR
+  SWAP DROP
+  FALSE
+>>
+
+/* Put */
+PUT <<
+  SWAP
+  OVER
+  SWAP
+  DUP
+  OVER LENGTH
+  SWAP 1 -
+  DO
+    I GET
+    SWAP
+    ==
+    IF
+      DROP I
+      SWAP
+      I
+      SWAP
+      OVER
+      PUT
+      RETURN
+    THEN
+    SWAP
+  FOR
+>>
+
+/* Type check */
+TYPE_CHECK <<
+  DUP TYPE
+  EXPECTED_TYPE
+  ==
+>>
+
+/* Range check */
+RANGE_CHECK <<
+  DUP
+  EXPECTED_MIN >=
+  EXPECTED_MAX <= AND
+>>
+
+/* Return */
+RETURN <<
+  SWAP DROP
+>>
+
+/* == */
+== <<
+  ==
+>>
+
+/* >= */
+>= <<
+  >=
+>>
+
+/* <= */
+<= <<
+  <=
+>>
+
+/* AND */
+AND <<
+  AND
+>>
+
+/* DROP */
+DROP <<
+  DROP
+>>
+
+/* OVER */
+OVER <<
+  OVER
+>>
+
+/* SWAP */
+SWAP <<
+  SWAP
+>>
+
+/* DUP */
+DUP <<
+  DUP
+>>
+
+/* LENGTH */
+LENGTH <<
+  LENGTH
+>>
+
+/* GET */
+GET <<
+  GET
+>>
+
+/* - */
+- <<
+  -
+>>
+
+/* DO */
+DO <<
+  DO
+>>
+
+/* IF */
+IF <<
+  IF
+>>
+
+/* THEN */
+THEN <<
+  THEN
+>>
+
+/* FOR */
+FOR <<
+  FOR
+>>
+
+/* + */
++ <<
+  +
+>>
+
+/* / */
+/ <<
+  /
+>>
+
+/* SQRT */
+SQRT <<
+  SQRT
+>>
+
+/* * */
+* <<
+  *
+>>

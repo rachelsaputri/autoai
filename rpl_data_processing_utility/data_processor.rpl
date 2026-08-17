@@ -1,0 +1,148 @@
+%%RPL
+/* Core data processing functions */
+
+/* Check data format */
+CHECK_DATA_FORMAT <<
+  DUP TYPE
+  CASE
+    'LIST' OF DROP 'LIST_FORMAT' END
+    'STR'  OF DROP 'STRING_FORMAT' END
+    'NUM'  OF DROP 'NUMERIC_FORMAT' END
+    TRUE  OF DROP 'UNKNOWN_FORMAT' END
+  CASE
+>>
+
+/* Parse data based on format */
+PARSE_DATA <<
+  DUP 'FORMAT' FIND
+  CASE
+    'LIST_FORMAT'   OF LIST_TO_ENTRIES END
+    'STRING_FORMAT' OF STRING_TO_ENTRIES END
+    'NUMERIC_FORMAT' OF NUMERIC_TO_ENTRIES END
+    'UNKNOWN_FORMAT' OF ERROR_INVALID_FORMAT END
+  CASE
+>>
+
+/* Transform data */
+TRANSFORM_DATA <<
+  DUP
+  IF TYPE 'LIST' == THEN
+    MAP_ENTRIES
+  ELSE
+    SINGLE_ENTRY_TRANSFORM
+  END
+>>
+
+/* Aggregate data */
+AGGREGATE_DATA <<
+  DUP
+  IF TYPE 'LIST' == THEN
+    REDUCE_ENTRIES
+  ELSE
+    SINGLE_ENTRY_AGGREGATE
+  END
+>>
+
+/* Filter data */
+FILTER_DATA <<
+  DUP
+  IF TYPE 'LIST' == THEN
+    FILTER_ENTRIES
+  ELSE
+    SINGLE_ENTRY_FILTER
+  END
+>>
+
+/* Map entries */
+MAP_ENTRIES <<
+  ROT SWAP
+  OVER SIZE
+  OVER OVER
+  SWAP 1 -
+  DO
+    I GET
+    APPLY_TRANSFORM
+    SWAP I PUT
+  FOR
+>>
+
+/* Reduce entries */
+REDUCE_ENTRIES <<
+  ROT SWAP
+  OVER SIZE
+  OVER OVER
+  SWAP 1 -
+  DO
+    I GET
+    COMBINE_WITH_ACCUMULATOR
+  FOR
+>>
+
+/* Filter entries */
+FILTER_ENTRIES <<
+  ROT SWAP
+  OVER SIZE
+  OVER OVER
+  SWAP 1 -
+  DO
+    I GET
+    CHECK_FILTER_CONDITION
+    IF
+      ADD_TO_FILTERED_LIST
+    THEN
+      SWAP DROP
+    ELSE
+      SWAP DROP
+    THEN
+  FOR
+>>
+
+/* Apply transform */
+APPLY_TRANSFORM <<
+  TRANSFORM_RULES
+  IF
+    APPLY_SPECIFIC_TRANSFORM
+  ELSE
+    PASS_THROUGH
+  END
+>>
+
+/* Combine with accumulator */
+COMBINE_WITH_ACCUMULATOR <<
+  ACCUMULATOR
+  ROT SWAP
+  ADD_TO_ACCUMULATOR
+>>
+
+/* Check filter condition */
+CHECK_FILTER_CONDITION <<
+  FILTER_RULES
+  IF
+    EVALUATE_FILTER
+  ELSE
+    PASS
+  END
+>>
+
+/* Add to filtered list */
+ADD_TO_FILTERED_LIST <<
+  FILTERED_LIST
+  ROT SWAP
+  APPEND_TO_LIST
+>>
+
+/* Error: Invalid format */
+ERROR_INVALID_FORMAT <<
+  'Invalid data format specified'
+  ERROR
+>>
+
+/* Pass through */
+PASS_THROUGH <<
+  SWAP DROP
+>>
+
+/* Pass */
+PASS <<
+  TRUE
+>>

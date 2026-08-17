@@ -558,3 +558,5 @@
 - Created/Updated module: `./text_formatting_cleaner` (See `./text_formatting_cleaner/README.md` for details)
 
 - Created/Updated module: `./cecil_data_processing_engine` (See `./cecil_data_processing_engine/README.md` for details)
+
+- Created/Updated module: `rpl_data_processing_utility` (See `rpl_data_processing_utility/README.md` for details)
