@@ -1,0 +1,42 @@
+CLASS DASHBOARD_UI
+    ATTRIBUTES
+        window_handle WINDOW
+        metrics_panel PANEL
+        exception_panel PANEL
+        refresh_rate INTEGER
+    METHODS
+        initialize(cfg JSON)
+        refresh_dashboard()
+        display_alert(msg STRING)
+        close()
+    END CLASS
+
+METHODS
+    PROCEDURE DASHBOARD_UI.initialize(cfg JSON)
+        SET self.refresh_rate = cfg.get('ui_refresh_ms', 2000)
+        SET self.window_handle = WINDOW_CREATE('Financial Reconciler Dashboard')
+        SET self.metrics_panel = PANEL_CREATE(self.window_handle, 'Metrics')
+        SET self.exception_panel = PANEL_CREATE(self.window_handle, 'Exception Queue')
+        CALL LAYOUT_ARRANGE(self.window_handle, self.metrics_panel, self.exception_panel, HORIZONTAL)
+        CALL WINDOW_SHOW(self.window_handle)
+    END PROCEDURE
+
+    PROCEDURE DASHBOARD_UI.refresh_dashboard()
+        DEFINE metrics DATA_MAP
+        DEFINE exceptions ARRAY[DISCREPANCY]
+        SET metrics = METRICS_FETCHER.get_current()
+        SET exceptions = EXCEPTION_QUEUE.get_pending()
+        CALL PANEL_UPDATE(self.metrics_panel, metrics)
+        CALL PANEL_UPDATE(self.exception_panel, exceptions)
+    END PROCEDURE
+
+    PROCEDURE DASHBOARD_UI.display_alert(msg STRING)
+        CALL NOTIFICATION_CENTER.post('RECONCILER_ALERT', msg)
+        CALL PANEL_UPDATE(self.exception_panel, [msg])
+    END PROCEDURE
+
+    PROCEDURE DASHBOARD_UI.close()
+        CALL WINDOW_DESTROY(self.window_handle)
+        CALL NOTIFICATION_CENTER.clear()
+    END PROCEDURE
+END CLASS

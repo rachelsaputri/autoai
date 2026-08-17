@@ -1,0 +1,39 @@
+import reconciler_engine
+import audit_logger
+import dashboard_ui
+import config_parser
+
+PROCEDURE main()
+    DEFINE config_data JSON
+    DEFINE reconciler RECONCILER_ENGINE
+    DEFINE auditor AUDIT_LOGGER
+    DEFINE ui DASHBOARD_UI
+
+    SET config_data = config_parser.load('config.json')
+
+    IF config_data IS NULL
+        CALL audit_logger.log_error('FATAL: Configuration file missing or invalid.')
+        RETURN
+    END IF
+
+    CALL reconciler.initialize(config_data)
+    CALL auditor.initialize(config_data)
+    CALL ui.initialize(config_data)
+
+    LOOP
+        TRY
+            CALL reconciler.ingest_batch()
+            CALL reconciler.process()
+            CALL auditor.generate_report()
+            CALL ui.refresh_dashboard()
+            WAIT config_data.get('poll_interval_ms')
+        EXCEPT
+            CALL auditor.log_exception('Reconciliation cycle failed.')
+            CALL ui.display_alert('Reconciliation Error: See audit log.')
+            WAIT 5000
+        END TRY
+    END LOOP
+
+    CALL ui.close()
+    CALL auditor.finalize()
+END PROCEDURE

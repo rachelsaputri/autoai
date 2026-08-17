@@ -1,0 +1,69 @@
+CLASS RECONCILER_ENGINE
+    ATTRIBUTES
+        loaded_trades ARRAY[TRADE]
+        settled_trades ARRAY[TRADE]
+        discrepancies ARRAY[DISCREPANCY]
+        match_threshold FLOAT
+    METHODS
+        initialize(cfg JSON)
+        ingest_batch()
+        process()
+        match_trades()
+        flag_discrepancies()
+        calculate_net_position()
+    END CLASS
+
+METHODS
+    PROCEDURE RECONCILER_ENGINE.initialize(cfg JSON)
+        SET self.match_threshold = cfg.get('match_threshold', 0.01)
+        CALL SELF.log_init('Reconciler engine initialized.')
+    END PROCEDURE
+
+    PROCEDURE RECONCILER_ENGINE.ingest_batch()
+        DEFINE raw_data ARRAY[TRADE]
+        SET raw_data = DATA_LOADER.fetch(config.data_source)
+        APPEND raw_data TO self.loaded_trades
+    END PROCEDURE
+
+    PROCEDURE RECONCILER_ENGINE.process()
+        CALL SELF.match_trades()
+        CALL SELF.flag_discrepancies()
+        CALL SELF.calculate_net_position()
+    END PROCEDURE
+
+    PROCEDURE RECONCILER_ENGINE.match_trades()
+        DEFINE i INTEGER, j INTEGER
+        DEFINE t1 TRADE, t2 TRADE
+        FOR i FROM 0 TO LEN(self.loaded_trades)-1 DO
+            SET t1 = self.loaded_trades[i]
+            FOR j FROM i+1 TO LEN(self.loaded_trades)-1 DO
+                SET t2 = self.loaded_trades[j]
+                IF t1.id EQ t2.id AND ABS(t1.amount - t2.amount) LT self.match_threshold THEN
+                    APPEND t1 TO self.settled_trades
+                    APPEND t2 TO self.settled_trades
+                END IF
+            END FOR
+        END FOR
+    END PROCEDURE
+
+    PROCEDURE RECONCILER_ENGINE.flag_discrepancies()
+        DEFINE unmatched TRADE
+        FOR EACH unmatched IN self.loaded_trades DO
+            IF NOT unmatched IN self.settled_trades THEN
+                DECLARE disc DISCREPANCY
+                SET disc.trade = unmatched
+                SET disc.reason = 'UNMATCHED_TRANSACTION'
+                APPEND disc TO self.discrepancies
+            END IF
+        END FOR
+    END PROCEDURE
+
+    PROCEDURE RECONCILER_ENGINE.calculate_net_position()
+        DEFINE net_pos FLOAT
+        SET net_pos = 0.0
+        FOR EACH t IN self.settled_trades DO
+            SET net_pos = net_pos + t.amount
+        END FOR
+        CALL AUDIT_LOGGER.log_metric('net_reconciled_position', net_pos)
+    END PROCEDURE
+END CLASS

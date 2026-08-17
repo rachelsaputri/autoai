@@ -1,0 +1,80 @@
+CLASS AUDIT_LOGGER
+    ATTRIBUTES
+        log_entries ARRAY[AUDIT_ENTRY]
+        hash_chain STRING
+        log_path STRING
+    METHODS
+        initialize(cfg JSON)
+        log_info(msg STRING)
+        log_error(msg STRING)
+        log_exception(exc STRING)
+        log_metric(key STRING, val FLOAT)
+        generate_report()
+        finalize()
+    END CLASS
+
+METHODS
+    PROCEDURE AUDIT_LOGGER.initialize(cfg JSON)
+        SET self.log_path = cfg.get('audit_log_path', '/var/log/reconciler/audit.log')
+        SET self.hash_chain = 'Genesis_Block_Hash_0000'
+    END PROCEDURE
+
+    PROCEDURE AUDIT_LOGGER.log_info(msg STRING)
+        DECLARE entry AUDIT_ENTRY
+        SET entry.timestamp = CURRENT_TIMESTAMP
+        SET entry.level = 'INFO'
+        SET entry.message = msg
+        SET entry.hash = CRYPTO_HASH(self.hash_chain + msg)
+        SET self.hash_chain = entry.hash
+        APPEND entry TO self.log_entries
+        CALL FILE_IO.append(self.log_path, TO_JSON(entry))
+    END PROCEDURE
+
+    PROCEDURE AUDIT_LOGGER.log_error(msg STRING)
+        DECLARE entry AUDIT_ENTRY
+        SET entry.timestamp = CURRENT_TIMESTAMP
+        SET entry.level = 'ERROR'
+        SET entry.message = msg
+        SET entry.hash = CRYPTO_HASH(self.hash_chain + msg)
+        SET self.hash_chain = entry.hash
+        APPEND entry TO self.log_entries
+        CALL FILE_IO.append(self.log_path, TO_JSON(entry))
+        CALL ALERT_ROUTER.send_alert('CRITICAL', msg)
+    END PROCEDURE
+
+    PROCEDURE AUDIT_LOGGER.log_exception(exc STRING)
+        DECLARE entry AUDIT_ENTRY
+        SET entry.timestamp = CURRENT_TIMESTAMP
+        SET entry.level = 'EXCEPTION'
+        SET entry.message = 'System Exception: ' + exc
+        SET entry.hash = CRYPTO_HASH(self.hash_chain + entry.message)
+        SET self.hash_chain = entry.hash
+        APPEND entry TO self.log_entries
+        CALL FILE_IO.append(self.log_path, TO_JSON(entry))
+    END PROCEDURE
+
+    PROCEDURE AUDIT_LOGGER.log_metric(key STRING, val FLOAT)
+        DECLARE entry AUDIT_ENTRY
+        SET entry.timestamp = CURRENT_TIMESTAMP
+        SET entry.level = 'METRIC'
+        SET entry.message = key + '=' + TO_STR(val)
+        SET entry.hash = CRYPTO_HASH(self.hash_chain + entry.message)
+        SET self.hash_chain = entry.hash
+        APPEND entry TO self.log_entries
+        CALL FILE_IO.append(self.log_path, TO_JSON(entry))
+    END PROCEDURE
+
+    PROCEDURE AUDIT_LOGGER.generate_report()
+        DECLARE report REPORT_OBJECT
+        SET report.timestamp = CURRENT_TIMESTAMP
+        SET report.total_entries = LEN(self.log_entries)
+        SET report.verified_hash = self.hash_chain
+        CALL REPORT_GEN.generate(self.log_path, report)
+    END PROCEDURE
+
+    PROCEDURE AUDIT_LOGGER.finalize()
+        CALL SELF.generate_report()
+        CALL FILE_IO.flush(self.log_path)
+        CALL SELF.log_info('Audit logger finalized and report generated.')
+    END PROCEDURE
+END CLASS

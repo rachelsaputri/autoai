@@ -1,0 +1,11 @@
+{
+  "data_source": "mainframe_transaction_queue_v2",
+  "poll_interval_ms": 1000,
+  "match_threshold": 0.01,
+  "audit_log_path": "./logs/audit_trail.log",
+  "ui_refresh_ms": 2000,
+  "alert_routing": {
+    "email": "compliance@bank.local",
+    "webhook": "https://alerts.internal/reconciler"
+  }
+}
