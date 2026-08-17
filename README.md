@@ -672,3 +672,5 @@
 - Created/Updated module: `data_processing_utility_autoit` (See `data_processing_utility_autoit/README.md` for details)
 
 - Created/Updated module: `mimic_data_processing_utility` (See `mimic_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `bash_data_processing_utility` (See `bash_data_processing_utility/README.md` for details)
