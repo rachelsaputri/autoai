@@ -562,3 +562,5 @@
 - Created/Updated module: `rpl_data_processing_utility` (See `rpl_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `./nescompliance_data_processor` (See `./nescompliance_data_processor/README.md` for details)
+
+- Created/Updated module: `nesl_compliance_data_processor` (See `nesl_compliance_data_processor/README.md` for details)
