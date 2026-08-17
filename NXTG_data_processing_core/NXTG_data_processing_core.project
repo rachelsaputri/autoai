@@ -1,0 +1,13 @@
+{
+  "name": "NXTG_data_processing_core",
+  "version": "1.0.0",
+  "build": {
+    "target": "NXT_RCX_EV3",
+    "language": "NXT-G 2.0",
+    "modules": [
+      "main.nxt",
+      "core_logic.nxt"
+    ]
+  },
+  "description": "NXT-G based Data Processing Core Utility"
+}
