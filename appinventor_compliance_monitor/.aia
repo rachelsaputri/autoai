@@ -1,0 +1,680 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<appinventor-aip version='1'>
+  <components>
+    <component name='Screen1' type='Screen'>
+      <properties>
+        <property name='Title'>Compliance Monitor</property>
+      </properties>
+    </component>
+    <component name='VerticalArrangement' type='VerticalArrangement'>
+      <properties>
+        <property name='Width'>Fill</property>
+        <property name='Height'>Fill</property>
+        <property name='AlignHorizontal'>Center</property>
+      </properties>
+    </component>
+    <component name='LabelTitle' type='Label'>
+      <properties>
+        <property name='Text'>System Compliance Dashboard</property>
+        <property name='FontSize'>18</property>
+        <property name='FontWeight'>Bold</property>
+      </properties>
+    </component>
+    <component name='ButtonScan' type='Button'>
+      <properties>
+        <property name='Text'>Run Compliance Scan</property>
+        <property name='Width'>Fill</property>
+        <property name='Padding'>10</property>
+      </properties>
+    </component>
+    <component name='ListPickerStatus' type='ListPicker'>
+      <properties>
+        <property name='Text'>Scan Status: Ready</property>
+        <property name='Width'>Fill</property>
+      </properties>
+    </component>
+    <component name='LabelComplianceScore' type='Label'>
+      <properties>
+        <property name='Text'>Compliance Score: 100%</property>
+        <property name='FontSize'>16</property>
+        <property name='FontWeight'>Bold</property>
+      </properties>
+    </component>
+    <component name='ProgressBar' type='ProgressBar'>
+      <properties>
+        <property name='Visible'>False</property>
+        <property name='Width'>Fill</property>
+      </properties>
+    </component>
+    <component name='Clock' type='Clock'>
+      <properties>
+        <property name='TimerInterval'>60000</property>
+        <property name='Enabled'>False</property>
+      </properties>
+    </component>
+    <component name='Web' type='Web'>
+      <properties>
+        <property name='Visible'>False</property>
+      </properties>
+    </component>
+    <component name='Location' type='Location'>
+      <properties>
+        <property name='MinimumTimeBetweenUpdates'>1000</property>
+        <property name='MinimumDistanceBetweenUpdates'>0</property>
+      </properties>
+    </component>
+    <component name='Sensors' type='Sensors'>
+      <properties>
+        <property name='SensorInterval'>Normal</property>
+      </properties>
+    </component>
+    <component name='File' type='File'>
+      <properties/>
+    </component>
+    <component name='TinyDB' type='TinyDB'>
+      <properties/>
+    </component>
+    <component name='Sound' type='Sound'>
+      <properties/>
+    </component>
+    <component name='Vibrate' type='Vibrate'>
+      <properties/>
+    </component>
+    <component name='BatteryMonitor' type='BatteryMonitor'>
+      <properties/>
+    </component>
+    <component name='NetworkConnectivity' type='NetworkConnectivity'>
+      <properties/>
+    </component>
+  </components>
+  <rules>
+    <rule event='com.google.appinventor.components.runtime.Form.Initialize'>
+      <block type='when'>
+        <field name='event'>com.google.appinventor.components.runtime.Form.Initialize</field>
+        <block type='procedures_callreturn'>
+          <mutation name='InitializeSystem'><arg name='param1'/></mutation>
+          <block type='procedures_call'>
+            <mutation name='InitializeSystem'><arg name='param1'/></mutation>
+          </block>
+        </block>
+      </block>
+    </rule>
+    <rule event='com.google.appinventor.components.runtime.Button.Click'>
+      <block type='when'>
+        <field name='event'>com.google.appinventor.components.runtime.Button.Click</field>
+        <field name='component'>ButtonScan</field>
+        <block type='procedures_call'>
+          <mutation name='StartComplianceScan'><arg name='param1'/></mutation>
+        </block>
+      </block>
+    </rule>
+    <rule event='com.google.appinventor.components.runtime.Clock.Timer'>
+      <block type='when'>
+        <field name='event'>com.google.appinventor.components.runtime.Clock.Timer</field>
+        <field name='component'>Clock</field>
+        <block type='procedures_call'>
+          <mutation name='RunScheduledChecks'><arg name='param1'/></mutation>
+        </block>
+      </block>
+    </rule>
+    <rule event='com.google.appinventor.components.runtime.Web.Receive'>
+      <block type='when'>
+        <field name='event'>com.google.appinventor.components.runtime.Web.Receive</field>
+        <field name='component'>Web</field>
+        <block type='procedures_call'>
+          <mutation name='ProcessComplianceResponse'><arg name='param1'/></mutation>
+        </block>
+      </block>
+    </rule>
+    <rule event='com.google.appinventor.components.runtime.NetworkConnectivity.On'>
+      <block type='when'>
+        <field name='event'>com.google.appinventor.components.runtime.NetworkConnectivity.On</field>
+        <field name='component'>NetworkConnectivity</field>
+        <block type='procedures_call'>
+          <mutation name='NetworkConnected'><arg name='param1'/></mutation>
+        </block>
+      </block>
+    </rule>
+    <rule event='com.google.appinventor.components.runtime.NetworkConnectivity.Off'>
+      <block type='when'>
+        <field name='event'>com.google.appinventor.components.runtime.NetworkConnectivity.Off</field>
+        <field name='component'>NetworkConnectivity</field>
+        <block type='procedures_call'>
+          <mutation name='NetworkDisconnected'><arg name='param1'/></mutation>
+        </block>
+      </block>
+    </rule>
+    <rule event='com.google.appinventor.components.runtime.TinyDB.ValueReturned'>
+      <block type='when'>
+        <field name='event'>com.google.appinventor.components.runtime.TinyDB.ValueReturned</field>
+        <field name='component'>TinyDB</field>
+        <block type='procedures_call'>
+          <mutation name='HandleConfigLoad'><arg name='param1'/></mutation>
+        </block>
+      </block>
+    </rule>
+    <rule event='com.google.appinventor.components.runtime.BatteryMonitor.BatteryChanged'>
+      <block type='when'>
+        <field name='event'>com.google.appinventor.components.runtime.BatteryMonitor.BatteryChanged</field>
+        <field name='component'>BatteryMonitor</field>
+        <block type='procedures_call'>
+          <mutation name='UpdateBatteryStatus'><arg name='param1'/></mutation>
+        </block>
+      </block>
+    </rule>
+    <rule event='com.google.appinventor.components.runtime.Sensors.ValueChanged'>
+      <block type='when'>
+        <field name='event'>com.google.appinventor.components.runtime.Sensors.ValueChanged</field>
+        <field name='component'>Sensors</field>
+        <block type='procedures_call'>
+          <mutation name='CheckPhysicalTampering'><arg name='param1'/></mutation>
+        </block>
+      </block>
+    </rule>
+    <rule event='com.google.appinventor.components.runtime.Location.GotLocation'>
+      <block type='when'>
+        <field name='event'>com.google.appinventor.components.runtime.Location.GotLocation</field>
+        <field name='component'>Location</field>
+        <block type='procedures_call'>
+          <mutation name='VerifyGeofence'><arg name='param1'/></mutation>
+        </block>
+      </block>
+    </rule>
+  </rules>
+  <procedures>
+    <procedure name='InitializeSystem' returns='true'>
+      <block type='procedures_defreturn'>
+        <field name='name'>InitializeSystem</field>
+        <block type='controls_if'>
+          <value name='IF0'>
+            <block type='logic_compare'>
+              <field name='OP'>EQ</field>
+              <value name='A'>
+                <block type='TinyDB_GetValue'>
+                  <value name='key'>
+                    <block type='text'>
+                      <field name='TEXT'>config_loaded</field>
+                    </block>
+                  </value>
+                  <value name='default'>
+                    <block type='text'>
+                      <field name='TEXT'>false</field>
+                    </block>
+                  </value>
+                </block>
+              </value>
+              <value name='B'>
+                <block type='text'>
+                  <field name='TEXT'>false</field>
+                </block>
+              </value>
+            </block>
+          </value>
+          <then>
+            <block type='variables_set'>
+              <var name='configStatus'>Initialized</var>
+              <value name='VALUE'>
+                <block type='logic_boolean'>
+                  <field name='BOOL'>TRUE</field>
+                </block>
+              </value>
+            </block>
+          </then>
+          <else>
+            <block type='variables_set'>
+              <var name='configStatus'>Loaded</var>
+              <value name='VALUE'>
+                <block type='logic_boolean'>
+                  <field name='BOOL'>TRUE</field>
+                </block>
+              </value>
+            </block>
+          </else>
+        </block>
+        <block type='Screen1_LabelComplianceScore_Text'>
+          <value name='TEXT'>
+            <block type='variables_get'>
+              <var name='configStatus'>Loaded</var>
+            </block>
+          </value>
+        </block>
+        <block type='Clock_Enabled'>
+          <value name='VALUE'>
+            <block type='logic_boolean'>
+              <field name='BOOL'>TRUE</field>
+            </block>
+          </value>
+        </block>
+        <block type='variables_get'>
+          <var name='configStatus'>Loaded</var>
+        </block>
+      </block>
+    </procedure>
+    <procedure name='StartComplianceScan' returns='true'>
+      <block type='procedures_defreturn'>
+        <field name='name'>StartComplianceScan</field>
+        <block type='ProgressBar_Visible'>
+          <value name='VALUE'>
+            <block type='logic_boolean'>
+              <field name='BOOL'>TRUE</field>
+            </block>
+          </value>
+        </block>
+        <block type='ListPickerStatus_Text'>
+          <value name='TEXT'>
+            <block type='text_concat'>
+              <value name='TEXT1'>
+                <block type='text'>
+                  <field name='TEXT'>Scanning... </field>
+                </block>
+              </value>
+              <value name='TEXT2'>
+                <block type='current_time'>
+                  <field name='TEXT'>Now</field>
+                </block>
+              </value>
+            </block>
+          </value>
+        </block>
+        <block type='Web_Get'>
+          <value name='url'>
+            <block type='text'>
+              <field name='TEXT'>https://compliance-api.example.com/v1/audit</field>
+            </block>
+          </value>
+          <value name='headers'>
+            <block type='list_create'>
+              <value name='value'>
+                <block type='list_create'>
+                  <field name='TEXT'>Authorization: Bearer {token}</field>
+                </block>
+              </value>
+            </block>
+          </value>
+          <value name='timeout'>
+            <block type='number'>
+              <field name='TEXT'>30000</field>
+            </block>
+          </value>
+        </block>
+        <block type='logic_boolean'>
+          <field name='BOOL'>TRUE</field>
+        </block>
+      </block>
+    </procedure>
+    <procedure name='RunScheduledChecks' returns='true'>
+      <block type='procedures_defreturn'>
+        <field name='name'>RunScheduledChecks</field>
+        <block type='if'>
+          <value name='IF0'>
+            <block type='logic_and'>
+              <value name='A'>
+                <block type='NetworkConnectivity_On'>
+                  <field name='TEXT'>Is Connected</field>
+                </block>
+              </value>
+              <value name='B'>
+                <block type='BatteryMonitor_BatteryLevel'>
+                  <field name='TEXT'>Level</field>
+                </block>
+              </value>
+            </block>
+          </value>
+          <then>
+            <block type='Web_Get'>
+              <value name='url'>
+                <block type='text'>
+                  <field name='TEXT'>https://compliance-api.example.com/v1/status</field>
+                </block>
+              </value>
+              <value name='headers'>
+                <block type='list_create'>
+                  <value name='value'>
+                    <block type='list_create'>
+                      <field name='TEXT'>Authorization: Bearer {token}</field>
+                    </block>
+                  </value>
+                </block>
+              </value>
+              <value name='timeout'>
+                <block type='number'>
+                  <field name='TEXT'>15000</field>
+                </block>
+              </value>
+            </block>
+          </then>
+          <else>
+            <block type='Sound_Play'>
+              <value name='sound'>
+                <block type='text'>
+                  <field name='TEXT'>offline_alert.wav</field>
+                </block>
+              </value>
+            </block>
+          </else>
+        </block>
+        <block type='logic_boolean'>
+          <field name='BOOL'>TRUE</field>
+        </block>
+      </block>
+    </procedure>
+    <procedure name='ProcessComplianceResponse' returns='true'>
+      <block type='procedures_defreturn'>
+        <field name='name'>ProcessComplianceResponse</field>
+        <block type='ProgressBar_Visible'>
+          <value name='VALUE'>
+            <block type='logic_boolean'>
+              <field name='BOOL'>FALSE</field>
+            </block>
+          </value>
+        </block>
+        <block type='ListPickerStatus_Text'>
+          <value name='TEXT'>
+            <block type='text'>
+              <field name='TEXT'>Scan Complete</field>
+            </block>
+          </value>
+        </block>
+        <block type='variables_set'>
+          <var name='complianceScore'>100</var>
+          <value name='VALUE'>
+            <block type='Web_GetJson'>
+              <value name='field'>
+                <block type='text'>
+                  <field name='TEXT'>compliance_score</field>
+                </block>
+              </value>
+            </block>
+          </value>
+        </block>
+        <block type='LabelComplianceScore_Text'>
+          <value name='TEXT'>
+            <block type='text_concat'>
+              <value name='TEXT1'>
+                <block type='text'>
+                  <field name='TEXT'>Compliance Score: </field>
+                </block>
+              </value>
+              <value name='TEXT2'>
+                <block type='variables_get'>
+                  <var name='complianceScore'>100</var>
+                </block>
+              </value>
+              <value name='TEXT3'>
+                <block type='text'>
+                  <field name='TEXT'>%</field>
+                </block>
+              </value>
+            </block>
+          </value>
+        </block>
+        <block type='if'>
+          <value name='IF0'>
+            <block type='logic_compare'>
+              <field name='OP'>LT</field>
+              <value name='A'>
+                <block type='variables_get'>
+                  <var name='complianceScore'>100</var>
+                </block>
+              </value>
+              <value name='B'>
+                <block type='number'>
+                  <field name='TEXT'>85</field>
+                </block>
+              </value>
+            </block>
+          </value>
+          <then>
+            <block type='Vibrate'>
+              <value name='duration'>
+                <block type='number'>
+                  <field name='TEXT'>1000</field>
+                </block>
+              </value>
+            </block>
+          </then>
+        </block>
+        <block type='logic_boolean'>
+          <field name='BOOL'>TRUE</field>
+        </block>
+      </block>
+    </procedure>
+    <procedure name='NetworkConnected' returns='true'>
+      <block type='procedures_defreturn'>
+        <field name='name'>NetworkConnected</field>
+        <block type='ProgressBar_Visible'>
+          <value name='VALUE'>
+            <block type='logic_boolean'>
+              <field name='BOOL'>FALSE</field>
+            </block>
+          </value>
+        </block>
+        <block type='Clock_Enabled'>
+          <value name='VALUE'>
+            <block type='logic_boolean'>
+              <field name='BOOL'>TRUE</field>
+            </block>
+          </value>
+        </block>
+        <block type='logic_boolean'>
+          <field name='BOOL'>TRUE</field>
+        </block>
+      </block>
+    </procedure>
+    <procedure name='NetworkDisconnected' returns='true'>
+      <block type='procedures_defreturn'>
+        <field name='name'>NetworkDisconnected</field>
+        <block type='Clock_Enabled'>
+          <value name='VALUE'>
+            <block type='logic_boolean'>
+              <field name='BOOL'>FALSE</field>
+            </block>
+          </value>
+        </block>
+        <block type='LogicBoolean'>
+          <field name='BOOL'>TRUE</field>
+        </block>
+      </block>
+    </procedure>
+    <procedure name='HandleConfigLoad' returns='true'>
+      <block type='procedures_defreturn'>
+        <field name='name'>HandleConfigLoad</field>
+        <block type='variables_set'>
+          <var name='configStatus'>Loaded</var>
+          <value name='VALUE'>
+            <block type='TinyDB_GetValue'>
+              <value name='key'>
+                <block type='text'>
+                  <field name='TEXT'>compliance_config</field>
+                </block>
+              </value>
+            </block>
+          </value>
+        </block>
+        <block type='logic_boolean'>
+          <field name='BOOL'>TRUE</field>
+        </block>
+      </block>
+    </procedure>
+    <procedure name='UpdateBatteryStatus' returns='true'>
+      <block type='procedures_defreturn'>
+        <field name='name'>UpdateBatteryStatus</field>
+        <block type='variables_set'>
+          <var name='batteryLevel'>50</var>
+          <value name='VALUE'>
+            <block type='BatteryMonitor_BatteryLevel'>
+              <field name='TEXT'>Level</field>
+            </block>
+          </value>
+        </block>
+        <block type='if'>
+          <value name='IF0'>
+            <block type='logic_compare'>
+              <field name='OP'>LT</field>
+              <value name='A'>
+                <block type='variables_get'>
+                  <var name='batteryLevel'>50</var>
+                </block>
+              </value>
+              <value name='B'>
+                <block type='number'>
+                  <field name='TEXT'>20</field>
+                </block>
+              </value>
+            </block>
+          </value>
+          <then>
+            <block type='Sound_Play'>
+              <value name='sound'>
+                <block type='text'>
+                  <field name='TEXT'>low_battery.wav</field>
+                </block>
+              </value>
+            </block>
+          </then>
+        </block>
+        <block type='logic_boolean'>
+          <field name='BOOL'>TRUE</field>
+        </block>
+      </block>
+    </procedure>
+    <procedure name='CheckPhysicalTampering' returns='true'>
+      <block type='procedures_defreturn'>
+        <field name='name'>CheckPhysicalTampering</field>
+        <block type='variables_set'>
+          <var name='accelX'>0</var>
+          <value name='VALUE'>
+            <block type='Sensors_GetX'>
+              <field name='TEXT'>Accelerometer</field>
+            </block>
+          </value>
+        </block>
+        <block type='variables_set'>
+          <var name='accelY'>0</var>
+          <value name='VALUE'>
+            <block type='Sensors_GetY'>
+              <field name='TEXT'>Accelerometer</field>
+            </block>
+          </value>
+        </block>
+        <block type='variables_set'>
+          <var name='accelZ'>0</var>
+          <value name='VALUE'>
+            <block type='Sensors_GetZ'>
+              <field name='TEXT'>Accelerometer</field>
+            </block>
+          </value>
+        </block>
+        <block type='if'>
+          <value name='IF0'>
+            <block type='logic_compare'>
+              <field name='OP'>LT</field>
+              <value name='A'>
+                <block type='math_abs'>
+                  <value name='value'>
+                    <block type='Sensors_GetX'>
+                      <field name='TEXT'>Accelerometer</field>
+                    </block>
+                  </value>
+                </block>
+              </value>
+              <value name='B'>
+                <block type='number'>
+                  <field name='TEXT'>2</field>
+                </block>
+              </value>
+            </block>
+          </value>
+          <then>
+            <block type='Sound_Play'>
+              <value name='sound'>
+                <block type='text'>
+                  <field name='TEXT'>tampering_detected.wav</field>
+                </block>
+              </value>
+            </block>
+            <block type='Vibrate'>
+              <value name='duration'>
+                <block type='number'>
+                  <field name='TEXT'>2000</field>
+                </block>
+              </value>
+            </block>
+          </then>
+        </block>
+        <block type='logic_boolean'>
+          <field name='BOOL'>TRUE</field>
+        </block>
+      </block>
+    </procedure>
+    <procedure name='VerifyGeofence' returns='true'>
+      <block type='procedures_defreturn'>
+        <field name='name'>VerifyGeofence</field>
+        <block type='variables_set'>
+          <var name='latitude'>0</var>
+          <value name='VALUE'>
+            <block type='Location_Latitude'>
+              <field name='TEXT'>Latitude</field>
+            </block>
+          </value>
+        </block>
+        <block type='variables_set'>
+          <var name='longitude'>0</var>
+          <value name='VALUE'>
+            <block type='Location_Longitude'>
+              <field name='TEXT'>Longitude</field>
+            </block>
+          </value>
+        </block>
+        <block type='if'>
+          <value name='IF0'>
+            <block type='logic_or'>
+              <value name='A'>
+                <block type='logic_compare'>
+                  <field name='OP'>LT</field>
+                  <value name='A'>
+                    <block type='variables_get'>
+                      <var name='latitude'>0</var>
+                    </block>
+                  </value>
+                  <value name='B'>
+                    <block type='number'>
+                      <field name='TEXT'>0</field>
+                    </block>
+                  </value>
+                </block>
+              </value>
+              <value name='B'>
+                <block type='logic_compare'>
+                  <field name='OP'>GT</field>
+                  <value name='A'>
+                    <block type='variables_get'>
+                      <var name='longitude'>0</var>
+                    </block>
+                  </value>
+                  <value name='B'>
+                    <block type='number'>
+                      <field name='TEXT'>180</field>
+                    </block>
+                  </value>
+                </block>
+              </value>
+            </block>
+          </value>
+          <then>
+            <block type='Sound_Play'>
+              <value name='sound'>
+                <block type='text'>
+                  <field name='TEXT'>geofence_breach.wav</field>
+                </block>
+              </value>
+            </block>
+          </then>
+        </block>
+        <block type='logic_boolean'>
+          <field name='BOOL'>TRUE</field>
+        </block>
+      </block>
+    </procedure>
+  </procedures>
+</appinventor-aip>
