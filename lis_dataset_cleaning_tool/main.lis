@@ -1,0 +1,47 @@
+;; Main entry point for the LIS Dataset Cleaning Tool
+
+(defun main (input-dir output-dir config-file)
+  (let ((config (load-config config-file))
+        (input-path (path-resolve input-dir))
+        (output-path (path-resolve output-dir)))
+    
+    ;; Validate directories
+    (unless (directory-exists? input-path)
+      (error (format "Input directory ~a not found" input-path)))
+    
+    (mkdir-p output-path)
+    
+    ;; Load dataset files
+    (let ((files (list-directory input-path "*.txt")))
+      (dolist (file files)
+        (let ((data (read-file (path-join input-path file))))
+          (when data
+            ;; Run cleaning pipeline
+            (let ((cleaned-data 
+                  (pipeline 
+                   (normalize-whitespace data)
+                   (detect-and-fix-encoding data)
+                   (impute-missing-values data)
+                   (validate-schema data)))
+              
+              ;; Output cleaned data
+              (write-file 
+               (path-join output-path (strip-extension file)) 
+               cleaned-data)
+              
+              (log-event "CLEANED" file)))))
+      
+      (log-event "DONE" "All files processed")))
+
+;; Helper to load configuration
+(defun load-config (path)
+  (parse-yaml (read-file path)))
+
+;; Helper to write log
+(defun log-event (level message &rest args)
+  (let ((log-msg (format "~a: ~a ~a" level message (string-join args " "))))
+    (append-to-file "./logs/cleaner.log" log-msg)))
+
+;; Export for external invocation
+(defun run-cleaner (input output config)
+  (main input output config))

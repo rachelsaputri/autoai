@@ -1,0 +1,46 @@
+;; Data cleaning pipeline components
+
+(defun pipeline (&rest stages)
+  (lambda (data)
+    (reduce (lambda (current stage)
+              (stage current))
+            stages
+            :initial-value data)))
+
+(defun normalize-whitespace (data)
+  "Replace multiple whitespace chars with single space, trim edges."
+  (let ((result ""))
+    (let ((lines (split-lines data)))
+      (dolist (line lines)
+        (let ((trimmed (string-trim " \t\n\r" line)))
+          (let ((normalized 
+                (with-input-from-string (s trimmed)
+                  (let ((words (read-all s)))
+                    (format nil "~{~a ~}" words)))))
+            (setf result (string-concat result normalized "\n")))))))
+  result)
+
+(defun detect-and-fix-encoding (data)
+  "Attempt to detect encoding and convert to UTF-8 if needed."
+  (let ((detected (detect-encoding data)))
+    (if (equal detected "UTF-8")
+        data
+        (convert-encoding data detected "UTF-8"))))
+
+(defun impute-missing-values (data)
+  "Replace empty fields with DEFAULT_VALUE from config."
+  (let ((empty-pattern "^$"))
+    (replace-regex data empty-pattern "<MISSING>")))
+
+(defun validate-schema (data)
+  "Basic structural validation of data lines."
+  (let ((valid-data ""))
+    (dolist (line (split-lines data))
+      (when (and line (not (string= line "")))
+        (setf valid-data (string-concat valid-data line "\n"))))
+    valid-data))
+
+(defun detect-encoding (data)
+  (if (string-match-p "\\x80\\xFF" data)
+      "ISO-8859-1"
+      "UTF-8"))

@@ -1,0 +1,50 @@
+;; File I/O utilities
+
+(defun read-file (path)
+  (if (file-exists? path)
+      (let ((content ""))
+        (with-open-file (stream path :direction :input)
+          (let ((chunk (read-line stream nil)))
+            (setf content chunk)
+            (loop :while (read-line stream nil) :do 
+                  (setf content (string-concat content 
+                                              (format nil "~a~%" 
+                                                      (read-line stream nil))))))
+          content)
+        content)
+      nil))
+
+(defun write-file (path content)
+  (with-open-file (stream path :direction :output
+                         :if-exists :supersede
+                         :if-does-not-exist :create)
+    (write-string content stream))
+  t)
+
+(defun list-directory (dir-pattern &optional extension)
+  (let ((results '()))
+    (dolist (item (directory dir-pattern))
+      (if extension 
+          (when (string-suffix? item extension)
+            (push item results))
+          (push item results)))
+    (nreverse results)))
+
+(defun path-resolve (path)
+  (if (string-prefix? "./" path)
+      (subseq path 2)
+      path))
+
+(defun path-join (&rest paths)
+  (format nil "~a/~a" (car paths) (cadr paths)))
+
+(defun strip-extension (filename)
+  (if (string-suffix? filename ".txt")
+      (subseq filename 0 (- (length filename) 4))
+      filename))
+
+(defun append-to-file (path content)
+  (with-open-file (stream path :direction :output
+                         :if-exists :append
+                         :if-does-not-exist :create)
+    (write-line content stream)))

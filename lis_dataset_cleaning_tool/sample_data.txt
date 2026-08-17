@@ -1,0 +1,9 @@
+John Doe    ,   john@example.com  ,   2023-01-15
+Jane Smith  ,   jane@test.com ,
+
+Bob Johnson  , bob@sample.org , 2023-02-20
+Alice Brown   ,   ,   
+
+Charlie Davis   ,   charlie@demo.net ,   2023-03-10
+
+  Empty line above should be handled

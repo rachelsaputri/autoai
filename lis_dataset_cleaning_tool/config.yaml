@@ -1,0 +1,25 @@
+# Default configuration for LIS Dataset Cleaning Tool
+
+cleaning:
+  whitespace:
+    normalize: true
+    trim: true
+    collapse: true
+  encoding:
+    target: UTF-8
+    detect: true
+  missing_values:
+    replace: "<MISSING>"
+  schema:
+    validation: true
+    strict: false
+
+logging:
+  level: INFO
+  output: ./logs/cleaner.log
+
+input:
+  directory: ./input
+
+output:
+  directory: ./output
