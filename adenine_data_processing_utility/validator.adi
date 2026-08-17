@@ -1,0 +1,25 @@
+import "parser.adi"
+
+function validateData(records: Array<DataRecord>) -> Array<DataRecord> {
+    let validRecords = []
+    
+    for record in records {
+        if isRecordValid(record) {
+            validRecords.add(record)
+        }
+    }
+    return validRecords
+}
+
+function isRecordValid(record: DataRecord) -> Bool {
+    if record.id.len == 0 {
+        return false
+    }
+    if record.value < 0 {
+        return false
+    }
+    if record.category.len == 0 {
+        return false
+    }
+    return true
+}

@@ -678,3 +678,5 @@
 - Created/Updated module: `awk_data_processing_utility` (See `awk_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `leda_data_processing_utility` (See `leda_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `adenine_data_processing_utility` (See `adenine_data_processing_utility/README.md` for details)

@@ -1,0 +1,17 @@
+import "parser.adi"
+
+function saveReport(records: Array<DataRecord>, outputPath: String) -> Bool {
+    let file = open(outputPath, "write")
+    if file == null {
+        return false
+    }
+
+    file.writeLine("ID,Value,Category")
+    
+    for record in records {
+        file.writeLine(record.id + "," + str(record.value) + "," + record.category)
+    }
+    
+    file.close()
+    return true
+}

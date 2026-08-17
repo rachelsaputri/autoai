@@ -1,0 +1,61 @@
+import "parser.adi"
+import "transformer.adi"
+import "validator.adi"
+import "reporter.adi"
+
+function main(args: Array<String>) -> Int {
+    if (args.length < 3) {
+        print("Usage: adenine run main.adi --input <file> --output <file>")
+        return 1
+    }
+
+    let inputFile = findArg(args, "--input")
+    let outputFile = findArg(args, "--output")
+
+    if inputFile == null || outputFile == null {
+        print("Error: --input and --output flags are required.")
+        return 1
+    }
+
+    print("Starting data processing...")
+    print("Input: " + inputFile)
+    print("Output: " + outputFile)
+
+    // 1. Parse
+    let rawData = parseFile(inputFile)
+    if rawData == null {
+        print("Error: Failed to parse input file.")
+        return 1
+    }
+    print("Parsed " + str(rawData.len) + " records.")
+
+    // 2. Validate
+    let validData = validateData(rawData)
+    if validData.len == 0 {
+        print("Error: No valid records found.")
+        return 1
+    }
+    print("Validated " + str(validData.len) + " records.")
+
+    // 3. Transform
+    let processedData = transformData(validData)
+    print("Transformed data successfully.")
+
+    // 4. Report
+    if saveReport(processedData, outputFile) {
+        print("Processing complete. Results saved to " + outputFile)
+        return 0
+    } else {
+        print("Error: Failed to save output.")
+        return 1
+    }
+}
+
+function findArg(args: Array<String>, flag: String) -> String? {
+    for i in 0..args.len {
+        if args[i] == flag && i + 1 < args.len {
+            return args[i + 1]
+        }
+    }
+    return null
+}

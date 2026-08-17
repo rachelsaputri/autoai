@@ -1,0 +1,49 @@
+import "io.adi"
+import "string.adi"
+
+record DataRecord {
+    id: String
+    value: Float
+    category: String
+}
+
+function parseFile(filepath: String) -> Array<DataRecord> {
+    let file = open(filepath, "read")
+    if file == null {
+        return []
+    }
+
+    let records = []
+    let headerLine = file.readLine()
+    // Skip header
+    
+    var line = file.readLine()
+    while line != null {
+        let record = parseLine(line)
+        if record != null {
+            records.add(record)
+        }
+        line = file.readLine()
+    }
+    file.close()
+    return records
+}
+
+function parseLine(line: String) -> DataRecord? {
+    let parts = split(line, ",")
+    if parts.len < 3 {
+        return null
+    }
+
+    let id = trim(parts[0])
+    let valueStr = trim(parts[1])
+    let category = trim(parts[2])
+
+    // Simple validation for float
+    let value = parseFloat(valueStr)
+    if value == null {
+        return null
+    }
+
+    return DataRecord(id, value, category)
+}

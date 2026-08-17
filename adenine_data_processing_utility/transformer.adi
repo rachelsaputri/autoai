@@ -1,0 +1,19 @@
+import "parser.adi"
+
+function transformData(records: Array<DataRecord>) -> Array<DataRecord> {
+    let transformed = []
+    
+    for record in records {
+        let mut newRecord = record
+        // Example transformation: Normalize value based on category
+        if newRecord.category == "A" {
+            newRecord.value = newRecord.value * 1.5
+        } else if newRecord.category == "B" {
+            newRecord.value = newRecord.value * 2.0
+        } else {
+            newRecord.value = newRecord.value * 1.0
+        }
+        transformed.add(newRecord)
+    }
+    return transformed
+}
