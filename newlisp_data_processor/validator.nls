@@ -1,0 +1,36 @@
+(define SCHEMA-REQUIREMENTS
+    '(("id" . integer)
+      ("name" . string)
+      ("value" . real)
+      ("status" . string)))
+
+(define (validate-field value type-spec)
+    (cond
+        ((= type-spec 'integer) (integer? value))
+        ((= type-spec 'string) (string? value))
+        ((= type-spec 'real) (number? value))
+        ((= type-spec 'boolean) (boolean? value))
+        (true true)))
+
+(define (validate-record record)
+    (when (list? record)
+        (let ((valid true))
+            (for (pair SCHEMA-REQUIREMENTS)
+                (let ((field (first pair))
+                      (type (second pair)))
+                    (let ((val (find field record)))
+                        (if (or (nil? val) (not (validate-field val type)))
+                            (set 'valid false))))
+            valid)))
+
+(define (validate-schema dataset)
+    (filter validate-record dataset))
+
+(define (count-valid dataset)
+    (length (validate-schema dataset)))
+
+(define (count-invalid dataset)
+    (- (length dataset) (length (validate-schema dataset))))
+
+(define (get-invalid-records dataset)
+    (filter (fn (r) (not (validate-record r))) dataset))

@@ -1,0 +1,35 @@
+(include "utils.nls")
+
+(define (parse-csv-line line)
+    (split (replace "," line (regex ",(?=([^"]*\"[^"]*\")*[^"]*$") "")) ",")
+    )
+
+(define (ingest-data directory)
+    (let ((files (directory directory "*.csv")))
+        (if files
+            (let ((dataset nil))
+                (for (file files)
+                    (if (file? file)
+                        (let ((lines (read-lines file)))
+                            (when (and lines (> (length lines) 1))
+                                (let ((headers (parse-csv-line (first lines))))
+                                    (for (line (rest lines))
+                                        (let ((values (parse-csv-line line)))
+                                            (push (zip headers values) dataset -1)))))
+                        (log-message (format "Skipping non-file: %s" file))))
+                dataset)
+            (log-message "CSV files not found in directory.")
+            nil)))
+
+(define (parse-json-input json-string)
+    (begin
+        (include "json.nls")
+        (parse-json json-string)))
+
+(define (format-timestamp)
+    (format "%04d-%02d-%02d %02d:%02d:%02d" (current-time 1) (current-time 2) (current-time 3) (current-time 4) (current-time 5) (current-time 6)))
+
+(define (timestamp) (format "%04d-%02d-%02d %02d:%02d:%02d" (current-time 1) (current-time 2) (current-time 3) (current-time 4) (current-time 5) (current-time 6)))
+
+(define (log-message msg)
+    (println (format "[%s] %s" (timestamp) msg)))

@@ -1,0 +1,40 @@
+(set 'DATA_DIR "./data")
+(set 'LOG_FILE "./pipeline.log")
+(set 'OUTPUT_DIR "./output")
+
+(include "parser.nls")
+(include "validator.nls")
+(include "transformer.nls")
+(include "exporter.nls")
+(include "utils.nls")
+
+(define (log-message msg)
+    (println (format "[%s] %s" (timestamp) msg))
+    (append-file LOG_FILE (format "%s - %s\n" (timestamp) msg)))
+
+(define (init-environment)
+    (unless (directory? DATA_DIR)
+        (create-directory DATA_DIR))
+    (unless (directory? OUTPUT_DIR)
+        (create-directory OUTPUT_DIR))
+    (log-message "Environment initialized."))
+
+(define (process-record record)
+    (let ((valid? (validate-record record)))
+        (if valid?
+            (transform-record record)
+            (log-message (format "Invalid record skipped: %s" record)))))
+
+(define (start-pipeline)
+    (init-environment)
+    (let ((raw-data (ingest-data DATA_DIR)))
+        (if raw-data
+            (do
+                (log-message (format "Ingested %d records." (length raw-data)))
+                (let ((processed (map process-record raw-data)))
+                    (export-data processed OUTPUT_DIR)
+                    (log-message (format "Processed %d records successfully." (length processed))))
+            )
+            (log-message "No data found to process."))))
+
+(main)

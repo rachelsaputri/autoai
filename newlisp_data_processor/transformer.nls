@@ -1,0 +1,36 @@
+(define (normalize-value val)
+    (if (real? val)
+        (round (* val 100.0) 2)
+        val))
+
+(define (transform-record record)
+    (when (validate-record record)
+        (let ((transformed record))
+            ; Normalize numeric fields
+            (set-in-list 'value (normalize-value (find 'value transformed)) transformed)
+            
+            ; Standardize status
+            (let ((status (find 'status transformed)))
+                (when (string? status)
+                    (set-in-list 'status (uppercase status) transformed)))
+                    
+            ; Add processing metadata
+            (set-in-list 'processed_at (timestamp) transformed)
+            
+            transformed)))
+
+(define (transform-dataset dataset)
+    (filter (fn (r) (not (nil? (transform-record r)))) (map transform-record dataset)))
+
+(define (aggregate-values dataset field)
+    (reduce (fn (acc item) (+ acc (find field item))) 0 dataset))
+
+(define (calculate-stats dataset)
+    (let ((values (map (fn (r) (find 'value r)) dataset)))
+        {
+            'count: (length values)
+            'sum: (reduce + 0 values)
+            'avg: (/ (reduce + 0 values) (length values))
+            'min: (apply min values)
+            'max: (apply max values)
+        }))

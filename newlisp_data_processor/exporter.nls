@@ -1,0 +1,31 @@
+(include "utils.nls")
+
+(define (export-to-json data filename)
+    (let ((json-output (json-string data)))
+        (write-file (format "%s/%s.json" OUTPUT_DIR filename) json-output)
+        (log-message (format "Exported JSON to %s/%s.json" OUTPUT_DIR filename))))
+
+(define (export-to-csv data filename)
+    (let ((csv-lines nil))
+        (when (and data (> (length data) 0))
+            (push (join (map string (first data)) ",") csv-lines)
+            (for (row (rest data))
+                (push (join (map string row) ",") csv-lines)))
+        (write-file (format "%s/%s.csv" OUTPUT_DIR filename) (join csv-lines "\n"))
+        (log-message (format "Exported CSV to %s/%s.csv" OUTPUT_DIR filename))))
+
+(define (export-data dataset output-dir)
+    (unless (directory? output-dir)
+        (create-directory output-dir))
+    
+    (when (and dataset (> (length dataset) 0))
+        (export-to-json dataset "processed_data")
+        (log-message "Data processing pipeline completed successfully.")))
+
+(define (write-log-entry msg)
+    (append-file LOG_FILE (format "%s\n" msg)))
+
+(define (cleanup temp-files)
+    (for (file temp-files)
+        (if (file? file)
+            (delete-file file))))

@@ -680,3 +680,5 @@
 - Created/Updated module: `leda_data_processing_utility` (See `leda_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `adenine_data_processing_utility` (See `adenine_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `newlisp_data_processor` (See `newlisp_data_processor/README.md` for details)

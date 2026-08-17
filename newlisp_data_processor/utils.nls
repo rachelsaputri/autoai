@@ -1,0 +1,40 @@
+(define (append-file filename content)
+    (let ((f (open filename 'append)))
+        (when f
+            (println f content)
+            (close f)))
+)
+
+(define (write-file filename content)
+    (let ((f (open filename 'write)))
+        (when f
+            (println f content)
+            (close f)))
+)
+
+(define (replace pattern replacement text)
+    (regex pattern text replacement))
+
+(define (uppercase str)
+    (string (upper str)))
+
+(define (lowercase str)
+    (string (lower str)))
+
+(define (format-string fmt . args)
+    (apply format fmt args))
+
+(define (timestamp)
+    (format "%04d-%02d-%02d %02d:%02d:%02d" (current-time 1) (current-time 2) (current-time 3) (current-time 4) (current-time 5) (current-time 6)))
+
+(define (validate-type value expected-type)
+    (cond
+        ((= expected-type 'int) (integer? value))
+        ((= expected-type 'real) (real? value))
+        ((= expected-type 'str) (string? value))
+        ((= expected-type 'list) (list? value))
+        (true true)))
+
+(define (error-handler err-msg)
+    (println (format "ERROR: %s" err-msg))
+    (exit -1))
