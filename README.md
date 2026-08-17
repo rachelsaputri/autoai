@@ -608,3 +608,5 @@
 - Created/Updated module: `lis_dataset_cleaning_tool` (See `lis_dataset_cleaning_tool/README.md` for details)
 
 - Created/Updated module: `abset_cryptographic_hash_engine` (See `abset_cryptographic_hash_engine/README.md` for details)
+
+- Created/Updated module: `agda_data_extractor` (See `agda_data_extractor/README.md` for details)

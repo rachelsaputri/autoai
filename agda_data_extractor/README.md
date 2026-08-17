@@ -1,4 +1,12 @@
-# Agda Data Extraction Utility
+# Agda Data Extractor
 
-This module provides a formal, type-safe data extraction and parsing utility using Agda.
- It demonstrates how to parse structured log lines and extract fields.
+This is a data extraction and parsing utility written in Agda.
+It demonstrates how to define data types, parsers, and extraction logic within the Agda type system.
+
+## Structure
+
+- `extractor.agda`: Main module containing the data types, parser, and extraction logic.
+
+## Usage
+
+Compile and test the Agda code using the Agda interpreter or an IDE that supports Agda.
