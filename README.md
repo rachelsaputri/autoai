@@ -624,3 +624,5 @@
 - Created/Updated module: `f_distributed_log_analyzer` (See `f_distributed_log_analyzer/README.md` for details)
 
 - Created/Updated module: `vpro_distributed_threat_intel` (See `vpro_distributed_threat_intel/README.md` for details)
+
+- Created/Updated module: `spark_compliance_drift_analyzer` (See `spark_compliance_drift_analyzer/README.md` for details)
