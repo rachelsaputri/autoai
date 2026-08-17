@@ -1,0 +1,378 @@
+// ============================================================================
+// JOSS: JOSS Cryptographic Protocol Engine
+// Description: Implementation of Elliptic Curve Diffie-Hellman (ECDH) Key
+//              Exchange and ElGamal Encryption using the secp256r1 curve.
+// Author: Autonomous AI Polyglot Software Engineer
+// ============================================================================
+
+// ============================================================================
+// Section 1: Constants and Elliptic Curve Definitions
+// ============================================================================
+// Using secp256r1 (NIST P-256) parameters for cryptographic security.
+// P: The prime field order
+// N: The order of the base point G
+// A, B: Curve equation coefficients (y^2 = x^3 + ax + b)
+// Gx, Gy: Coordinates of the generator point G
+
+VAR P = 0xFFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFF
+VAR N = 0xFFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFC
+VAR A = 0xFFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFC
+VAR B = 0x5AC635D8AA3A93E7B3EBBD55769886BC651D06B0CC53B0F63BCE3C3E27D2604B
+VAR Gx = 0x6B17D1F2E12C4247F8BCE6E563A440F277037D812DEB33A0F4A13945D898C296
+VAR Gy = 0x4FE342E2FE1A7F9B8EE7EB4A7C0F9E162BCE33576B315ECECBB6406837BF51F5
+
+VAR CURVE_A = A
+VAR CURVE_B = B
+VAR CURVE_P = P
+
+// ============================================================================
+// Section 2: Modular Arithmetic Utilities
+// ============================================================================
+
+FUNC modInverse(a, m)
+    // Extended Euclidean Algorithm to find modular multiplicative inverse
+    VAR m0 = m
+    VAR t
+    VAR q
+    VAR x0 = 0
+    VAR x1 = 1
+
+    IF a == 0 THEN
+        ERROR "Modular inverse does not exist"
+    END
+
+    a = a % m
+    IF a < 0 THEN
+        a = a + m
+    END
+
+    WHILE a > 1 DO
+        // q is quotient
+        q = a / m
+        t = m
+        // m is remainder now, process same as euclid's algo
+        m = a % m
+        a = t
+        t = x0
+
+        x0 = x1 - q * x0
+        x1 = t
+    END
+
+    // Make x1 positive if negative
+    IF x1 < 0 THEN
+        x1 = x1 + m0
+    END
+
+    RETURN x1
+END
+
+FUNC modPow(base, exp, m)
+    // Efficient modular exponentiation using square-and-multiply
+    VAR result = 1
+    base = base % m
+
+    IF base == 0 THEN RETURN 0 END
+
+    WHILE exp > 0 DO
+        // If exp is odd, multiply base with result
+        IF exp % 2 == 1 THEN
+            result = (result * base) % m
+        END
+
+        // exp must be even now
+        exp = exp / 2
+        base = (base * base) % m
+    END
+
+    RETURN result
+END
+
+FUNC modAdd(a, b, m)
+    RETURN (a + b) % m
+END
+
+FUNC modSub(a, b, m)
+    VAR res = (a - b) % m
+    IF res < 0 THEN res = res + m END
+    RETURN res
+END
+
+FUNC modMul(a, b, m)
+    RETURN (a * b) % m
+END
+
+// ============================================================================
+// Section 3: Elliptic Curve Point Operations
+// ============================================================================
+
+// Point representation: {x, y, infinity}
+// If infinity is true, it represents the point at infinity (O)
+
+FUNC isIdentity(P)
+    RETURN P["infinity"] == true
+END
+
+FUNC isOnCurve(P)
+    // Check if point P is on the curve y^2 = x^3 + ax + b mod p
+    IF isIdentity(P) THEN RETURN true END
+
+    VAR x = P["x"]
+    VAR y = P["y"]
+
+    VAR lhs = modMul(y, y, CURVE_P)
+    VAR rhs = modAdd(
+        modMul(x, modMul(x, x, CURVE_P), CURVE_P),
+        modAdd(
+            modMul(CURVE_A, x, CURVE_P),
+            CURVE_B,
+            CURVE_P
+        ),
+        CURVE_P
+    )
+
+    RETURN lhs == rhs
+END
+
+FUNC pointAdd(P1, P2)
+    // Elliptic Curve Point Addition
+    IF isIdentity(P1) THEN RETURN P2 END
+    IF isIdentity(P2) THEN RETURN P1 END
+
+    VAR x1 = P1["x"]
+    VAR y1 = P1["y"]
+    VAR x2 = P2["x"]
+    VAR y2 = P2["y"]
+
+    IF x1 == x2 THEN
+        IF y1 == y2 THEN
+            // Point Doubling
+            RETURN pointDouble(P1)
+        ELSE
+            // P1 + (-P1) = Identity
+            RETURN {"x": 0, "y": 0, "infinity": true}
+        END
+    END
+
+    // Standard Point Addition
+    VAR lambda_num = modSub(y2, y1, CURVE_P)
+    VAR lambda_den = modSub(x2, x1, CURVE_P)
+    VAR lambda = modMul(lambda_num, modInverse(lambda_den, CURVE_P), CURVE_P)
+
+    VAR x3 = modAdd(
+        modSub(
+            modMul(lambda, lambda, CURVE_P),
+            modAdd(x1, x2, CURVE_P),
+            CURVE_P
+        ),
+        CURVE_P,
+        CURVE_P
+    )
+    VAR y3 = modSub(
+        modMul(lambda, modSub(x1, x3, CURVE_P), CURVE_P),
+        y1,
+        CURVE_P
+    )
+
+    RETURN {"x": x3, "y": y3, "infinity": false}
+END
+
+FUNC pointDouble(P1)
+    // Elliptic Curve Point Doubling (P1 + P1)
+    VAR x1 = P1["x"]
+    VAR y1 = P1["y"]
+
+    IF y1 == 0 THEN
+        RETURN {"x": 0, "y": 0, "infinity": true}
+    END
+
+    // Lambda = (3x1^2 + a) / (2y1)
+    VAR lambda_num = modAdd(
+        modMul(3, modMul(x1, x1, CURVE_P), CURVE_P),
+        CURVE_A,
+        CURVE_P
+    )
+    VAR lambda_den = modMul(2, y1, CURVE_P)
+    VAR lambda = modMul(lambda_num, modInverse(lambda_den, CURVE_P), CURVE_P)
+
+    VAR x3 = modAdd(
+        modSub(
+            modMul(lambda, lambda, CURVE_P),
+            modAdd(x1, x1, CURVE_P),
+            CURVE_P
+        ),
+        CURVE_P,
+        CURVE_P
+    )
+    VAR y3 = modSub(
+        modMul(lambda, modSub(x1, x3, CURVE_P), CURVE_P),
+        y1,
+        CURVE_P
+    )
+
+    RETURN {"x": x3, "y": y3, "infinity": false}
+END
+
+FUNC scalarMultiply(k, P)
+    // Double-and-Add Algorithm for Scalar Multipulation
+    IF k == 0 THEN RETURN {"x": 0, "y": 0, "infinity": true} END
+    IF k < 0 THEN
+        // Negate point: (x, y) -> (x, -y mod p)
+        P = {"x": P["x"], "y": modSub(0, P["y"], CURVE_P), "infinity": false}
+        k = -k
+    END
+
+    VAR result = {"x": 0, "y": 0, "infinity": true} // Identity
+    VAR addend = P
+
+    WHILE k > 0 DO
+        IF k % 2 == 1 THEN
+            result = pointAdd(result, addend)
+        END
+        addend = pointDouble(addend)
+        k = k / 2
+    END
+
+    RETURN result
+END
+
+// ============================================================================
+// Section 4: Key Generation and Cryptographic Operations
+// ============================================================================
+
+FUNC generatePrivateKey()
+    // Generate a random private key d in [1, N-1]
+    // In a real implementation, use a CSPRNG
+    VAR random_val = HASH(CURRENT_TIMESTAMP)
+    VAR private_key = modPow(10, 10, N) + (random_val % (N - 2)) + 1
+    RETURN private_key
+END
+
+FUNC generatePublicKey(private_key)
+    // Public key Q = d * G
+    RETURN scalarMultiply(private_key, {"x": Gx, "y": Gy, "infinity": false})
+END
+
+// ============================================================================
+// Section 5: ECDH Key Agreement
+// ============================================================================
+
+FUNC ecdh_shared_secret(private_key_a, public_key_b)
+    // Compute shared secret S = private_key_a * public_key_b
+    VAR shared_point = scalarMultiply(private_key_a, public_key_b)
+    IF isIdentity(shared_point) THEN
+        ERROR "Shared secret calculation resulted in identity point"
+    END
+    // The shared secret is the x-coordinate of the resulting point
+    RETURN shared_point["x"]
+END
+
+// ============================================================================
+// Section 6: ElGamal Encryption Scheme
+// ============================================================================
+
+FUNC elgamal_encrypt(public_key, message_m)
+    // ElGamal Encryption
+    // Parameters: p, a, G (Generator)
+    // Public Key: (p, a, G, X) where X = G^x
+    // Message: m in Zp*
+    // Encrypt (m):
+    //   1. Pick random k, k < p
+    //   2. c1 = G^k mod p
+    //   3. c2 = m * X^k mod p
+    //   4. Cipher = (c1, c2)
+
+    VAR p = CURVE_P
+    VAR g = Gx // Using generator x-coord for simplicity in modular context
+    VAR x = public_key["x"]
+
+    // Random ephemeral key
+    VAR k = modPow(10, 10, p) + 1
+
+    VAR c1 = modPow(g, k, p)
+    VAR c2 = modMul(message_m, modPow(x, k, p), p)
+
+    RETURN {"c1": c1, "c2": c2}
+END
+
+FUNC elgamal_decrypt(private_key, cipher, public_key)
+    // ElGamal Decryption
+    // Decrypt (c1, c2) with private key x:
+    //   1. s = c1^x mod p
+    //   2. m = c2 * s^(-1) mod p
+
+    VAR p = CURVE_P
+    VAR c1 = cipher["c1"]
+    VAR c2 = cipher["c2"]
+    VAR x = private_key
+
+    VAR s = modPow(c1, x, p)
+    VAR s_inv = modInverse(s, p)
+    VAR m = modMul(c2, s_inv, p)
+
+    RETURN m
+END
+
+// ============================================================================
+// Section 7: Main Execution and Verification
+// ============================================================================
+
+FUNC main()
+    PRINT "============================================================================"
+    PRINT "JOSS Cryptographic Protocol Engine - ECDH and ElGamal"
+    PRINT "============================================================================"
+    PRINT ""
+
+    // 1. Key Generation
+    PRINT "[1] Generating Keys..."
+    VAR priv_key_a = generatePrivateKey()
+    VAR pub_key_a = generatePublicKey(priv_key_a)
+    VAR priv_key_b = generatePrivateKey()
+    VAR pub_key_b = generatePublicKey(priv_key_b)
+
+    PRINT "   Alice's Private Key: " + priv_key_a
+    PRINT "   Alice's Public Key (x): " + pub_key_a["x"]
+    PRINT "   Bob's Private Key: " + priv_key_b
+    PRINT "   Bob's Public Key (x): " + pub_key_b["x"]
+    PRINT ""
+
+    // 2. ECDH Shared Secret
+    PRINT "[2] Performing ECDH Key Exchange..."
+    VAR shared_secret_a = ecdh_shared_secret(priv_key_a, pub_key_b)
+    VAR shared_secret_b = ecdh_shared_secret(priv_key_b, pub_key_a)
+
+    PRINT "   Alice's Computed Shared Secret: " + shared_secret_a
+    PRINT "   Bob's Computed Shared Secret: " + shared_secret_b
+
+    IF shared_secret_a == shared_secret_b THEN
+        PRINT "   STATUS: ECDH Keys MATCH successfully."
+    ELSE
+        PRINT "   ERROR: ECDH Keys DO NOT MATCH."
+    END
+    PRINT ""
+
+    // 3. ElGamal Encryption/Decryption
+    PRINT "[3] Performing ElGamal Encryption/Decryption..."
+    VAR original_message = 12345 // Example plaintext integer
+    PRINT "   Original Message: " + original_message
+
+    VAR encrypted_msg = elgamal_encrypt(pub_key_a, original_message)
+    PRINT "   Encrypted C1: " + encrypted_msg["c1"]
+    PRINT "   Encrypted C2: " + encrypted_msg["c2"]
+
+    VAR decrypted_msg = elgamal_decrypt(priv_key_a, encrypted_msg, pub_key_a)
+    PRINT "   Decrypted Message: " + decrypted_msg
+
+    IF decrypted_msg == original_message THEN
+        PRINT "   STATUS: Decryption successful. Message recovered."
+    ELSE
+        PRINT "   ERROR: Decryption failed."
+    END
+    PRINT ""
+
+    PRINT "============================================================================"
+    PRINT "Execution Complete."
+    PRINT "============================================================================"
+END
+
+main()

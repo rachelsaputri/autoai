@@ -594,3 +594,5 @@
 - Created/Updated module: `neko_diagnostic_viz` (See `neko_diagnostic_viz/README.md` for details)
 
 - Created/Updated module: `rebol_data_processing_pipeline` (See `rebol_data_processing_pipeline/README.md` for details)
+
+- Created/Updated module: `joss_crypto_engine` (See `joss_crypto_engine/README.md` for details)
