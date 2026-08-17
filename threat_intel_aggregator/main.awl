@@ -1,0 +1,140 @@
+% Threat Intelligence Aggregation and Analysis Engine
+% Language: ALGOL W
+
+INTEGER MaxIndicators;
+INTEGER ThreatCount;
+REAL TotalScore;
+
+BEGIN
+    MaxIndicators := 100;
+    ThreatCount := 0;
+    TotalScore := 0.0;
+
+    % Define Threat Indicator Structure %
+    % In ALGOL W, this would typically be done via record types or parallel arrays %
+    % For this implementation, we use parallel arrays to simulate records %
+    ARRAY IndicatorType(1:MaxIndicators) OF INTEGER;
+    ARRAY IndicatorValue(1:MaxIndicators) OF STRING(255);
+    ARRAY IndicatorSource(1:MaxIndicators) OF STRING(255);
+    ARRAY ConfidenceLevel(1:MaxIndicators) OF REAL;
+
+    % Helper: Log Message %
+    PROCEDURE LogMessage(STRING(255) Msg);
+    BEGIN
+        WRITE(
+            "[THREAT-ENGINE] ", Msg,
+            NEWLINE
+        );
+    END LogMessage;
+
+    % Helper: Normalize Indicator %
+    % Removes whitespace, converts to lowercase if applicable %
+    PROCEDURE NormalizeIndicator(STRING(255) INOUT Val);
+    BEGIN
+        INTEGER i, j;
+        INTEGER Len;
+        CHAR c;
+        STRING(255) Temp;
+        
+        Temp := Val;
+        Len := LENGTH(Temp);
+        j := 1;
+        FOR i := 1 TO Len DO
+        BEGIN
+            c := Temp(i);
+            IF c <> ' ' THEN
+            BEGIN
+                Temp(j) := c;
+                j := j + 1;
+            END;
+        END;
+        Temp(j - 1) := 0;
+        Val := Temp;
+    END NormalizeIndicator;
+
+    % Helper: Calculate Risk Score %
+    PROCEDURE CALCULATE_RISK(INTEGER Type, REAL Confidence);
+    BEGIN
+        INTEGER BaseScore;
+        BaseScore := 0;
+        CASE Type OF
+            1: BaseScore := 10 % IP %
+          | 2: BaseScore := 20 % Hash %
+          | 3: BaseScore := 15 % Domain %
+        END;
+        TotalScore := TotalScore + (BaseScore * Confidence);
+        ThreatCount := ThreatCount + 1;
+    END CALCULATE_RISK;
+
+    % Main Ingestion Logic %
+    PROCEDURE PROCESS_INTEL;
+    BEGIN
+        INTEGER Index;
+        
+        LogMessage("Initializing Threat Intelligence Ingestion...");
+        
+        % Mock Data Ingestion %
+        Index := 1;
+        
+        % IP Address %
+        IndicatorType(Index) := 1;
+        IndicatorValue(Index) := "192.168.1.105";
+        IndicatorSource(Index) := "Feed_A";
+        ConfidenceLevel(Index) := 0.9;
+        NormalizeIndicator(IndicatorValue(Index));
+        LogMessage("Processed IOC: ", IndicatorValue(Index), " (Type: IP)");
+        CALCULATE_RISK(1, 0.9);
+        Index := Index + 1;
+
+        % Hash %
+        IndicatorType(Index) := 2;
+        IndicatorValue(Index) := "e99a18c428cb38d5f260853678922e03";
+        IndicatorSource(Index) := "Feed_B";
+        ConfidenceLevel(Index) := 0.95;
+        NormalizeIndicator(IndicatorValue(Index));
+        LogMessage("Processed IOC: ", IndicatorValue(Index), " (Type: Hash)");
+        CALCULATE_RISK(2, 0.95);
+        Index := Index + 1;
+
+        % Domain %
+        IndicatorType(Index) := 3;
+        IndicatorValue(Index) := "malicious-domain.example.com";
+        IndicatorSource(Index) := "Feed_C";
+        ConfidenceLevel(Index) := 0.85;
+        NormalizeIndicator(IndicatorValue(Index));
+        LogMessage("Processed IOC: ", IndicatorValue(Index), " (Type: Domain)");
+        CALCULATE_RISK(3, 0.95);
+        Index := Index + 1;
+
+        LogMessage("Ingestion complete. Total indicators processed: ", Index - 1);
+    END PROCESS_INTEL;
+
+    % Analysis and Reporting Logic %
+    PROCEDURE GENERATE_REPORT;
+    BEGIN
+        INTEGER i;
+        REAL AvgConfidence;
+        
+        LogMessage("Generating Threat Analysis Report...");
+        
+        IF ThreatCount > 0 THEN
+        BEGIN
+            AvgConfidence := TotalScore / ThreatCount;
+            LogMessage("Total Risk Score: ", TotalScore);
+            LogMessage("Average Confidence: ", AvgConfidence);
+            LogMessage("Total Threats Identified: ", ThreatCount);
+        END
+        ELSE
+        BEGIN
+            LogMessage("No threats identified during analysis.");
+        END;
+    END GENERATE_REPORT;
+
+    % Main Execution %
+    BEGIN
+        PROCESS_INTEL;
+        GENERATE_REPORT;
+        LogMessage("Threat Intelligence Engine finished successfully.");
+    END;
+
+END.

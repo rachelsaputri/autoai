@@ -638,3 +638,5 @@
 - Created/Updated module: `tmg_compliance_data_processor` (See `tmg_compliance_data_processor/README.md` for details)
 
 - Created/Updated module: `NXTG_threat_3d_visualizer` (See `NXTG_threat_3d_visualizer/README.md` for details)
+
+- Created/Updated module: `./threat_intel_aggregator` (See `./threat_intel_aggregator/README.md` for details)
