@@ -664,3 +664,5 @@
 - Created/Updated module: `gosu_security_policy_auditor` (See `gosu_security_policy_auditor/README.md` for details)
 
 - Created/Updated module: `postscript_compliance_report_generator` (See `postscript_compliance_report_generator/README.md` for details)
+
+- Created/Updated module: `averest_formal_policy_verifier` (See `averest_formal_policy_verifier/README.md` for details)

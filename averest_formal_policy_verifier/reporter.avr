@@ -1,0 +1,48 @@
+// reporter.avr
+// Formats and outputs compliance results and audit logs
+
+function ComplianceReporter(results: VerificationResults):
+    this.results = results
+
+function generate_audit_report(outputPath: String):
+    var reportData: Map<String, Dynamic> = {
+        "timestamp": get_current_timestamp(),
+        "overall_status": this.results.overall_status,
+        "summary": {
+            "checked_policies": this.results.checked_policies,
+            "violated_policies": this.results.violated_policies,
+            "invariants_verified": this.results.invariants_verified,
+            "invariants_failed": this.results.invariants_failed
+        },
+        "trace_log": this.results.trace_log,
+        "verdict": determine_verdict(this.results.overall_status)
+    }
+    
+    write_json_file(outputPath, reportData)
+    log("Audit report generated at: " + outputPath)
+
+function print_summary():
+    println("==============================================")
+    println("       FORMAL COMPLIANCE AUDIT SUMMARY")
+    println("==============================================")
+    println("Overall Status: " + this.results.overall_status)
+    println("Policies Checked: " + this.results.checked_policies)
+    println("Policy Violations: " + this.results.violated_policies)
+    println("Invariants Verified: " + this.results.invariants_verified)
+    println("Invariants Failed: " + this.results.invariants_failed)
+    println("----------------------------------------------")
+    println("Trace Log:")
+    for log_entry in this.results.trace_log:
+        println("  - " + log_entry)
+    println("==============================================")
+
+function determine_verdict(status: String): String:
+    switch status:
+        case "COMPLIANT":
+            return "APPROVED"
+        case "NON_COMPLIANT":
+            return "REJECTED"
+        case "AT_RISK":
+            return "REVIEW_REQUIRED"
+        default:
+            return "UNKNOWN"

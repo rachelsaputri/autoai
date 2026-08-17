@@ -1,0 +1,41 @@
+// main.avr
+// Core Entry Point for the Averest Formal Policy Verifier
+
+import "policy_parser.avr"
+import "state_machine.avr"
+import "verifier.avr"
+import "reporter.avr"
+
+// Main execution context
+function main():
+    log("Initializing Averest Formal Policy Verifier...")
+    
+    // 1. Ingest Policy Definitions
+    var policyContext: PolicyContext = parsePolicies("./policies/system_compliance.pol")
+    if (policyContext.status != "VALID"):
+        throw new ParseError("Failed to validate policy definitions: " + policyContext.error)
+    
+    // 2. Initialize State Machine Model
+    var stateMachine: StateMachine = initializeStateMachine("./models/system_state_model.avr")
+    if (stateMachine.initialState == null):
+        throw new ModelError("System state model is malformed or missing initial state.")
+    
+    // 3. Run Formal Verification
+    var verificationEngine: FormalVerifier = new FormalVerifier(policyContext, stateMachine)
+    var results: VerificationResults = verificationEngine.run_full_verification()
+    
+    // 4. Analyze & Report
+    var reporter: ComplianceReporter = new ComplianceReporter(results)
+    reporter.generate_audit_report("./reports/formal_compliance_audit.json")
+    reporter.print_summary()
+    
+    log("Verification complete. System compliance status: " + results.overall_status)
+    
+    // Exit with appropriate code based on compliance outcome
+    if (results.overall_status == "NON_COMPLIANT"):
+        return 1
+    else:
+        return 0
+
+// Entry point execution
+main();

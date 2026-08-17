@@ -1,0 +1,106 @@
+// state_machine.avr
+// Manages system state modeling and transition validation
+
+struct State:
+    id: String
+    name: String
+    properties: Map<String, Dynamic>
+    compliant: Boolean
+
+struct Transition:
+    source: String
+    target: String
+    guard: String // Logical formula that must evaluate true for transition
+    action: String
+
+struct StateMachine:
+    states: Map<String, State>
+    transitions: List<Transition>
+    initialState: State
+    current_state: State
+    history: List<State>
+
+function initializeStateMachine(filePath: String): StateMachine:
+    var sm: StateMachine = { 
+        states: Map<String, State>(), 
+        transitions: [], 
+        initialState: null,
+        current_state: null,
+        history: [] 
+    }
+    
+    var config: String = read_file(filePath)
+    var stateDefs: List<String> = extract_states(config)
+    var transDefs: List<String> = extract_transitions(config)
+    
+    for def in stateDefs:
+        var state: State = parse_state_definition(def)
+        sm.states.put(state.id, state)
+        if state.properties["is_initial"] == true:
+            sm.initialState = state
+            sm.current_state = state
+    
+    for def in transDefs:
+        sm.transitions.push(parse_transition_definition(def))
+    
+    sm.history.push(sm.current_state)
+    return sm
+
+function parse_state_definition(def: String): State:
+    var parts: List<String> = def.split("\t")
+    var id: String = parts[0]
+    var name: String = parts[1]
+    var isInitial: Boolean = parts[2] == "true"
+    var isCompliant: Boolean = parts[3] == "true"
+    
+    return {
+        id: id,
+        name: name,
+        properties: { "is_initial": isInitial, "compliant": isCompliant },
+        compliant: isCompliant
+    }
+
+function parse_transition_definition(def: String): Transition:
+    var parts: List<String> = def.split("\t")
+    return {
+        source: parts[0],
+        target: parts[1],
+        guard: parts[2],
+        action: parts[3]
+    }
+
+function extract_states(content: String): List<String>:
+    var states: List<String> = []
+    var lines: List<String> = content.split("\n")
+    for line in lines:
+        if line.startsWith("STATE "):
+            states.push(line.substring(6).trim())
+    return states
+
+function extract_transitions(content: String): List<String>:
+    var transitions: List<String> = []
+    var lines: List<String> = content.split("\n")
+    for line in lines:
+        if line.startsWith("TRANSITION "):
+            transitions.push(line.substring(11).trim())
+    return transitions
+
+function validate_transition(targetId: String): Boolean:
+    if not sm.states.containsKey(targetId):
+        return false
+        
+    var target: State = sm.states.get(targetId)
+    var validTransition: Boolean = false
+    
+    for trans in sm.transitions:
+        if trans.source == sm.current_state.id and trans.target == targetId:
+            // Evaluate guard formula
+            if evaluate_guard(trans.guard):
+                validTransition = true
+                break
+    
+    if validTransition:
+        sm.current_state = target
+        sm.history.push(target)
+        return true
+    return false
