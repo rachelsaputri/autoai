@@ -634,3 +634,5 @@
 - Created/Updated module: `hyp_compliance_data_processor` (See `hyp_compliance_data_processor/README.md` for details)
 
 - Created/Updated module: `alf_compliance_data_processor` (See `alf_compliance_data_processor/README.md` for details)
+
+- Created/Updated module: `algol68_compliance_data_processor` (See `algol68_compliance_data_processor/README.md` for details)
