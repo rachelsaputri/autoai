@@ -1,0 +1,32 @@
+// Data Validation Module
+
+function validate_record(record) {
+    local fields = record["fields"];
+    
+    // Check if record has at least one field
+    if len(fields) == 0 {
+        return false;
+    }
+    
+    // Check if all fields are non-empty strings or numbers
+    for field in fields {
+        if not (is_string(field) or is_number(field)) {
+            return false;
+        }
+        if is_string(field) and len(trim(field)) == 0 {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+function validate_all(data_list) {
+    local valid_list = [];
+    for record in data_list {
+        if validate_record(record) {
+            add(valid_list, record);
+        }
+    }
+    return valid_list;
+}

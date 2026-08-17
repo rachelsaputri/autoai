@@ -1,0 +1,30 @@
+// Data Ingestion Module
+import os;
+import file;
+
+function ingest_file(filepath) {
+    local file_content = file.read(filepath);
+    local lines = split(file_content, "\n");
+    local records = [];
+    for line in lines {
+        if len(trim(line)) > 0 {
+            local fields = split(line, ",");
+            local record = {};
+            record["fields"] = fields;
+            record["source"] = filepath;
+            add(records, record);
+        }
+    }
+    return records;
+}
+
+function ingest_all() {
+    local all_data = [];
+    local data_dir = "data";
+    local files = os.list_files(data_dir);
+    for file in files {
+        local records = ingest_file(join(data_dir, file));
+        append(all_data, records);
+    }
+    return all_data;
+}

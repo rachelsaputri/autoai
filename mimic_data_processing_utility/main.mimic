@@ -1,0 +1,28 @@
+// Main MIMIC script for data processing utility
+import data_ingestion;
+import data_transformer;
+import data_validator;
+import reporter;
+
+function main() {
+    print("Starting Data Processing Utility...");
+
+    // Ingest data
+    local data_list = data_ingestion.ingest_all();
+    print("Ingested " ~ len(data_list) ~ " records.");
+
+    // Validate data
+    local valid_data = data_validator.validate_all(data_list);
+    print("Validated " ~ len(valid_data) ~ " records.");
+
+    // Transform data
+    local transformed_data = data_transformer.transform_all(valid_data);
+    print("Transformed " ~ len(transformed_data) ~ " records.");
+
+    // Generate report
+    reporter.generate_report(transformed_data);
+
+    print("Data processing completed successfully.");
+}
+
+main();

@@ -1,0 +1,27 @@
+// Data Transformation Module
+
+function transform_record(record) {
+    local transformed = copy(record);
+    local fields = transformed["fields"];
+    
+    // Example transformation: uppercase all string fields
+    local new_fields = [];
+    for field in fields {
+        if is_string(field) {
+            add(new_fields, upper(field));
+        } else {
+            add(new_fields, field);
+        }
+    }
+    transformed["fields"] = new_fields;
+    return transformed;
+}
+
+function transform_all(data_list) {
+    local transformed_list = [];
+    for record in data_list {
+        local transformed = transform_record(record);
+        add(transformed_list, transformed);
+    }
+    return transformed_list;
+}
