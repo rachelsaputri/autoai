@@ -1,0 +1,30 @@
+/compliance-report 50 dict def
+compliance-report begin
+
+% --- Main Entry Point ---
+/entrypoint {
+  % Initialize system
+  /compliance-data exch readstring def
+  /report-filename (compliance_report.ps) def
+  
+  % Parse and validate data
+  compliance-data parse-compliance-data
+  
+  % Generate report structure
+  build-report-header
+  build-compliance-matrix
+  build-remediation-log
+  build-visualizations
+  build-report-footer
+  
+  % Output to file
+  report-filename (w) file exch write-report
+  closefile
+  (
+    [Success] Compliance report generated: compliance_report.ps
+  ) print
+}
+
+% Execute
+entrypoint
+end
