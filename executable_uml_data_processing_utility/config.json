@@ -1,0 +1,42 @@
+{
+  "application": {
+    "name": "Executable UML Data Processing Utility",
+    "version": "1.0.0"
+  },
+  "pipeline": {
+    "ingestion": {
+      "batchSize": 100,
+      "maxRetries": 3
+    },
+    "transformation": {
+      "rules": [
+        {
+          "id": "rule1",
+          "description": "Double value for category A",
+          "action": "multiply",
+          "multiplier": 2,
+          "targetCategory": "A"
+        },
+        {
+          "id": "rule2",
+          "description": "Add 50 to value for category B",
+          "action": "add",
+          "addend": 50,
+          "targetCategory": "B"
+        }
+      ]
+    },
+    "validation": {
+      "requiredFields": ["id", "value", "category"],
+      "constraints": {
+        "valueMin": 0,
+        "categoryMaxLength": 10
+      }
+    },
+    "reporting": {
+      "outputDirectory": "/output",
+      "reportTypes": ["summary", "category"],
+      "format": "txt"
+    }
+  }
+}

@@ -1,0 +1,39 @@
+// validator.iuml
+// Data validation module for the Executable UML Data Processing Utility
+
+module Validator {
+
+    // Function to validate a list of ingested DataRecord
+    function validate(ingestedData: list of DataRecord) -> list of DataRecord {
+        let validatedRecords: list of DataRecord = []
+
+        for each record in ingestedData {
+            if isRecordValid(record) {
+                validatedRecords.add(record)
+            } else {
+                logEvent("Record validation failed for id: " + record.id)
+            }
+        }
+
+        return validatedRecords
+    }
+
+    // Helper function to validate individual record
+    function isRecordValid(record: DataRecord) -> boolean {
+        // Check if required fields are present and within valid ranges
+        if record.id.isEmpty() then
+            return false
+        if record.value < 0 then
+            return false
+        if record.category.isEmpty() then
+            return false
+        if record.category.length > 10 then
+            return false
+        return true
+    }
+
+    // Log an event for debugging
+    function logEvent(message: string) {
+        print(message)
+    }
+}

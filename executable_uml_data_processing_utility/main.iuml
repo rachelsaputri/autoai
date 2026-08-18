@@ -1,0 +1,73 @@
+// main.iuml
+// Main entry point for the Executable UML Data Processing Utility
+
+import Ingestor
+import Transformer
+import Validator
+import Reporter
+
+module MainModule {
+
+    // Define the main processing function
+    function mainPipeline(inputData: list of DataRecord, outputDir: string) -> list of ReportEntry {
+        // Step 1: Ingest data
+        let ingestedData: list of DataRecord = Ingestor.ingest(inputData)
+        logEvent("Data ingestion complete. Records ingested: " + string(ingestedData.size()))
+
+        // Step 2: Validate ingested data
+        let validatedData: list of DataRecord = Validator.validate(ingestedData)
+        logEvent("Data validation complete. Records validated: " + string(validatedData.size()))
+
+        // Step 3: Transform validated data
+        let transformedData: list of TransformedRecord = Transformer.transform(validatedData)
+        logEvent("Data transformation complete. Records transformed: " + string(transformedData.size()))
+
+        // Step 4: Generate report
+        let reports: list of ReportEntry = Reporter.generateReports(transformedData, outputDir)
+        logEvent("Report generation complete. Reports generated: " + string(reports.size()))
+
+        return reports
+    }
+
+    // Entry point for the application
+    function run() {
+        // Sample input data for demonstration
+        let sampleData: list of DataRecord = [
+            DataRecord{id: "1", value: 100, category: "A"},
+            DataRecord{id: "2", value: 200, category: "B"},
+            DataRecord{id: "3", value: 300, category: "A"}
+        ]
+
+        let outputDirectory: string = "/output"
+
+        // Execute the main pipeline
+        let reports: list of ReportEntry = mainPipeline(sampleData, outputDirectory)
+
+        // Output final results
+        for each report in reports {
+            logEvent("Report: " + report.description)
+        }
+
+        logEvent("Pipeline execution complete.")
+    }
+}
+
+// Data types used across modules
+record DataRecord {
+    string id
+    int value
+    string category
+}
+
+record TransformedRecord {
+    string id
+    int value
+    string category
+    string processedValue
+}
+
+record ReportEntry {
+    string description
+    int recordCount
+    string filePath
+}
