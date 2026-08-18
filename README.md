@@ -700,3 +700,5 @@
 - Created/Updated module: `hop_data_processing_utility` (See `hop_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `clipper_data_processing_utility` (See `clipper_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `coldc_data_processing_utility` (See `coldc_data_processing_utility/README.md` for details)
