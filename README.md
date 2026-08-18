@@ -724,3 +724,5 @@
 - Created/Updated module: `./dc_data_processing_utility` (See `./dc_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `data_processing_utility_e` (See `data_processing_utility_e/README.md` for details)
+
+- Created/Updated module: `awk_compliance_auditor` (See `awk_compliance_auditor/README.md` for details)

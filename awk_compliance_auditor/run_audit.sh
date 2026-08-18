@@ -1,35 +1,31 @@
 #!/bin/bash
-# run_audit.sh
-# Wrapper script to execute the AWK compliance auditor pipeline.
-# Usage: ./run_audit.sh <input_log_file> [output_report_file]
 
-set -e
+# Run Compliance Audit
 
-AUDIT_DIR="$(cd "$(dirname "$0")" && pwd)"
-INPUT_LOG="${1:?Usage: $0 <input_log_file> [output_report_file]}"
-OUTPUT_FILE="${2:-audit_report.txt}"
+INPUT_FILE="${1:-input_data.csv}"
 
-if [ ! -f "$INPUT_LOG" ]; then
-    echo "ERROR: Input log file '$INPUT_LOG' not found."
+if [ ! -f "$INPUT_FILE" ]; then
+    echo "Error: Input file '$INPUT_FILE' not found."
     exit 1
 fi
 
-echo "[INFO] Starting AWK Compliance Audit on: $INPUT_LOG"
-echo "[INFO] Rules: $AUDIT_DIR/policy_rules.awk"
-echo "[INFO] Sanitizer: $AUDIT_DIR/sanitizer.awk"
-echo "[INFO] Engine: $AUDIT_DIR/audit_engine.awk"
+# Create a temporary file to include all AWK modules
+TEMP_AWK=$(mktemp)
 
-# Step 1: Sanitize logs
-SANITIZED_LOG=$(mktemp)
-awk -f "$AUDIT_DIR/sanitizer.awk" "$INPUT_LOG" > "$SANITIZED_LOG"
-echo "[INFO] Log sanitization complete."
+cat awk_compliance_auditor/sanitizer.awk >> "$TEMP_AWK"
+echo "" >> "$TEMP_AWK"
+cat awk_compliance_auditor/policy_rules.awk >> "$TEMP_AWK"
+echo "" >> "$TEMP_AWK"
+cat awk_compliance_auditor/audit_engine.awk >> "$TEMP_AWK"
 
-# Step 2: Run audit engine with policy rules
-awk -f "$AUDIT_DIR/audit_engine.awk" -v policy_file="$AUDIT_DIR/policy_rules.awk" "$SANITIZED_LOG" | tee "$OUTPUT_FILE"
-echo "[INFO] Audit report generated at: $OUTPUT_FILE"
+# Run the audit
+awk -f "$TEMP_AWK" "$INPUT_FILE"
 
-# Step 3: Cleanup
-rm -f "$SANITIZED_LOG"
-echo "[INFO] Cleanup complete."
+# Cleanup
+rm -f "$TEMP_AWK"
 
-exit 0
+# Check for errors
+if [ -f error_log.csv ]; then
+    echo "Errors found. See error_log.csv for details."
+    rm -f error_log.csv
+fi
