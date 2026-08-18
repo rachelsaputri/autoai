@@ -1,0 +1,54 @@
+# Data Transformer Module
+
+module DataTransformer;
+
+(* Type alias for Record *)
+type Record = { id: int, timestamp: string, user: string, action: string, status: int };
+
+(* Enrichment rules *)
+type Rule = {
+    name: string;
+    transform: Record -> Record
+};
+
+(* Sample transformation: Normalize timestamp to ISO format *)
+fun normalize_timestamp(record) =
+    let
+        val parts = split(record.timestamp, ' ');
+        val iso_timestamp = join(parts, 'T');
+    in
+        { id=record.id, timestamp=iso_timestamp, user=record.user, action=record.action, status=record.status }
+    end;
+
+(* Sample transformation: Enrich user status *)
+fun enrich_user_status(record) =
+    let
+        val new_status = if record.action = "login" then 1 else 0;
+    in
+        { id=record.id, timestamp=record.timestamp, user=record.user, action=record.action, status=new_status }
+    end;
+
+(* Function to apply a list of transformations to a list of records *)
+fun transform(records, rules) =
+    let
+        (* Map each rule to a transformation function *)
+        fun get_transform(rule_name) =
+            match rule_name with
+                "normalize" => normalize_timestamp
+            | "enrich" => enrich_user_status
+            | _ => id
+            end;
+        
+        (* Apply all transformations sequentially *)
+        fun apply_transformations(record, rules) =
+            fold (fun (rule_name, current_record) -> 
+                let
+                    val func = get_transform(rule_name);
+                in
+                    func(current_record)
+                end) record rules;
+    in
+        map (fun record -> apply_transformations(record, rules)) records
+    end;
+
+end Module;

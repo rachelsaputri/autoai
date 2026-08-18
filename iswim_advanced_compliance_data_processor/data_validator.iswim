@@ -1,0 +1,42 @@
+# Data Validator Module
+
+module DataValidator;
+
+(* Type alias for Record to match ingestor *)
+type Record = { id: int, timestamp: string, user: string, action: string, status: int };
+
+(* Schema definition for compliance records *)
+type ComplianceSchema = 
+    {
+        min_status: int;
+        allowed_users: [string];
+        required_actions: [string]
+    };
+
+(* Default schema *)
+val default_schema = 
+    { min_status=0, allowed_users=["admin", "user", "auditor"], required_actions=["login", "logout", "modify"] };
+
+(* Function to validate a list of records *)
+fun validate(records, schema) =
+    let
+        val schema' = if schema="compliance_schema" then default_schema else schema;
+        
+        (* Validate a single record *)
+        fun validate_record(record) =
+            record.status >= schema'.min_status andalso 
+            member(record.user, schema'.allowed_users) andalso 
+            member(record.action, schema'.required_actions);
+        
+        (* Filter records *)
+        filter validate_record records
+    end;
+
+(* Helper to check list membership *)
+fun member(item, list) =
+    match list with
+        [] => false
+    | [head|tail] => if head = item then true else member(item, tail)
+    end;
+
+end Module;

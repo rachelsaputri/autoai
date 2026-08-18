@@ -1,0 +1,47 @@
+# Data Exporter Module
+
+module DataExporter;
+
+(* Type alias for Record *)
+type Record = { id: int, timestamp: string, user: string, action: string, status: int };
+
+(* Function to export records to JSON format *)
+fun export(records, output_stream, format) =
+    let
+        (* Serialize records to JSON string *)
+        fun to_json(record) =
+            "{" 
+            \"id\": " 
+            to_string(record.id) 
+            ", " 
+            \"timestamp\": \" " 
+            record.timestamp 
+            \"\", " 
+            \"user\": \" " 
+            record.user 
+            \"\", " 
+            \"action\": \" " 
+            record.action 
+            \"\", " 
+            \"status\": " 
+            to_string(record.status) 
+            "}";
+        
+        (* Convert list of records to JSON array *)
+        fun records_to_json_array(records) =
+            let
+                val json_records = map to_json records;
+                val json_array = "[" 
+                    fold (fun (json, acc) -> acc ", " json) "" json_records 
+                    "]";
+            in
+                json_array
+            end;
+        
+        (* Write to stream *)
+        val json_output = records_to_json_array(records);
+        stream_write(output_stream, json_output);
+        stream_flush(output_stream);
+    end;
+
+end Module;

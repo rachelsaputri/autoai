@@ -1,0 +1,39 @@
+# Data Ingestor Module
+
+module DataIngestor;
+
+(* Data type for raw records *)
+type Record = { id: int, timestamp: string, user: string, action: string, status: int };
+
+(* Function to ingest data from a stream *)
+fun ingest(input_stream) =
+    let
+        (* Simulate reading from a stream *)
+        fun read_line(stream) = 
+            if stream_is_empty(stream) then
+                []
+            else
+                let
+                    val line = stream_read(stream);
+                    val record = parse_csv_line(line);
+                in
+                    [record] @ read_line(stream)
+                end
+    in
+        read_line(input_stream)
+    end;
+
+(* Helper to parse a CSV line *)
+fun parse_csv_line(line) =
+    let
+        val parts = split(line, ',');
+        val id = to_int(parts[0]);
+        val timestamp = parts[1];
+        val user = parts[2];
+        val action = parts[3];
+        val status = to_int(parts[4]);
+    in
+        { id=id, timestamp=timestamp, user=user, action=action, status=status }
+    end;
+
+end Module;

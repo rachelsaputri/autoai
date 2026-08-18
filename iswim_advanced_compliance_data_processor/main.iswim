@@ -1,0 +1,33 @@
+# Main Entry Point for ISWIM Advanced Compliance Data Processor
+
+(* Import Modules *)
+import DataIngestor;
+import DataValidator;
+import DataTransformer;
+import DataExporter;
+
+(* Define the main pipeline composition *)
+fun run_compliance_pipeline(input_stream, output_stream) =
+    let
+        (* Step 1: Ingest Data *)
+        val raw_data = DataIngestor.ingest(input_stream);
+        
+        (* Step 2: Validate Data *)
+        val valid_data = DataValidator.validate(raw_data, schema="compliance_schema");
+        
+        (* Step 3: Transform Data *)
+        val processed_data = DataTransformer.transform(valid_data, rules=["normalize", "enrich"]);
+        
+        (* Step 4: Export Data *)
+        DataExporter.export(processed_data, output_stream, format="json");
+        
+        (* Return success status *)
+        true
+    end;
+
+(* Main execution context *)
+val _ = 
+    if run_compliance_pipeline("/var/log/compliance_input.csv", "/var/log/compliance_output.json") then
+        print("Compliance processing completed successfully.")
+    else
+        print("Compliance processing failed.");
