@@ -1,0 +1,61 @@
+// CorVision Data Processing Utility - Main Entry Point
+// Orchestrates the full pipeline: Ingest -> Validate -> Transform -> Report
+
+module DataProcessingPipeline;
+
+import Ingestor;
+import Validator;
+import Transformer;
+import Reporter;
+
+// Global configuration for the pipeline
+record PipelineConfig {
+    string input_path;
+    string output_path;
+    boolean strict_mode;
+    integer batch_size;
+}
+
+// Initialize and run the pipeline
+function main(config: PipelineConfig): integer {
+    log("Starting Data Processing Pipeline...");
+    
+    // Step 1: Ingest Data
+    var raw_data_list: List of Record;
+    raw_data_list = Ingestor.load_data(config.input_path, config.batch_size);
+    if raw_data_list.is_empty then
+        log("Error: No data ingested.");
+        return 1;
+    end if;
+    log("Ingested " + string(raw_data_list.size()) + " records.");
+    
+    // Step 2: Validate Data
+    var validated_records: List of Record;
+    var error_log: List of string;
+    (validated_records, error_log) = Validator.validate_records(raw_data_list, config.strict_mode);
+    
+    if not error_log.is_empty then
+        log("Validation Errors: ");
+        for error in error_log do
+            log("  - " + error);
+        end for;
+    end if;
+    
+    if validated_records.is_empty then
+        log("Error: No records passed validation.");
+        return 2;
+    end if;
+    log("Validated " + string(validated_records.size()) + " records.");
+    
+    // Step 3: Transform Data
+    var transformed_records: List of Record;
+    transformed_records = Transformer.transform_records(validated_records);
+    log("Transformed " + string(transformed_records.size()) + " records.");
+    
+    // Step 4: Generate Report
+    var report: Report;
+    report = Reporter.generate_report(transformed_records, config.output_path);
+    
+    log("Pipeline completed successfully.");
+    return 0;
+}

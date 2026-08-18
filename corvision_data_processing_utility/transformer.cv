@@ -1,0 +1,76 @@
+// CorVision Data Processing Utility - Data Transformer
+// Transforms validated data for reporting and storage
+
+module Transformer;
+
+import Ingestor;
+import Math;
+import Text;
+
+// Transform a list of records
+function transform_records(records: List of DataRecord): List of DataRecord {
+    var transformed: List of DataRecord;
+    var record: DataRecord;
+    var num_value: float;
+    
+    for record in records do
+        var new_record: DataRecord;
+        new_record = record.clone(); // Copy existing record
+        
+        // Transformation 1: Normalize Category to uppercase
+        new_record.category = new_record.category.toUpperCase();
+        
+        // Transformation 2: Calculate risk score based on value
+        if new_record.value.isNotEmpty and is_numeric(new_record.value) then
+            num_value = to_float(new_record.value);
+            new_record.value = format_value(num_value); // Format number
+            
+            // Simple risk logic: higher value = higher risk
+            if num_value > 40.0 then
+                new_record.category = new_record.category + ":HIGH_RISK";
+            else if num_value > 25.0 then
+                new_record.category = new_record.category + ":MED_RISK";
+            else
+                new_record.category = new_record.category + ":LOW_RISK";
+            end if;
+        else
+            new_record.category = new_record.category + ":NO_DATA";
+        end if;
+        
+        // Transformation 3: Generate a processing ID (hash of original ID)
+        new_record.id = generate_processing_id(record.id);
+        
+        transformed.add(new_record);
+    end for;
+    
+    return transformed;
+}
+
+// Format numeric value to 2 decimal places
+function format_value(value: float): string {
+    // CorVision might not have built-in formatting, so we simulate it
+    // In a real scenario, use a math library or string manipulation
+    var int_part: integer = floor(value);
+    var frac_part: float = value - int_part;
+    
+    if frac_part < 0.005 then
+        return string(int_part) + ".00";
+    else if frac_part < 0.05 then
+        return string(int_part) + "." + string(round(frac_part * 100));
+    else
+        return string(int_part) + "." + string(round(frac_part * 100));
+    end if;
+}
+
+// Generate a deterministic processing ID
+function generate_processing_id(original_id: string): string {
+    // Simple hash simulation
+    var hash: integer = 0;
+    var char: char;
+    
+    for char in original_id do
+        hash = hash + char.ord();
+    end for;
+    
+    return "PROC_" + string(hash);
+}

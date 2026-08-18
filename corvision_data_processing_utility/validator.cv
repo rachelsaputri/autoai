@@ -1,0 +1,101 @@
+// CorVision Data Processing Utility - Data Validator
+// Checks data integrity and compliance with rules
+
+module Validator;
+
+import Ingestor;
+import Text;
+
+// Validate a list of records
+function validate_records(records: List of DataRecord, strict_mode: boolean): Tuple of (List of DataRecord, List of string) {
+    var valid_records: List of DataRecord;
+    var errors: List of string;
+    var record: DataRecord;
+    
+    for record in records do
+        var is_valid: boolean = true;
+        var error_message: string = "";
+        
+        // Rule 1: ID must not be empty
+        if record.id.isEmpty then
+            is_valid = false;
+            error_message = "Record ID is empty";
+        end if;
+        
+        // Rule 2: Timestamp must be present
+        if record.timestamp.isEmpty then
+            is_valid = false;
+            error_message = error_message + "; Timestamp is missing";
+        end if;
+        
+        // Rule 3: Value must be present and numeric (if strict mode)
+        if strict_mode then
+            if record.value.isEmpty then
+                is_valid = false;
+                error_message = error_message + "; Value is missing";
+            else if not is_numeric(record.value) then
+                is_valid = false;
+                error_message = error_message + "; Value is not numeric";
+            end if;
+        else
+            // In non-strict mode, allow missing values but flag them
+            if record.value.isEmpty then
+                record.is_valid = false; // Flag as problematic but keep
+            end if;
+        end if;
+        
+        // Rule 4: Category must be known
+        if not is_known_category(record.category) then
+            is_valid = false;
+            error_message = error_message + "; Unknown category";
+        end if;
+        
+        if is_valid then
+            valid_records.add(record);
+        else
+            errors.add("ID: " + record.id + " - " + error_message);
+        end if;
+    end for;
+    
+    return Tuple(valid_records, errors);
+}
+
+// Helper to check if string is numeric
+function is_numeric(s: string): boolean {
+    var i: integer;
+    var char: char;
+    var has_dot: boolean = false;
+    
+    if s.isEmpty then
+        return false;
+    end if;
+    
+    for i from 0 to s.length() - 1 do
+        char = s.charAt(i);
+        if char.is_digit then
+            continue;
+        else if char == '.' then
+            if has_dot then
+                return false;
+            end if;
+            has_dot = true;
+        else
+            return false;
+        end if;
+    end for;
+    
+    return true;
+}
+
+// Helper to check if category is known
+function is_known_category(cat: string): boolean {
+    switch cat.toLowerCase() do
+        case "compliance":
+        case "audit":
+        case "security":
+        case "policy":
+            return true;
+        default:
+            return false;
+    end switch
+}
