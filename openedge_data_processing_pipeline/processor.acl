@@ -1,0 +1,23 @@
+/*
+ * processor.acl
+ * Core transformation logic for data cleansing and enrichment.
+ */
+
+FOR EACH ttInputData NO-LOCK:
+    /* Trim whitespace from names */
+    ASSIGN ttInputData.fName = TRIM(ttInputData.fName).
+    
+    /* Capitalize names */
+    ASSIGN ttInputData.fName = UPPER(ttInputData.fName).
+    
+    /* Normalize status */
+    CASE ttInputData.fStatus:
+        WHEN "active" THEN ASSIGN ttInputData.fStatus = "A".
+        WHEN "inactive" THEN ASSIGN ttInputData.fStatus = "I".
+        OTHERWISE ASSIGN ttInputData.fStatus = "U".
+    END CASE.
+    
+    /* Apply default value if null */
+    IF AVAILABLE(ttInputData) AND ttInputData.fValue = ? THEN 
+        ASSIGN ttInputData.fValue = 0.
+END.

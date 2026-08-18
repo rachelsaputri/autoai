@@ -1,0 +1,23 @@
+/*
+ * validator.acl
+ * Validates data integrity and compliance.
+ */
+
+DEFINE VARIABLE iErrors    AS INTEGER NO-UNDO.
+DEFINE VARIABLE iWarnings  AS INTEGER NO-UNDO.
+
+FOR EACH ttInputData NO-LOCK:
+    /* Validate Name Length */
+    IF LENGTH(ttInputData.fName) < 3 THEN DO:
+        ASSIGN iWarnings = iWarnings + 1.
+        MESSAGE "Warning: Short name for ID " ttInputData.fID "" VIEW-AS ALERT-BOX WARNING.
+    END.
+    
+    /* Validate Value Range */
+    IF ttInputData.fValue < 0 THEN DO:
+        ASSIGN iErrors = iErrors + 1.
+        MESSAGE "Error: Negative value for ID " ttInputData.fID "" VIEW-AS ALERT-BOX ERROR.
+    END.
+END.
+
+MESSAGE "Validation Complete: " iErrors " Errors, " iWarnings " Warnings." VIEW-AS ALERT-BOX INFO.

@@ -1,0 +1,16 @@
+/*
+ * config.acl
+ * Configuration definitions and setup for the pipeline.
+ */
+
+DEFINE VARIABLE gInputFile   AS CHARACTER NO-UNDO INITIAL "input_data.csv".
+DEFINE VARIABLE gOutputFile  AS CHARACTER NO-UNDO INITIAL "processed_data.csv".
+DEFINE VARIABLE gLogFile     AS CHARACTER NO-UNDO INITIAL "pipeline_log.txt".
+DEFINE VARIABLE gDebugMode   AS LOGICAL    NO-UNDO INITIAL FALSE.
+
+/* Initialize Log */
+OUTPUT TO VALUE(gLogFile) APPEND NO-MAP.
+PUT UNFORMATTED "Pipeline Initiated: " TODAY " " CURRENT-TIME SKIP.
+OUTPUT CLOSE.
+
+MESSAGE "Configuration loaded." VIEW-AS ALERT-BOX INFO.

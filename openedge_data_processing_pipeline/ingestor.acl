@@ -1,0 +1,31 @@
+/*
+ * ingestor.acl
+ * Handles data ingestion from various sources.
+ */
+
+DEFINE VARIABLE iRecordsRead AS INTEGER NO-UNDO.
+
+DEFINE TEMP-TABLE ttInputData NO-UNDO
+    FIELD fID     AS INTEGER
+    FIELD fName   AS CHARACTER
+    FIELD fValue  AS DECIMAL
+    FIELD fStatus AS CHARACTER
+    INDEX idxID IS PRIMARY fID.
+
+INPUT FROM VALUE(gInputFile) NO-MAP.
+
+REPEAT:
+    IMPORT DELIMITER "," 
+        ttInputData.fID
+        ttInputData.fName
+        ttInputData.fValue
+        ttInputData.fStatus.
+    
+    IF NOT AVAILABLE(ttInputData) THEN LEAVE.
+    
+    ASSIGN iRecordsRead = iRecordsRead + 1.
+END.
+
+INPUT CLOSE.
+
+IF gDebugMode THEN MESSAGE "Ingested " iRecordsRead " records." VIEW-AS ALERT-BOX INFO.

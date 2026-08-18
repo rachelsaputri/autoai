@@ -1,0 +1,25 @@
+/*
+ * reporter.acl
+ * Generates summary reports of processed data.
+ */
+
+DEFINE VARIABLE iProcessed AS INTEGER NO-UNDO.
+
+FOR EACH ttInputData NO-LOCK:
+    ASSIGN iProcessed = iProcessed + 1.
+END.
+
+OUTPUT TO VALUE(gOutputFile) NO-MAP.
+PUT UNFORMATTED "ID,Name,Value,Status" SKIP.
+
+FOR EACH ttInputData NO-LOCK:
+    PUT UNFORMATTED 
+        ttInputData.fID,
+        ttInputData.fName,
+        ttInputData.fValue,
+        ttInputData.fStatus SKIP.
+END.
+
+OUTPUT CLOSE.
+
+MESSAGE "Report generated: " iProcessed " records exported." VIEW-AS ALERT-BOX INFO.

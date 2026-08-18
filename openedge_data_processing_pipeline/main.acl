@@ -1,0 +1,36 @@
+/*
+ * main.acl
+ * Entry point for the OpenEdge Data Processing Pipeline.
+ */
+
+DEFINE VARIABLE cErrorMsg AS CHARACTER NO-UNDO.
+DEFINE VARIABLE bSuccess  AS LOGICAL   NO-UNDO.
+
+BLOCK-ON ERROR.
+
+/* 1. Initialize Configuration */
+RUN config.acl.
+
+/* 2. Run Ingestion */
+RUN ingestor.acl.
+
+/* 3. Run Transformation */
+RUN processor.acl.
+
+/* 4. Run Validation */
+RUN validator.acl.
+
+/* 5. Run Reporting */
+RUN reporter.acl.
+
+ASSIGN bSuccess = TRUE.
+
+END.
+
+/* Cleanup and Status */
+IF bSuccess THEN DO:
+    MESSAGE "Pipeline completed successfully." VIEW-AS ALERT-BOX INFO.
+END.
+ELSE DO:
+    MESSAGE "Pipeline failed." VIEW-AS ALERT-BOX ERROR.
+END.
