@@ -1,0 +1,36 @@
+// ingestor.iuml
+// Data ingestion module for the Executable UML Data Processing Utility
+
+module Ingestor {
+
+    // Function to ingest data from a list of DataRecord
+    function ingest(inputData: list of DataRecord) -> list of DataRecord {
+        let ingestedRecords: list of DataRecord = []
+
+        for each record in inputData {
+            if isValidInputRecord(record) {
+                ingestedRecords.add(record)
+            } else {
+                logEvent("Invalid input record skipped: " + record.id)
+            }
+        }
+
+        return ingestedRecords
+    }
+
+    // Helper function to validate input record structure
+    function isValidInputRecord(record: DataRecord) -> boolean {
+        if record.id.isEmpty() then
+            return false
+        if record.value < 0 then
+            return false
+        if record.category.isEmpty() then
+            return false
+        return true
+    }
+
+    // Log an event for debugging
+    function logEvent(message: string) {
+        print(message)
+    }
+}

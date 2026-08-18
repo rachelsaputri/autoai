@@ -1,0 +1,83 @@
+// reporter.iuml
+// Data reporting module for the Executable UML Data Processing Utility
+
+module Reporter {
+
+    // Function to generate reports from transformed data
+    function generateReports(transformedData: list of TransformedRecord, outputDir: string) -> list of ReportEntry {
+        let reports: list of ReportEntry = []
+
+        if transformedData.isEmpty() then
+            return reports
+
+        // Generate a summary report
+        let summaryReport: ReportEntry = createSummaryReport(transformedData, outputDir)
+        reports.add(summaryReport)
+
+        // Generate category-specific reports
+        let categories: set of string = extractCategories(transformedData)
+        for each category in categories do
+            let categoryReport: ReportEntry = createCategoryReport(category, transformedData, outputDir)
+            reports.add(categoryReport)
+        done
+
+        return reports
+    }
+
+    // Helper function to create a summary report
+    function createSummaryReport(data: list of TransformedRecord, outputDir: string) -> ReportEntry {
+        let totalRecords: int = data.size()
+        let reportDescription: string = "Summary Report: " + string(totalRecords) + " records processed"
+        let reportFilePath: string = outputDir + "/summary_report.txt"
+
+        // Write report to file (simulated)
+        writeReportToDisk(reportFilePath, data)
+
+        return ReportEntry{
+            description: reportDescription,
+            recordCount: totalRecords,
+            filePath: reportFilePath
+        }
+    }
+
+    // Helper function to create a category-specific report
+    function createCategoryReport(category: string, data: list of TransformedRecord, outputDir: string) -> ReportEntry {
+        let filteredData: list of TransformedRecord = filterByCategory(data, category)
+        let reportDescription: string = "Category Report for " + category + ": " + string(filteredData.size()) + " records"
+        let reportFilePath: string = outputDir + "/report_" + category + ".txt"
+
+        // Write report to file (simulated)
+        writeReportToDisk(reportFilePath, filteredData)
+
+        return ReportEntry{
+            description: reportDescription,
+            recordCount: filteredData.size(),
+            filePath: reportFilePath
+        }
+    }
+
+    // Helper function to extract unique categories from data
+    function extractCategories(data: list of TransformedRecord) -> set of string {
+        let categories: set of string = []
+        for each record in data do
+            categories.add(record.category)
+        done
+        return categories
+    }
+
+    // Helper function to filter data by category
+    function filterByCategory(data: list of TransformedRecord, category: string) -> list of TransformedRecord {
+        let filteredData: list of TransformedRecord = []
+        for each record in data do
+            if record.category == category then
+                filteredData.add(record)
+        done
+        return filteredData
+    }
+
+    // Helper function to write report to disk (simulated)
+    function writeReportToDisk(filePath: string, data: list of TransformedRecord) {
+        print("Writing report to: " + filePath + " with " + string(data.size()) + " records")
+        // In a real implementation, this would write to a file system
+    }
+}

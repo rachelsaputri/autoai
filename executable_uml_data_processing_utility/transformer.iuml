@@ -1,0 +1,32 @@
+// transformer.iuml
+// Data transformation module for the Executable UML Data Processing Utility
+
+module Transformer {
+
+    // Function to transform a list of validated DataRecord
+    function transform(validatedData: list of DataRecord) -> list of TransformedRecord {
+        let transformedRecords: list of TransformedRecord = []
+
+        for each record in validatedData {
+            let transformedRecord: TransformedRecord = {
+                id: record.id,
+                value: record.value,
+                category: record.category,
+                processedValue: processValue(record)
+            }
+            transformedRecords.add(transformedRecord)
+        }
+
+        return transformedRecords
+    }
+
+    // Helper function to process individual record value
+    function processValue(record: DataRecord) -> string {
+        if record.category == "A" then
+            return "Processed A: " + string(record.value * 2)
+        else if record.category == "B" then
+            return "Processed B: " + string(record.value + 50)
+        else
+            return "Processed Other: " + string(record.value)
+    }
+}
