@@ -722,3 +722,5 @@
 - Created/Updated module: `csh_data_processing_utility` (See `csh_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `./dc_data_processing_utility` (See `./dc_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `data_processing_utility_e` (See `data_processing_utility_e/README.md` for details)
