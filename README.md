@@ -720,3 +720,5 @@
 - Created/Updated module: `openedge_data_processing_pipeline` (See `openedge_data_processing_pipeline/README.md` for details)
 
 - Created/Updated module: `csh_data_processing_utility` (See `csh_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `./dc_data_processing_utility` (See `./dc_data_processing_utility/README.md` for details)
