@@ -1,0 +1,9 @@
+/* Logging utility */
+LOG_MESSAGE: PROCEDURE(MSG);
+    DCL MSG CHARACTER(1000) VARYING;
+    
+    /* Print message to console or log file */
+    PUT SKIP LIST(MSG);
+    
+    RETURN;
+END LOG_MESSAGE;

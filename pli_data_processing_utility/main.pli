@@ -1,0 +1,41 @@
+/* Main entry point for PL/I Data Processing Utility */
+MAIN: PROCEDURE OPTIONS(MAIN);
+
+    DECLARE 
+        PROCEDURE PROCESS_DATA EXTERNAL,
+        PROCEDURE VALIDATE_DATA EXTERNAL,
+        PROCEDURE GENERATE_REPORT EXTERNAL,
+        PROCEDURE LOG_MESSAGE EXTERNAL;
+
+    DECLARE 
+        STATUS CHARACTER(10);
+
+    CALL LOG_MESSAGE('Starting PL/I Data Processing Utility...');
+
+    /* Step 1: Process Raw Data */
+    CALL PROCESS_DATA(STATUS);
+    IF STATUS ^= 'OK' THEN DO;
+        CALL LOG_MESSAGE('Processing failed with status: ' || STATUS);
+        GO TO END_PROGRAM;
+    END;
+
+    /* Step 2: Validate Data */
+    CALL VALIDATE_DATA(STATUS);
+    IF STATUS ^= 'OK' THEN DO;
+        CALL LOG_MESSAGE('Validation failed with status: ' || STATUS);
+        GO TO END_PROGRAM;
+    END;
+
+    /* Step 3: Generate Report */
+    CALL GENERATE_REPORT(STATUS);
+    IF STATUS ^= 'OK' THEN DO;
+        CALL LOG_MESSAGE('Report generation failed with status: ' || STATUS);
+        GO TO END_PROGRAM;
+    END;
+
+    CALL LOG_MESSAGE('Utility completed successfully.');
+
+END_PROGRAM:
+    RETURN;
+
+END MAIN;

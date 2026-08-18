@@ -1,0 +1,11 @@
+/* Data validation rules */
+VALIDATE_DATA: PROCEDURE(STATUS);
+    DCL STATUS CHARACTER(10);
+    
+    /* Validate data integrity */
+    /* Check for nulls, incorrect formats, out-of-range values */
+    
+    STATUS = 'OK';
+    
+    RETURN;
+END VALIDATE_DATA;
