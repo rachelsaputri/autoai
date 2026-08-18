@@ -732,3 +732,5 @@
 - Created/Updated module: `telcomp_data_processing_utility` (See `telcomp_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `unreal_data_processing_engine` (See `unreal_data_processing_engine/README.md` for details)
+
+- Created/Updated module: `./cms_exec_compliance_data_processor` (See `./cms_exec_compliance_data_processor/README.md` for details)
