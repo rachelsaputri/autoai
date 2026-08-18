@@ -1,0 +1,46 @@
+MODULE Main;
+
+IMPORT ingester;
+IMPORT transformer;
+IMPORT reporter;
+
+TYPE Status = [OK, ERROR];
+
+PROCEDURE RunPipeline(inputPath: String, outputPath: String): Status;
+    VAR
+        rawData: List<Map<String, Any>>;
+        processedData: List<Map<String, Any>>;
+        report: Report;
+    BEGIN
+        // Ingest data
+        rawData <- ingester.Load(inputPath);
+        IF rawData == nil THEN
+            RETURN Status.ERROR;
+        END;
+
+        // Transform data
+        processedData <- transformer.Apply(rawData);
+
+        // Generate Report
+        report <- reporter.Generate(processedData);
+
+        // Save output
+        IF !reporter.Save(report, outputPath) THEN
+            RETURN Status.ERROR;
+        END;
+
+        RETURN Status.OK;
+    END;
+
+ENTRY;
+    VAR
+        result: Status;
+    BEGIN
+        result <- RunPipeline("./data/input.csv", "./output/report.json");
+        IF result == Status.OK THEN
+            PRINT "Processing complete.";
+        ELSE
+            PRINT "Processing failed.";
+        END;
+    END;
+END.

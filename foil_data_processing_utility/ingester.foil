@@ -1,0 +1,37 @@
+MODULE ingester;
+
+IMPORT io;
+
+TYPE Record = Map<String, Any>;
+TYPE DataBatch = List<Record>;
+
+FUNCTION Load(filePath: String): DataBatch;
+    VAR
+        lines: List<String>;
+        records: DataBatch;
+        header: List<String>;
+    BEGIN
+        lines <- io.ReadLines(filePath);
+        IF lines == nil THEN
+            RETURN nil;
+        END;
+
+        // Simple CSV parser (assumes first line is header)
+        header <- io.Split(lines[0], ',');
+        records <- [];
+
+        FOR i FROM 1 TO LENGTH(lines) DO
+            IF lines[i] == "" THEN CONTINUE END;
+            VALUES <- io.Split(lines[i], ',');
+            IF LENGTH(VALUES) != LENGTH(header) THEN CONTINUE END;
+
+            record <- Map<String, Any>();
+            FOR j FROM 0 TO LENGTH(header) DO
+                record[header[j]] <- VALUES[j];
+            END;
+            APPEND records, record;
+        END;
+
+        RETURN records;
+    END;
+END.

@@ -1,0 +1,29 @@
+MODULE transformer;
+
+TYPE Record = Map<String, Any>;
+TYPE DataBatch = List<Record>;
+
+FUNCTION Apply(batch: DataBatch): DataBatch;
+    VAR
+        result: DataBatch;
+        record: Record;
+        newRecord: Record;
+    BEGIN
+        result <- [];
+
+        FOR record IN batch DO
+            newRecord <- Map<String, Any>();
+            FOR key, value IN record DO
+                // Example: Trim strings and uppercase them
+                IF TYPEOF(value) == String THEN
+                    newRecord[key] <- TO_UPPER(STRIM(value));
+                ELSE
+                    newRecord[key] <- value;
+                END;
+            END;
+            APPEND result, newRecord;
+        END;
+
+        RETURN result;
+    END;
+END.

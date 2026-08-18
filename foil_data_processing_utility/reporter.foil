@@ -1,0 +1,29 @@
+MODULE reporter;
+
+IMPORT io;
+
+TYPE Record = Map<String, Any>;
+TYPE DataBatch = List<Record>;
+
+FUNCTION Generate(batch: DataBatch): Report;
+    VAR
+        report: Report;
+    BEGIN
+        report <- Report{
+            rowCount: LENGTH(batch),
+            timestamp: CURRENT_TIMESTAMP(),
+            status: "success"
+        };
+        RETURN report;
+    END;
+
+FUNCTION Save(report: Report, outputPath: String): Boolean;
+    BEGIN
+        // Serialize report to JSON and write to file
+        jsonStr <- JSON_SERIALIZE(report);
+        IF io.WriteFile(outputPath, jsonStr) THEN
+            RETURN true;
+        END;
+        RETURN false;
+    END;
+END.
