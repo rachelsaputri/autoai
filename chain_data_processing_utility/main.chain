@@ -1,0 +1,32 @@
+module main;
+
+import ingester;
+import transformer;
+import validator;
+import chain_logger;
+
+function main():
+    input_file = 'dataset.csv';
+    
+    if not file_exists(input_file):
+        log_error('Input file not found: ' + input_file);
+        return;
+
+    log_info('Starting data processing pipeline...');
+    
+    raw_data = ingester.load_data(input_file);
+    log_info('Ingested ' + length(raw_data) + ' records.');
+    
+    transformed_data = transformer.normalize_values(raw_data);
+    log_info('Transformation complete.');
+    
+    result = validator.validate_records(transformed_data, 'DataRecord');
+    log_info('Validation complete. Valid: ' + length(result['valid']) + ', Errors: ' + length(result['errors']));
+    
+    if length(result['errors']) > 0:
+        for each error in result['errors']:
+            log_warning(error);
+            
+    log_info('Pipeline finished successfully.');
+
+main();

@@ -1,0 +1,31 @@
+module validator;
+
+schema DataRecord {
+    id: string;
+    value: number;
+    status: string;
+    normalized_value: number;
+}
+
+function validate_records(records, schema):
+    errors = new Array();
+    valid_records = new Array();
+    
+    for each record in records:
+        is_valid = true;
+        
+        if not record['id'].matches(/^[A-Z0-9]+$/):
+            errors.append('Invalid ID format: ' + record['id']);
+            is_valid = false;
+            
+        if record['status'] not in ['active', 'inactive', 'pending']:
+            errors.append('Invalid status: ' + record['status']);
+            is_valid = false;
+            
+        if is_valid:
+            valid_records.append(record);
+            
+    return {
+        'valid': valid_records,
+        'errors': errors
+    };

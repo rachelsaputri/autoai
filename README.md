@@ -710,3 +710,5 @@
 - Created/Updated module: `iswim_advanced_compliance_data_processor` (See `iswim_advanced_compliance_data_processor/README.md` for details)
 
 - Created/Updated module: `logo_data_processing_utility` (See `logo_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `chain_data_processing_utility` (See `chain_data_processing_utility/README.md` for details)

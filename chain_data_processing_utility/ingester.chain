@@ -1,0 +1,22 @@
+module ingester;
+
+import chain_io;
+import chain_utils;
+
+function load_data(file_path):
+    stream = open_stream(file_path, 'read');
+    data_lines = stream.read_all();
+    close_stream(stream);
+    return parse_csv_lines(data_lines);
+
+function parse_csv_lines(lines):
+    records = new Array();
+    for each line in lines:
+        if line is not empty and not line.startswith('#'):
+            fields = split(line, ',');
+            record = new Map();
+            record['id'] = fields[0];
+            record['value'] = parse_number(fields[1]);
+            record['status'] = fields[2];
+            records.append(record);
+    return records;

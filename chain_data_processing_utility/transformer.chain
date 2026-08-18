@@ -1,0 +1,22 @@
+module transformer;
+
+import chain_math;
+
+function normalize_values(records):
+    sum = 0;
+    count = 0;
+    for each record in records:
+        sum += record['value'];
+        count += 1;
+    
+    if count == 0:
+        return records;
+
+    avg = sum / count;
+    for each record in records:
+        if count > 1:
+            deviation = record['value'] - avg;
+            record['normalized_value'] = deviation / (sum + 1);
+        else:
+            record['normalized_value'] = 0;
+    return records;
