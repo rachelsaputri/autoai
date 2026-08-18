@@ -1,0 +1,78 @@
+// TELCOMP Data Processing Utility - Validator Module
+
+PROGRAM validator_module
+  GLOBALS
+    VALIDATION_RULES : ARRAY OF VALIDATION_RULE;
+  END_GLOBALS
+
+  TYPE VALIDATION_RULE
+    FIELD_NAME : STRING;
+    CONSTRAINT : STRING;
+  END_TYPE
+
+  PROCEDURE validate_buffer(BUFFER : BUFFER) RETURNS STATUS : INTEGER
+    VAR
+      RULE_INDEX : INTEGER;
+      COUNT : INTEGER;
+    BEGIN
+      COUNT = GET_VALIDATION_RULE_COUNT();
+      FOR RULE_INDEX FROM 1 TO COUNT DO
+        STATUS = check_rule(BUFFER, VALIDATION_RULES[RULE_INDEX]);
+        IF STATUS != 0 THEN
+          DISPLAY "Validation failed for rule " + TO_STRING(RULE_INDEX);
+          RETURN STATUS;
+        END_IF;
+      END_FOR;
+      STATUS = 0;
+    END_PROCEDURE;
+
+  FUNCTION check_rule(BUFFER : BUFFER, RULE : VALIDATION_RULE) RETURNS STATUS : INTEGER
+    VAR
+      VALUE : STRING;
+    BEGIN
+      VALUE = get_field_value(BUFFER, RULE.FIELD_NAME);
+      CASE RULE.CONSTRAINT
+        WHEN "NOT_EMPTY" THEN
+          IF VALUE = "" THEN
+            STATUS = 1;
+          ELSE
+            STATUS = 0;
+          END_IF;
+        WHEN "NUMERIC" THEN
+          IF IS_NUMERIC(VALUE) THEN
+            STATUS = 0;
+          ELSE
+            STATUS = 2;
+          END_IF;
+        WHEN "LENGTH_MIN" THEN
+          IF LENGTH(VALUE) >= 5 THEN
+            STATUS = 0;
+          ELSE
+            STATUS = 3;
+          END_IF;
+        OTHERWISE
+          STATUS = -1;
+      ENDCASE;
+    END_FUNCTION;
+
+  FUNCTION GET_VALIDATION_RULE_COUNT RETURNS COUNT : INTEGER
+    BEGIN
+      COUNT = LENGTH(VALIDATION_RULES);
+    END_FUNCTION;
+
+  FUNCTION IS_NUMERIC(TEXT : STRING) RETURNS RESULT : BOOLEAN
+    VAR
+      I : INTEGER;
+      CHAR_CODE : INTEGER;
+    BEGIN
+      RESULT = TRUE;
+      FOR I FROM 1 TO LENGTH(TEXT) DO
+        CHAR_CODE = GET_CHAR_CODE(TEXT, I);
+        IF (CHAR_CODE < 48 OR CHAR_CODE > 57) THEN
+          RESULT = FALSE;
+          EXIT_FOR;
+        END_IF;
+      END_FOR;
+    END_FUNCTION;
+
+END_PROGRAM

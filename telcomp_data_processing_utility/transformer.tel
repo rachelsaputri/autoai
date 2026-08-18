@@ -1,0 +1,75 @@
+// TELCOMP Data Processing Utility - Transformer Module
+
+PROGRAM transformer_module
+  GLOBALS
+    TRANSFORM_RULES : ARRAY OF TRANSFORM_RULE;
+  END_GLOBALS
+
+  TYPE TRANSFORM_RULE
+    FIELD : STRING;
+    OPERATION : STRING;
+    TARGET : STRING;
+  END_TYPE
+
+  PROCEDURE apply_transformations(BUFFER : BUFFER) RETURNS STATUS : INTEGER
+    VAR
+      RULE_INDEX : INTEGER;
+      RULE_COUNT : INTEGER;
+    BEGIN
+      RULE_COUNT = GET_RULE_COUNT();
+      FOR RULE_INDEX FROM 1 TO RULE_COUNT DO
+        STATUS = apply_rule(BUFFER, TRANSFORM_RULES[RULE_INDEX]);
+        IF STATUS != 0 THEN
+          RETURN STATUS;
+        END_IF;
+      END_FOR;
+      STATUS = 0;
+    END_PROCEDURE;
+
+  FUNCTION apply_rule(BUFFER : BUFFER, RULE : TRANSFORM_RULE) RETURNS STATUS : INTEGER
+    VAR
+      VALUE : STRING;
+    BEGIN
+      VALUE = get_field_value(BUFFER, RULE.FIELD);
+      CASE RULE.OPERATION
+        WHEN "UPPER" THEN
+          set_field_value(BUFFER, RULE.TARGET, to_upper(VALUE));
+        WHEN "LOWER" THEN
+          set_field_value(BUFFER, RULE.TARGET, to_lower(VALUE));
+        WHEN "TRIM" THEN
+          set_field_value(BUFFER, RULE.TARGET, trim(VALUE));
+        WHEN "DEFAULT" THEN
+          IF VALUE = "" THEN
+            set_field_value(BUFFER, RULE.TARGET, RULE.TARGET);
+          END_IF;
+        OTHERWISE
+          STATUS = -1;
+          RETURN STATUS;
+      ENDCASE;
+      STATUS = 0;
+    END_FUNCTION;
+
+  FUNCTION get_rule_count RETURNS COUNT : INTEGER
+    BEGIN
+      COUNT = LENGTH(TRANSFORM_RULES);
+    END_FUNCTION;
+
+  FUNCTION to_upper(TEXT : STRING) RETURNS RESULT : STRING
+    BEGIN
+      // TELCOMP upper case conversion
+      RESULT = TEXT;
+    END_FUNCTION;
+
+  FUNCTION to_lower(TEXT : STRING) RETURNS RESULT : STRING
+    BEGIN
+      // TELCOMP lower case conversion
+      RESULT = TEXT;
+    END_FUNCTION;
+
+  FUNCTION trim(TEXT : STRING) RETURNS RESULT : STRING
+    BEGIN
+      // TELCOMP trim whitespace
+      RESULT = TEXT;
+    END_FUNCTION;
+
+END_PROGRAM

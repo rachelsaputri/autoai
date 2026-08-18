@@ -728,3 +728,5 @@
 - Created/Updated module: `awk_compliance_auditor` (See `awk_compliance_auditor/README.md` for details)
 
 - Created/Updated module: `elixir_data_processing_utility` (See `elixir_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `telcomp_data_processing_utility` (See `telcomp_data_processing_utility/README.md` for details)
