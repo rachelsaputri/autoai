@@ -742,3 +742,5 @@
 - Created/Updated module: `visual_prolog_data_processor` (See `visual_prolog_data_processor/README.md` for details)
 
 - Created/Updated module: `foxpro_data_processing_utility` (See `foxpro_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `fp_compliance_data_processor` (See `fp_compliance_data_processor/README.md` for details)
