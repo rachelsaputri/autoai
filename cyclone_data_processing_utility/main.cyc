@@ -1,0 +1,405 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <cyclone.h>
+#include <cyclone/cyclone_io.h>
+#include <cyclone/cyclone_types.h>
+
+#define BUFFER_SIZE 1024
+#define MAX_FIELDS 50
+
+typedef struct {
+    char* field_names[MAX_FIELDS];
+    int num_fields;
+    char** data[MAX_FIELDS];
+    int row_count;
+} Dataset;
+
+// Function prototypes
+Dataset* create_dataset();
+void destroy_dataset(Dataset* ds);
+int load_csv(Dataset* ds, const char* filepath);
+int load_json(Dataset* ds, const char* filepath);
+int validate_dataset(Dataset* ds);
+void transform_dataset(Dataset* ds);
+int save_output(Dataset* ds, const char* filepath, const char* format);
+void print_stats(Dataset* ds);
+
+int main(int argc, char* argv[]) {
+    if (argc != 4) {
+        printf("Usage: %s <input_file> <output_file> <format>\n", argv[0]);
+        return 1;
+    }
+
+    const char* input_file = argv[1];
+    const char* output_file = argv[2];
+    const char* format = argv[3];
+
+    Dataset* dataset = create_dataset();
+    if (dataset == NULL) {
+        printf("Error: Failed to create dataset.\n");
+        return 1;
+    }
+
+    printf("Loading data from %s...\n", input_file);
+    int load_status = -1;
+    if (strcmp(format, "csv") == 0) {
+        load_status = load_csv(dataset, input_file);
+    } else if (strcmp(format, "json") == 0) {
+        load_status = load_json(dataset, input_file);
+    } else {
+        printf("Error: Unsupported format %s. Use 'csv' or 'json'.\n", format);
+        destroy_dataset(dataset);
+        return 1;
+    }
+
+    if (load_status != 0) {
+        printf("Error: Failed to load data.\n");
+        destroy_dataset(dataset);
+        return 1;
+    }
+
+    printf("Data loaded successfully.\n");
+    print_stats(dataset);
+
+    printf("Validating data...\n");
+    if (validate_dataset(dataset) != 0) {
+        printf("Warning: Validation issues detected. Proceeding with best effort.\n");
+    }
+
+    printf("Transforming data...\n");
+    transform_dataset(dataset);
+
+    printf("Saving output to %s...\n", output_file);
+    if (save_output(dataset, output_file, format) != 0) {
+        printf("Error: Failed to save output.\n");
+        destroy_dataset(dataset);
+        return 1;
+    }
+
+    printf("Processing complete.\n");
+    destroy_dataset(dataset);
+    return 0;
+}
+
+Dataset* create_dataset() {
+    Dataset* ds = (Dataset*)calloc(1, sizeof(Dataset));
+    if (ds == NULL) return NULL;
+    ds->num_fields = 0;
+    ds->row_count = 0;
+    for (int i = 0; i < MAX_FIELDS; i++) {
+        ds->field_names[i] = NULL;
+        ds->data[i] = NULL;
+    }
+    return ds;
+}
+
+void destroy_dataset(Dataset* ds) {
+    if (ds == NULL) return;
+    for (int i = 0; i < ds->num_fields; i++) {
+        free(ds->field_names[i]);
+        if (ds->data[i] != NULL) {
+            for (int j = 0; j < ds->row_count; j++) {
+                free(ds->data[i][j]);
+            }
+            free(ds->data[i]);
+        }
+    }
+    free(ds);
+}
+
+int load_csv(Dataset* ds, const char* filepath) {
+    FILE* file = fopen(filepath, "r");
+    if (file == NULL) return -1;
+
+    char line[BUFFER_SIZE];
+    int header_loaded = 0;
+    
+    while (fgets(line, BUFFER_SIZE, file) != NULL) {
+        // Remove newline
+        line[strcspn(line, "\n")] = 0;
+        if (strlen(line) == 0) continue;
+
+        char* token;
+        char* rest = line;
+        int field_idx = 0;
+        
+        while ((token = strtok_r(rest, ",", &rest)) != NULL) {
+            if (field_idx >= MAX_FIELDS) break;
+            
+            if (!header_loaded) {
+                if (ds->field_names[field_idx] != NULL) {
+                    // Reallocation logic for fields would go here in a full impl
+                    // For simplicity, assuming max fields fixed at compile time or dynamic resize
+                }
+                ds->field_names[field_idx] = strdup(token);
+                ds->data[field_idx] = (char**)calloc(2, sizeof(char*)); // Initial row count 1
+                field_idx++;
+            } else {
+                // Add to existing field
+                int current_rows = ds->row_count;
+                ds->data[field_idx] = (char**)realloc(ds->data[field_idx], (current_rows + 1) * sizeof(char*));
+                ds->data[field_idx][current_rows] = strdup(token);
+            }
+            field_idx++;
+        }
+        
+        if (!header_loaded) {
+            ds->num_fields = field_idx;
+            header_loaded = 1;
+            ds->row_count = 1;
+        } else {
+            ds->row_count++;
+        }
+    }
+    fclose(file);
+    return 0;
+}
+
+int load_json(Dataset* ds, const char* filepath) {
+    // Simplified JSON parser for array of objects
+    FILE* file = fopen(filepath, "r");
+    if (file == NULL) return -1;
+
+    fseek(file, 0, SEEK_END);
+    long file_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    char* json_content = (char*)malloc(file_size + 1);
+    if (json_content == NULL) { fclose(file); return -1; }
+    fread(json_content, 1, file_size, file);
+    json_content[file_size] = 0;
+    fclose(file);
+
+    // Very basic JSON parsing logic
+    // Find start of array
+    char* arr_start = strstr(json_content, "[");
+    if (!arr_start) { free(json_content); return -1; }
+    
+    char* obj_start = NULL;
+    char* obj_end = NULL;
+    
+    // Extract field names from first object
+    int field_count = 0;
+    char* ptr = arr_start + 1;
+    
+    // Skip whitespace
+    while (*ptr && (*ptr == ' ' || *ptr == '\n' || *ptr == '\t')) ptr++;
+    
+    if (*ptr != '{') { free(json_content); return -1; }
+    
+    // Parse first object for headers
+    while (*ptr == '{' || *ptr == ' ' || *ptr == '\n' || *ptr == '\t') ptr++;
+    
+    char* key = NULL;
+    char* value = NULL;
+    while (*ptr != '}') {
+        if (*ptr == '"') {
+            key = ptr + 1;
+            value = strchr(key + 1, '"');
+            if (value) {
+                *value = 0;
+                value++;
+                while (*value == '"' || *value == ' ') value++;
+                char* val_end = strchr(value, '"');
+                if (val_end) {
+                    *val_end = 0;
+                }
+                
+                if (field_count < MAX_FIELDS) {
+                    ds->field_names[field_count] = strdup(key);
+                    ds->data[field_count] = (char**)calloc(2, sizeof(char*));
+                    field_count++;
+                }
+                
+                // Parse value (simplified: assumes simple string values for first row)
+                // In a real parser, we'd handle numbers, nested objects, etc.
+                if (ds->num_fields == 0) ds->num_fields = field_count; // Update num fields if needed
+                
+                // Store value for row 0
+                if (field_count > 0) {
+                    ds->data[field_count - 1][0] = strdup(value);
+                }
+                
+                ptr = val_end + 1;
+            }
+        } else {
+            ptr++;
+        }
+        
+        while (*ptr != ',' && *ptr != '}') ptr++;
+        if (*ptr == ',') ptr++;
+    }
+    
+    // Parse remaining objects
+    while (*ptr == ',') {
+        ptr++;
+        while (*ptr != '{' && *ptr != ']') ptr++;
+        if (*ptr == ']') break;
+        
+        ds->row_count++;
+        
+        for (int i = 0; i < ds->num_fields; i++) {
+            // Find the key
+            char* k = ds->field_names[i];
+            char* search_ptr = ptr;
+            char* key_match = strstr(search_ptr, k);
+            if (!key_match) {
+                ds->data[i] = (char**)realloc(ds->data[i], (ds->row_count) * sizeof(char*));
+                ds->data[i][ds->row_count - 1] = strdup("");
+                continue;
+            }
+            
+            // Find value after key
+            char* colon = strchr(key_match, ':');
+            if (!colon) {
+                ds->data[i] = (char**)realloc(ds->data[i], (ds->row_count) * sizeof(char*));
+                ds->data[i][ds->row_count - 1] = strdup("");
+                continue;
+            }
+            
+            char* val_start = colon + 1;
+            while (*val_start == ' ' || *val_start == '"') val_start++;
+            
+            char* val_end = strchr(val_start, '"');
+            if (val_end) {
+                *val_end = 0;
+                ds->data[i] = (char**)realloc(ds->data[i], (ds->row_count) * sizeof(char*));
+                ds->data[i][ds->row_count - 1] = strdup(val_start);
+                ptr = val_end + 1;
+            } else {
+                ds->data[i] = (char**)realloc(ds->data[i], (ds->row_count) * sizeof(char*));
+                ds->data[i][ds->row_count - 1] = strdup("");
+            }
+        }
+        
+        while (*ptr != ',' && *ptr != '}') ptr++;
+    }
+    
+    free(json_content);
+    return 0;
+}
+
+int validate_dataset(Dataset* ds) {
+    int issues = 0;
+    
+    // Check if data is empty
+    if (ds->num_fields == 0 || ds->row_count == 0) {
+        printf("Warning: Dataset is empty.\n");
+        issues++;
+    }
+    
+    // Check for null field names
+    for (int i = 0; i < ds->num_fields; i++) {
+        if (ds->field_names[i] == NULL) {
+            printf("Warning: Field name at index %d is null.\n", i);
+            issues++;
+        }
+    }
+    
+    // Check for null values in data (simplified)
+    for (int i = 0; i < ds->num_fields; i++) {
+        for (int j = 0; j < ds->row_count; j++) {
+            if (ds->data[i] && ds->data[i][j] && strlen(ds->data[i][j]) == 0) {
+                // Found empty value
+                issues++;
+            }
+        }
+    }
+    
+    if (issues > 0) {
+        printf("Validation completed. %d issue(s) found.\n", issues);
+    } else {
+        printf("Validation passed. No issues found.\n");
+    }
+    
+    return issues;
+}
+
+void transform_dataset(Dataset* ds) {
+    // Example transformation: trim whitespace from all strings
+    for (int i = 0; i < ds->num_fields; i++) {
+        // Trim field name
+        if (ds->field_names[i]) {
+            char* start = ds->field_names[i];
+            while (*start == ' ' || *start == '\t') start++;
+            char* end = start + strlen(start) - 1;
+            while (end > start && (*end == ' ' || *end == '\t')) end--;
+            *(end + 1) = 0;
+            // Move trimmed string if necessary
+            if (start != ds->field_names[i]) {
+                memmove(ds->field_names[i], start, strlen(start) + 1);
+            }
+        }
+        
+        if (ds->data[i] == NULL) continue;
+        
+        for (int j = 0; j < ds->row_count; j++) {
+            if (ds->data[i][j] == NULL) continue;
+            
+            // Trim value
+            char* start = ds->data[i][j];
+            while (*start == ' ' || *start == '\t') start++;
+            char* end = start + strlen(start) - 1;
+            while (end > start && (*end == ' ' || *end == '\t')) end--;
+            *(end + 1) = 0;
+            
+            if (start != ds->data[i][j]) {
+                memmove(ds->data[i][j], start, strlen(start) + 1);
+            }
+        }
+    }
+    printf("Data transformation (trimming) completed.\n");
+}
+
+int save_output(Dataset* ds, const char* filepath, const char* format) {
+    FILE* file = fopen(filepath, "w");
+    if (file == NULL) return -1;
+    
+    if (strcmp(format, "csv") == 0) {
+        // Write headers
+        for (int i = 0; i < ds->num_fields; i++) {
+            if (i > 0) fprintf(file, ",");
+            fprintf(file, "%s", ds->field_names[i]);
+        }
+        fprintf(file, "\n");
+        
+        // Write rows
+        for (int j = 0; j < ds->row_count; j++) {
+            for (int i = 0; i < ds->num_fields; i++) {
+                if (i > 0) fprintf(file, ",");
+                if (ds->data[i] && ds->data[i][j]) {
+                    fprintf(file, "%s", ds->data[i][j]);
+                } else {
+                    fprintf(file, "");
+                }
+            }
+            fprintf(file, "\n");
+        }
+    } else if (strcmp(format, "json") == 0) {
+        fprintf(file, "[\n");
+        for (int j = 0; j < ds->row_count; j++) {
+            fprintf(file, "  {\n");
+            for (int i = 0; i < ds->num_fields; i++) {
+                fprintf(file, "    \"%s\": \"%s\"", ds->field_names[i], 
+                        (ds->data[i] && ds->data[i][j]) ? ds->data[i][j] : "");
+                if (i < ds->num_fields - 1) fprintf(file, ",");
+                fprintf(file, "\n");
+            }
+            fprintf(file, "  }");
+            if (j < ds->row_count - 1) fprintf(file, ",");
+            fprintf(file, "\n");
+        }
+        fprintf(file, "]\n");
+    }
+    
+    fclose(file);
+    return 0;
+}
+
+void print_stats(Dataset* ds) {
+    printf("Dataset Statistics:\n");
+    printf("  Fields: %d\n", ds->num_fields);
+    printf("  Rows: %d\n", ds->row_count);
+    printf("  Total Cells: %d\n", ds->num_fields * ds->row_count);
+}
