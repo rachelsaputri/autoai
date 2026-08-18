@@ -714,3 +714,5 @@
 - Created/Updated module: `chain_data_processing_utility` (See `chain_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `./cpl_data_processing_utility` (See `./cpl_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `cyclone_data_processing_utility` (See `cyclone_data_processing_utility/README.md` for details)
