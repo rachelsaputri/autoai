@@ -694,3 +694,5 @@
 - Created/Updated module: `c--_data_processing_utility` (See `c--_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `csharp_advanced_data_processing_utility` (See `csharp_advanced_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `M2_data_processing_pipeline` (See `M2_data_processing_pipeline/README.md` for details)
