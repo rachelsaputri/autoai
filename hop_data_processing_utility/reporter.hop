@@ -1,0 +1,19 @@
+; reporter.hop - Data Reporting Module
+
+(import (hop-io) (hop-list))
+
+;; Function to save results to a report file
+(define (save-results data)
+  (with-output-to-file "results.txt"
+    (lambda ()
+      (for-each (lambda (record)
+                  (write-line record))
+                data)))
+  (log-info "Results saved to results.txt."))
+
+;; Logging helper
+(define (log-info msg)
+  (format #t "[INFO] ~a\n" msg))
+
+(define (log-warn msg)
+  (format #t "[WARN] ~a\n" msg))

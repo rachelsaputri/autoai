@@ -1,0 +1,21 @@
+; transformer.hop - Data Transformation Module
+
+(import (hop-string) (hop-list))
+
+;; Function to transform raw data
+(define (transform data)
+  (map (lambda (record)
+         (if (string? record)
+             (string-trim (string-downcase (string-strip record)))
+             record))
+       data))
+
+;; Helper functions for string manipulation
+(define (string-trim s)
+  (string-trim-both s (char-set #\space #\t)))
+
+(define (string-downcase s)
+  (string-map (lambda (c) (if (char-upper-case? c) (char-downcase c) c)) s))
+
+(define (string-strip s)
+  (string-replace s #\" #\"))

@@ -1,0 +1,24 @@
+; ingestor.hop - Data Ingestion Module
+
+(import (hop-io) (hop-list))
+
+;; Function to load data from the data directory
+(define (load-data)
+  (let ((files (glob-files data-dir)))
+    (map (lambda (file)
+           (read-file-as-lines file))
+         files)))
+
+;; Helper function to get list of files
+(define (glob-files dir)
+  (filter (lambda (f) (file-exists? (string-append dir "/" f)))
+          (list-directory dir)))
+
+;; Helper function to read file as lines
+(define (read-file-as-lines path)
+  (with-input-from-file path
+    (lambda ()
+      (let loop ((line (read-line)))
+        (if (eof-object? line)
+            '()
+            (cons line (loop (read-line))))))))

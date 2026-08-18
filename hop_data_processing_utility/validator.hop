@@ -1,0 +1,17 @@
+; validator.hop - Data Validation Module
+
+(import (hop-list) (hop-string))
+
+;; Function to validate processed data
+(define (validate data)
+  (filter (lambda (record)
+            (if (string? record)
+                (and (> (string-length record) 0)
+                     (not (string-prefix? "error" record)))
+                #t))
+          data))
+
+;; Helper function to check for prefix
+(define (string-prefix? prefix str)
+  (and (>= (string-length str) (string-length prefix))
+       (string=? prefix (substring str 0 (string-length prefix)))))

@@ -1,0 +1,23 @@
+; log_manager.hop - Logging Manager
+
+(import (hop-io) (hop-time))
+
+(define log-output-port #f)
+
+;; Initialize logging
+(define (init-log log-file)
+  (set! log-output-port (open-output-file log-file))
+  (log-message "Logger initialized."))
+
+;; Log a message
+(define (log-message msg)
+  (if log-output-port
+      (begin
+        (format log-output-port "~a: ~a\n" (current-time) msg)
+        (flush-output log-output-port))))
+
+;; Shutdown logging
+(define (log-shutdown)
+  (when log-outputport
+    (close-output-port log-output-port)
+    (set! log-output-port #f)))
