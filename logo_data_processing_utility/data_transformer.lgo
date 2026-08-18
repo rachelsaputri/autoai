@@ -1,0 +1,32 @@
+; data_transformer.lgo
+; Handles data transformation logic
+
+TO CLEAN [ITEM]
+  ; Remove leading/trailing spaces
+  OUTPUT STRIP :ITEM
+END
+
+TO NORMALIZENUMBER [NUM]
+  ; Ensure numeric value is consistent
+  IF NOT ISNUMBER :NUM [
+    PRINT [Warning: Non-numeric value found]
+    OUTPUT 0
+  ]
+  OUTPUT :NUM
+END
+
+TO TRANSFORMALL [DATASET]
+  MAKE "RESULT []
+  FOREACH [ROW] :DATASET [
+    MAKE "NEWROW []
+    FOREACH [CELL] ROW [
+      IF TYPEOF :CELL = [STRING] [
+        MAKE :CELL CLEAN :CELL
+      ]
+      MAKE :CELL NORMALIZENUMBER :CELL
+      MAKE "NEWROW SE :NEWROW :CELL
+    ]
+    MAKE "RESULT SE :RESULT :NEWROW
+  ]
+  OUTPUT :RESULT
+END

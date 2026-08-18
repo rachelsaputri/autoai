@@ -1,0 +1,82 @@
+; logo_data_processing_utility.lgo
+; Main entry point for the Logo Data Processing Utility
+
+TO MAIN
+  PRINT "[Starting Logo Data Processing Utility]"]
+  
+  ; Initialize global variables
+  MAKE "DATA_LIST []
+  MAKE "PROCESSED_LIST []
+  
+  ; Load sample data or user input
+  PRINT "Loading data...]
+  SAMPLEDATA
+  
+  ; Validate
+  PRINT "Validating data...]
+  VALIDATEALL
+  
+  ; Transform
+  PRINT "Transforming data...]
+  TRANSFORMALL
+  
+  ; Export
+  PRINT "Exporting results...]
+  EXPORTCSV
+  
+  PRINT "[Processing Complete]"]
+END
+
+TO SAMPLEDATA
+  MAKE "DATA_LIST [
+    ["123 "Alice "25 "Engineer]
+    ["456 "Bob "30 "Designer]
+    ["789 "Charlie "35 "Manager]
+  ]
+END
+
+TO VALIDATEALL
+  FOREACH [REC] :DATA_LIST [
+    IF NOT VALIDATERECORD :REC [
+      PRINT [Invalid Record Detected]
+    ]
+  ]
+END
+
+TO VALIDATERECORD [REC]
+  ; Simple validation: ensure record has 4 elements and ID is numeric
+  IF NOT EQUALP COUNT :REC 4 [MAKE "VALID FALSE OUTPUT []]
+  IF NOT ISNUMBER FIRST :REC [MAKE "VALID FALSE OUTPUT []]
+  MAKE "VALID TRUE
+END
+
+TO TRANSFORMALL
+  FOREACH [REC] :DATA_LIST [
+    MAKE "PROC (TRANSFORMREC :REC)
+    MAKE "PROCESSED_LIST SE :PROC :PROCESSED_LIST
+  ]
+END
+
+TO TRANSFORMREC [REC]
+  ; Normalize: Convert name to uppercase, remove spaces from ID
+  MAKE "ID STRPUT [ ] [] FIRST :REC
+  MAKE "NAME UPPER CASE :REC ITEM 2
+  OUTPUT (LIST :ID :NAME REST REST REST :REC)
+END
+
+TO EXPORTCSV
+  MAKE "OUTPUT "logo_data_processing_utility/output.csv
+  MAKE "FILE HANDLE "OUTPUT [WRITE]
+  FOREACH [REC] :PROCESSED_LIST [
+    PRINTLIST :REC :FILE
+  ]
+  CLOSE :FILE
+  PRINT [Output saved to output.csv]
+END
+
+TO PRINTLIST [LISTINFILE]
+  FOREACH [ITEM] LIST [
+    WRITE :ITEM "TAB
+  ]
+  TYPE CR
+END

@@ -1,0 +1,25 @@
+; data_exporter.lgo
+; Handles data export logic
+
+TO SAVECSV [DATASET [FILENAME "output.csv]]
+  MAKE "FILE HANDLE :FILENAME [WRITE]
+  FOREACH [ROW] :DATASET [
+    MAKE "LINE "
+    FOREACH [CELL] ROW [
+      MAKE :LINE WORD :LINE :CELL COMMA
+    ]
+    ; Remove last comma
+    MAKE :LINE SUBST :LINE LAST :LINE 1
+    TYPE :LINE CR :FILE
+  ]
+  CLOSE :FILE
+  PRINT [Data exported successfully]
+END
+
+TO VIEWDATA [DATASET]
+  PRINT [--- Data Preview ---]
+  FOREACH [ROW] :DATASET [
+    PRINT :ROW
+  ]
+  PRINT [------------------]
+END

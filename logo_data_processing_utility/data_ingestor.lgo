@@ -1,0 +1,39 @@
+; data_ingestor.lgo
+; Handles data ingestion logic
+
+TO LOADFILE [FILENAME]
+  IF NOT FILEEXISTS? :FILENAME [
+    PRINT [Error: File not found]
+    OUTPUT []
+  ]
+  
+  MAKE "FILE HANDLE :FILENAME [READ]
+  MAKE "ALLTEXT "
+  WHILE [NOT EOF :FILE] [
+    MAKE "ALLTEXT SENTENCE :ALLTEXT READLN :FILE
+  ]
+  CLOSE :FILE
+  
+  ; Split by newlines
+  MAKE "LINES SEPLIT :ALLTEXT CHAR 10
+  OUTPUT :LINES
+END
+
+TO PARSECSV [CSVLINE]
+  ; Simple CSV parser splitting by comma
+  OUTPUT SEPLIT :CSVLINE COMMA
+END
+
+TO READDATA [SOURCE]
+  ; Determine source type (file vs list)
+  IF TYPEOF :SOURCE = [FILE] [
+    OUTPUT LOADFILE :SOURCE
+  ]
+  
+  IF TYPEOF :SOURCE = [LIST] [
+    OUTPUT :SOURCE
+  ]
+  
+  PRINT [Unknown data source type]
+  OUTPUT []
+END
