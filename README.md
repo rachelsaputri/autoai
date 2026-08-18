@@ -698,3 +698,5 @@
 - Created/Updated module: `M2_data_processing_pipeline` (See `M2_data_processing_pipeline/README.md` for details)
 
 - Created/Updated module: `hop_data_processing_utility` (See `hop_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `clipper_data_processing_utility` (See `clipper_data_processing_utility/README.md` for details)
