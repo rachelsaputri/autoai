@@ -1,0 +1,30 @@
+-- main.csp
+-- Entry point and process orchestration for the CSP Data Processing Pipeline
+
+-- Import shared types
+copy types from "types.csp"
+
+-- Import processes
+copy Ingestor from "ingester.csp"
+copy Transformer from "transformer.csp"
+copy Validator from "validator.csp"
+copy Reporter from "reporter.csp"
+
+-- Define the system architecture
+System = 
+    (Ingestor [| {ingest} |] Transformer [| {transform} |] Validator [| {validate} |] Reporter)
+
+-- Function to run the pipeline with sample data
+def run_pipeline(): Void =
+    -- Generate sample data
+    let
+        data = ["Record 1", "Record 2", "Record 3", "Record 4", "Record 5"]
+    in
+        -- Start the pipeline with sample data
+        System
+
+-- Main execution
+main = 
+    run_pipeline()
+
+-- End of main.csp
