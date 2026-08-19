@@ -1,0 +1,26 @@
+CLASS MAIN;
+
+USE
+  INGESTOR,
+  TRANSFORMER,
+  VALIDATOR,
+  REPORTER;
+
+IN
+  run_pipeline;
+
+FEATURES
+  run_pipeline IS
+    raw_data: ARRAY{STRING} := INGESTOR::ingest();
+    transformed_data: ARRAY{STRING};
+    validation_errors: ARRAY{STRING};
+    report: STRING;
+  IS
+    TRANSFORMER::apply(raw_data, transformed_data);
+    VALIDATOR::verify(transformed_data, validation_errors);
+    REPORTER::generate(transformed_data, validation_errors, report);
+    OUT.put(report);
+    OUT.put("\nProcessing complete.");
+  END;
+
+END;

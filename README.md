@@ -760,3 +760,5 @@
 - Created/Updated module: `./io_data_processing_utility` (See `./io_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `ioke_data_processing_utility` (See `ioke_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `sather_data_processing_pipeline` (See `sather_data_processing_pipeline/README.md` for details)

@@ -1,0 +1,19 @@
+MODULE INGESTOR;
+
+FEATURES
+  ingest: ARRAY{STRING}
+  IS
+    data: ARRAY{STRING} := new ARRAY{STRING}(100);
+    i: INT := 0;
+  loop
+    -- Simulate reading from standard input or a file handle
+    line: STRING := IO.in.read_line;
+    EXIT line = "";
+    data.set(i, line);
+    i := i + 1;
+  end;
+    data.size := i;
+    RETURN data;
+  END;
+
+END;
