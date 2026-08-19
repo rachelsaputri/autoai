@@ -1,0 +1,53 @@
+using System;
+using Phrogram.Collections;
+
+namespace PhrogramDataProcessingUtility
+{
+    public class DataProcessor
+    {
+        public List<string> RawData { get; private set; }
+        public List<string> ProcessedData { get; private set; }
+
+        public DataProcessor()
+        {
+            RawData = new List<string>();
+            ProcessedData = new List<string>();
+        }
+
+        public void LoadSampleData()
+        {
+            RawData.Add("John Doe, 25, Active");
+            RawData.Add("Jane Smith, 32, Inactive");
+            RawData.Add("Bob Johnson, -1, Active"); // Invalid age
+            RawData.Add("Alice Brown, 28, Active");
+        }
+
+        public void Process()
+        {
+            var validator = new DataValidator();
+            var transformer = new DataTransformer();
+
+            foreach (var record in RawData)
+            {
+                if (validator.Validate(record))
+                {
+                    var processed = transformer.Transform(record);
+                    ProcessedData.Add(processed);
+                }
+                else
+                {
+                    Console.WriteLine("Skipped invalid record: " + record);
+                }
+            }
+        }
+
+        public void PrintResults()
+        {
+            Console.WriteLine("--- Processed Records ---");
+            foreach (var item in ProcessedData)
+            {
+                Console.WriteLine(item);
+            }
+        }
+    }
+}

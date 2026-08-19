@@ -806,3 +806,5 @@
 - Created/Updated module: `newlisp_data_processing_utility` (See `newlisp_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `ngl_data_processing_utility` (See `ngl_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `phrogram_data_processing_utility` (See `phrogram_data_processing_utility/README.md` for details)

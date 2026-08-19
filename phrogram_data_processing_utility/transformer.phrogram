@@ -1,0 +1,21 @@
+using System;
+
+namespace PhrogramDataProcessingUtility
+{
+    public class DataTransformer
+    {
+        public string Transform(string input)
+        {
+            if (string.IsNullOrEmpty(input)) return string.Empty;
+
+            var parts = input.Split(',');
+            if (parts.Length != 3) return input;
+
+            var name = parts[0].Trim().ToUpper();
+            var age = int.Parse(parts[1].Trim());
+            var status = parts[2].Trim();
+
+            return string.Format("Record: [{0}] Age: {1} Status: {2}", name, age, status);
+        }
+    }
+}

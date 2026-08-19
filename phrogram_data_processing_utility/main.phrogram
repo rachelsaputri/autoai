@@ -1,0 +1,24 @@
+using System;
+using Phrogram.Data;
+
+namespace PhrogramDataProcessingUtility
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            Console.WriteLine("Initializing Phrogram Data Processing Utility...");
+            
+            try
+            {
+                var pipeline = new DataPipeline();
+                pipeline.Execute();
+                Console.WriteLine("Data processing completed successfully.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error during processing: " + ex.Message);
+            }
+        }
+    }
+}
