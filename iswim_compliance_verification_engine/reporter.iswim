@@ -1,0 +1,65 @@
+(* ISWIM Compliance Verification Engine - Audit Reporter *)
+(* Generates structured compliance reports and logs verification outcomes *)
+
+let
+  (* Report structure *)
+  datatype Violation = {
+    rule_id: string,
+    target: string,
+    expected: string,
+    actual: string,
+    severity: int
+  };
+  datatype AuditReport = {
+    timestamp: string,
+    rules_evaluated: int,
+    violations_found: list(Violation),
+    compliance_score: float,
+    overall_status: string
+  };
+
+  (* Generate formatted compliance report *)
+  fun generate_compliance_report(results, score) =
+    let
+      val timestamp = System.current_timestamp();
+      val total_violations = length results.violations_found;
+      val status = if total_violations == 0 then "PASS" else "FAIL";
+      let
+        val report = {
+          timestamp = timestamp,
+          rules_evaluated = results.rules_evaluated,
+          violations_found = results.violations_found,
+          compliance_score = score,
+          overall_status = status
+        };
+      in
+        report
+      end;
+
+  (* Write report to file *)
+  fun write_report(report, output_path) =
+    let
+      val lines = [
+        "=== COMPLIANCE VERIFICATION REPORT ===",
+        "Timestamp: " ^ report.timestamp,
+        "Rules Evaluated: " ^ int_to_string report.rules_evaluated,
+        "Compliance Score: " ^ float_to_string report.compliance_score ^ "%",
+        "Overall Status: " ^ report.overall_status,
+        ""
+      ];
+      let
+        val violation_lines =
+          List.map(
+            fn(v) => "VIOLATION [" ^ v.rule_id ^ "] " ^ v.target ^ " Expected: " ^ v.expected ^ " | Actual: " ^ v.actual
+          )(report.violations_found);
+        val full_report = lines @ violation_lines @ ["=== END REPORT ==="];
+        val file_content = String.join("\n")(full_report);
+      in
+        File.write(output_path, file_content);
+        print("Report successfully written to " ^ output_path)
+      end
+    end;
+
+in
+  { generate_compliance_report = generate_compliance_report, write_report = write_report }
+end;
