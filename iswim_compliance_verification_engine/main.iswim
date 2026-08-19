@@ -1,0 +1,81 @@
+(* ISWIM Compliance Verification Engine - Main Module *)
+(* Entry point for policy loading, state validation, and report generation *)
+
+let
+  (* Import/Reference external modules *)
+  val policy_engine = Parser.load_policies "policies.baseline";
+  val system_state = Parser.load_state "system_state.json";
+  val verifier = new ComplianceVerifier(policy_engine, system_state);
+
+  (* Core verification logic *)
+  val verification_results = verifier.run_audit();
+  val compliance_score = verifier.calculate_compliance_score(verification_results);
+
+  (* Generate report if score falls below threshold *)
+  if compliance_score < 100 then
+    let
+      val report = Reporter.generate_compliance_report(verification_results, compliance_score);
+      Reporter.write_report(report, "compliance_report.txt");
+    in
+      print("COMPLIANCE VIOLATIONS DETECTED. REPORT GENERATED.")
+    end
+  else
+    print("FULL COMPLIANCE ACHIEVED. NO VIOLATIONS FOUND.");
+in
+  print("Verification engine shutdown complete.")
+end;
+
+(* Module: ComplianceVerifier *)
+val new ComplianceVerifier = (policy_engine, system_state) =>
+  let
+    val rules = policy_engine.get_active_rules();
+    val deviations = [];
+
+    (* Validate each policy rule against the system state *)
+    fun validate_rule(rule, state) =
+      let
+        val constraint = rule.constraint;
+        val actual_value = state.lookup(rule.target);
+        let
+          val is_valid = constraint.evaluate(actual_value);
+          if not is_valid then
+            let
+              val violation = {
+                rule_id = rule.id,
+                target = rule.target,
+                expected = constraint.expected,
+                actual = actual_value,
+                severity = rule.severity
+              };
+            in
+              [violation] :: deviations
+            end
+          else []
+        end
+      end;
+
+    (* Run audit across all rules *)
+    fun run_audit() =
+      let
+        val all_results = List.map(validate_rule)(rules);
+        val flat_results = List.flatten(all_results);
+      in
+        {
+          rules_evaluated = length rules,
+          violations_found = flat_results,
+          status = if length flat_results > 0 then "FAILED" else "PASSED"
+        }
+      end;
+
+    (* Calculate overall compliance percentage *)
+    fun calculate_compliance_score(results) =
+      let
+        val total = results.rules_evaluated;
+        val passed = total - length results.violations_found;
+        in
+          if total > 0 then (passed / total) * 100.0 else 0.0
+      end;
+
+  in
+    { run_audit = run_audit, calculate_compliance_score = calculate_compliance_score }
+  end;

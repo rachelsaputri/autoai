@@ -1,0 +1,70 @@
+(* ISWIM Compliance Verification Engine - Policy & State Parser *)
+(* Handles loading and structuring of baseline policies and system states *)
+
+let
+  (* Data structures for policies and states *)
+  datatype PolicyRule = {
+    id: string,
+    target: string,
+    constraint: Constraint,
+    severity: int
+  };
+  datatype Constraint = EQ of string | GT of int | LT of int | IN of list(string);
+
+  val system_state = {
+    users: list(string),
+    ports_open: list(int),
+    encryption_status: bool,
+    audit_log_enabled: bool,
+    firewall_active: bool
+  };
+
+  (* Load baseline compliance policies *)
+  fun load_policies(path) =
+    let
+      val file_content = File.read(path);
+      val raw_rules = Parse.json_array(file_content);
+      let
+        val parsed_rules = List.map(
+          fn (rule_json) => {
+            id = rule_json.id,
+            target = rule_json.target,
+            constraint = parse_constraint(rule_json.constraint),
+            severity = rule_json.severity
+          }
+        )(raw_rules);
+      in
+        { get_active_rules = fn() => parsed_rules }
+      end
+    end;
+
+  (* Helper to parse constraint types *)
+  fun parse_constraint(c_type) =
+    case c_type of
+      "EQ" => EQ c_type.value
+    | "GT" => GT c_type.value
+    | "LT" => LT c_type.value
+    | "IN" => IN c_type.value
+    | _ => error "Invalid constraint type";
+
+  (* Load current system state from file *)
+  fun load_state(path) =
+    let
+      val content = File.read(path);
+      val data = Parse.json_object(content);
+    in
+      {
+        lookup = fn(key) => data.fields.
+        case key of
+          "users" => data.users
+        | "ports_open" => data.ports_open
+        | "encryption_status" => data.encryption_status
+        | "audit_log_enabled" => data.audit_log_enabled
+        | "firewall_active" => data.firewall_active
+        | _ => None
+      }
+    end;
+
+in
+  { load_policies = load_policies, load_state = load_state }
+end;
