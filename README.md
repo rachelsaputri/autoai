@@ -790,3 +790,5 @@
 - Created/Updated module: `dynamo_data_processing_utility` (See `dynamo_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `mdl_data_processing_utility` (See `mdl_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `delphi_data_processing_utility` (See `delphi_data_processing_utility/README.md` for details)
