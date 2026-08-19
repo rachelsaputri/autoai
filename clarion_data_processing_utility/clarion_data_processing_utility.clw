@@ -1,0 +1,4 @@
+clarion_data_processing_utility.clw: Main application logic
+clarion_data_processing_utility.clw: Helper functions
+clarion_data_processing_utility.clw: Data types
+clarion_data_processing_utility.clw: Report generation

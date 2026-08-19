@@ -784,3 +784,5 @@
 - Created/Updated module: `lustre_data_processing_utility` (See `lustre_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `able_data_processing_utility` (See `able_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `clarion_data_processing_utility` (See `clarion_data_processing_utility/README.md` for details)
