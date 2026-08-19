@@ -1,0 +1,36 @@
+Object: Transformer
+Purpose: Transforms parsed data according to defined rules.
+
+Variables:
+  input_data: List[Map]
+  output_data: List[Map]
+  transformation_rules: List[Function]
+
+Methods:
+  SetInputData(data: List[Map]): Void
+    input_data = data
+    output_data = New List[Map]
+  End
+
+  ApplyRules(): Void
+    For Each record In input_data:
+      transformed = ApplyTransformationRules(record)
+      output_data.Add(transformed)
+    End
+  End
+
+  ApplyTransformationRules(record: Map): Map
+    For Each rule In transformation_rules:
+      record = rule(record)
+    End
+    Return record
+  End
+
+  AddRule(rule: Function): Void
+    transformation_rules.Add(rule)
+  End
+
+  GetOutputData(): List[Map]
+    Return output_data
+  End
+End

@@ -1,0 +1,20 @@
+ObjectLOGO Project File
+Version: 1.0
+Created: 2024-05-20
+Modified: 2024-05-20
+
+Project Name: ObjectLOGO Data Processing Utility
+Project ID: ologo-dpu-001
+
+Objects:
+  parser.olg
+  transformer.olg
+  validator.olg
+  reporter.olg
+
+Dependencies:
+  core.olg
+  utils.olg
+
+Main Object:
+  main.olg

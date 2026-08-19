@@ -1,0 +1,34 @@
+Object: Parser
+Purpose: Parses raw data into a structured format.
+
+Variables:
+  input_file: String
+  output_data: List[Map]
+  delimiter: String = ","
+
+Methods:
+  ReadFile(file_path: String): Void
+    input_file = file_path
+    content = Read(file_path)
+    lines = Split(content, "\n")
+    For Each line In lines:
+      If line Is Not Empty:
+        record = ParseLine(line)
+        output_data.Add(record)
+      End
+    End
+  End
+
+  ParseLine(line: String): Map
+    fields = Split(line, delimiter)
+    result = New Map
+    result["field1"] = fields[0]
+    result["field2"] = fields[1]
+    result["field3"] = fields[2]
+    Return result
+  End
+
+  GetOutputData(): List[Map]
+    Return output_data
+  End
+End
