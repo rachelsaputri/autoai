@@ -1,0 +1,168 @@
+import "std/io";
+import "std/string";
+
+// Record Definition
+struct record {
+    id: int;
+    timestamp: string;
+    status: string;
+    value: float;
+    metadata: string;
+}
+
+// Parse data based on format (csv, json, text)
+fn parse(content: string, format: string) -> list(record) {
+    if (format == "csv") {
+        return parse_csv(content);
+    } else if (format == "json") {
+        return parse_json(content);
+    } else if (format == "text") {
+        return parse_text(content);
+    } else {
+        io.println("[ERROR] Unsupported format: " + format);
+        return [];
+    }
+}
+
+// Parse CSV Content
+fn parse_csv(content: string) -> list(record) {
+    var records: list(record) = [];
+    var lines: list(string) = content.split("\n");
+    var has_header: bool = false;
+    var headers: list(string) = [];
+    
+    var i: int = 0;
+    while i < str.len(lines) {
+        var line: string = lines[i];
+        // Skip empty lines
+        if (str.len(line) == 0) {
+            i += 1;
+            continue;
+        }
+
+        // Handle Header
+        if (i == 0 && line.contains("id")) {
+            has_header = true;
+            headers = line.split(",");
+            i += 1;
+            continue;
+        }
+
+        var fields: list(string) = line.split(",");
+        var rec: record = create_default_record();
+        
+        // Map fields based on header or default positions
+        if (has_header) {
+            var h_id: int = get_header_index(headers, "id");
+            var h_ts: int = get_header_index(headers, "timestamp");
+            var h_st: int = get_header_index(headers, "status");
+            var h_val: int = get_header_index(headers, "value");
+            var h_md: int = get_header_index(headers, "metadata");
+
+            if (h_id >= 0 && h_id < str.len(fields)) rec.id = str.to_int(fields[h_id]);
+            if (h_ts >= 0 && h_ts < str.len(fields)) rec.timestamp = fields[h_ts];
+            if (h_st >= 0 && h_st < str.len(fields)) rec.status = fields[h_st];
+            if (h_val >= 0 && h_val < str.len(fields)) rec.value = str.to_float(fields[h_val]);
+            if (h_md >= 0 && h_md < str.len(fields)) rec.metadata = fields[h_md];
+        } else {
+            // Default mapping if no header
+            if (str.len(fields) > 0) rec.id = str.to_int(fields[0]);
+            if (str.len(fields) > 1) rec.timestamp = fields[1];
+            if (str.len(fields) > 2) rec.status = fields[2];
+            if (str.len(fields) > 3) rec.value = str.to_float(fields[3]);
+            if (str.len(fields) > 4) rec.metadata = fields[4];
+        }
+
+        records.add(rec);
+        i += 1;
+    }
+    return records;
+}
+
+// Parse JSON Content (Simplified) 
+fn parse_json(content: string) -> list(record) {
+    // In a real NGL implementation, this would use a JSON library.
+    // Here we simulate parsing by expecting a specific structure.
+    var records: list(record) = [];
+    var clean_content: string = content.trim();
+    
+    if (clean_content.startsWith("[") && clean_content.endsWith("]")) {
+        var inner: string = clean_content.substring(1, clean_content.len() - 1);
+        var items: list(string) = inner.split("},"); // Simplified split
+        
+        var i: int = 0;
+        while i < str.len(items) {
+            var item: string = items[i].trim();
+            if (item.startsWith("{")) {
+                item = item.substring(1);
+            }
+            if (item.endsWith("}")) {
+                item = item.substring(0, item.len() - 1);
+            }
+            
+            var rec: record = create_default_record();
+            var key_value: list(string) = item.split(":");
+            if (str.len(key_value) >= 5) {
+                rec.id = str.to_int(key_value[0].trim().replace("\"", ""));
+                rec.timestamp = key_value[1].trim().replace("\"", "");
+                rec.status = key_value[2].trim().replace("\"", "");
+                rec.value = str.to_float(key_value[3].trim());
+                rec.metadata = key_value[4].trim().replace("\"", "");
+            }
+            records.add(rec);
+            i += 1;
+        }
+    }
+    return records;
+}
+
+// Parse Text Content
+fn parse_text(content: string) -> list(record) {
+    var records: list(record) = [];
+    var lines: list(string) = content.split("\n");
+    
+    var i: int = 0;
+    while i < str.len(lines) {
+        var line: string = lines[i];
+        if (str.len(line) == 0) {
+            i += 1;
+            continue;
+        }
+        
+        var rec: record = create_default_record();
+        var parts: list(string) = line.split("|");
+        
+        if (str.len(parts) >= 5) {
+            rec.id = str.to_int(parts[0]);
+            rec.timestamp = parts[1];
+            rec.status = parts[2];
+            rec.value = str.to_float(parts[3]);
+            rec.metadata = parts[4];
+        }
+        records.add(rec);
+        i += 1;
+    }
+    return records;
+}
+
+// Helper Functions
+fn create_default_record() -> record {
+    return {
+        id: -1,
+        timestamp: "",
+        status: "",
+        value: 0.0,
+        metadata: ""
+    };
+}
+
+fn get_header_index(headers: list(string), key: string) -> int {
+    var i: int = 0;
+    while i < str.len(headers) {
+        if (headers[i] == key) {
+            return i;
+        }
+        i += 1;
+    }
+    return -1;
+}

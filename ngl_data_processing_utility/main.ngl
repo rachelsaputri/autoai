@@ -1,0 +1,107 @@
+import "std/io";
+import "std/cli";
+import "std/fs";
+import "parser.ngl";
+import "validator.ngl";
+import "transformer.ngl";
+import "reporter.ngl";
+
+// Main Entry Point
+fn main(args: list(string)) {
+    // 1. Parse Arguments
+    var config: cli_config = parse_args(args);
+    
+    // 2. Log Start
+    io.println("[INFO] Starting Data Processing Pipeline...");
+    io.println("[INFO] Input File: " + config.input_file);
+    io.println("[INFO] Output File: " + config.output_file);
+
+    // 3. Ingest Data
+    var raw_data: list(string) = fs.read_file(config.input_file);
+    if (raw_data == null) {
+        io.println("[ERROR] Failed to read input file: " + config.input_file);
+        return;
+    }
+    var content: string = raw_data.join("");
+    io.println("[INFO] Data ingested. Size: " + str.len(content) + " bytes.");
+
+    // 4. Parse Data
+    var parsed_data: list(record) = parser.parse(content, config.format);
+    if (parsed_data == null || str.len(parsed_data) == 0) {
+        io.println("[WARNING] No data parsed.");
+        reporter.generate(config.output_file, empty_record());
+        return;
+    }
+    io.println("[INFO] Parsed " + str.len(parsed_data) + " records.");
+
+    // 5. Validate Data
+    var validation_report: validation_result = validator.validate(parsed_data);
+    if (validation_report.errors > 0) {
+        io.println("[WARNING] Validation completed with errors: " + str.to_str(validation_report.errors));
+        // Continue processing but note errors
+    } else {
+        io.println("[INFO] Validation passed.");
+    }
+
+    // 6. Transform Data
+    var transformed_data: list(record) = transformer.process(parsed_data);
+    io.println("[INFO] Transformation complete. Output records: " + str.len(transformed_data));
+
+    // 7. Generate Report
+    reporter.generate(config.output_file, transformed_data);
+    io.println("[INFO] Report generated at: " + config.output_file);
+    io.println("[INFO] Pipeline finished successfully.");
+}
+
+// Configuration Record
+struct cli_config {
+    input_file: string;
+    output_file: string;
+    format: string;
+    log_level: string;
+}
+
+// Parse Command Line Arguments
+fn parse_args(args: list(string)) -> cli_config {
+    var config: cli_config = {
+        input_file: "",
+        output_file: "output_report.json",
+        format: "csv",
+        log_level: "info"
+    };
+
+    var i: int = 0;
+    while i < str.len(args) {
+        var arg: string = args[i];
+        if arg == "--input" && i + 1 < str.len(args) {
+            config.input_file = args[i + 1];
+            i += 2;
+        } else if arg == "--output" && i + 1 < str.len(args) {
+            config.output_file = args[i + 1];
+            i += 2;
+        } else if arg == "--format" && i + 1 < str.len(args) {
+            config.format = args[i + 1];
+            i += 2;
+        } else if arg == "--log-level" && i + 1 < str.len(args) {
+            config.log_level = args[i + 1];
+            i += 2;
+        } else {
+            i += 1;
+        }
+    }
+    return config;
+}
+
+// Helper to create an empty record for when no data is processed
+fn empty_record() -> list(record) {
+    return [];
+}
+
+// Standard Record Structure for Data Processing
+struct record {
+    id: int;
+    timestamp: string;
+    status: string;
+    value: float;
+    metadata: string;
+}
