@@ -1,0 +1,136 @@
+// MicroScript Data Processing Utility
+// Version: 1.0.0
+
+import io;
+import csv;
+import math;
+import time;
+
+// Configuration
+datatypes Config = {
+    input_file: string,
+    output_file: string,
+    log_file: string,
+    debug: bool
+};
+
+// Logger Module
+fn Log(level, message) = {
+    timestamp = time.now();
+    if (Config.debug) {
+        io.stderr("[" + timestamp + "] [" + level + "] " + message);
+    }
+    if (Config.log_file) {
+        io.append(Config.log_file, timestamp + " [" + level + "] " + message);
+    }
+};
+
+// CSV Parser
+fn ParseCSV(filepath) = {
+    header = io.readline(filepath);
+    records = [];
+    line = io.readline(filepath);
+    while (line) {
+        fields = csv.split(line, ',');
+        record = {};
+        for (i = 0; i < length(header); i++) {
+            record[header[i]] = fields[i];
+        }
+        append(records, record);
+        line = io.readline(filepath);
+    }
+    return records;
+};
+
+// Validator Module
+fn ValidateRecord(record) = {
+    errors = [];
+    for (field, value) in record {
+        if (value == "" && field != "optional_field") {
+            append(errors, "Missing field: " + field);
+        }
+        if (type(value) == string) {
+            if (contains(value, "<") || contains(value, ">")) {
+                append(errors, "Invalid characters in field: " + field);
+            }
+        }
+    }
+    return length(errors) == 0;
+};
+
+// Transformer Module
+fn TransformRecord(record) = {
+    for (field, value) in record {
+        if (type(value) == string) {
+            record[field] = sanitize(value);
+        }
+    }
+    return record;
+};
+
+fn sanitize(str) = {
+    str = trim(str);
+    str = replace(str, "\\s+", " ");
+    return tolower(str);
+};
+
+// Main Pipeline
+fn ProcessData(input_path, output_path, log_path) = {
+    Config.input_file = input_path;
+    Config.output_file = output_path;
+    Config.log_file = log_path;
+    Config.debug = true;
+    
+    Log("INFO", "Starting data processing pipeline");
+    
+    if (!io.exists(input_path)) {
+        Log("ERROR", "Input file not found: " + input_path);
+        return;
+    }
+    
+    records = ParseCSV(input_path);
+    Log("INFO", "Parsed " + length(records) + " records");
+    
+    valid_records = [];
+    invalid_count = 0;
+    
+    for (record) in records {
+        if (ValidateRecord(record)) {
+            transformed = TransformRecord(record);
+            append(valid_records, transformed);
+        } else {
+            invalid_count = invalid_count + 1;
+            Log("WARN", "Record skipped due to validation errors");
+        }
+    }
+    
+    Log("INFO", "Successfully processed " + length(valid_records) + " records, " + invalid_count + " invalid");
+    
+    io.write(output_path, "id,name,email,score\\n");
+    for (record) in valid_records {
+        line = record["id"] + "," + record["name"] + "," + record["email"] + "," + record["score"] + "\\n";
+        io.append(output_path, line);
+    }
+    
+    Log("INFO", "Data processing complete. Output written to " + output_path);
+};
+
+// Entry Point
+main = {
+    args = io.args();
+    input_file = "data.csv";
+    output_file = "output.csv";
+    log_file = "debug.log";
+    
+    if (length(args) >= 1) {
+        input_file = args[0];
+    }
+    if (length(args) >= 2) {
+        output_file = args[1];
+    }
+    if (length(args) >= 3) {
+        log_file = args[2];
+    }
+    
+    ProcessData(input_file, output_file, log_file);
+};

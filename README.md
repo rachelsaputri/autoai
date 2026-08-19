@@ -750,3 +750,5 @@
 - Created/Updated module: `gm_data_processing_utility` (See `gm_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `hlasm_data_processing_utility` (See `hlasm_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `microscript_data_processing_utility` (See `microscript_data_processing_utility/README.md` for details)
