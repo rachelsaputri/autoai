@@ -778,3 +778,5 @@
 - Created/Updated module: `kojo_data_processing_utility` (See `kojo_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `genie_data_processing_utility` (See `genie_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `corvision_data_processing_utility` (See `corvision_data_processing_utility/README.md` for details)

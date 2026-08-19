@@ -1,0 +1,25 @@
+{
+  "pipeline": {
+    "name": "corvision_data_processing",
+    "version": "1.0.0"
+  },
+  "ingestion": {
+    "source_type": "file",
+    "path": "./data/input.csv"
+  },
+  "validation": {
+    "strict_mode": true,
+    "allowed_errors": 0
+  },
+  "transformation": {
+    "rules": [
+      "trim_whitespace",
+      "normalize_dates",
+      "convert_currency"
+    ]
+  },
+  "reporting": {
+    "output_path": "./reports/",
+    "format": "html"
+  }
+}
