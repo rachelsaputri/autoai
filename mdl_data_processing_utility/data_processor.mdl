@@ -1,0 +1,158 @@
+MODEL data_processor;
+
+IMPORTS;
+    std::io;
+    std::list;
+    std::string;
+    std::map;
+    std::vector;
+END_IMPORTS;
+
+TYPES;
+    DATA_RECORD = RECORD;
+        id: INT;
+        name: STRING;
+        value: FLOAT;
+        timestamp: INT;
+    END_RECORD;
+
+    PROCESSING_RESULT = RECORD;
+        total_records: INT;
+        processed_records: INT;
+        failed_records: INT;
+        errors: LIST OF STRING;
+    END_RECORD;
+END_TYPES;
+
+FUNCTIONS;
+    FUNCTION parse_line(line: STRING) : DATA_RECORD;
+        VAR fields : LIST OF STRING;
+        VAR record : DATA_RECORD;
+        
+        fields = string::split(line, ',');
+        
+        IF fields::size() < 4 THEN
+            RETURN NULL;
+        END_IF;
+        
+        record.id = string::parse_int(fields[0]);
+        record.name = fields[1];
+        record.value = string::parse_float(fields[2]);
+        record.timestamp = string::parse_int(fields[3]);
+        
+        RETURN record;
+    END_FUNCTION;
+
+    FUNCTION validate_record(record: DATA_RECORD) : BOOL;
+        IF record.id <= 0 THEN
+            RETURN FALSE;
+        END_IF;
+        
+        IF string::is_empty(record.name) THEN
+            RETURN FALSE;
+        END_IF;
+        
+        IF record.value < 0.0 THEN
+            RETURN FALSE;
+        END_IF;
+        
+        RETURN TRUE;
+    END_FUNCTION;
+
+    FUNCTION transform_record(record: DATA_RECORD) : DATA_RECORD;
+        VAR normalized_value: FLOAT;
+        VAR timestamp: INT;
+        
+        normalized_value = record.value * 2.0;
+        timestamp = record.timestamp / 1000;
+        
+        record.value = normalized_value;
+        record.timestamp = timestamp;
+        
+        RETURN record;
+    END_FUNCTION;
+
+    FUNCTION process_data(input_file: STRING) : PROCESSING_RESULT;
+        VAR result : PROCESSING_RESULT;
+        VAR line : STRING;
+        VAR record : DATA_RECORD;
+        VAR error : STRING;
+        VAR count: INT;
+        VAR processed: INT;
+        VAR failed: INT;
+        
+        result.total_records = 0;
+        result.processed_records = 0;
+        result.failed_records = 0;
+        result.errors = list::new();
+        
+        count = 0;
+        processed = 0;
+        failed = 0;
+        
+        IF NOT io::exists(input_file) THEN
+            error = string::concat("Input file not found: ", input_file);
+            result.errors = list::append(result.errors, error);
+            RETURN result;
+        END_IF;
+        
+        io::open(input_file, READ);
+        
+        WHILE io::has_next_line() DO
+            line = io::read_line();
+            result.total_records = count + 1;
+            
+            IF string::is_empty(line) THEN
+                CONTINUE;
+            END_IF;
+            
+            record = parse_line(line);
+            
+            IF record = NULL THEN
+                error = string::concat("Failed to parse line: ", line);
+                result.errors = list::append(result.errors, error);
+                failed = failed + 1;
+            ELSE IF NOT validate_record(record) THEN
+                error = string::concat("Invalid record: ", line);
+                result.errors = list::append(result.errors, error);
+                failed = failed + 1;
+            ELSE
+                record = transform_record(record);
+                processed = processed + 1;
+            END_IF;
+        END_WHILE;
+        
+        io::close();
+        result.processed_records = processed;
+        result.failed_records = failed;
+        
+        RETURN result;
+    END_FUNCTION;
+
+    FUNCTION print_result(result: PROCESSING_RESULT);
+        VAR i : INT;
+        VAR error : STRING;
+        
+        PRINT("Processing Results:");
+        PRINT(string::concat("Total Records: ", string::from_int(result.total_records)));
+        PRINT(string::concat("Processed Records: ", string::from_int(result.processed_records)));
+        PRINT(string::concat("Failed Records: ", string::from_int(result.failed_records)));
+        
+        IF list::size(result.errors) > 0 THEN
+            PRINT("Errors:");
+            FOR i = 0 TO list::size(result.errors) - 1 DO
+                error = list::get(result.errors, i);
+                PRINT(error);
+            END_FOR;
+        END_IF;
+    END_FUNCTION;
+END_FUNCTIONS;
+
+MAIN;
+    VAR result : PROCESSING_RESULT;
+    
+    result = process_data("data/input.csv");
+    print_result(result);
+END_MAIN;
+
+END_MODEL;
