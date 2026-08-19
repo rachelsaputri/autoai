@@ -1,0 +1,36 @@
+Object: Reporter
+Purpose: Generates reports from validated data.
+
+Variables:
+  input_data: List[Map]
+  validation_errors: List[String]
+  report_content: String
+
+Methods:
+  SetInputData(data: List[Map]): Void
+    input_data = data
+  End
+
+  SetValidationErrors(errors: List[String]): Void
+    validation_errors = errors
+  End
+
+  GenerateReport(): String
+    report_content = "Data Processing Report\n"
+    report_content += "=====================\n"
+    report_content += "Total Records Processed: " + input_data.Length.ToString() + "\n"
+    report_content += "Validation Errors: " + validation_errors.Length.ToString() + "\n"
+    If validation_errors.Length > 0:
+      report_content += "\nErrors:\n"
+      For Each error In validation_errors:
+        report_content += "  - " + error + "\n"
+      End
+    End
+    Return report_content
+  End
+
+  WriteReport(file_path: String): Void
+    content = GenerateReport()
+    Write(file_path, content)
+  End
+End

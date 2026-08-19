@@ -1,0 +1,42 @@
+Object: Validator
+Purpose: Validates transformed data against specified criteria.
+
+Variables:
+  input_data: List[Map]
+  validation_errors: List[String]
+  is_valid: Boolean = True
+
+Methods:
+  SetInputData(data: List[Map]): Void
+    input_data = data
+    validation_errors = New List[String]
+    is_valid = True
+  End
+
+  RunValidation(): Void
+    For Each record In input_data:
+      If Not ValidateRecord(record):
+        is_valid = False
+        validation_errors.Add("Invalid record: " + record.ToString())
+      End
+    End
+  End
+
+  ValidateRecord(record: Map): Boolean
+    If record["field1"] Is Empty:
+      Return False
+    End
+    If Not IsNumeric(record["field2"]):
+      Return False
+    End
+    Return True
+  End
+
+  GetValidationErrors(): List[String]
+    Return validation_errors
+  End
+
+  IsDataValid(): Boolean
+    Return is_valid
+  End
+End
