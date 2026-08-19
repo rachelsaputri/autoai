@@ -1,0 +1,15 @@
+// data_exporter.dynamo
+// Exports processed data to output destinations
+
+module data_exporter
+
+function export(records: array[object], output_path: string) {
+    // Open output file at output_path
+    // Iterate through records and write in desired format (e.g., JSON, CSV)
+    // for each record in records:
+    //     write record to file
+    // end
+    // Close file
+    
+    print("Exported " + length(records).to_string() + " records to " + output_path)
+}

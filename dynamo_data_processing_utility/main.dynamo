@@ -1,0 +1,49 @@
+// main.dynamo
+// Entry point for the Dynamo Data Processing Utility
+
+module main
+
+import data_ingester
+import data_transformer
+import data_validator
+import data_exporter
+
+struct Config {
+    input_path: string
+    output_path: string
+    log_level: int
+}
+
+function main(args: array[string]): int {
+    // Parse arguments (simple implementation)
+    let config = Config {
+        input_path: "data.csv",
+        output_path: "output.json",
+        log_level: 1
+    }
+
+    // Step 1: Ingest Data
+    let raw_data = data_ingester.ingest(config.input_path)
+
+    if (raw_data.length == 0) {
+        print("Error: No data found.")
+        return 1
+    }
+
+    // Step 2: Transform Data
+    let transformed_data = data_transformer.transform(raw_data)
+
+    // Step 3: Validate Data
+    let valid_data = data_validator.validate(transformed_data)
+
+    if (valid_data.length == 0) {
+        print("Error: No valid records after validation.")
+        return 1
+    }
+
+    // Step 4: Export Data
+    data_exporter.export(valid_data, config.output_path)
+
+    print("Processing complete.")
+    return 0
+}
