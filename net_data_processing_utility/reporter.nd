@@ -1,0 +1,38 @@
+<% 
+' Reporter Module for Net.Data Data Processing Utility
+' Generates reports from transformed data
+
+' Initialize reporting variables
+SetVariable("reportStatus", "success");
+SetVariable("reportData", Array());
+SetVariable("reportSummary", Object());
+
+' Generate summary
+SetItem("reportSummary", "totalRecords", ArrayLength(GetVariable("transformedData")));
+SetItem("reportSummary", "status", GetVariable("transformStatus"));
+SetItem("reportSummary", "timestamp", Now());
+
+' Generate report data
+SetVariable("i", 0);
+Loop While GetVariable("i") < ArrayLength(GetVariable("transformedData"))
+    SetVariable("record", GetItem("transformedData", GetVariable("i")));
+    SetVariable("reportRow", Array("Name", GetItem("record", "name"), "Age", GetItem("record", "age_string"), "Processed At", GetItem("record", "processed_at")));
+    Push("reportData", GetVariable("reportRow"));
+    SetVariable("i", GetVariable("i") + 1);
+End Loop
+
+' Set global variables for use in main module
+SetVariable("reportData", GetVariable("reportData"));
+SetVariable("reportSummary", GetVariable("reportSummary"));
+SetVariable("reportStatus", "success");
+
+' Update main module variables with report results
+SetVariable("status", "success");
+SetVariable("message", "Data processing completed successfully.");
+SetVariable("recordCount", ArrayLength(GetVariable("transformedData")));
+
+' Display invalid records if any
+If ArrayLength(GetVariable("invalidRecords")) > 0 Then
+    SetVariable("message", GetVariable("message") + " Note: " + ArrayLength(GetVariable("invalidRecords")) + " record(s) were invalid and skipped.");
+End If
+%>
