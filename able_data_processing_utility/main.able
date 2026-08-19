@@ -1,0 +1,42 @@
+MODULE Main
+
+IMPORTS
+  Parser
+  Transformer
+  Validator
+  Reporter
+END MODULE
+
+FUNCTION ProcessData(inputFile: STRING, outputFile: STRING)
+  VAR
+    rawData: STRING
+    parsedData: LIST OF RECORD
+    transformedData: LIST OF RECORD
+    validationResult: VALIDATION_RESULT
+  END VAR
+
+  // Step 1: Ingest
+  rawData <- readFile(inputFile)
+  
+  // Step 2: Parse
+  parsedData <- Parser.Parse(rawData)
+  
+  // Step 3: Transform
+  transformedData <- Transformer.Transform(parsedData)
+  
+  // Step 4: Validate
+  validationResult <- Validator.Validate(transformedData)
+  
+  // Step 5: Report
+  Reporter.WriteReport(validationResult, outputFile)
+  
+  IF validationResult.success THEN
+    WRITE("Processing completed successfully.")
+  ELSE
+    WRITE("Processing failed. See report for details.")
+  END IF
+END FUNCTION
+
+BEGIN
+  ProcessData("input.txt", "output.txt")
+END

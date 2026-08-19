@@ -1,0 +1,43 @@
+MODULE Parser
+
+FUNCTION Parse(data: STRING) RETURNS LIST OF RECORD
+  VAR
+    results: LIST OF RECORD
+    lines: LIST OF STRING
+    currentRecord: RECORD
+  END VAR
+  
+  lines <- Split(data, NEWLINE)
+  
+  FOR EACH line IN lines DO
+    IF Trim(line) != "" THEN
+      currentRecord <- ParseLine(line)
+      Append(results, currentRecord)
+    END IF
+  END FOR
+  
+  RETURN results
+END FUNCTION
+
+FUNCTION ParseLine(line: STRING) RETURNS RECORD
+  VAR
+    record: RECORD
+    fields: LIST OF STRING
+  END VAR
+  
+  fields <- Split(line, ",")
+  
+  IF Length(fields) >= 2 THEN
+    record.id <- fields[0]
+    record.value <- fields[1]
+    record.timestamp <- GetCurrentTime()
+    record.success <- TRUE
+  ELSE
+    record.success <- FALSE
+    record.error <- "Invalid line format"
+  END IF
+  
+  RETURN record
+END FUNCTION
+
+END MODULE

@@ -1,0 +1,24 @@
+MODULE Reporter
+
+FUNCTION WriteReport(validationResult: VALIDATION_RESULT, outputFile: STRING)
+  VAR
+    lines: LIST OF STRING
+  END VAR
+  
+  Append(lines, "=== Processing Report ===")
+  Append(lines, "Status: " + IFF(validationResult.success, "SUCCESS", "FAILED"))
+  Append(lines, "Total Errors: " + ToString(Length(validationResult.errors)))
+  
+  IF Length(validationResult.errors) > 0 THEN
+    Append(lines, "--- Error Details ---")
+    FOR EACH error IN validationResult.errors DO
+      Append(lines, " - " + error)
+    END FOR
+  END IF
+  
+  Append(lines, "=== End Report ===")
+  
+  WriteFile(outputFile, Join(lines, NEWLINE))
+END FUNCTION
+
+END MODULE

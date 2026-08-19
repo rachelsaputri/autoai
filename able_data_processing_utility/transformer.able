@@ -1,0 +1,32 @@
+MODULE Transformer
+
+FUNCTION Transform(data: LIST OF RECORD) RETURNS LIST OF RECORD
+  VAR
+    result: LIST OF RECORD
+    transformedRecord: RECORD
+  END VAR
+  
+  FOR EACH record IN data DO
+    IF record.success THEN
+      transformedRecord <- ApplyRules(record)
+      Append(result, transformedRecord)
+    END IF
+  END FOR
+  
+  RETURN result
+END FUNCTION
+
+FUNCTION ApplyRules(record: RECORD) RETURNS RECORD
+  // Example transformation: Convert value to uppercase and add metadata
+  record.enriched <- TRUE
+  record.transformationStatus <- "APPLIED"
+  
+  // Placeholder for complex business logic
+  IF record.value == "INVALID" THEN
+    record.transformationStatus <- "REJECTED"
+  END IF
+  
+  RETURN record
+END FUNCTION
+
+END MODULE

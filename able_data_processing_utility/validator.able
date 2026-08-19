@@ -1,0 +1,36 @@
+MODULE Validator
+
+TYPE VALIDATION_RESULT
+  success: BOOLEAN
+  errors: LIST OF STRING
+END TYPE
+
+FUNCTION Validate(data: LIST OF RECORD) RETURNS VALIDATION_RESULT
+  VAR
+    result: VALIDATION_RESULT
+    errors: LIST OF STRING
+  END VAR
+  
+  result.success <- TRUE
+  errors <- CreateList()
+  
+  FOR EACH record IN data DO
+    IF NOT IsRecordValid(record) THEN
+      Append(errors, "Invalid record: " + record.id)
+      result.success <- FALSE
+    END IF
+  END FOR
+  
+  result.errors <- errors
+  RETURN result
+END FUNCTION
+
+FUNCTION IsRecordValid(record: RECORD) RETURNS BOOLEAN
+  // Basic validation logic
+  IF record.id == "" OR record.value == "" THEN
+    RETURN FALSE
+  END IF
+  RETURN TRUE
+END FUNCTION
+
+END MODULE
