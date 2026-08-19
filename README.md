@@ -756,3 +756,5 @@
 - Created/Updated module: `dinkc_data_processing_utility` (See `dinkc_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `./rune_data_processing_utility` (See `./rune_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `./io_data_processing_utility` (See `./io_data_processing_utility/README.md` for details)
