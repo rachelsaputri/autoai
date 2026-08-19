@@ -780,3 +780,5 @@
 - Created/Updated module: `genie_data_processing_utility` (See `genie_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `corvision_data_processing_utility` (See `corvision_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `lustre_data_processing_utility` (See `lustre_data_processing_utility/README.md` for details)
