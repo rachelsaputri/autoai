@@ -1,0 +1,29 @@
+import webql.core {
+  Channel, AsyncJob, Logger
+};
+import webql.validation {
+  Schema, Constraint
+};
+
+fn spawn(input: &Channel, output: &Channel) -> AsyncJob {
+  let schema = Schema::load("compliance_schema.json");
+  let constraints = schema.get_constraints();
+  
+  async { 
+    while let Some(record) = input.receive().await {
+      match ValidateRecord(&record, &constraints) {
+        Ok(validated) => output.send(validated).await,
+        Err(e) => Logger::warn(format!("Validation failed: {}", e))
+      }
+    }
+  }.into_job()
+}
+
+fn ValidateRecord(record: &Buffer, constraints: &[Constraint]) -> Result<Buffer, ValidationError> {
+  for c in constraints {
+    if !c.check(record) {
+      return Err(ValidationError::new(c.rule_name));
+    }
+  }
+  Ok(record)
+}

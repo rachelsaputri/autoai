@@ -1,0 +1,26 @@
+import webql.io {
+  Source, Buffer
+};
+import webql.core {
+  Channel, AsyncJob
+};
+
+fn spawn(source: &Source, channel: &Channel) -> AsyncJob {
+  let mut buffer = Buffer::new(1024);
+  let mut reader = source.stream();
+  
+  async { 
+    loop {
+      let payload = reader.read_chunk(&mut buffer).await;
+      if payload.is_empty() { break; }
+      channel.send(payload).await;
+    }
+  }.into_job()
+}
+
+fn parse_header(payload: &Buffer) -> Option<Header> {
+  if payload.len() < 8 { return None; }
+  let version = payload.read_u8(0);
+  let timestamp = payload.read_u32(4);
+  Some(Header { version, timestamp })
+}

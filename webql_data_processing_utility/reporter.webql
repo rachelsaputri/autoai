@@ -1,0 +1,33 @@
+import webql.core {
+  Channel, AsyncJob, Logger
+};
+import webql.io {
+  Sink
+};
+import webql.math {
+  Statistics
+};
+
+fn spawn(input: &Channel, sink: &Sink) -> AsyncJob {
+  let mut stats = Statistics::new();
+  
+  async { 
+    while let Some(record) = input.receive().await {
+      stats.process(record);
+      if stats.batch_ready() {
+        let report = stats.generate_json_report();
+        sink.write(&report).await;
+        stats.reset();
+      }
+    }
+    let final_report = stats.generate_json_report();
+    sink.write(&final_report).await;
+  }.into_job()
+}
+
+fn generate_json_report(stats: &Statistics) -> String {
+  format!(
+    r#"{{"total_records": {}, "valid": {}, "invalid": {}, "processing_time_ms": {}}}"#,
+    stats.total(), stats.valid(), stats.invalid(), stats.elapsed_ms()
+  )
+}

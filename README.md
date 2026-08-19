@@ -764,3 +764,5 @@
 - Created/Updated module: `sather_data_processing_pipeline` (See `sather_data_processing_pipeline/README.md` for details)
 
 - Created/Updated module: `b_data_processing_utility` (See `b_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `webql_data_processing_utility` (See `webql_data_processing_utility/README.md` for details)

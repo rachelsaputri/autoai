@@ -1,0 +1,36 @@
+import webql.core {
+  Pipeline, Engine, Logger
+};
+import webql.io {
+  Source, Sink
+};
+import webql.validation {
+  Schema, Validator
+};
+
+use Ingestor;
+use Transformer;
+use Validator;
+use Reporter;
+
+fn main() {
+  let config = Config::load("pipeline.conf");
+  let engine = Engine::init(config);
+  
+  let source = Source::connect(config.input_endpoint);
+  let sink = Sink::open(config.output_endpoint);
+  
+  let pipeline = Pipeline::new("WebQL_Data_Processor", engine);
+  
+  let ingestor = Ingestor::spawn(&source, &pipeline);
+  let transformer = Transformer::spawn(&pipeline, &pipeline);
+  let validator = Validator::spawn(&pipeline, &pipeline);
+  let reporter = Reporter::spawn(&pipeline, &sink);
+  
+  ingestor.await;
+  transformer.await;
+  validator.await;
+  reporter.await;
+  
+  Logger::info("Pipeline execution completed successfully.");
+}

@@ -1,0 +1,27 @@
+import webql.core {
+  Channel, TransformFn, AsyncJob
+};
+import webql.text {
+  Sanitizer, Formatter
+};
+
+fn spawn(channel: &Channel, output: &Channel) -> AsyncJob {
+  let rules = LoadRules("transform_rules.json");
+  
+  async { 
+    while let Some(msg) = channel.receive().await {
+      let cleaned = Sanitizer::strip_control_chars(msg);
+      let normalized = Formatter::align_timestamps(cleaned);
+      let enriched = ApplyMapping(normalized, rules);
+      output.send(enriched).await;
+    }
+  }.into_job()
+}
+
+fn ApplyMapping(data: &Buffer, rules: &MappingTable) -> Buffer {
+  let mut out = Buffer::new(data.len());
+  for rule in rules.iter() {
+    out.write_field(rule.src_idx, rule.dst_idx, data);
+  }
+  out
+}
