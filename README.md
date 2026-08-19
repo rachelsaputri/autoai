@@ -770,3 +770,5 @@
 - Created/Updated module: `new_compliance_verification_engine` (See `new_compliance_verification_engine/README.md` for details)
 
 - Created/Updated module: `iswim_compliance_verification_engine` (See `iswim_compliance_verification_engine/README.md` for details)
+
+- Created/Updated module: `scilab_data_processing_utility` (See `scilab_data_processing_utility/README.md` for details)
