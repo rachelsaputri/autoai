@@ -758,3 +758,5 @@
 - Created/Updated module: `./rune_data_processing_utility` (See `./rune_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `./io_data_processing_utility` (See `./io_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `ioke_data_processing_utility` (See `ioke_data_processing_utility/README.md` for details)
