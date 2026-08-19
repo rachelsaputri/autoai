@@ -1,0 +1,12 @@
+import 'data_ingester.miis'
+import 'data_transformer.miis'
+import 'data_validator.miis'
+import 'data_reporter.miis'
+
+fn main() {
+    let data = ingest_data("data/input.csv")
+    let transformed_data = transform_data(data)
+    let valid_data = validate_data(transformed_data)
+    generate_report(valid_data, "reports/output_report.txt")
+    println("Data processing complete.")
+}
