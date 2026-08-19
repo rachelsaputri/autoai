@@ -774,3 +774,5 @@
 - Created/Updated module: `scilab_data_processing_utility` (See `scilab_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `javascript_data_processing_utility` (See `javascript_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `kojo_data_processing_utility` (See `kojo_data_processing_utility/README.md` for details)
