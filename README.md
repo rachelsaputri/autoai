@@ -792,3 +792,5 @@
 - Created/Updated module: `mdl_data_processing_utility` (See `mdl_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `delphi_data_processing_utility` (See `delphi_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `./miis_data_processing_utility` (See `./miis_data_processing_utility/README.md` for details)

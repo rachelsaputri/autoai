@@ -1,0 +1,15 @@
+import 'data_types.miis'
+
+fn validate_data(records: Vec<ProcessedDataRecord>) -> Vec<ProcessedDataRecord> {
+    let mut valid_records = Vec::new()
+    for record in records {
+        if is_valid(record) {
+            valid_records.push(record)
+        }
+    }
+    valid_records
+}
+
+fn is_valid(record: ProcessedDataRecord) -> bool {
+    record.name.len() > 0 && record.value != f64::NAN
+}

@@ -1,0 +1,13 @@
+struct DataRecord {
+    id: i32,
+    name: String,
+    value: f64,
+}
+
+struct ProcessedDataRecord {
+    id: i32,
+    name: String,
+    value: f64,
+    normalized_value: f64,
+    category: String,
+}

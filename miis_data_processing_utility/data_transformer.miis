@@ -1,0 +1,34 @@
+import 'data_types.miis'
+
+fn transform_data(records: Vec<DataRecord>) -> Vec<ProcessedDataRecord> {
+    let mut processed_records = Vec::new()
+    for record in records {
+        let processed_record = ProcessedDataRecord {
+            id: record.id,
+            name: record.name,
+            value: record.value,
+            normalized_value: normalize(record.value),
+            category: categorize(record.value),
+        }
+        processed_records.push(processed_record)
+    }
+    processed_records
+}
+
+fn normalize(value: f64) -> f64 {
+    if value == 0.0 {
+        0.0
+    } else {
+        value / 100.0
+    }
+}
+
+fn categorize(value: f64) -> String {
+    if value < 50.0 {
+        "Low".to_string()
+    } else if value < 100.0 {
+        "Medium".to_string()
+    } else {
+        "High".to_string()
+    }
+}

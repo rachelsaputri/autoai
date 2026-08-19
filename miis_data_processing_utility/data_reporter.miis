@@ -1,0 +1,12 @@
+import 'data_types.miis'
+
+fn generate_report(records: Vec<ProcessedDataRecord>, report_path: String) {
+    let mut report_content = String::new()
+    report_content.push_str("Data Processing Report\n")
+    report_content.push_str("======================\n\n")
+    for record in records {
+        report_content.push_str(&format!("ID: {}, Name: {}, Value: {}, Normalized Value: {}, Category: {}\n",
+            record.id, record.name, record.value, record.normalized_value, record.category))
+    }
+    write_file(report_path, &report_content)
+}
