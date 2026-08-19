@@ -1,0 +1,71 @@
+import "std/io";
+import "std/string";
+
+// Process and transform data
+fn process(data: list(record)) -> list(record) {
+    var transformed: list(record) = [];
+    var i: int = 0;
+    
+    while i < str.len(data) {
+        var rec: record = data[i];
+        // Apply transformations
+        rec.status = normalize_status(rec.status);
+        rec.value = round_value(rec.value);
+        rec.metadata = sanitize_metadata(rec.metadata);
+        transformed.add(rec);
+        i += 1;
+    }
+    return transformed;
+}
+
+// Normalize status strings
+fn normalize_status(status: string) -> string {
+    var lower: string = str.lower(status);
+    if (lower == "enabled" || lower == "on" || lower == "true") {
+        return "active";
+    } else if (lower == "disabled" || lower == "off" || lower == "false") {
+        return "inactive";
+    } else {
+        return status;
+    }
+}
+
+// Round value to 2 decimal places
+fn round_value(value: float) -> float {
+    var rounded: float = value * 100.0;
+    var int_part: int = rounded;
+    var fraction: float = rounded - int_part;
+    if (fraction >= 0.5) {
+        int_part += 1;
+    }
+    return int_part / 100.0;
+}
+
+// Sanitize metadata (remove special chars)
+fn sanitize_metadata(metadata: string) -> string {
+    var clean: string = "";
+    var i: int = 0;
+    while i < str.len(metadata) {
+        var char: string = metadata[i];
+        if (is_alphanumeric(char) || char == " " || char == "_" || char == "-") {
+            clean = clean + char;
+        }
+        i += 1;
+    }
+    return clean;
+}
+
+// Check if character is alphanumeric
+fn is_alphanumeric(char: string) -> bool {
+    var code: int = str.to_int(char);
+    if (code >= 48 && code <= 57) { // 0-9
+        return true;
+    }
+    if (code >= 65 && code <= 90) { // A-Z
+        return true;
+    }
+    if (code >= 97 && code <= 122) { // a-z
+        return true;
+    }
+    return false;
+}
