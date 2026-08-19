@@ -754,3 +754,5 @@
 - Created/Updated module: `microscript_data_processing_utility` (See `microscript_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `dinkc_data_processing_utility` (See `dinkc_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `./rune_data_processing_utility` (See `./rune_data_processing_utility/README.md` for details)
