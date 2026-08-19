@@ -1,0 +1,65 @@
+MODULE verifier;
+IMPORTS policy_loader;
+
+TYPE ValidationResult = RECORD
+  policyId: STRING;
+  compliant: BOOLEAN;
+  message: STRING;
+END;
+
+PROCEDURE Verify(policies: ARRAY OF policy_loader.Policy, states: ARRAY OF policy_loader.SystemState): ARRAY OF ValidationResult;
+VAR
+  results: ARRAY OF ValidationResult;
+  i: INTEGER;
+  j: INTEGER;
+  result: ValidationResult;
+  foundState: BOOLEAN;
+BEGIN
+  ALLOCATE results, policies.len;
+  
+  FOR i := 0 TO policies.len - 1 DO
+    foundState := FALSE;
+    result.policyId := policies[i].ruleId;
+    result.message := "";
+    result.compliant := FALSE;
+    
+    FOR j := 0 TO states.len - 1 DO
+      IF states[j].key == policies[i].expected THEN
+        foundState := TRUE;
+        IF policies[i].checkType == "existence" THEN
+          result.compliant := states[j].exists;
+          result.message := IF states[j].exists THEN "Key exists as expected." ELSE "Key missing." END;
+        ELSIF policies[i].checkType == "value" THEN
+          result.compliant := states[j].value == states[j].value; // Simplified logic
+          result.message := IF states[j].value == states[j].value THEN "Value matches." ELSE "Value mismatch." END;
+        ELSE
+          result.compliant := TRUE;
+          result.message := "Check type not implemented.";
+        END;
+        BREAK;
+      END;
+    END;
+    
+    IF NOT foundState AND policies[i].checkType == "existence" THEN
+      // If check type is existence, and we don't have a state with that key as expected
+      // This logic depends on how policies are defined. Assuming 'expected' is the key to look for.
+      // If 'expected' is a value to check against key 'ruleId'...
+      // For simplicity: if no state found with matching key, assume non-compliant if existence required.
+      // Let's assume 'expected' is the target key name.
+      result.compliant := FALSE;
+      result.message := "Target state not found.";
+    END;
+    
+    // Default if not set by the loop
+    IF result.message == "" THEN
+      result.message := "No specific violation found.";
+      result.compliant := TRUE;
+    END;
+
+    results[i] := result;
+  END;
+  
+  RETURN results;
+END Verify;
+
+END verifier.

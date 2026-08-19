@@ -1,0 +1,36 @@
+MODULE main;
+IMPORTS policy_loader, verifier, reporter;
+
+PROCEDURE Main(args: ARRAY OF STRING);
+VAR
+  policyFile: STRING;
+  stateFile: STRING;
+  reportFile: STRING;
+BEGIN
+  IF args.len < 3 THEN
+    WRITE("Usage: compliance_verifier [policy_file] [state_file] [report_file]\n");
+    HALT(1);
+  END;
+
+  policyFile := args[1];
+  stateFile := args[2];
+  reportFile := args[3];
+
+  WRITE("Loading policies from ", policyFile, "\n");
+  VAR policies := policy_loader.LoadPolicies(policyFile);
+
+  WRITE("Loading system state from ", stateFile, "\n");
+  VAR state := policy_loader.LoadState(stateFile);
+
+  WRITE("Verifying compliance...\n");
+  VAR results := verifier.Verify(policies, state);
+
+  WRITE("Generating report to ", reportFile, "\n");
+  reporter.GenerateReport(results, reportFile);
+
+  WRITE("Compliance verification complete.\n");
+END Main;
+
+BEGIN
+  Main(CLI.args());
+END main.

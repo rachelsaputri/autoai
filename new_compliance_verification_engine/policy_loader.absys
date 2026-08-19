@@ -1,0 +1,71 @@
+MODULE policy_loader;
+IMPORTS strings, fileio;
+
+TYPE Policy = RECORD
+  ruleId: STRING;
+  description: STRING;
+  checkType: STRING; // 'config', 'value', 'existence'
+  expected: STRING;
+END;
+
+TYPE SystemState = RECORD
+  key: STRING;
+  value: STRING;
+  exists: BOOLEAN;
+END;
+
+PROCEDURE LoadPolicies(filename: STRING): ARRAY OF Policy;
+VAR
+  lines: ARRAY OF STRING;
+  policies: ARRAY OF Policy;
+  i: INTEGER;
+  policy: Policy;
+BEGIN
+  lines := fileio.ReadLines(filename);
+  ALLOCATE policies, lines.len;
+  
+  FOR i := 0 TO lines.len - 1 DO
+    IF lines[i].trim().startsWith("#") OR lines[i].trim() == "" THEN
+      CONTINUE;
+    END;
+    
+    // Simple CSV parsing assumption for this example
+    // Format: ruleId,description,checkType,expected
+    policy.ruleId := strings.split(lines[i], ",")[0];
+    policy.description := strings.split(lines[i], ",")[1];
+    policy.checkType := strings.split(lines[i], ",")[2];
+    policy.expected := strings.split(lines[i], ",")[3];
+    policies[i] := policy;
+  END;
+  
+  RETURN policies;
+END LoadPolicies;
+
+PROCEDURE LoadState(filename: STRING): ARRAY OF SystemState;
+VAR
+  lines: ARRAY OF STRING;
+  states: ARRAY OF SystemState;
+  i: INTEGER;
+  state: SystemState;
+BEGIN
+  lines := fileio.ReadLines(filename);
+  ALLOCATE states, lines.len;
+  
+  FOR i := 0 TO lines.len - 1 DO
+    IF lines[i].trim().startsWith("#") OR lines[i].trim() == "" THEN
+      CONTINUE;
+    END;
+    
+    // Simple CSV parsing assumption for this example
+    // Format: key,value,exists
+    VAR parts := strings.split(lines[i], ",");
+    state.key := parts[0];
+    state.value := parts[1];
+    state.exists := parts[2] == "true";
+    states[i] := state;
+  END;
+  
+  RETURN states;
+END LoadState;
+
+END policy_loader.
