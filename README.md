@@ -814,3 +814,5 @@
 - Created/Updated module: `dasl_data_processing_utility` (See `dasl_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `./spk_data_processing_utility` (See `./spk_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `pari_gp_data_processing_utility` (See `pari_gp_data_processing_utility/README.md` for details)
