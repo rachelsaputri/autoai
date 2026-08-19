@@ -1,0 +1,61 @@
+A0 SYSTEM VALIDATOR
+
+* DESCRIPTION:
+    * Handles data validation and integrity checks.
+    * Verifies field counts and value ranges.
+
+* INTERFACE:
+    IN: Parsed record.
+    OUT: Validation status.
+
+* CONSTANTS:
+    MIN_FIELDS EQU 3
+    MAX_FIELDS EQU 10
+    MAX_VALUE EQU 65535
+
+VALIDATE_RECORD PROC
+    ; Input: AX = Record pointer
+    PUSH BP
+    MOV BP, SP
+    PUSH AX
+    
+    ; Check field count (stored in FIELD_COUNT from processor)
+    CMP FIELD_COUNT, MIN_FIELDS
+    JL INVALID_FIELDS
+    CMP FIELD_COUNT, MAX_FIELDS
+    JG INVALID_FIELDS
+    
+    ; Check value ranges (simplified)
+    MOV SI, AX
+    MOV CX, FIELD_COUNT
+    XOR BX, BX
+
+VALUE_LOOP:
+    CMP CX, 0
+    JE VALIDATION_SUCCESS
+    
+    MOV AX, [SI]
+    CMP AX, MAX_VALUE
+    JG INVALID_VALUE
+    
+    ADD SI, 2
+    DEC CX
+    JMP VALUE_LOOP
+
+INVALID_FIELDS:
+    MOV AX, ERROR_INVALID_STRUCTURE
+    JMP VALIDATION_EXIT
+
+INVALID_VALUE:
+    MOV AX, ERROR_INVALID_RANGE
+    JMP VALIDATION_EXIT
+
+VALIDATION_SUCCESS:
+    MOV AX, SUCCESS_CODE
+
+VALIDATION_EXIT:
+    POP AX
+    POP BP
+    RET
+VALIDATE_RECORD ENDP
+END VALIDATOR

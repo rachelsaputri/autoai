@@ -1,0 +1,143 @@
+A0 SYSTEM A0_DATA_PROCESSING_UTILITY
+
+* DESCRIPTION:
+    * Main entry point for the data processing utility.
+    * Handles state machine transitions and module invocation.
+
+* STATE DIAGRAM:
+    IDLE -> LOAD_CONFIG
+    LOAD_CONFIG -> INIT_PIPELINE
+    INIT_PIPELINE -> PROCESS_DATA
+    PROCESS_DATA -> VALIDATE_DATA
+    VALIDATE_DATA -> GENERATE_REPORT
+    GENERATE_REPORT -> IDLE
+    VALIDATE_DATA -> HANDLE_ERROR
+    HANDLE_ERROR -> IDLE
+    GENERATE_REPORT -> HANDLE_ERROR
+
+* CONSTANTS:
+    MAX_RECORDS EQU 10000
+    BUFFER_SIZE EQU 256
+    SUCCESS_CODE EQU 0
+    ERROR_CODE EQU 1
+
+* GLOBAL VARIABLES:
+    CONFIG_FILE DB 'config.dat', 0
+    OUTPUT_FILE DB 'results.dat', 0
+    BUFFER DB BUFFER_SIZE DUP (0)
+    RECORD_COUNT DW 0
+    STATUS_CODE DW 0
+
+MAIN PROC
+    PUSH BP
+    MOV BP, SP
+
+    ; Initialize system
+    CALL SYS_INIT
+    
+    ; Check if run from command line or invoked by another module
+    CMP AX, 0
+    JE PROCESS_LOOP
+    JMP EXIT_PROGRAM
+
+PROCESS_LOOP:
+    ; Check state
+    CMP STATUS_CODE, IDLE
+    JE LOAD_CONFIG_STATE
+    CMP STATUS_CODE, PROCESSING
+    JE PROCESS_LOOP
+    
+    ; Handle state transitions
+    JMP PROCESS_LOOP
+
+LOAD_CONFIG_STATE:
+    ; Load configuration file
+    MOV AH, LOAD_CONFIG
+    PUSH CONFIG_FILE
+    CALL INVOKE_MODULE
+    CMP AX, SUCCESS_CODE
+    JE INIT_PIPELINE_STATE
+    
+    ; If load fails, transition to error handling
+    MOV STATUS_CODE, ERROR
+    JMP HANDLE_ERROR_STATE
+
+INIT_PIPELINE_STATE:
+    ; Initialize the processing pipeline
+    MOV AH, INIT_PIPELINE
+    PUSH MAX_RECORDS
+    PUSH BUFFER_SIZE
+    CALL INVOKE_MODULE
+    MOV STATUS_CODE, PROCESSING
+    JMP PROCESS_LOOP
+
+PROCESS_LOOP_INTERNAL:
+    ; Check for more data
+    MOV AH, CHECK_DATA
+    CALL INVOKE_MODULE
+    CMP AX, 0
+    JE END_PIPELINE
+    
+    ; Load next record
+    MOV AH, LOAD_RECORD
+    PUSH BUFFER
+    PUSH BUFFER_SIZE
+    CALL INVOKE_MODULE
+    CMP AX, SUCCESS_CODE
+    JE VALIDATE_STATE
+    
+    ; If load fails, log error
+    MOV STATUS_CODE, ERROR
+    JMP HANDLE_ERROR_STATE
+
+VALIDATE_STATE:
+    ; Validate record structure
+    MOV AH, VALIDATE_RECORD
+    PUSH BUFFER
+    CALL INVOKE_MODULE
+    CMP AX, SUCCESS_CODE
+    JE TRANSFORM_STATE
+    
+    ; Invalid record, skip or mark as error
+    JMP PROCESS_LOOP_INTERNAL
+
+TRANSFORM_STATE:
+    ; Transform record
+    MOV AH, TRANSFORM_RECORD
+    PUSH BUFFER
+    CALL INVOKE_MODULE
+    
+    ; Store transformed record (simplified)
+    JMP PROCESS_LOOP_INTERNAL
+
+END_PIPELINE:
+    ; Finalize pipeline
+    MOV AH, FINALIZE_PIPELINE
+    CALL INVOKE_MODULE
+    
+    ; Generate report
+    MOV AH, GENERATE_REPORT
+    PUSH OUTPUT_FILE
+    CALL INVOKE_MODULE
+    
+    ; Reset to idle
+    MOV STATUS_CODE, IDLE
+    JMP EXIT_PROGRAM
+
+HANDLE_ERROR_STATE:
+    ; Log error details
+    MOV AH, LOG_ERROR
+    CALL INVOKE_MODULE
+    
+    ; Reset to idle
+    MOV STATUS_CODE, IDLE
+    JMP EXIT_PROGRAM
+
+EXIT_PROGRAM:
+    ; Cleanup and exit
+    MOV AX, STATUS_CODE
+    POP BP
+    RET
+
+MAIN ENDP
+END A0_DATA_PROCESSING_UTILITY

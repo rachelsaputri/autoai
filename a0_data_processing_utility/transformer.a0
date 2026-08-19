@@ -1,0 +1,32 @@
+A0 SYSTEM TRANSFORMER
+
+* DESCRIPTION:
+    * Handles data transformation and normalization.
+    * Applies mathematical and logical operations to parsed fields.
+
+* INTERFACE:
+    IN: Parsed record.
+    OUT: Transformed record.
+
+* CONSTANTS:
+    SCALE_FACTOR EQU 100
+
+TRANSFORM_RECORD PROC
+    ; Input: AX = Record pointer
+    PUSH BP
+    MOV BP, SP
+    PUSH AX
+    
+    ; Example transformation: normalize a field
+    MOV SI, AX
+    MOV AX, [SI] ; Load first field
+    MUL SCALE_FACTOR ; Simple scaling
+    MOV [SI], AX ; Store back
+    
+    MOV AX, SUCCESS_CODE
+
+    POP AX
+    POP BP
+    RET
+TRANSFORM_RECORD ENDP
+END TRANSFORMER
