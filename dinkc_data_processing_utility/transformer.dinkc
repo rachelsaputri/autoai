@@ -1,0 +1,55 @@
+// transformer.dinkc
+// Module for transforming data and entity states
+
+include dinksys
+include stdutil
+
+void transform_entity(int entity_id, int transform_type) {
+    int x, y, dir, type;
+    int new_type = 0;
+    
+    get_entity_xy(entity_id, x, y);
+    get_entity_dir(entity_id, dir);
+    get_entity_type(entity_id, type);
+    
+    switch (transform_type) {
+        case 1: // Upgrade type
+            new_type = type + 1;
+            break;
+        case 2: // Downgrade type
+            if (type > 0) {
+                new_type = type - 1;
+            } else {
+                new_type = type;
+            }
+            break;
+        case 3: // Reset type
+            new_type = 1;
+            break;
+        default: // No change
+            return;
+    }
+    
+    if (new_type != type) {
+        change_entity_type(entity_id, new_type);
+        update_entity(entity_id, 1, x, y, dir);
+    }
+}
+
+void transform_map_data(int map_id) {
+    int i = 0;
+    int entity_id = 0;
+    int max_entities = 50;
+    
+    change_map(map_id);
+    wait(1);
+    
+    // Process all entities on the map
+    for (i = 1; i < max_entities; i++) {
+        entity_id = get_entity_id(str(i));
+        if (entity_id > 0) {
+            // Example: Transform based on current type
+            // transform_entity(entity_id, 1);
+        }
+    }
+}

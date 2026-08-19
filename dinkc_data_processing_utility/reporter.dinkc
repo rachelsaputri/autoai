@@ -1,0 +1,50 @@
+// reporter.dinkc
+// Module for generating reports and logs
+
+include dinksys
+include stdutil
+
+void generate_report(int report_id) {
+    int file_handle = 0;
+    string report_content = "";
+    
+    // Build report content
+    report_content = "=== DinkC Data Processing Report ===\n";
+    report_content = report_content + "Report ID: " + str(report_id) + "\n";
+    report_content = report_content + "Date: " + get_date() + "\n";
+    report_content = report_content + "Status: Complete\n";
+    report_content = report_content + "====================================\n";
+    
+    // Write to file
+    file_handle = create_file("report_" + str(report_id) + ".txt");
+    if (file_handle > 0) {
+        write_file(file_handle, report_content);
+        close_file(file_handle);
+    }
+    
+    // Display to user
+    text_box_centered(report_content, 0);
+}
+
+void log_event(string event_name, int event_value) {
+    int file_handle = 0;
+    string log_line = "";
+    
+    log_line = "[LOG] " + event_name + " = " + str(event_value) + "\n";
+    
+    file_handle = append_file("utility_log.txt");
+    if (file_handle > 0) {
+        write_file(file_handle, log_line);
+        close_file(file_handle);
+    }
+}
+
+string get_date() {
+    int year = 0, month = 0, day = 0;
+    string date_str = "";
+    
+    get_date_vars(year, month, day);
+    date_str = str(year) + "-" + str(month) + "-" + str(day);
+    
+    return date_str;
+}

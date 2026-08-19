@@ -752,3 +752,5 @@
 - Created/Updated module: `hlasm_data_processing_utility` (See `hlasm_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `microscript_data_processing_utility` (See `microscript_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `dinkc_data_processing_utility` (See `dinkc_data_processing_utility/README.md` for details)

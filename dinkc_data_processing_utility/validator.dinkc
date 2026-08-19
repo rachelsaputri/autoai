@@ -1,0 +1,73 @@
+// validator.dinkc
+// Module for validating data integrity and entity states
+
+include dinksys
+include stdutil
+
+int validate_entity(int entity_id) {
+    int x, y, dir, type;
+    
+    get_entity_xy(entity_id, x, y);
+    get_entity_dir(entity_id, dir);
+    get_entity_type(entity_id, type);
+    
+    // Validate ranges
+    if (x < 0 || x > 1000) {
+        return 0; // Invalid X
+    }
+    if (y < 0 || y > 1000) {
+        return 0; // Invalid Y
+    }
+    if (dir < 0 || dir > 3) {
+        return 0; // Invalid direction
+    }
+    if (type < 0 || type > 999) {
+        return 0; // Invalid type
+    }
+    
+    return 1; // Valid
+}
+
+int validate_map(int map_id) {
+    int i = 0;
+    int entity_id = 0;
+    int invalid_count = 0;
+    int max_entities = 50;
+    
+    change_map(map_id);
+    wait(1);
+    
+    for (i = 1; i < max_entities; i++) {
+        entity_id = get_entity_id(str(i));
+        if (entity_id > 0) {
+            if (!validate_entity(entity_id)) {
+                invalid_count++;
+            }
+        }
+    }
+    
+    return invalid_count; // Return count of invalid entities
+}
+
+int validate_config_file(string filename) {
+    int file_handle = 0;
+    string line = "";
+    int valid = 1;
+    
+    file_handle = load_file(filename);
+    if (file_handle == 0) {
+        return 0; // File not found
+    }
+    
+    while (get_line_from_file(file_handle, line) > 0) {
+        if (get_string_length(line) == 0) {
+            continue; // Skip empty lines
+        }
+        if (get_string_part(line, "error", 0) > 0) {
+            valid = 0; // Found error keyword
+        }
+    }
+    
+    close_file(file_handle);
+    return valid;
+}

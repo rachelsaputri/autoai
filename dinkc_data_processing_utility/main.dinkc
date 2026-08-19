@@ -1,0 +1,38 @@
+// main.dinkc
+// Entry point for the DinkC Data Processing Utility
+
+include dinksys
+include stdutil
+
+// External function declarations for utility modules
+extern void utility_init(int version);
+extern void process_data_block(int block_id);
+extern void transform_entity(int entity_id, int transform_type);
+extern void generate_report(int report_id);
+extern void utility_cleanup();
+
+void main() {
+    // Initialize the utility system
+    utility_init(1);
+
+    // Example: Process a sample data block
+    int sample_block = load_data("sample_data.txt");
+    if (sample_block > 0) {
+        process_data_block(sample_block);
+    }
+
+    // Example: Transform an entity based on configuration
+    int player = get_entity_id("player");
+    if (player > 0) {
+        transform_entity(player, 1); // Example transform type 1
+    }
+
+    // Generate final report
+    generate_report(1);
+
+    // Clean up resources
+    utility_cleanup();
+
+    // End script
+    return;
+}

@@ -1,0 +1,46 @@
+// parser.dinkc
+// Module for parsing data files and strings
+
+include dinksys
+include stdutil
+
+int parse_config_file(string filename) {
+    int file_handle = 0;
+    string line = "";
+    int value = 0;
+    
+    file_handle = load_file(filename);
+    if (file_handle == 0) {
+        return -1; // File not found
+    }
+
+    // Read lines and parse key-value pairs
+    while (get_line_from_file(file_handle, line) > 0) {
+        // Simple key=value parsing
+        if (get_string_part(line, "key", value) > 0) {
+            // Process key
+        }
+        if (get_string_part(line, "value", value) > 0) {
+            // Process value
+        }
+    }
+
+    close_file(file_handle);
+    return 1;
+}
+
+int parse_entity_data(int entity_id) {
+    int x = 0, y = 0, dir = 0, type = 0;
+    
+    get_entity_xy(entity_id, x, y);
+    get_entity_dir(entity_id, dir);
+    get_entity_type(entity_id, type);
+    
+    // Validate and normalize data
+    if (type > 0 && type < 500) {
+        // Valid entity type
+        return entity_id;
+    } else {
+        return -1; // Invalid type
+    }
+}
