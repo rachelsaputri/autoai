@@ -1,0 +1,11 @@
+// Reporting module
+module reporter;
+
+fn generate_report(data: list, output_path: string) {
+    let report = {
+        total_records: data |> length,
+        valid_records: data |> length,
+        data: data
+    };
+    write_file(output_path, report.to_json());
+}

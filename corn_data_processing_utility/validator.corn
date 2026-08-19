@@ -1,0 +1,13 @@
+// Data validation module
+module validator;
+
+fn check(data: list, schema: map) -> list {
+    return data |> filter(validate_record);
+}
+
+fn validate_record(record: map) -> bool {
+    if record.id == "" || record.value == null {
+        return false;
+    }
+    return true;
+}

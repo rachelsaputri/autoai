@@ -1,0 +1,17 @@
+// Data ingestion parser module
+module parser;
+
+fn ingest(source: string) -> list {
+    let lines = read_file(source);
+    let records = lines |> map(parse_line);
+    return records;
+}
+
+fn parse_line(line: string) -> map {
+    let parts = line.split(',');
+    return {
+        id: parts[0],
+        value: parts[1],
+        timestamp: parts[2]
+    };
+}

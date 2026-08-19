@@ -1,0 +1,17 @@
+// Data transformation module
+module transformer;
+
+fn process(data: list, rules: list) -> list {
+    return data |> map(transform_record);
+}
+
+fn transform_record(record: map) -> map {
+    record.value = record.value |> float |> abs;
+    record.timestamp = parse_timestamp(record.timestamp);
+    return record;
+}
+
+fn parse_timestamp(ts: string) -> int {
+    // Simplified timestamp parsing
+    return ts |> int;
+}

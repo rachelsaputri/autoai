@@ -1,0 +1,16 @@
+// Main entry point for the Corn data processing utility
+module main;
+
+import parser;
+import transformer;
+import validator;
+import reporter;
+
+fn main() {
+    let config = parse_config();
+    let data = parser::ingest(data_source=config.source);
+    let transformed = transformer::process(data, config.rules);
+    let valid_data = validator::check(transformed, config.schema);
+    reporter::generate_report(valid_data, config.output);
+    println("Processing complete.");
+}
