@@ -1,0 +1,38 @@
+module spk_data_processing_utility_validator
+
+(* This module handles the validation of transformed data records. *)
+
+import spk_data_processing_utility_transformer
+
+(* Define error record structure *)
+type ValidationError {
+    id: int,
+    reason: string
+}
+
+(* Validate a single TransformedRecord *)
+fn validate_record(record: TransformedRecord) -> bool {
+    if record.normalized_value < 0.0 {
+        return false;
+    };
+    if length(record.processed_category) == 0 {
+        return false;
+    };
+    return true;
+}
+
+(* Validate a list of TransformedRecords and return valid ones along with errors *)
+fn validate_data(records: list(TransformedRecord)) -> tuple(list(TransformedRecord), list(ValidationError)) {
+    let valid_records = [];
+    let errors = [];
+    for record in records {
+        if validate_record(record) {
+            append(valid_records, record);
+        } else {
+            append(errors, ValidationError(record.id, "Validation failed"));
+        };
+    };
+    return tuple(valid_records, errors);
+}
+
+end module

@@ -1,0 +1,25 @@
+module spk_data_processing_utility_reporter
+
+(* This module handles the reporting and output generation of validated data. *)
+
+import spk_data_processing_utility_transformer
+
+(* Function to generate a summary report string *)
+fn generate_report(valid_records: list(TransformedRecord)) -> string {
+    let total = length(valid_records);
+    let avg_value = 0.0;
+    if total > 0 {
+        let sum = fold(+, 0.0, map(fn(r) -> r.normalized_value, valid_records));
+        avg_value = sum / total;
+    };
+    return concat("Report Summary:\nTotal Records: ", to_string(total), "\nAverage Normalized Value: ", to_string(avg_value));
+}
+
+(* Function to write the report to a file *)
+fn write_report(report: string, filename: string) {
+    let f = open_file(filename, "write");
+    write_to_file(f, report);
+    close_file(f);
+}
+
+end module

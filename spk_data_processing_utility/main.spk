@@ -1,0 +1,33 @@
+module spk_data_processing_utility_main
+
+(* Main entry point for the SP/k Data Processing Utility. *)
+
+import spk_data_processing_utility_parser
+import spk_data_processing_utility_transformer
+import spk_data_processing_utility_validator
+import spk_data_processing_utility_reporter
+
+fn main() {
+    (* Sample raw input data *)
+    let raw_data = ["1,2023-01-01,1500.0,alert","2,2023-01-02,500.0,warning","3,2023-01-03,abc,info"];
+    
+    (* Step 1: Parse Data *)
+    let parsed_data = parse_data(raw_data);
+    
+    (* Step 2: Transform Data *)
+    let transformed_data = transform_data(parsed_data);
+    
+    (* Step 3: Validate Data *)
+    let (valid_data, errors) = validate_data(transformed_data);
+    
+    (* Step 4: Generate Report *)
+    let report = generate_report(valid_data);
+    
+    (* Step 5: Write Report *)
+    write_report(report, "output_report.txt");
+    
+    print("Processing complete. See output_report.txt for details.");
+    print(report);
+}
+
+end module

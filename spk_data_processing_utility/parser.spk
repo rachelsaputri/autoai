@@ -1,0 +1,32 @@
+module spk_data_processing_utility_parser
+
+(* This module handles the parsing of raw input data into structured records. *)
+
+(* Define the record structure for a parsed data item *)
+type DataRecord {
+    id: int,
+    timestamp: string,
+    value: float,
+    category: string
+}
+
+(* Function to parse a raw string line into a DataRecord *)
+fn parse_line(line: string) -> DataRecord {
+    let parts = split(line, ',');
+    if length(parts) == 4 {
+        let id = to_int(parts[0]);
+        let ts = parts[1];
+        let val = to_float(parts[2]);
+        let cat = parts[3];
+        return DataRecord(id, ts, val, cat);
+    } else {
+        raise Error("Invalid line format");
+    }
+}
+
+(* Function to parse a list of raw lines into a list of DataRecords *)
+fn parse_data(raw_data: list(string)) -> list(DataRecord) {
+    map(parse_line, raw_data)
+}
+
+end module

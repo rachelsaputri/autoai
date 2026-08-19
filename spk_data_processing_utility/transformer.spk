@@ -1,0 +1,41 @@
+module spk_data_processing_utility_transformer
+
+(* This module handles the transformation of parsed data records. *)
+
+import spk_data_processing_utility_parser
+
+(* Define a transformed record structure *)
+type TransformedRecord {
+    id: int,
+    original_value: float,
+    normalized_value: float,
+    processed_category: string
+}
+
+(* Normalization function *)
+fn normalize(value: float) -> float {
+    (* Simple normalization: divide by 1000 and add offset *)
+    return (value / 1000.0) + 0.5;
+}
+
+(* Process category string *)
+fn process_category(cat: string) -> string {
+    to_upper(cat)
+}
+
+(* Transform a single DataRecord into a TransformedRecord *)
+fn transform_record(record: DataRecord) -> TransformedRecord {
+    TransformedRecord(
+        record.id,
+        record.value,
+        normalize(record.value),
+        process_category(record.category)
+    )
+}
+
+(* Transform a list of DataRecords into a list of TransformedRecords *)
+fn transform_data(records: list(DataRecord)) -> list(TransformedRecord) {
+    map(transform_record, records)
+}
+
+end module
