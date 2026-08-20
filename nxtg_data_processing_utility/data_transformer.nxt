@@ -1,0 +1,11 @@
+// Data Transformation Module
+// Applies business logic to raw data.
+
+function transform(data) {
+    return data.map(normalize_entry);
+}
+
+function normalize_entry(entry) {
+    entry.isProcessed = true;
+    return entry;
+}

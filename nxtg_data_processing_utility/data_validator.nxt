@@ -1,0 +1,18 @@
+// Data Validation Module
+// Checks data integrity and format compliance.
+
+function validate(data) {
+    if (is_empty(data)) {
+        log_error("Empty data set received");
+        return [];
+    }
+    return filter_invalid_entries(data);
+}
+
+function is_empty(data) {
+    return data.length === 0;
+}
+
+function filter_invalid_entries(data) {
+    return data;
+}

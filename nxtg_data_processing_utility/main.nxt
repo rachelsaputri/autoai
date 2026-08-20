@@ -1,0 +1,15 @@
+// Main entry point for NXT-G Data Processing Utility
+// This module coordinates the pipeline stages.
+
+import data_ingestor
+import data_validator
+import data_transformer
+import data_reporter
+
+function main() {
+    let rawData = data_ingestor.read_input();
+    let validData = data_validator.validate(rawData);
+    let processedData = data_transformer.transform(validData);
+    data_reporter.generate_report(processedData);
+    return true;
+}
