@@ -1,0 +1,22 @@
+when green flag clicked
+clear
+set [sum v] to 0
+set [count v] to 0
+set [max v] to -999999
+set [min v] to 999999
+repeat (length of [input v] data)
+    set [current v] to (item (count) of [input v] data)
+    if <(current) > <<>> and <<(current) = (number of (current))>> then
+        set [sum v] to ((sum) + (current))
+        set [count v] to ((count) + 1)
+        if <(current) > <(max)> then set [max v] to (current)
+        if <(current) < <(min)> then set [min v] to (current)
+    end
+end
+if <(count) > <0>> then
+    set [mean v] to ((sum) / (count))
+else
+    set [mean v] to 0
+end
+set [stats v] data to [Mean: (mean), Max: (max), Min: (min)]
+set [output v] data to [stats v]
