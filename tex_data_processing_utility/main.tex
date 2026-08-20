@@ -1,0 +1,31 @@
+\\documentclass[12pt]{article}
+\\usepackage{xfp}
+\\usepackage{ifthen}
+\\usepackage{listofitems}
+\\usepackage{etoolbox}
+\\usepackage{expl3}
+
+\\ExplSyntaxOn
+\\bool_set_false:N \l_validated_bool
+\\ExplSyntaxOff
+
+\\begin{document}
+
+\\section*{TeX Data Processing Utility}
+
+\\input{config}
+
+\\section*{Processing Status}
+
+\\section*{Validation Results}
+\\input{validator}
+
+\\section*{Transformation Results}
+\\input{transformer}
+
+\\section*{Report}
+\\input{reporter}
+
+\\section*{Conclusion}
+The data processing utility has completed its run.
+\\end{document}
