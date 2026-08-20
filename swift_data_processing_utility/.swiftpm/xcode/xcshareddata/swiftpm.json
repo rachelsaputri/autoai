@@ -1,0 +1,7 @@
+{
+    \"name\": \"swift_data_processing_utility\",
+    \"version\": \"1.0.0\",
+    \"description\": \"A robust, production-ready data processing utility written in Swift.\",
+    \"dependencies\": {},
+    \"swift-tools-version\": \"5.9\"
+}
