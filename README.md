@@ -840,3 +840,5 @@
 - Created/Updated module: `xc_awesome_data_transformer` (See `xc_awesome_data_transformer/README.md` for details)
 
 - Created/Updated module: `dinkc_compliance_data_processor` (See `dinkc_compliance_data_processor/README.md` for details)
+
+- Created/Updated module: `./godiva_compliance_orchestrator` (See `./godiva_compliance_orchestrator/README.md` for details)
