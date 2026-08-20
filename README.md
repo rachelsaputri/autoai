@@ -836,3 +836,5 @@
 - Created/Updated module: `refal_data_processing_utility` (See `refal_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `gap_data_processing_utility` (See `gap_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `xc_awesome_data_transformer` (See `xc_awesome_data_transformer/README.md` for details)
