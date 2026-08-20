@@ -832,3 +832,5 @@
 - Created/Updated module: `bliss_data_processing_utility` (See `bliss_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `lsharp_data_processing_utility` (See `lsharp_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `refal_data_processing_utility` (See `refal_data_processing_utility/README.md` for details)

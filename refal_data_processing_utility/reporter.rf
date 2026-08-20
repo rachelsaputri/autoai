@@ -1,0 +1,7 @@
+: Reporter module for generating output reports.
+
+Functions:
+- generate_report: Produces a human-readable report from processed data.
+
+Example invocation:
+:generate_report {"id": "123", "name": "Test"} ;

@@ -1,0 +1,7 @@
+: Transformer module for converting and enriching data.
+
+Functions:
+- transform_data: Applies transformations to validated data.
+
+Example invocation:
+:transform_data {"id": "123", "name": "Test"} ;

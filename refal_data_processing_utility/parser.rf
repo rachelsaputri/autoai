@@ -1,0 +1,7 @@
+: Parser module for extracting structured data from raw strings.
+
+Functions:
+- parse_data: Extracts key-value pairs from a raw data string.
+
+Example invocation:
+:parse_data {"id: 123, name: Test"} ;
