@@ -1,0 +1,50 @@
+       TITLE  'PL360 DATA TRANSFORMER'
+*----------------------------------------------------------------------*
+* PL/360 DATA PROCESSING UTILITY
+* TRANSFORMER MODULE - DATA TRANSFORMATION LOGIC
+*----------------------------------------------------------------------*
+       SECTION TRANSFORMER,RNDC=(128)
+*----------------------------------------------------------------------*
+* TRANSFORM_DATA - Apply transformations to parsed records
+*----------------------------------------------------------------------*
+TRANSFORM_DATA EQU *
+       USING  TRANS_AREA,R15
+       LR     R12,12
+       L      R13,13(12)
+       CLC    TRANS_FLAG,=C'ACTIVE'
+       BE     TRANS_EXIT
+       LA     R1,TRANSFORM_LOG
+       BAL    R14,LOG_TRANSFORM
+       LA     R2,TRANS_COUNT
+       ST     R2,TRANS_COUNT
+       CLC    TRANS_FLAG,=C'DONE'
+       BE     TRANS_EXIT
+       MVI    TRANS_FLAG,C'DONE'
+       XC     ERROR_MSG(R12),=C'TRANSFORMATION ERROR'
+       LA     R1,=F'-1'
+TRANS_EXIT LA     R15,R1
+       BR     R14
+*----------------------------------------------------------------------*
+* LOG_TRANSFORM - Log transformation activity
+*----------------------------------------------------------------------*
+LOG_TRANSFORM EQU *
+       USING  TRANS_AREA,R15
+       LR     R12,12
+       L      R13,13(12)
+       MVC    TRANS_REC,DATA_REC
+       CLC    TRANS_TYPE,=C'NORMALIZE'
+       BE     NORM_OP
+       CLC    TRANS_TYPE,=C'CONVERT'
+       BE     CONV_OP
+       LA     R1,=F'-1'
+       XC     ERROR_MSG(R12),=C'INVALID TRANS TYPE'
+       BR     R14
+NORM_OP  BAL    R14,NORMALIZE_DATA
+       BR     R14
+CONV_OP  BAL    R14,CONVERT_DATA
+       BR     R14
+*----------------------------------------------------------------------*
+       END    TRANSFORM_DATA
+*----------------------------------------------------------------------*
+       SECT   NO
+       END

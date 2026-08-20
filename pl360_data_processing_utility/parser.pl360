@@ -1,0 +1,56 @@
+       TITLE  'PL360 DATA PARSER'
+*----------------------------------------------------------------------*
+* PL/360 DATA PROCESSING UTILITY
+* PARSER MODULE - INPUT PARSING AND VALIDATION
+*----------------------------------------------------------------------*
+       SECTION PARSER,RNDC=(128)
+*----------------------------------------------------------------------*
+* PARSE_INPUT RECORD
+*----------------------------------------------------------------------*
+PARSE_INPUT EQU  0
+       DC     F'0'              ; RC RETURN CODE
+       DC     CL8' '            ; ERROR MESSAGE
+       DC     F'0'              ; RECORDS PARSED COUNT
+*----------------------------------------------------------------------*
+* PARSE_INPUT_DATA - Parse input records
+*----------------------------------------------------------------------*
+PARSE_INPUT_DATA EQU *
+       USING  PARSE_AREA,R15
+       LR     R12,12
+       L      R13,13(12)
+       CLC    INPUT_FLAG,=C'YES'
+       BE     PARSE_EXIT
+       LA     R1,PARSE_INPUT
+       BAL    R14,PARSE_RECORD
+       LA     R2,=F'1'
+       AR     R2,PARSE_COUNT(R1)
+       ST     R2,PARSE_COUNT(R1)
+       CLC    INPUT_FLAG,=C'NO'
+       BNE    PARSE_EXIT
+       MVI    INPUT_FLAG,C'NO'
+       XC     ERROR_MSG(R1),=C'PARSING ERROR'
+       LA     R1,=F'-1'
+PARSE_EXIT LA     R15,R1
+       BR     R14
+*----------------------------------------------------------------------*
+* PARSE_RECORD - Parse a single input record
+*----------------------------------------------------------------------*
+PARSE_RECORD EQU *
+       USING  PARSE_AREA,R15
+       LR     R12,12
+       L      R13,13(12)
+       MVC    PARSED_REC,INPUT_REC
+       CLC    REC_TYPE,=C'DATA'
+       BNE    PARSE_ERR
+       CLC    REC_DATA,=CL20' '
+       BE     PARSE_ERR
+       LA     R1,=F'0'
+       BR     R14
+PARSE_ERR LA     R1,=F'-1'
+       XC     ERROR_MSG(R12),=C'FORMAT INVALID'
+       BR     R14
+*----------------------------------------------------------------------*
+       END    PARSE_INPUT_DATA
+*----------------------------------------------------------------------*
+       SECT   NO
+       END

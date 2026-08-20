@@ -1,0 +1,50 @@
+       TITLE  'PL360 DATA REPORTER'
+*----------------------------------------------------------------------*
+* PL/360 DATA PROCESSING UTILITY
+* REPORTER MODULE - OUTPUT GENERATION AND REPORTING
+*----------------------------------------------------------------------*
+       SECTION REPORTER,RNDC=(128)
+*----------------------------------------------------------------------*
+* GENERATE_REPORT - Generate output report
+*----------------------------------------------------------------------*
+GENERATE_REPORT EQU *
+       USING  REPORT_AREA,R15
+       LR     R12,12
+       L      R13,13(12)
+       CLC    REPORT_FLAG,=C'READY'
+       BE     REPORT_EXIT
+       LA     R1,REPORT_LOG
+       BAL    R14,LOG_REPORT
+       LA     R2,REPORT_COUNT
+       ST     R2,REPORT_COUNT
+       CLC    REPORT_FLAG,=C'COMPLETE'
+       BE     REPORT_EXIT
+       MVI    REPORT_FLAG,C'COMPLETE'
+       XC     ERROR_MSG(R12),=C'REPORT GENERATION ERROR'
+       LA     R1,=F'-1'
+REPORT_EXIT LA     R15,R1
+       BR     R14
+*----------------------------------------------------------------------*
+* LOG_REPORT - Log report generation activity
+*----------------------------------------------------------------------*
+LOG_REPORT EQU *
+       USING  REPORT_AREA,R15
+       LR     R12,12
+       L      R13,13(12)
+       MVC    OUTPUT_REC,TRANSFORM_REC
+       CLC    OUTPUT_TYPE,=C'SUMMARY'
+       BE     SUMMARY_OP
+       CLC    OUTPUT_TYPE,=C'DETAIL'
+       BE     DETAIL_OP
+       LA     R1,=F'-1'
+       XC     ERROR_MSG(R12),=C'INVALID OUTPUT TYPE'
+       BR     R14
+SUMMARY_OP BAL   R14,GENERATE_SUMMARY
+       BR     R14
+DETAIL_OP  BAL   R14,GENERATE_DETAIL
+       BR     R14
+*----------------------------------------------------------------------*
+       END    GENERATE_REPORT
+*----------------------------------------------------------------------*
+       SECT   NO
+       END

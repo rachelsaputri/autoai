@@ -1,0 +1,50 @@
+       TITLE  'PL360 DATA PROCESSOR'
+*----------------------------------------------------------------------*
+* PL/360 DATA PROCESSING UTILITY
+* PROCESSOR MODULE - CORE PROCESSING ENGINE
+*----------------------------------------------------------------------*
+       SECTION PROCESSOR,RNDC=(128)
+*----------------------------------------------------------------------*
+* PROCESS_DATA_BATCH - Process batch of data records
+*----------------------------------------------------------------------*
+PROCESS_DATA_BATCH EQU *
+       USING  PROCESS_AREA,R15
+       LR     R12,12
+       L      R13,13(12)
+       CLC    PROCESS_FLAG,=C'RUNNING'
+       BE     PROCESS_EXIT
+       LA     R1,PROCESS_LOG
+       BAL    R14,LOG_PROCESS
+       LA     R2,PROCESS_COUNT
+       ST     R2,PROCESS_COUNT
+       CLC    PROCESS_FLAG,=C'DONE'
+       BE     PROCESS_EXIT
+       MVI    PROCESS_FLAG,C'DONE'
+       XC     ERROR_MSG(R12),=C'PROCESSING ERROR'
+       LA     R1,=F'-1'
+PROCESS_EXIT LA     R15,R1
+       BR     R14
+*----------------------------------------------------------------------*
+* LOG_PROCESS - Log processing activity
+*----------------------------------------------------------------------*
+LOG_PROCESS EQU *
+       USING  PROCESS_AREA,R15
+       LR     R12,12
+       L      R13,13(12)
+       MVC    BATCH_REC,INPUT_REC
+       CLC    BATCH_TYPE,=C'BATCH1'
+       BE     BATCH1_OP
+       CLC    BATCH_TYPE,=C'BATCH2'
+       BE     BATCH2_OP
+       LA     R1,=F'-1'
+       XC     ERROR_MSG(R12),=C'INVALID BATCH TYPE'
+       BR     R14
+BATCH1_OP BAL   R14,EXECUTE_BATCH1
+       BR     R14
+BATCH2_OP   BAL   R14,EXECUTE_BATCH2
+       BR     R14
+*----------------------------------------------------------------------*
+       END    PROCESS_DATA_BATCH
+*----------------------------------------------------------------------*
+       SECT   NO
+       END

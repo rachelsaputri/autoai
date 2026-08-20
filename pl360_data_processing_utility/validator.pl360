@@ -1,0 +1,50 @@
+       TITLE  'PL360 DATA VALIDATOR'
+*----------------------------------------------------------------------*
+* PL/360 DATA PROCESSING UTILITY
+* VALIDATOR MODULE - INTEGRITY CHECKING PROCEDURES
+*----------------------------------------------------------------------*
+       SECTION VALIDATOR,RNDC=(128)
+*----------------------------------------------------------------------*
+* VALIDATE_RECORD - Validate input record integrity
+*----------------------------------------------------------------------*
+VALIDATE_RECORD EQU *
+       USING  VALID_AREA,R15
+       LR     R12,12
+       L      R13,13(12)
+       CLC    VALID_FLAG,=C'ACTIVE'
+       BE     VALID_EXIT
+       LA     R1,VALIDATION_LOG
+       BAL    R14,LOG_VALIDATION
+       LA     R2,VALID_COUNT
+       ST     R2,VALID_COUNT
+       CLC    VALID_FLAG,=C'COMPLETE'
+       BE     VALID_EXIT
+       MVI    VALID_FLAG,C'COMPLETE'
+       XC     ERROR_MSG(R12),=C'VALIDATION ERROR'
+       LA     R1,=F'-1'
+VALID_EXIT LA     R15,R1
+       BR     R14
+*----------------------------------------------------------------------*
+* LOG_VALIDATION - Log validation activity
+*----------------------------------------------------------------------*
+LOG_VALIDATION EQU *
+       USING  VALID_AREA,R15
+       LR     R12,12
+       L      R13,13(12)
+       MVC    CHECK_REC,INPUT_REC
+       CLC    CHECK_TYPE,=C'FORMAT'
+       BE     FORMAT_OP
+       CLC    CHECK_TYPE,=C'RANGE'
+       BE     RANGE_OP
+       LA     R1,=F'-1'
+       XC     ERROR_MSG(R12),=C'INVALID CHECK TYPE'
+       BR     R14
+FORMAT_OP BAL   R14,CHECK_FORMAT
+       BR     R14
+RANGE_OP   BAL   R14,CHECK_RANGE
+       BR     R14
+*----------------------------------------------------------------------*
+       END    VALIDATE_RECORD
+*----------------------------------------------------------------------*
+       SECT   NO
+       END
