@@ -1,0 +1,39 @@
+-- sasl_data_processing_utility/reporter.sasl
+-- Provides reporting functions for the processing pipeline.
+
+-- Generate a summary string
+GenerateSummary(\inputCount, \processedCount, \validCount, \invalidCount -> 
+    concat(
+        "\n========================================\n",
+        "  DATA PROCESSING SUMMARY\n",
+        "========================================\n",
+        "Total Records Ingested: ", ToString(inputCount), "\n",
+        "Successfully Processed: ", ToString(processedCount), "\n",
+        "Valid Records:          ", ToString(validCount), "\n",
+        "Invalid Records:        ", ToString(invalidCount), "\n",
+        "========================================\n",
+        "  PROCESSING COMPLETE\n",
+        "========================================"
+    )
+)
+
+-- Format a single record for output
+FormatRecord(\record -> 
+    concat(
+        "Name: ", ToString(record["name"]), " | ",
+        "Value: ", ToString(record["value"]), " | ",
+        "Date: ", ToString(record["date"])
+    )
+)
+
+-- Print all valid records
+PrintValidRecords(\validRecords -> 
+    Print("\\n--- Valid Records ---")
+    ForEach(\r -> Print(FormatRecord(r)), validRecords)
+)
+
+-- Print all invalid records with reasons (simplified)
+PrintInvalidRecords(\invalidRecords -> 
+    Print("\\n--- Invalid Records ---")
+    ForEach(\r -> Print(concat("INVALID: ", FormatRecord(r))), invalidRecords)
+)

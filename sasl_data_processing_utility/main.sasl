@@ -1,0 +1,49 @@
+-- sasl_data_processing_utility/main.sasl
+-- Main entry point for the SASL Data Processing Utility.
+
+Import(transformer)
+Import(validator)
+Import(reporter)
+
+-- Test data ingestion simulation
+IngestTestData() -> 
+    [
+        {"name": "  Alpha Unit  ", "value": "100", "date": "2023-01-01"},
+        {"name": "Beta Unit", "value": "-5", "date": "2023-02-15"},
+        {"name": "Gamma Unit", "value": "200", "date": "2023-03-10"},
+        {"name": "Delta Unit", "value": "999", "date": ""},
+        {"name": "  Epsilon  ", "value": "abc", "date": "2023-04-20"}
+    ]
+
+-- Main processing pipeline
+Main() -> 
+    let
+        rawData = IngestTestData();
+        inputCount = Length(rawData);
+        
+        -- Transform all records
+        transformedData = Map(\r -> TransformRecord(r), rawData);
+        processedCount = Length(transformedData);
+        
+        -- Validate all records
+        validationResults = Map(\r -> ValidateRecord(r), transformedData);
+        
+        -- Split into valid and invalid
+        validRecords = Filter(\v -> v["valid"], validationResults);
+        invalidRecords = Filter(\v -> not v["valid"], validationResults);
+        
+        validCount = Length(validRecords);
+        invalidCount = Length(invalidRecords);
+        
+        -- Print valid records
+        PrintValidRecords(validRecords);
+        
+        -- Print invalid records
+        PrintInvalidRecords(invalidRecords);
+        
+        -- Print summary
+        Print(GenerateSummary(inputCount, processedCount, validCount, invalidCount))
+    in true
+
+-- Execute main
+Main()

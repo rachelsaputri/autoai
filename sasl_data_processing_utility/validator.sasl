@@ -1,0 +1,31 @@
+-- sasl_data_processing_utility/validator.sasl
+-- Provides data validation functions.
+
+-- Check if a record has all required fields
+HasRequiredFields(\record -> 
+    let
+        required = ["name", "value", "date"];
+        exists(\f -> HasKey(record, f))
+    in 
+        Fold(\acc, \field -> acc && exists(field), true, required)
+)
+
+-- Validate value is within acceptable range (0 to 1000)
+IsValidRange(\value -> 
+    value >= 0 && value <= 1000
+)
+
+-- Validate date is not empty and looks valid
+IsValidDate(\dateStr -> 
+    not IsEmpty(dateStr) && Length(dateStr) == 10
+)
+
+-- Run all validations on a record
+ValidateRecord(\record -> 
+    let
+        fieldsValid = HasRequiredFields(record);
+        valueValid = IsValidRange(record["value"]);
+        dateValid = IsValidDate(record["date"])
+    in
+        {"valid": fieldsValid && valueValid && dateValid, "record": record}
+)
