@@ -1,0 +1,192 @@
+// SYSTEM ADMINISTRATION UTILITY
+// Language: SiMPLE
+// Purpose: Complete, functional system monitoring and administration
+
+MODULE SysAdmin;
+
+IMPORTS SystemStats, ProcessManager, FileSystem, Network, Log;
+
+TYPE Config = RECORD
+    poll_interval : INT;
+    log_level : STRING;
+    alert_thresholds : RECORD
+        cpu_percent : FLOAT;
+        mem_percent : FLOAT;
+        disk_percent : FLOAT;
+        network_errors : INT;
+    END;
+END;
+
+GLOBAL config : Config;
+GLOBAL running : BOOL = FALSE;
+
+PROCEDURE Initialize() : BOOL
+    var config_path : STRING := "sysadmin.conf";
+    IF ReadConfig(config_path, config) THEN
+        Log.Info("System administration utility initialized successfully");
+        RETURN TRUE;
+    ELSE
+        Log.Error("Failed to load configuration");
+        config.poll_interval := 5;
+        config.alert_thresholds.cpu_percent := 90.0;
+        config.alert_thresholds.mem_percent := 85.0;
+        config.alert_thresholds.disk_percent := 95.0;
+        config.alert_thresholds.network_errors := 100;
+        RETURN TRUE;
+    END IF;
+END PROCEDURE;
+
+PROCEDURE MonitorSystem() : RECORD
+    var stats : SystemStats.Data;
+    var errors : RECORD
+        cpu_alert : BOOL = FALSE;
+        mem_alert : BOOL = FALSE;
+        disk_alert : BOOL = FALSE;
+        net_alert : BOOL = FALSE;
+    END;
+    
+    SystemStats.GetStats(stats);
+    
+    IF stats.cpu_usage > config.alert_thresholds.cpu_percent THEN
+        errors.cpu_alert := TRUE;
+        Log.Warning("CPU usage critical: " + STRING(stats.cpu_usage));
+    END IF;
+    
+    IF stats.mem_usage > config.alert_thresholds.mem_percent THEN
+        errors.mem_alert := TRUE;
+        Log.Warning("Memory usage critical: " + STRING(stats.mem_usage));
+    END IF;
+    
+    IF stats.disk_usage > config.alert_thresholds.disk_percent THEN
+        errors.disk_alert := TRUE;
+        Log.Warning("Disk usage critical: " + STRING(stats.disk_usage));
+    END IF;
+    
+    var net_errors : INT := Network.GetErrorCount();
+    IF net_errors > config.alert_thresholds.network_errors THEN
+        errors.net_alert := TRUE;
+        Log.Warning("Network error count exceeded threshold: " + STRING(net_errors));
+    END IF;
+    
+    RETURN RECORD(stats, errors);
+END PROCEDURE;
+
+PROCEDURE ManageProcesses() : RECORD
+    var active : ARRAY OF RECORD
+        pid : INT;
+        name : STRING;
+        cpu : FLOAT;
+        mem : FLOAT;
+    END;
+    
+    ProcessManager.GetActiveProcesses(active);
+    
+    // Sort by memory usage descending
+    SORT_BY(active, PROCESS_MEM_DESC);
+    
+    RETURN RECORD(processes : active, count : ARRAY_LENGTH(active));
+END PROCEDURE;
+
+PROCEDURE CheckFileIntegrity() : RECORD
+    var monitored : ARRAY OF STRING := ["/etc/passwd", "/etc/shadow", "/etc/hosts", "/boot/vmlinuz"];
+    var integrity : RECORD
+        valid : BOOL = TRUE;
+        modified : ARRAY OF STRING = [];
+        missing : ARRAY OF STRING = [];
+    END;
+    
+    FOR file IN monitored DO
+        IF FileSystem.Exists(file) THEN
+            IF FileSystem.CheckHash(file) == FALSE THEN
+                integrity.valid := FALSE;
+                integrity.modified += file;
+                Log.Critical("File integrity compromised: " + file);
+            END IF;
+        ELSE
+            integrity.valid := FALSE;
+            integrity.missing += file;
+            Log.Critical("Critical file missing: " + file);
+        END IF;
+    END FOR;
+    
+    RETURN integrity;
+END PROCEDURE;
+
+PROCEDURE ExecuteMaintenance() : BOOL
+    var success : BOOL = TRUE;
+    
+    // Clear temporary logs older than 7 days
+    IF NOT Log.CleanOldLogs(7) THEN
+        Log.Error("Failed to clean old logs");
+        success := FALSE;
+    END IF;
+    
+    // Compress large log files
+    IF NOT Log.CompressIfNeeded() THEN
+        Log.Error("Failed to compress logs");
+        success := FALSE;
+    END IF;
+    
+    // Validate system configuration
+    IF NOT FileSystem.ValidatePermissions() THEN
+        Log.Warning("System permission inconsistencies detected");
+        success := FALSE;
+    END IF;
+    
+    RETURN success;
+END PROCEDURE;
+
+PROCEDURE MainLoop()
+    running := Initialize();
+    
+    WHILE running DO
+        // System monitoring
+        VAR monitor_result : RECORD;
+        monitor_result := MonitorSystem();
+        
+        // Process management
+        VAR process_result : RECORD;
+        process_result := ManageProcesses();
+        
+        // File integrity
+        VAR integrity_result : RECORD;
+        integrity_result := CheckFileIntegrity();
+        
+        // Execute if critical alerts present
+        IF monitor_result.errors.cpu_alert OR monitor_result.errors.mem_alert OR 
+           monitor_result.errors.disk_alert OR monitor_result.errors.net_alert THEN
+            ExecuteMaintenance();
+        END IF;
+        
+        // Write status report
+        WriteStatusReport(monitor_result, process_result, integrity_result);
+        
+        // Sleep for configured interval
+        SLEEP(config.poll_interval);
+    END WHILE;
+    
+    Log.Info("System administration utility shut down gracefully");
+END PROCEDURE;
+
+PROCEDURE WriteStatusReport(mon, proc, integ)
+    var report : STRING;
+    report := "=== SYSTEM STATUS REPORT ===\n";
+    report := report + "CPU Usage: " + STRING(mon.stats.cpu_usage) + "%\n";
+    report := report + "Memory Usage: " + STRING(mon.stats.mem_usage) + "%\n";
+    report := report + "Disk Usage: " + STRING(mon.stats.disk_usage) + "%\n";
+    report := report + "Active Processes: " + STRING(proc.count) + "\n";
+    report := report + "File Integrity: " + (integ.valid ? "PASS" : "FAIL") + "\n";
+    report := report + "===========================\n";
+    
+    Log.Info(report);
+END PROCEDURE;
+
+PROCEDURE SignalHandler(signum)
+    IF signum == SIGTERM OR signum == SIGINT THEN
+        running := FALSE;
+        Log.Info("Received termination signal. Shutting down...");
+    END IF;
+END PROCEDURE;
+
+START MainLoop();
+END MODULE;
