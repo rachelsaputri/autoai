@@ -822,3 +822,5 @@
 - Created/Updated module: `pipelines_data_processing_utility` (See `pipelines_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `ibm_rpg_data_processing_utility` (See `ibm_rpg_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `./provide_x_compliance_audit_tool` (See `./provide_x_compliance_audit_tool/README.md` for details)
