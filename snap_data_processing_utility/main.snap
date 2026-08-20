@@ -1,0 +1,11 @@
+when green flag clicked
+clear
+set [input v] data to [10, 20, 30, null, 40, "invalid", 50]
+set [validation report v] data to []
+set [audit log v] data to []
+set [output v] data to []
+ask [Enter data processing mode: 1-Filter Nulls, 2-Calculate Stats, 3-Validate, 4-All] and wait
+if <(answer) = [1]> then run block [filter nulls]
+if <(answer) = [2]> then run block [calculate stats]
+if <(answer) = [3]> then run block [validate data]
+if <(answer) = [4]> then run block [full pipeline]

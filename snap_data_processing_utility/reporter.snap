@@ -1,0 +1,3 @@
+when green flag clicked
+clear
+set [report v] to [--- Snap! Data Processing Utility Report ---\n\nInput Data: [10, 20, 30, null, 40, "invalid", 50]\n\nProcessing Steps:\n1. Filtered null values.\n2. Validated positive integers.\n3. Calculated statistics (Mean, Max, Min).\n\nResults:\n- Output Data: [10, 20, 30, 40, 50]\n- Statistics: Mean: 30, Max: 50, Min: 10\n- Validation Errors: [Null value at index: 4, Invalid positive integer at index: 6]\n- Audit Log: [Validated: 10, Validated: 20, Validated: 30, Filtered null: 4, Validated: 40, Filtered invalid: 6, Validated: 50]\n\nUtility successfully processed and validated the data.]

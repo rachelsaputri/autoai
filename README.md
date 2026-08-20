@@ -858,3 +858,5 @@
 - Created/Updated module: `system_admin_tool` (See `system_admin_tool/README.md` for details)
 
 - Created/Updated module: `vds_data_processing_utility` (See `vds_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `snap_data_processing_utility` (See `snap_data_processing_utility/README.md` for details)
