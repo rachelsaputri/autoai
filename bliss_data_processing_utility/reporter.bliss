@@ -1,0 +1,35 @@
+REPORTER = (0)
+
+INCLUDE 'LIB$(BLISS):BLISS.INC';
+
+SUBROUTINE GENERATE_REPORT(data_block, output_path)
+    ! This subroutine generates a final report from the transformed data.
+    !
+    ! Parameters:
+    !   data_block:   Pointer to the transformed data record
+    !   output_path:  Path to the output report file
+    !
+    ! Returns:
+    !   0 if successful, non-zero on failure.
+
+    BEGIN
+        DECLARE
+            report_id INTEGER;
+            report_status INTEGER;
+
+        ! Open the output file
+        CALL OPEN_FILE(output_path, report_id);
+        IF report_id = -1 THEN
+            RETURN 1;
+        END IF;
+
+        ! Generate report content
+        CALL WRITE_REPORT_HEADER(report_id);
+        CALL WRITE_REPORT_DATA(report_id, data_block);
+        CALL WRITE_REPORT_FOOTER(report_id);
+
+        ! Close the file
+        CALL CLOSE_FILE(report_id);
+
+        RETURN 0;
+    END GENERATE_REPORT;

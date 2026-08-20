@@ -1,0 +1,41 @@
+VALIDATOR = (0)
+
+INCLUDE 'LIB$(BLISS):BLISS.INC';
+
+SUBROUTINE VALIDATE_DATA(data_block, block_size)
+    ! This subroutine validates the parsed data against a set of rules.
+    !
+    ! Parameters:
+    !   data_block:   Pointer to the data record
+    !   block_size:   Size of the data block
+    !
+    ! Returns:
+    !   0 if valid, non-zero on failure.
+
+    BEGIN
+        DECLARE
+            rule_count INTEGER;
+            current_rule INTEGER;
+            rule_status INTEGER;
+
+        ! Check for empty data
+        IF block_size = 0 THEN
+            RETURN 1;
+        END IF;
+
+        ! Initialize rule counter
+        rule_count = 0;
+        current_rule = 0;
+
+        ! Apply validation rules
+        REPEAT
+            rule_status = CALL APPLY_RULE(current_rule, data_block);
+            IF rule_status # 0 THEN
+                CALL LOG_VALIDATION_ERROR(current_rule);
+                RETURN rule_status;
+            END IF;
+            current_rule = current_rule + 1;
+        UNTIL current_rule = rule_count;
+
+        RETURN 0;
+    END VALIDATE_DATA;

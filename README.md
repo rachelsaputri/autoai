@@ -828,3 +828,5 @@
 - Created/Updated module: `nxtg_data_processing_utility` (See `nxtg_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `racket_data_processing_utility` (See `racket_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `bliss_data_processing_utility` (See `bliss_data_processing_utility/README.md` for details)

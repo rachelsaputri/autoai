@@ -1,0 +1,36 @@
+TRANSFORMER = (0)
+
+INCLUDE 'LIB$(BLISS):BLISS.INC';
+
+SUBROUTINE TRANSFORM_DATA(data_block, block_size)
+    ! This subroutine applies transformations to the validated data.
+    !
+    ! Parameters:
+    !   data_block:   Pointer to the data record
+    !   block_size:   Size of the data block
+    !
+    ! Returns:
+    !   0 if successful, non-zero on failure.
+
+    BEGIN
+        DECLARE
+            transformation_count INTEGER;
+            current_transform INTEGER;
+            transform_status INTEGER;
+
+        ! Initialize transformation counter
+        transformation_count = 0;
+        current_transform = 0;
+
+        ! Apply transformations
+        REPEAT
+            transform_status = CALL APPLY_TRANSFORMATION(current_transform, data_block);
+            IF transform_status # 0 THEN
+                CALL LOG_TRANSFORMATION_ERROR(current_transform);
+                RETURN transform_status;
+            END IF;
+            current_transform = current_transform + 1;
+        UNTIL current_transform = transformation_count;
+
+        RETURN 0;
+    END TRANSFORM_DATA;

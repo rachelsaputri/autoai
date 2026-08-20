@@ -1,0 +1,56 @@
+PROCESSOR = (0)
+
+INCLUDE 'parser.bliss', 'validator.bliss', 'transformer.bliss', 'reporter.bliss';
+
+SUBROUTINE PROCESS_DATA(input_path, output_path, status)
+    ! This subroutine orchestrates the entire data processing pipeline.
+    ! It calls the parser, validator, transformer, and reporter in sequence.
+    !
+    ! Parameters:
+    !   input_path:   Path to the input data file
+    !   output_path:  Path to the output report file
+    !   status:       Output parameter for the exit status
+
+    BEGIN
+        DECLARE
+            data_block POINTER TO RECORD;
+            block_size BINARY FIXED(31);
+            validation_status BINARY FIXED(31);
+            transformation_status BINARY FIXED(31);
+            report_status BINARY FIXED(31);
+
+        ! Step 1: Parse the input data
+        block_size = CALL PARSE_INPUT(input_path, data_block);
+        IF block_size = 0 THEN
+            CALL PRINT_ERROR("Failed to parse input data.");
+            status = 1;
+            RETURN;
+        END IF;
+
+        ! Step 2: Validate the data
+        validation_status = CALL VALIDATE_DATA(data_block, block_size);
+        IF validation_status # 0 THEN
+            CALL PRINT_ERROR("Data validation failed.");
+            status = 1;
+            RETURN;
+        END IF;
+
+        ! Step 3: Transform the data
+        transformation_status = CALL TRANSFORM_DATA(data_block, block_size);
+        IF transformation_status # 0 THEN
+            CALL PRINT_ERROR("Data transformation failed.");
+            status = 1;
+            RETURN;
+        END IF;
+
+        ! Step 4: Generate the report
+        report_status = CALL GENERATE_REPORT(data_block, output_path);
+        IF report_status # 0 THEN
+            CALL PRINT_ERROR("Report generation failed.");
+            status = 1;
+            RETURN;
+        END IF;
+
+        ! Success
+        status = 0;
+    END PROCESS_DATA;

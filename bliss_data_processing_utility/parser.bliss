@@ -1,0 +1,43 @@
+PARSER = (0)
+
+INCLUDE 'LIB$(BLISS):BLISS.INC';
+
+SUBROUTINE PARSE_INPUT(input_path, data_block)
+    ! This subroutine reads and parses the input data file.
+    !
+    ! Parameters:
+    !   input_path:   Path to the input file
+    !   data_block:   Pointer to the parsed data record
+    !
+    ! Returns:
+    !   The size of the parsed data block, or 0 on failure.
+
+    BEGIN
+        DECLARE
+            file_id INTEGER;
+            bytes_read INTEGER;
+            buffer CHARACTER(1024);
+            block_size INTEGER;
+
+        ! Open the input file
+        CALL OPEN_FILE(input_path, file_id);
+        IF file_id = -1 THEN
+            RETURN 0;
+        END IF;
+
+        ! Initialize block size
+        block_size = 0;
+
+        ! Read and parse data
+        CALL READ_DATA(file_id, buffer, bytes_read);
+        WHILE bytes_read > 0 DO
+            CALL PARSE_RECORD(buffer, bytes_read, data_block);
+            block_size = block_size + bytes_read;
+            CALL READ_DATA(file_id, buffer, bytes_read);
+        END WHILE;
+
+        ! Close the file
+        CALL CLOSE_FILE(file_id);
+
+        RETURN block_size;
+    END PARSE_INPUT;
