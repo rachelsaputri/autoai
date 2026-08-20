@@ -830,3 +830,5 @@
 - Created/Updated module: `racket_data_processing_utility` (See `racket_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `bliss_data_processing_utility` (See `bliss_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `lsharp_data_processing_utility` (See `lsharp_data_processing_utility/README.md` for details)
