@@ -864,3 +864,5 @@
 - Created/Updated module: `span_data_processing_utility` (See `span_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `./clist_data_processing_utility` (See `./clist_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `chr_data_processing_engine` (See `chr_data_processing_engine/README.md` for details)

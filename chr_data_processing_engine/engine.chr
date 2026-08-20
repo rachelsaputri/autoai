@@ -1,0 +1,120 @@
+% CHR Data Processing Engine
+% This file defines the constraints and rules for the data processing engine.
+
+:- module(engine, [process_data/1]).
+
+:- use_module(library(chr)).
+
+%--- Constraint Definitions ---
+
+% raw_data(+Id, +Content) represents an incoming data item.
+raw_data/2.
+
+% validated(+Id, +Content) represents data that has passed initial checks.
+validated/2.
+
+% transformed(+Id, +Content) represents data after transformation rules.
+transformed/2.
+
+% error(+Id, +Message) represents an error encountered during processing.
+error/2.
+
+%--- CHR Rules ---
+
+% Rule 1: Validate raw data.
+% If we have raw data, we attempt to validate it.
+raw_data(Id, Content) <=>
+    check_validation(Id, Content) 
+    =>
+    validated(Id, Content).
+
+% Rule 2: Check basic validation rules.
+% For demonstration, we assume a simple check: content must not be empty.
+check_validation(Id, Content) <=>
+    Content \= '' 
+    =>
+    true.
+
+% If content is empty, it's an error.
+check_validation(Id, Content) <=>
+    Content = '' 
+    =>
+    error(Id, 'Validation failed: Content is empty').
+
+% Rule 3: Transform validated data.
+validated(Id, Content) <=>
+    transform_data(Id, Content) 
+    =>
+    transformed(Id, Content).
+
+% Rule 4: Transform data (e.g., convert to uppercase).
+transform_data(Id, Content) <=>
+    upcase_string(Content, Upper) 
+    =>
+    Content = Upper.
+
+% Rule 5: Process errors.
+error(Id, Msg) <=>
+    log_error(Id, Msg) 
+    =>
+    true.
+
+% Rule 6: Log error (side-effect).
+log_error(Id, Msg) 
+    <=>
+    format('ERROR [~w]: ~w~n', [Id, Msg]).
+
+% Rule 7: Finalize transformed data.
+transformed(Id, Content) <=>
+    output_data(Id, Content) 
+    =>
+    true.
+
+% Rule 8: Output data (side-effect).
+output_data(Id, Content) 
+    <=>
+    format('OUTPUT [~w]: ~w~n', [Id, Content]).
+
+%--- Main Processing Predicate ---
+
+% process_data(+DataStream): Processes a list of data items.
+process_data(DataList) :-
+    % Initialize the CHR store with constraints
+    initial_constraints(DataList),
+    
+    % Run the CHR engine until no more rules apply
+    run_chr_engine,
+    
+    % Output results
+    output_results.
+
+% initial_constraints(+List): Converts a list of terms into CHR constraints.
+initial_constraints([]) :-
+    fail. % Trigger backtracking if list is empty during generation
+initial_constraints([Id-Content|Rest]) :-
+    raw_data(Id, Content),
+    initial_constraints(Rest).
+
+% run_chr_engine: Runs the CHR engine until simplification or propagation rules are exhausted.
+run_chr_engine :-
+    repeat,
+    (   
+        solve_chr_rule,
+        fail
+    ;   true
+    ).
+
+% solve_chr_rule: Attempts to solve one CHR rule.
+solve_chr_rule :-
+    % This is a simplified representation of the CHR engine loop.
+    % In a real implementation, the CHR engine handles this internally via the constraint store.
+    % Here, we assume the engine runs automatically when constraints are added.
+    true.
+
+% output_results: Outputs all transformed data.
+output_results :-
+    findall(Id-Content, transformed(Id, Content), Results),
+    forall(
+        member(Id-Content, Results),
+        format('Final Result [~w]: ~w~n', [Id, Content])
+    ).
