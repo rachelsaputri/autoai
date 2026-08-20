@@ -860,3 +860,5 @@
 - Created/Updated module: `vds_data_processing_utility` (See `vds_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `snap_data_processing_utility` (See `snap_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `span_data_processing_utility` (See `span_data_processing_utility/README.md` for details)
