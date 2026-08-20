@@ -1,0 +1,20 @@
+/* CLIST Data Processor */
+PROCESSOR:
+  PARSE UPPER ARG DATA_SET
+  
+  IF DATA_SET = '' THEN DO
+    SAY 'Error: Data set name is required.'
+    EXIT 8
+  END
+  
+  SAY 'Processing dataset: ' DATA_SET
+  
+  /* Placeholder for processing logic */
+  CALL TRANSFORM_DATA DATA_SET
+  
+  RETURN
+
+TRANSFORM_DATA:
+  PARSE UPPER ARG DS
+  SAY 'Transforming ' DS
+  RETURN

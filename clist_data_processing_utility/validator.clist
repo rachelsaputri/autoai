@@ -1,0 +1,18 @@
+/* CLIST Data Validator */
+VALIDATOR:
+  PARSE UPPER ARG DATA
+  
+  IF DATA = '' THEN DO
+    SAY 'Error: Data cannot be empty.'
+    EXIT 8
+  END
+  
+  /* Validation logic */
+  CALL VALIDATE_FORMAT DATA
+  
+  RETURN
+
+VALIDATE_FORMAT:
+  PARSE UPPER ARG D
+  SAY 'Validating format for: ' D
+  RETURN

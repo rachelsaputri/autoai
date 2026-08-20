@@ -1,0 +1,13 @@
+/* CLIST Report Generator */
+REPORTER:
+  PARSE UPPER ARG RESULTS
+  
+  SAY 'Generating report...'
+  
+  /* Format and output results */
+  IF RESULTS \= '' THEN DO
+    SAY 'Results: ' RESULTS
+  END
+  
+  SAY 'Report generation complete.'
+  RETURN

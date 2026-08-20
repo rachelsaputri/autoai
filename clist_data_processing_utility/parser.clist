@@ -1,0 +1,13 @@
+/* CLIST Data Parser */
+PARSER:
+  PARSE UPPER ARG INPUT_STR
+  
+  IF INPUT_STR = '' THEN DO
+    SAY 'Error: Input string is required.'
+    EXIT 8
+  END
+  
+  /* Parse logic */
+  PARSE VAR INPUT_STR FIELD1 FIELD2 FIELD3
+  
+  RETURN FIELD1 FIELD2 FIELD3
