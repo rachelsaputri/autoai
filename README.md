@@ -844,3 +844,5 @@
 - Created/Updated module: `./godiva_compliance_orchestrator` (See `./godiva_compliance_orchestrator/README.md` for details)
 
 - Created/Updated module: `./splus_compliance_verification_engine` (See `./splus_compliance_verification_engine/README.md` for details)
+
+- Created/Updated module: `sa_compliance_verification_engine` (See `sa_compliance_verification_engine/README.md` for details)
