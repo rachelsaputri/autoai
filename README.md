@@ -816,3 +816,5 @@
 - Created/Updated module: `./spk_data_processing_utility` (See `./spk_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `pari_gp_data_processing_utility` (See `pari_gp_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `pawn_data_processing_utility` (See `pawn_data_processing_utility/README.md` for details)
