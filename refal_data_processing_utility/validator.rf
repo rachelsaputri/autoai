@@ -1,0 +1,7 @@
+: Validator module for checking data integrity and constraints.
+
+Functions:
+- validate_data: Validates parsed data against predefined rules.
+
+Example invocation:
+:validate_data {"id": "123", "name": "Test"} ;

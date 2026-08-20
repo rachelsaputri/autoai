@@ -1,0 +1,10 @@
+: Main entry point for data processing utility.
+
+This script processes data through parsing, validation, transformation, and reporting phases.
+
+Input: A string representing raw data.
+Output: A processed data structure and a report.
+
+Example invocation:
+
+:main {"id: 123, name: Test"} ;
