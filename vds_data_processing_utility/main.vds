@@ -1,0 +1,44 @@
+Dialog
+"Data Processing Utility"
+Button "Start" btn_start
+Button "Exit" btn_exit
+Text "Status: Ready"
+txt_status
+End Dialog
+
+Main
+Dialog -1 -1 -1 -1 "Data Processing Utility"
+If btn_start == 1
+    Log "Starting Data Processing..."
+    RunPipeline
+End If
+If btn_exit == 1
+    Exit
+End If
+End Main
+
+RunPipeline
+    RunIngestor
+    RunTransformer
+    RunValidator
+    RunReporter
+End RunPipeline
+
+RunIngestor
+    Log "Ingesting Data..."
+End RunIngestor
+
+RunTransformer
+    Log "Transforming Data..."
+End RunTransformer
+
+RunValidator
+    Log "Validating Data..."
+End RunValidator
+
+RunReporter
+    Log "Generating Report..."
+End RunReporter
+
+Log
+    Dialog txt_status "Status: 
