@@ -1,0 +1,64 @@
+"""
+Data Transformer Module for Boomerang Data Processing Utility
+"""
+
+import {
+    DataRecord,
+    TransformerConfig
+} from 'types';
+
+/**
+ * Transforms a DataRecord according to the provided TransformerConfig.
+ * 
+ * @param record - The DataRecord to transform.
+ * @param config - The TransformerConfig specifying the transformations.
+ * @returns The transformed DataRecord.
+ */
+export function transform(record: DataRecord, config: TransformerConfig): DataRecord {
+    let transformed_data = {};
+    
+    for (let field in record.data) {
+        if (record.data.hasOwnProperty(field)) {
+            let value = record.data[field];
+            let transformation = config[field];
+            
+            if (transformation) {
+                if (transformation === 'upper') {
+                    transformed_data[field] = value.toString().toUpperCase();
+                } else if (transformation === 'lower') {
+                    transformed_data[field] = value.toString().toLowerCase();
+                } else if (transformation === 'trim') {
+                    transformed_data[field] = value.toString().trim();
+                } else if (transformation === 'null_to_empty') {
+                    transformed_data[field] = (value === null || value === undefined) ? '' : value;
+                } else {
+                    transformed_data[field] = value;
+                }
+            } else {
+                transformed_data[field] = value;
+            }
+        }
+    }
+    
+    return {
+        id: record.id,
+        data: transformed_data,
+        timestamp: record.timestamp,
+        status: 'transformed'
+    };
+}
+
+/**
+ * Transforms a list of DataRecords according to the provided TransformerConfig.
+ * 
+ * @param records - The list of DataRecords to transform.
+ * @param config - The TransformerConfig specifying the transformations.
+ * @returns A list of transformed DataRecords.
+ */
+export function transform_batch(records: Array<DataRecord>, config: TransformerConfig): Array<DataRecord> {
+    let transformed_records: Array<DataRecord> = [];
+    for (let i = 0; i < records.length; i++) {
+        transformed_records.push(transform(records[i], config));
+    }
+    return transformed_records;
+}

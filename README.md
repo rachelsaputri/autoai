@@ -902,3 +902,5 @@
 - Created/Updated module: `./new_optimization_framework` (See `./new_optimization_framework/README.md` for details)
 
 - Created/Updated module: `chuck_compliance_telemetry_engine` (See `chuck_compliance_telemetry_engine/README.md` for details)
+
+- Created/Updated module: `boomerang_data_processing_utility` (See `boomerang_data_processing_utility/README.md` for details)

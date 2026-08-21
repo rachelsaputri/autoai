@@ -1,0 +1,56 @@
+"""
+Type Definitions for Boomerang Data Processing Utility
+"""
+
+/**
+ * Represents a single data record.
+ */
+export interface DataRecord {
+    id: number;
+    data: Record<string, any>;
+    timestamp: number;
+    status: string;
+}
+
+/**
+ * Represents the result of a validation operation.
+ */
+export interface ValidationResult {
+    valid: boolean;
+    errors: Array<string>;
+}
+
+/**
+ * Represents a validation schema.
+ * Keys are field names, values are expected types.
+ */
+export interface ValidationSchema {
+    [field: string]: string;
+}
+
+/**
+ * Represents a transformer configuration.
+ * Keys are field names, values are transformation functions or identifiers.
+ */
+export interface TransformerConfig {
+    [field: string]: string;
+}
+
+/**
+ * Represents a report on data processing.
+ */
+export interface Report {
+    total_records: number;
+    valid_records: number;
+    invalid_records: number;
+    total_errors: number;
+    processing_timestamp: number;
+}
+
+/**
+ * Configuration for the data ingester.
+ */
+export interface IngestorConfig {
+    source: string;
+    format: string;
+}
