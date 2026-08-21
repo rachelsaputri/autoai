@@ -1,118 +1,13 @@
-// csv_handler.cpl
-// Handles CSV data parsing and validation
+/**
+ * CSV data handling.
+ */
 
-#include "text_handler.cpl"
-
-module csv_handler {
-
-    type CSVRow = {
-        headers: List[String],
-        values: List[String]
-    };
-
-    class CSVProcessor {
-        var delimiter: String;
-        var hasHeaders: Boolean;
-        var textProcessor: TextProcessor;
-        
-        function constructor() {
-            delimiter = ",";
-            hasHeaders = true;
-            textProcessor = new TextProcessor();
-        }
-        
-        function parseCSV(data: String) : List[DataRecord] {
-            var lines = split(data, "\n");
-            var records = List[DataRecord]();
-            var headers: List[String] = [];
-            
-            if (hasHeaders && count(lines) > 0) {
-                headers = split(lines[0], delimiter);
-                lines = subList(lines, 1, count(lines));
-            }
-            
-            for (line in lines) {
-                if (trim(line) == "") continue;
-                
-                var values = split(line, delimiter);
-                
-                if (count(values) == count(headers)) {
-                    var record = DataRecord("", 0.0, "", "");
-                    record.name = textProcessor.cleanText(values[0]);
-                    
-                    // Parse value
-                    var valueStr = values[1];
-                    if (isNumber(valueStr)) {
-                        record.value = toFloat(valueStr);
-                    }
-                    
-                    record.category = textProcessor.cleanText(values[2]);
-                    record.timestamp = textProcessor.cleanText(values[3]);
-                    
-                    add(records, record);
-                }
-            }
-            
-            return records;
-        }
-        
-        function validateRecords(records: List[DataRecord]) : List[DataRecord] {
-            var validRecords = List[DataRecord]();
-            
-            for (record in records) {
-                if (isValidRecord(record)) {
-                    add(validRecords, record);
-                }
-            }
-            
-            return validRecords;
-        }
-        
-        function isValidRecord(record: DataRecord) : Boolean {
-            if (record.name == "") return false;
-            if (record.value < 0) return false;
-            if (record.category == "") return false;
-            if (record.timestamp == "") return false;
-            if (!isValidTimestamp(record.timestamp)) return false;
-            
-            return true;
-        }
-        
-        function isValidTimestamp(timestamp: String) : Boolean {
-            // Simple timestamp validation
-            if (count(timestamp) != 19) return false;
-            if (substring(timestamp, 4, 1) != "-") return false;
-            if (substring(timestamp, 7, 1) != "-") return false;
-            if (substring(timestamp, 10, 1) != "T") return false;
-            if (substring(timestamp, 13, 1) != ":") return false;
-            if (substring(timestamp, 16, 1) != ":") return false;
-            
-            return true;
-        }
-        
-        function isNumber(str: String) : Boolean {
-            // Simple number validation
-            if (str == "") return false;
-            
-            var i = 0;
-            if (substring(str, 0, 1) == "-" || substring(str, 0, 1) == "+") {
-                i = 1;
-            }
-            
-            if (i >= count(str)) return false;
-            
-            for (; i < count(str); i++) {
-                var ch = substring(str, i, 1);
-                if (!isDigit(ch)) return false;
-            }
-            
-            return true;
-        }
-        
-        function isDigit(ch: String) : Boolean {
-            var digitCh = ch;
-            var code = ord(digitCh);
-            return (code >= 48 && code <= 57);
-        }
-    }
-}
+PROC load(path, data)
+    DATA lines
+    lines = FILE.read_lines(path)
+    data = []
+    FOR EACH line IN lines DO
+        CALL csv.split(line, row)
+        APPEND(data, row)
+    END FOR
+END PROC

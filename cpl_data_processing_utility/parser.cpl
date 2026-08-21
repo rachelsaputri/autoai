@@ -1,0 +1,16 @@
+/**
+ * Data parsing logic.
+ */
+
+PROC parse(source, data)
+    SELECT CASE source.type
+        WHEN "json" THEN
+            CALL json_handler.load(source.path, data)
+        WHEN "csv" THEN
+            CALL csv_handler.load(source.path, data)
+        WHEN "txt" THEN
+            CALL text_handler.load(source.path, data)
+        OTHERWISE
+            PRINT "Unsupported data source type."
+    END SELECT
+END PROC

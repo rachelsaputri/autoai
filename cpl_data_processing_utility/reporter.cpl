@@ -1,0 +1,11 @@
+/**
+ * Report generation logic.
+ */
+
+PROC generate_report(data)
+    DATA report
+    report = "Processing Summary:\n"
+    report = report + "Total Records Processed: " + COUNT(data)
+    PRINT report
+    FILE.write("report.txt", report)
+END PROC
