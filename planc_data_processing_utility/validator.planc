@@ -1,0 +1,37 @@
+// validator.planc
+// Data validation rules and checks
+
+MODULE validator
+
+TYPE ValidationRule := OBJECT
+    FIELD field : STRING
+    FIELD type : STRING
+    FIELD required : BOOLEAN
+END OBJECT
+
+PROCEDURE check(data, rules: ARRAY OF ValidationRule) -> BOOLEAN
+    FOR EACH rule IN rules DO
+        IF rule.required AND data[rule.field] IS NULL THEN
+            RETURN FALSE
+        END IF
+        IF NOT check_type(data[rule.field], rule.type) THEN
+            RETURN FALSE
+        END IF
+    END FOR
+    RETURN TRUE
+END PROCEDURE
+
+FUNCTION check_type(value, expected_type) -> BOOLEAN
+    SWITCH expected_type DO
+        CASE "STRING"
+            RETURN TYPEOF(value) == "STRING"
+        CASE "INTEGER"
+            RETURN TYPEOF(value) == "INTEGER"
+        CASE "FLOAT"
+            RETURN TYPEOF(value) == "FLOAT"
+        DEFAULT
+            RETURN TRUE
+    END SWITCH
+END FUNCTION
+
+END MODULE

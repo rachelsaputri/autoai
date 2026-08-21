@@ -1,0 +1,28 @@
+// processor.planc
+// Core processing logic for data manipulation
+
+MODULE processor
+
+IMPORT config
+IMPORT types
+
+TYPE DataBatch := ARRAY OF Record
+
+PROCEDURE batch_process(batches: ARRAY OF DataBatch)
+    FOR EACH batch IN batches DO
+        normalize_batch(batch)
+        INDEX batch
+    END FOR
+END PROCEDURE
+
+PROCEDURE normalize_batch(batch: DataBatch)
+    FOR i := 0 TO LENGTH(batch) - 1 DO
+        batch[i].value := TRIM(batch[i].value)
+    END FOR
+END PROCEDURE
+
+FUNCTION INDEX(batch: DataBatch) -> HASH_MAP
+    RETURN build_index(batch)
+END FUNCTION
+
+END MODULE

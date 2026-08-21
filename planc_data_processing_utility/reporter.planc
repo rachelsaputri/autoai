@@ -1,0 +1,40 @@
+// reporter.planc
+// Reporting and logging mechanisms
+
+MODULE reporter
+
+TYPE LogEntry := OBJECT
+    FIELD timestamp : STRING
+    FIELD level : STRING
+    FIELD message : STRING
+END OBJECT
+
+PROCEDURE log_error(message)
+    LOCAL entry := CREATE LogEntry
+    entry.timestamp := CURRENT_TIME()
+    entry.level := "ERROR"
+    entry.message := message
+    write_log(entry)
+END PROCEDURE
+
+PROCEDURE generate_report(data)
+    LOCAL summary := calculate_summary(data)
+    PRINT("Data Processing Report")
+    PRINT("---------------------")
+    PRINT("Records Processed: " + summary.count)
+    PRINT("Errors: " + summary.error_count)
+END PROCEDURE
+
+FUNCTION calculate_summary(data) -> SUMMARY
+    RETURN COMPUTE_SUMMARY(data)
+END FUNCTION
+
+PROCEDURE write_log(entry: LogEntry)
+    APPEND_TO_FILE("/var/log/planc_processing.log", format_entry(entry))
+END PROCEDURE
+
+FUNCTION format_entry(entry) -> STRING
+    RETURN "[" + entry.timestamp + "] " + entry.level + ": " + entry.message
+END FUNCTION
+
+END MODULE

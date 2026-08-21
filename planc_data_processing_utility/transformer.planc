@@ -1,0 +1,32 @@
+// transformer.planc
+// Data transformation routines
+
+MODULE transformer
+
+TYPE TransformationRule := OBJECT
+    FIELD field_name : STRING
+    FIELD operation : ENUM
+END OBJECT
+
+FUNCTION apply(data, rules: ARRAY OF TransformationRule) -> DATA
+    LOCAL result := COPY(data)
+    FOR EACH rule IN rules DO
+        result := map_field(result, rule.field_name, rule.operation)
+    END FOR
+    RETURN result
+END FUNCTION
+
+FUNCTION map_field(data, field, operation) -> DATA
+    SWITCH operation DO
+        CASE "UPPERCASE"
+            RETURN data.map(\x => x.toUpperCase())
+        CASE "LOWER"
+            RETURN data.map(\x => x.toLowerCase())
+        CASE "TRIM"
+            RETURN data.map(\x => x.trim())
+        DEFAULT
+            RETURN data
+    END SWITCH
+END FUNCTION
+
+END MODULE

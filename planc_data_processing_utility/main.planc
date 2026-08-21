@@ -1,0 +1,40 @@
+// main.planc
+// Entry point for the PLANC Data Processing Utility
+
+MODULE main
+
+IMPORT processor
+IMPORT transformer
+IMPORT validator
+IMPORT reporter
+
+PROCEDURE main()
+    LOCAL config := load_config()
+    LOCAL data := ingest_data(config.input_path)
+    
+    IF NOT validate_data(data, config.rules) THEN
+        reporter.log_error("Validation failed")
+        RETURN
+    END IF
+    
+    LOCAL processed := transform_data(data, config.transformations)
+    reporter.generate_report(processed)
+END PROCEDURE
+
+FUNCTION load_config() -> CONFIG
+    RETURN DEFAULT_CONFIG
+END FUNCTION
+
+FUNCTION ingest_data(path) -> DATA
+    RETURN data_from_file(path)
+END FUNCTION
+
+FUNCTION validate_data(data, rules) -> BOOLEAN
+    RETURN validator.check(data, rules)
+END FUNCTION
+
+FUNCTION transform_data(data, transformations) -> DATA
+    RETURN transformer.apply(data, transformations)
+END FUNCTION
+
+END MODULE
