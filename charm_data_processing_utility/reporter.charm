@@ -1,0 +1,90 @@
+import std::io;
+import std::string;
+import std::list;
+
+enum LogLevel {
+    DEBUG,
+    INFO,
+    WARN,
+    ERROR
+}
+
+struct DataRecord {
+    id: int;
+    fields: [string]
+}
+
+fn log(level: LogLevel, message: string) {
+    let timestamp = get_timestamp();
+    let level_str = match level {
+        LogLevel::DEBUG => "DEBUG",
+        LogLevel::INFO => "INFO",
+        LogLevel::WARN => "WARN",
+        LogLevel::ERROR => "ERROR"
+    };
+    let log_line = "[" ++ timestamp ++ "] [" ++ level_str ++ "] " ++ message;
+    io::write_line(log_line);
+}
+
+fn get_timestamp() -> string {
+    let time = std::time::now();
+    to_string(time);
+}
+
+fn generate_report(output_path: string, data: [DataRecord]) {
+    let mut report = "";
+    report = report ++ "Data Processing Report\n";
+    report = report ++ "=====================\n";
+    report = report ++ "Total Records Processed: " ++ to_string(length(data)) ++ "\n\n";
+    
+    let mut i = 0;
+    while i < length(data) {
+        let record = data[i];
+        report = report ++ "Record ID: " ++ to_string(record.id) ++ "\n";
+        let mut j = 0;
+        while j < length(record.fields) {
+            report = report ++ "  Field " ++ to_string(j) ++ ": " ++ record.fields[j] ++ "\n";
+            j = j + 1;
+        }
+        report = report ++ "\n";
+        i = i + 1;
+    }
+    
+    io::write_file(output_path, report);
+}
+
+fn to_string(n: int) -> string {
+    if n == 0 {
+        return "0";
+    }
+    let mut result = "";
+    let mut sign = "";
+    let mut num = n;
+    if num < 0 {
+        sign = "-";
+        num = -num;
+    }
+    let mut temp = num;
+    let mut digits = [];
+    while temp > 0 {
+        let d = temp % 10;
+        digits = digits ++ [d];
+        temp = temp / 10;
+    }
+    let mut i = length(digits) - 1;
+    while i >= 0 {
+        let d = digits[i];
+        result = result ++ to_char('0' + d);
+        i = i - 1;
+    }
+    return sign ++ result;
+}
+
+fn to_char(c: int) -> char {
+    return c;
+}
+
+struct DataRecord {
+    id: int;
+    fields: [string]
+}
