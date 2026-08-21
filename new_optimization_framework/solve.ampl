@@ -1,36 +1,25 @@
-# AMPL Solver Execution Script
-# Reads model and data, solves using CPLEX/Gurobi default, displays results
+# solve.ampl
+# Script to load the model and data, solve, and output results.
 
-option solver cplex;
-option cplex_options 'time_limit=60 threads=4';
+print "Loading AMPL model...";
 
-model model.mod;
-data data.dat;
+do read "model.mod";
+do read "data.dat";
 
-solve;
+do print "Data loaded. Executing optimization...";
 
-printf '\nOptimization Complete. Results:\n' > output.log;
+do solve;
 
-# Display Objective Value
-printf 'Total Cost: %g\n', Total_Cost >> output.log;
+do print "\nOptimization complete. Results:";
 
-# Display Production Allocation
-printf '\nProduction Allocation (x):\n' >> output.log;
-for {p in PRODUCTS} {
-    for {i in NODES} {
-        printf '%s %s: %.2f\n', i, p, x[i, p] >> output.log;
-    }
-}
+do display normalized_value;
 
-# Display Transport Allocation
-printf '\nTransport Allocation (y):\n' >> output.log;
-for { (i, j) in EDGES } {
-    for {p in PRODUCTS} {
-        if y[i, j, p] > 0 then
-            printf '%s -> %s (%s): %.2f\n', i, j, p, y[i, j, p] >> output.log;
-    }
-}
+do display is_anomaly;
 
-printf '\nEnd of Report.\n' >> output.log;
+do display is_compliant;
 
-write output.log;
+do display compliance_score;
+
+do print "\nTotal Compliance Score:", total_compliance_score;
+
+do print "Done.";

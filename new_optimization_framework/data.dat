@@ -1,40 +1,34 @@
-set NODES := {Factory_A, Factory_B, Warehouse_1, Warehouse_2};
-set PRODUCTS := {Widget, Gadget};
+/*
+ * data.dat
+ * This file contains the input parameters for the AMPL model.
+ * It simulates a compliance audit dataset.
+ */
 
-data;
+# Define the set of data records
+set RECORDS := 1..5;
 
-param demand := 
-    Widget 100 
-    Gadget 150;
+# Define the set of compliance checks
+set CHECKS := 1..3;
 
-param capacity := 
-    Factory_A 200 
-    Factory_B 200 
-    Warehouse_1 0 
-    Warehouse_2 0;
+# Data points for each record and check
+param input_data :=
+    1 1  100
+    1 2  0.5
+    1 3  0.8
+    2 1  105
+    2 2  0.6
+    2 3  0.7
+    3 1  95
+    3 2  0.4
+    3 3  0.9
+    4 1  110
+    4 2  0.7
+    4 3  0.6
+    5 1  98
+    5 2  0.3
+    5 3  0.85;
 
-param production_cost :=
-    [Factory_A, Widget] 10
-    [Factory_A, Gadget] 12
-    [Factory_B, Widget] 11
-    [Factory_B, Gadget] 13
-    [Warehouse_1, Widget] 0
-    [Warehouse_1, Gadget] 0
-    [Warehouse_2, Widget] 0
-    [Warehouse_2, Gadget] 0;
-
-param transport_cost :=
-    [Factory_A, Warehouse_1, Widget] 2
-    [Factory_A, Warehouse_1, Gadget] 3
-    [Factory_A, Warehouse_2, Widget] 4
-    [Factory_A, Warehouse_2, Gadget] 5
-    [Factory_B, Warehouse_1, Widget] 3
-    [Factory_B, Warehouse_1, Gadget] 4
-    [Factory_B, Warehouse_2, Widget] 2
-    [Factory_B, Warehouse_2, Gadget] 3
-    [Warehouse_1, Warehouse_2, Widget] 1
-    [Warehouse_1, Warehouse_2, Gadget] 1
-    [Warehouse_2, Warehouse_1, Widget] 1
-    [Warehouse_2, Warehouse_1, Gadget] 1;
-
-end;
+# Compliance thresholds
+param threshold_1 := 102;
+param threshold_2 := 0.5;
+param threshold_3 := 0.75;
