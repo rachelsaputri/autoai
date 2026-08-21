@@ -1,0 +1,35 @@
+:- module(reporter).
+
+:- export(generate_report/2).
+
+generate_report(File, Records) :-
+    file_name_extension(Base, _, File),
+    atom_concat('output_', Base, OutputFile),
+    
+    % Ensure output directory exists
+    make_directory('output/'),
+    
+    atom_concat('output/', OutputFile, FullOutputFile),
+    
+    open(FullOutputFile, write, Stream),
+    
+    % Write header
+    writeln(Stream, 'Data Processing Report'),
+    writeln(Stream, '======================'),
+    writeln(Stream, 'Input File: '), write(Stream, File), nl,
+    writeln(Stream, 'Records Processed: '), write(Stream, length(Records)), nl,
+    writeln(Stream, ''),
+    
+    % Write records
+    write_records(Stream, Records),
+    
+    close(Stream),
+    
+    write('Report generated: '), write(FullOutputFile), nl.
+
+write_records(_, []) :-
+    !.
+
+write_records(Stream, [Record|Rest]) :-
+    write(Stream, Record), nl,
+    write_records(Stream, Rest).

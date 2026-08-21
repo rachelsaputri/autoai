@@ -1,0 +1,24 @@
+:- module(transformer).
+
+:- export(transform_data/2).
+:- export(transform_record/2).
+
+transform_data([], []).
+transform_data([Record|Rest], [TransformedRecord|TransformedRecords]) :-
+    transform_record(Record, TransformedRecord),
+    transform_data(Rest, TransformedRecords).
+
+transform_record([], []).
+transform_record([Field|Rest], [TransformedField|TransformedRest]) :-
+    transform_field(Field, TransformedField),
+    transform_record(Rest, TransformedRest).
+
+transform_field(Field, Field).
+
+transform_field('', '').
+
+transform_field(Field, LowerField) :-
+    atom(Field),
+    atom_to_lower(Field, LowerField).
+
+transform_field(Field, Field).
