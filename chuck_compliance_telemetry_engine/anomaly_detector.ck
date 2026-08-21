@@ -1,67 +1,42 @@
-// AnomalyDetector.ck
-// Implements real-time anomaly scoring, baseline comparison, and remediation triggers
-// Uses ChucK's sample-accurate signal processing for precise detection
+// AnomalyDetector.ck - Module for identifying outliers in telemetry data
+// Uses statistical methods (z-score approximation) to detect anomalies.
 
 class AnomalyDetector {
-    float[] anomalyScores;
-    int anomalyCount;
-    float detectionThreshold;
-    
-    // Constructor
-    constructor() {
-        detectionThreshold = 0.7;
-        anomalyScores = new float[100];
-        anomalyCount = 0;
-        <<<"AnomalyDetector initialized with ", detectionThreshold, " detection threshold">>>;
+    int anomaly_count;
+
+    fun void init() {
+        0 => anomaly_count;
     }
-    
-    // Score incoming telemetry
-    fun float score(float telemetryValue) {
-        // Sample-level manipulation for precise anomaly detection
-        float score = calculateAnomalyScore(telemetryValue);
-        
-        // Update scoring buffer
-        if (anomalyCount < anomalyScores.size()) {
-            anomalyScores[anomalyCount] = score;
-            anomalyCount++;
-        } else {
-            // Circular buffer management
-            for (int i = 0; i < anomalyScores.size() - 1; i++) {
-                anomalyScores[i] = anomalyScores[i+1];
-            }
-            anomalyScores[anomalyCount - 1] = score;
+
+    fun boolean[] analyze(float data[]) {
+        // Calculate mean
+        float sum = 0.0;
+        for (0 => int i; i < data.cap(); i++) {
+            data[i] +> sum;
         }
-        
-        return score;
-    }
-    
-    // Calculate anomaly score
-    fun float calculateAnomalyScore(float value) {
-        // Real-time scoring algorithm
-        <<<"Calculating anomaly score for value: ", value>>>>;
-        return 0.5; // Placeholder for real calculation
-    }
-    
-    // Check for remediation triggers
-    fun bool checkTrigger() {
-        // Determine if remediation is required based on sustained anomalies
-        bool trigger = false;
-        for (float score : anomalyScores) {
-            if (score > detectionThreshold) {
-                trigger = true;
-                break;
+        sum / data.cap() => float mean;
+
+        // Calculate standard deviation
+        float variance_sum = 0.0;
+        for (0 => int i; i < data.cap(); i++) {
+            float diff = data[i] - mean;
+            diff * diff +> variance_sum;
+        }
+        variance_sum / data.cap() => float variance;
+        Sqrt(variance) => float stddev;
+
+        // Flag anomalies (points > 2 stddevs from mean)
+        float[] anomaly_flags = new float[data.cap()];
+        for (0 => int i; i < data.cap(); i++) {
+            float diff = data[i] - mean;
+            if (diff > 2.0 * stddev || diff < -2.0 * stddev) {
+                1.0 => anomaly_flags[i];
+                anomaly_count++;
+            } else {
+                0.0 => anomaly_flags[i];
             }
         }
-        return trigger;
-    }
-    
-    // Start detection
-    fun void start() {
-        <<<"AnomalyDetector started">>>;
-    }
-    
-    // Stop detection
-    fun void stop() {
-        <<<"AnomalyDetector stopped">>>;
+        <<< "Anomalies Detected:", anomaly_count >>>;
+        return anomaly_flags;
     }
 }

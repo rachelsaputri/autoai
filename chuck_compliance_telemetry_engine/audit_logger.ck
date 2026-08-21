@@ -1,46 +1,34 @@
-// AuditLogger.ck
-// Generates machine-verifiable audit reports with exact compliance thresholds
-// Maintains comprehensive audit registry with detailed transaction and state logging
+// AuditLogger.ck - Module for logging compliance events and telemetry results
+// Outputs structured logs for audit trails.
 
 class AuditLogger {
-    string logFile;
-    string reportFile;
-    float currentScore;
-    float baselineScore;
-    
-    // Constructor
-    constructor() {
-        logFile = "audit_log.csv";
-        reportFile = "compliance_report.json";
-        currentScore = 0.0;
-        baselineScore = 1.0;
-        <<<"AuditLogger initialized. Logs: ", logFile, ", Reports: ", reportFile>>>>;
+    int log_entry_count;
+
+    fun void init() {
+        0 => log_entry_count;
     }
-    
-    // Log telemetry event
-    fun void logEvent(string eventType, float value, float threshold) {
-        // Standardized logging for enterprise compliance schemas
-        <<<"Event: ", eventType, " | Value: ", value, " | Threshold: ", threshold>>>>;
+
+    fun void log(boolean status, boolean[] anomalies, float data[]) {
+        log_entry_count++;
         
-        // Write to audit registry
-        std.format("%s,%s,%.4f,%.4f\n", Std.timeNow(), eventType, value, threshold) => string line;
-        <<<"Logged: ", line>>>>;
-    }
-    
-    // Generate compliance report
-    fun void generateReport() {
-        // Output standardized scoring payloads
-        <<<"Generating compliance report...">>>;
-        <<<"Report saved to ", reportFile>>>>;
-    }
-    
-    // Start logging
-    fun void start() {
-        <<<"AuditLogger started">>>;
-    }
-    
-    // Stop logging
-    fun void stop() {
-        <<<"AuditLogger stopped">>>;
+        // Log Summary
+        <<< "--- Audit Log Entry #", log_entry_count, "---" >>>;
+        <<< "Overall Compliance:", status >>>;
+        
+        // Log Anomaly Count
+        int anoms = 0;
+        for (0 => int i; i < anomalies.cap(); i++) {
+            if (anomalies[i]) anoms++;
+        }
+        <<< "Anomalies:", anoms >>>;
+        
+        // Log First 5 Data Points for Traceability
+        <<< "Sample Data:" >>>;
+        for (0 => int i; i < 5 && i < data.cap(); i++) {
+            <<< i, ":", data[i] >>>;
+        }
+        
+        <<< "--- End Log ---" >>>;
+        <<< "" >>>;
     }
 }

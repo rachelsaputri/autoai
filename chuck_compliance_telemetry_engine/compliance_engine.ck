@@ -1,54 +1,36 @@
-// ComplianceEngine.ck
-// Implements rigorous baseline validation, automated drift calculations, and policy enforcement
-// Leverages ChucK's synchronous scheduler for precise timing guarantees
+// ComplianceEngine.ck - Core module for enforcing compliance policies
+// Implements logic to verify if telemetry data meets specific security/operational standards.
 
 class ComplianceEngine {
-    TelemetryParser parser;
-    SampleBuf baselineBuf;
-    SampleBuf currentBuf;
-    
-    // Compliance thresholds
-    float driftThreshold;
-    float complianceScore;
-    
-    // Constructor
-    constructor() {
-        driftThreshold = 0.05; // 5% drift tolerance
-        complianceScore = 1.0;
-        <<<"ComplianceEngine initialized with ", driftThreshold, " drift threshold">>>;
+    float min_threshold;
+    float max_threshold;
+    boolean compliance_status;
+
+    fun void init(float min, float max) {
+        min => min_threshold;
+        max => max_threshold;
+        true => compliance_status;
     }
-    
-    // Validate against baseline
-    fun float validate() {
-        // Compare current telemetry against baseline using sample-level accuracy
-        float drift = calculateDrift();
-        
-        // Update compliance score based on drift
-        if (drift <= driftThreshold) {
-            complianceScore = 1.0;
-        } else {
-            complianceScore = 1.0 - (drift - driftThreshold);
-            if (complianceScore < 0.0) complianceScore = 0.0;
+
+    fun void run(float data[]) {
+        // Check for compliance violations
+        boolean violation_found = false;
+        for (0 => int i; i < data.cap(); i++) {
+            if (data[i] < min_threshold || data[i] > max_threshold) {
+                true => violation_found;
+                <<< "VIOLATION: Data point", i, "out of bounds" >>>;
+            }
         }
-        
-        <<<"Compliance validation complete. Score: ", complianceScore, ", Drift: ", drift>>>>;
-        return complianceScore;
+
+        if (violation_found) {
+            false => compliance_status;
+        } else {
+            true => compliance_status;
+        }
+        <<< "Compliance Status:", compliance_status >>>;
     }
-    
-    // Calculate drift
-    fun float calculateDrift() {
-        // Real-time drift calculation using deterministic scheduling
-        <<<"Calculating drift...">>>;
-        return 0.02; // Placeholder for real calculation
-    }
-    
-    // Start engine
-    fun void start() {
-        <<<"ComplianceEngine started">>>;
-    }
-    
-    // Stop engine
-    fun void stop() {
-        <<<"ComplianceEngine stopped">>>;
+
+    fun boolean getStatus() {
+        return compliance_status;
     }
 }

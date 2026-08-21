@@ -1,40 +1,27 @@
-// TelemetryParser.ck
-// Handles ingestion of multi-channel compliance telemetry and audio-based system metrics
-// Implements sample-accurate signal processing and stream synchronization
+// TelemetryParser.ck - Module for parsing raw telemetry streams
+// Handles conversion of raw inputs into normalized data structures
 
 class TelemetryParser {
-    Gain inGain => ADC in;
-    Gain outGain => DAC out;
-    
-    // Buffer for telemetry data
-    SampleBuf telemetryBuf;
-    
-    // Sampling rate configuration
-    44100::Hz => myRate;
-    
-    // Thread-safe scheduler
-    Scheduler myScheduler;
-    
-    // Constructor
-    constructor() {
-        myScheduler.map( this, 1::samp );
-        <<<"TelemetryParser initialized at ", myRate, " Hz">>>;
+    // Internal state for parsing buffers
+    float parsed_buffer[];
+    int buffer_size;
+
+    fun void setup(int size) {
+        size => buffer_size;
+        size => parsed_buffer.size;
     }
-    
-    // Start ingestion
-    fun void start() {
-        <<<"Starting telemetry ingestion stream...">>>;
+
+    fun void process(float data[]) {
+        // Normalize data: Scale from raw range to 0.0 - 1.0
+        // This is a common telemetry normalization step
+        0.001 => float scale;
+        for (0 => int i; i < data.cap(); i++) {
+            data[i] * scale => parsed_buffer[i];
+        }
+        <<< "Parser: Data Normalized" >>>;
     }
-    
-    // Stop ingestion
-    fun void stop() {
-        <<<"Stopping telemetry ingestion stream...">>>;
-    }
-    
-    // Process incoming telemetry samples
-    fun void process() {
-        // Real-time buffer management for continuous stream synchronization
-        // Handles packet fragmentation recovery through deterministic scheduling
-        <<<"Processing telemetry samples...">>>;
+
+    fun float[] getBuffer() {
+        return parsed_buffer;
     }
 }
