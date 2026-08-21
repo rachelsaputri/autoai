@@ -1,0 +1,79 @@
+/*
+ * data_processor.alice
+ * Orchestrates the data processing pipeline
+ */
+
+import "logging.alice";
+import "data_ingester.alice";
+import "data_validator.alice";
+import "data_transformer.alice";
+import "data_reporter.alice";
+
+class DataProcessor {
+    constructor() {
+        this.ingester = new DataIngester();
+        this.validator = new DataValidator();
+        this.transformer = new DataTransformer();
+        this.reporter = new DataReporter();
+        this.is_processing = false;
+    }
+
+    function start_pipeline(input_path, output_path) {
+        if (this.is_processing) {
+            log("Processor is already busy.", "WARN");
+            return false;
+        }
+
+        this.is_processing = true;
+        log("Processing started...", "INFO");
+
+        try {
+            // Ingest
+            let data = this.ingester.load(input_path);
+            if (data == null) {
+                log("Ingestion failed.", "ERROR");
+                return false;
+            }
+
+            // Validate
+            let validation = this.validator.check(data);
+            if (!validation.is_valid) {
+                log("Validation failed.", "ERROR");
+                return false;
+            }
+
+            // Transform
+            let transformation = this.transformer.process(validation.payload);
+            if (transformation == null) {
+                log("Transformation failed.", "ERROR");
+                return false;
+            }
+
+            // Report/Save
+            this.reporter.save(transformation.data, output_path);
+            log("Processing completed.", "INFO");
+            return true;
+
+        } catch (error) {
+            log("Critical error: " + error.message, "ERROR");
+            return false;
+        } finally {
+            this.is_processing = false;
+        }
+    }
+
+    function generate_summary(input_count, output_count) {
+        return {
+            input_count: input_count,
+            output_count: output_count,
+            ratio: input_count > 0 ? (output_count / input_count).toFixed(2) : "N/A"
+        };
+    }
+
+    function get_status() {
+        return {
+            is_processing: this.is_processing,
+            last_action: "init"
+        };
+    }
+}
