@@ -888,3 +888,5 @@
 - Created/Updated module: `./a0_data_processing_utility` (See `./a0_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `aplusplus_data_processing_utility` (See `aplusplus_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `./absys_data_processing_utility` (See `./absys_data_processing_utility/README.md` for details)
