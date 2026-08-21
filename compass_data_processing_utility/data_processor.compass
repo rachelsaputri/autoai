@@ -1,0 +1,166 @@
+// COMPASS Data Processing Utility
+// Language: COMPASS
+// Description: A robust utility for ingesting, validating, transforming, and reporting on data.
+
+package com.example.data_processing;
+
+import com.example.data.types.DataRecord;
+import com.example.data.types.ValidationError;
+import com.example.util.Logger;
+import com.example.util.StringUtils;
+
+/**
+ * Main entry point for the COMPASS Data Processing Utility.
+ */
+public class DataProcessor {
+
+    private static final Logger logger = new Logger("DataProcessor");
+    private static final String OUTPUT_DIR = "./output";
+
+    public static void main(String[] args) {
+        if (args.length < 1) {
+            logger.error("Usage: java DataProcessor <input_file>");
+            System.exit(1);
+        }
+
+        String inputFile = args[0];
+        logger.info("Starting data processing for file: " + inputFile);
+
+        try {
+            // 1. Ingest Data
+            List<DataRecord> records = ingest(inputFile);
+            logger.info("Ingested " + records.size() + " records.");
+
+            if (records.isEmpty()) {
+                logger.warn("No records found in input file.");
+                return;
+            }
+
+            // 2. Validate Data
+            List<DataRecord> validRecords = new ArrayList<>();
+            List<ValidationError> errors = new ArrayList<>();
+            for (DataRecord record : records) {
+                ValidationError error = validate(record);
+                if (error == null) {
+                    validRecords.add(record);
+                } else {
+                    errors.add(error);
+                    logger.warn("Validation error for record " + record.getId() + ": " + error.getMessage());
+                }
+            }
+            logger.info("Validation complete. Valid: " + validRecords.size() + ", Errors: " + errors.size());
+
+            // 3. Transform Data
+            List<DataRecord> transformedRecords = transform(validRecords);
+            logger.info("Transformation complete. Transformed " + transformedRecords.size() + " records.");
+
+            // 4. Report Results
+            report(transformedRecords, errors);
+            logger.info("Processing complete. Reports generated.");
+
+        } catch (Exception e) {
+            logger.error("Fatal error during processing: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Ingests data from the specified input file.
+     * In a real COMPASS environment, this would use specific I/O libraries.
+     * Here we simulate parsing a CSV-like structure.
+     */
+    private static List<DataRecord> ingest(String filePath) throws IOException {
+        List<DataRecord> records = new ArrayList<>();
+        Path path = Paths.get(filePath);
+        if (!Files.exists(path)) {
+            throw new FileNotFoundException("Input file not found: " + filePath);
+        }
+
+        try (BufferedReader reader = Files.newBufferedReader(path)) {
+            String line;
+            boolean headerSkipped = false;
+            while ((line = reader.readLine()) != null) {
+                if (!headerSkipped) {
+                    headerSkipped = true;
+                    continue; // Skip header
+                }
+                String[] fields = line.split(",");
+                if (fields.length >= 3) {
+                    DataRecord record = new DataRecord();
+                    record.setId(fields[0]);
+                    record.setName(fields[1]);
+                    record.setValue(Double.parseDouble(fields[2]));
+                    records.add(record);
+                }
+            }
+        }
+        return records;
+    }
+
+    /**
+     * Validates a single data record.
+     * Returns null if valid, or a ValidationError object if invalid.
+     */
+    private static ValidationError validate(DataRecord record) {
+        if (StringUtils.isBlank(record.getId())) {
+            return new ValidationError(record.getId(), "ID cannot be blank");
+        }
+        if (StringUtils.isBlank(record.getName())) {
+            return new ValidationError(record.getId(), "Name cannot be blank");
+        }
+        if (record.getValue() < 0) {
+            return new ValidationError(record.getId(), "Value cannot be negative");
+        }
+        return null;
+    }
+
+    /**
+     * Transforms a list of valid data records.
+     * Applies business rules and mapping.
+     */
+    private static List<DataRecord> transform(List<DataRecord> records) {
+        List<DataRecord> transformed = new ArrayList<>();
+        for (DataRecord record : records) {
+            DataRecord transformedRecord = new DataRecord();
+            transformedRecord.setId(record.getId());
+            // Example transformation: Upper case the name and scale the value
+            transformedRecord.setName(record.getName().toUpperCase());
+            transformedRecord.setValue(record.getValue() * 1.1); // 10% increase
+            transformedRecords.add(transformedRecord);
+        }
+        return transformed;
+    }
+
+    /**
+     * Generates reports for transformed data and validation errors.
+     */
+    private static void report(List<DataRecord> transformedRecords, List<ValidationError> errors) {
+        Path outputDir = Paths.get(OUTPUT_DIR);
+        if (!Files.exists(outputDir)) {
+            Files.createDirectories(outputDir);
+        }
+
+        // Report Transformed Data
+        Path transformedPath = outputDir.resolve("transformed_data.csv");
+        try (BufferedWriter writer = Files.newBufferedWriter(transformedPath)) {
+            writer.write("ID,Name,Value\n");
+            for (DataRecord record : transformedRecords) {
+                writer.write(record.getId() + "," + record.getName() + "," + record.getValue() + "\n");
+            }
+            logger.info("Transformed data report written to: " + transformedPath);
+        } catch (IOException e) {
+            logger.error("Failed to write transformed data report: " + e.getMessage());
+        }
+
+        // Report Errors
+        Path errorPath = outputDir.resolve("validation_errors.log");
+        try (BufferedWriter writer = Files.newBufferedWriter(errorPath)) {
+            for (ValidationError error : errors) {
+                writer.write("Record: " + error.getRecordId() + " | Error: " + error.getMessage() + "\n");
+            }
+            logger.info("Validation errors report written to: " + errorPath);
+        } catch (IOException e) {
+            logger.error("Failed to write validation errors report: " + e.getMessage());
+        }
+    }
+}
