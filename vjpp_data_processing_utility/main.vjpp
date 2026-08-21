@@ -1,0 +1,28 @@
+import System;
+import System.Collections.Generic;
+import System.IO;
+
+namespace VJPPDataProcessing {
+    public class MainApplication {
+        public static void Main(String[] args) {
+            if (args.Length < 1) {
+                Console.WriteLine("Usage: MainApplication <input_file> [output_file]");
+                return;
+            }
+
+            String inputFile = args[0];
+            String outputFile = (args.Length > 1) ? args[1] : "output_processed.dat";
+
+            try {
+                DataProcessor processor = new DataProcessor();
+                List<Dictionary<String, String>> rawData = processor.Parse(inputFile);
+                List<Dictionary<String, String>> validatedData = processor.Validate(rawData);
+                List<Dictionary<String, String>> transformedData = processor.Transform(validatedData);
+                processor.Report(transformedData, outputFile);
+                Console.WriteLine("Processing complete. Results saved to: " + outputFile);
+            } catch (Exception e) {
+                Console.WriteLine("Error processing data: " + e.Message);
+            }
+        }
+    }
+}

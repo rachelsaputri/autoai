@@ -1,0 +1,28 @@
+import System;
+import System.Collections.Generic;
+import System.IO;
+
+namespace VJPPDataProcessing {
+    public class DataParser {
+        public List<Dictionary<String, String>> Parse(String filePath) {
+            List<Dictionary<String, String>> data = new List<Dictionary<String, String>>();
+            String[] lines = File.ReadAllLines(filePath);
+            if (lines.Length == 0) {
+                return data;
+            }
+
+            String[] headers = lines[0].Split(',');
+            for (int i = 1; i < lines.Length; i++) {
+                String[] values = lines[i].Split(',');
+                if (values.Length == headers.Length) {
+                    Dictionary<String, String> row = new Dictionary<String, String>();
+                    for (int j = 0; j < headers.Length; j++) {
+                        row.Add(headers[j].Trim(), values[j].Trim());
+                    }
+                    data.Add(row);
+                }
+            }
+            return data;
+        }
+    }
+}
