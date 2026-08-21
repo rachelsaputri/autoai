@@ -1,0 +1,54 @@
+"""
+Data Validator Module for Boomerang Data Processing Utility
+"""
+
+import {
+    DataRecord,
+    ValidationResult,
+    ValidationSchema
+} from 'types';
+
+/**
+ * Validates a DataRecord against a provided schema.
+ * 
+ * @param record - The DataRecord to validate.
+ * @param schema - The ValidationSchema to use for validation.
+ * @returns A ValidationResult indicating if the record is valid and any errors.
+ */
+export function validate(record: DataRecord, schema: ValidationSchema): ValidationResult {
+    let errors: Array<string> = [];
+    
+    for (let field in schema) {
+        if (schema.hasOwnProperty(field)) {
+            let expected_type = schema[field];
+            let actual_value = record.data[field];
+            
+            if (actual_value === undefined || actual_value === null) {
+                errors.push(`Missing required field: ${field}`);
+            } else if (typeof actual_value !== expected_type) {
+                errors.push(`Field '${field}' has incorrect type. Expected '${expected_type}', got '${typeof actual_value}'`);
+            }
+        }
+    }
+    
+    let is_valid = errors.length === 0;
+    return {
+        valid: is_valid,
+        errors: errors
+    };
+}
+
+/**
+ * Validates a list of DataRecords against a provided schema.
+ * 
+ * @param records - The list of DataRecords to validate.
+ * @param schema - The ValidationSchema to use for validation.
+ * @returns A list of ValidationResult objects, one for each record.
+ */
+export function validate_batch(records: Array<DataRecord>, schema: ValidationSchema): Array<ValidationResult> {
+    let results: Array<ValidationResult> = [];
+    for (let i = 0; i < records.length; i++) {
+        results.push(validate(records[i], schema));
+    }
+    return results;
+}

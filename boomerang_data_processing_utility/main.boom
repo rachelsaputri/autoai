@@ -1,0 +1,87 @@
+"""
+Main Entry Point for Boomerang Data Processing Utility
+"""
+
+import {
+    ingest
+} from './ingester.boom';
+
+import {
+    validate_batch
+} from './validator.boom';
+
+import {
+    transform_batch
+} from './transformer.boom';
+
+import {
+    generate_report,
+    print_report
+} from './reporter.boom';
+
+import {
+    DataRecord,
+    ValidationSchema,
+    TransformerConfig,
+    Report
+} from './types.boom';
+
+/**
+ * Main function to process data.
+ * 
+ * @param args - Command-line arguments.
+ * @returns The final Report object.
+ */
+export function main(args: Array<string>): Report {
+    console.log('Starting Data Processing Pipeline...');
+    
+    // 1. Ingest Data
+    let source = args[0] || 'stdin';
+    let format = args[1] || 'json';
+    console.log(`Ingesting data from ${source} in ${format} format...`);
+    let records: Array<DataRecord> = ingest(source, format);
+    console.log(`Ingested ${records.length} records.`);
+    
+    // 2. Define Validation Schema
+    let schema: ValidationSchema = {
+        'name': 'string',
+        'age': 'number',
+        'email': 'string'
+    };
+    
+    // 3. Validate Data
+    console.log('Validating data...');
+    let validation_results = validate_batch(records, schema);
+    let valid_records: Array<DataRecord> = [];
+    let invalid_records: Array<DataRecord> = [];
+    for (let i = 0; i < records.length; i++) {
+        if (validation_results[i].valid) {
+            valid_records.push(records[i]);
+        } else {
+            invalid_records.push(records[i]);
+            console.log(`Record ${records[i].id} is invalid: ${validation_results[i].errors.join(', ')}`);
+        }
+    }
+    console.log(`Validation complete. ${valid_records.length} valid, ${invalid_records.length} invalid.`);
+    
+    // 4. Transform Valid Data
+    console.log('Transforming valid data...');
+    let transform_config: TransformerConfig = {
+        'name': 'upper',
+        'email': 'lower'
+    };
+    let transformed_records: Array<DataRecord> = transform_batch(valid_records, transform_config);
+    console.log(`Transformed ${transformed_records.length} records.`);
+    
+    // 5. Generate and Print Report
+    console.log('Generating report...');
+    let report: Report = generate_report(records, validation_results);
+    print_report(report);
+    
+    return report;
+}
+
+// Run main function if this script is executed directly
+if (require.main === module) {
+    main(process.argv.slice(2));
+}

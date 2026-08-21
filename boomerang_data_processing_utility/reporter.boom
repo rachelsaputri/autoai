@@ -1,0 +1,55 @@
+"""
+Reporter Module for Boomerang Data Processing Utility
+"""
+
+import {
+    DataRecord,
+    ValidationResult,
+    Report
+} from 'types';
+
+/**
+ * Generates a summary report for processed data.
+ * 
+ * @param records - The list of processed DataRecords.
+ * @param validation_results - The list of ValidationResult objects from validation.
+ * @returns A Report object summarizing the processing outcomes.
+ */
+export function generate_report(records: Array<DataRecord>, validation_results: Array<ValidationResult>): Report {
+    let total_records = records.length;
+    let valid_records = 0;
+    let invalid_records = 0;
+    let total_errors = 0;
+    
+    for (let i = 0; i < validation_results.length; i++) {
+        if (validation_results[i].valid) {
+            valid_records++;
+        } else {
+            invalid_records++;
+            total_errors += validation_results[i].errors.length;
+        }
+    }
+    
+    return {
+        total_records: total_records,
+        valid_records: valid_records,
+        invalid_records: invalid_records,
+        total_errors: total_errors,
+        processing_timestamp: Date.now()
+    };
+}
+
+/**
+ * Prints the report to the console.
+ * 
+ * @param report - The Report object to print.
+ */
+export function print_report(report: Report): void {
+    console.log(`\n--- Data Processing Report ---`);
+    console.log(`Total Records Processed: ${report.total_records}`);
+    console.log(`Valid Records: ${report.valid_records}`);
+    console.log(`Invalid Records: ${report.invalid_records}`);
+    console.log(`Total Errors: ${report.total_errors}`);
+    console.log(`Processing Timestamp: ${report.processing_timestamp}`);
+    console.log(`-----------------------------\n`);
+}

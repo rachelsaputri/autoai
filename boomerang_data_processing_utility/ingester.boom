@@ -1,0 +1,60 @@
+"""
+Data Ingester Module for Boomerang Data Processing Utility
+"""
+
+import {
+    read_file,
+    read_stdin,
+    validate_file_exists,
+    parse_csv,
+    parse_json
+} from 'utils';
+
+import {
+    ValidationResult,
+    DataRecord,
+    IngestorConfig
+} from 'types';
+
+/**
+ * Ingests data from a specified source.
+ * Supports CSV and JSON formats.
+ * 
+ * @param source_path - Path to the data file or 'stdin' for standard input.
+ * @param format - Expected data format ('csv' or 'json').
+ * @returns A list of validated DataRecords.
+ */
+export function ingest(source_path: string, format: string): Array<DataRecord> {
+    let raw_data: string;
+    
+    if (source_path === 'stdin') {
+        raw_data = read_stdin();
+    } else {
+        if (!validate_file_exists(source_path)) {
+            throw new Error(`Source file not found: ${source_path}`);
+        }
+        raw_data = read_file(source_path);
+    }
+    
+    let parsed_data: Array<any>;
+    if (format === 'csv') {
+        parsed_data = parse_csv(raw_data);
+    } else if (format === 'json') {
+        parsed_data = parse_json(raw_data);
+    } else {
+        throw new Error(`Unsupported format: ${format}`);
+    }
+    
+    let records: Array<DataRecord> = [];
+    for (let i = 0; i < parsed_data.length; i++) {
+        let record: DataRecord = {
+            id: i,
+            data: parsed_data[i],
+            timestamp: Date.now(),
+            status: 'ingested'
+        };
+        records.push(record);
+    }
+    
+    return records;
+}
