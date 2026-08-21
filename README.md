@@ -90,3 +90,5 @@ MIT
 - Created/Updated module: `./opencl_data_processing_utility` (See `./opencl_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `./lithe_data_processing_utility` (See `./lithe_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `kuka_data_processing_utility` (See `kuka_data_processing_utility/README.md` for details)
