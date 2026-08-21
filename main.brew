@@ -1,0 +1,27 @@
+# BREW Data Processing Utility - Main Entry Point
+
+This is the main entry point for the BREW data processing pipeline.
+
+### Usage
+Run this script to initialize and execute the full data processing pipeline.
+
+### Configuration
+Ensure that the necessary modules (`parser.brew`, `validator.brew`, `transformer.brew`, `reporter.brew`) are present in the same directory.
+
+### Example Input
+Create a file named `input.csv` with the following content:
+
+```
+id,name,age
+1,Alice,30
+2,Bob,25
+3,Charlie,35
+```
+
+### Example Output
+After running, a `report.txt` will be generated with processing results.
+
+### Running
+```bash
+brew run main.brew
+```
