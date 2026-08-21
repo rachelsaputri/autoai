@@ -1,0 +1,59 @@
+:- module(main).
+
+:- export(main/0).
+
+:- use_module(library(lists)).
+:- use_module(library(strings)).
+:- use_module(parser).
+:- use_module(validator).
+:- use_module(transformer).
+:- use_module(reporter).
+
+main :-
+    write('=== XSB Data Processing Utility ==='), nl,
+    write('Starting data processing pipeline...'), nl,
+    
+    % Define input files to process
+    InputFiles = [sample_data.csv, sample_data.json, sample_data.txt],
+    
+    % Process each file
+    process_files(InputFiles).
+
+process_files([]) :-
+    write('Pipeline completed.'), nl,
+    !.
+
+process_files([File|Rest]) :-
+    write('Processing file: '), write(File), nl,
+    
+    % Check if file exists
+    (   atom_concat('exists(', File, CheckFile),
+        atom_concat(')', _, CheckFile),
+        file_exists(File)
+    ->  true
+    ;   write('File not found: '), write(File), nl,
+        process_files(Rest),
+        !
+    ),
+    
+    % Step 1: Parse
+    parse_file(File, ParsedData),
+    write('Parsed '), length(ParsedData, Count), write(' records.'), nl,
+    
+    % Step 2: Validate
+    validate_data(ParsedData, ValidRecords, InvalidRecords),
+    write('Valid: '), write(length(ValidRecords)), nl,
+    write('Invalid: '), write(length(InvalidRecords)), nl,
+    
+    % Step 3: Transform
+    transform_data(ValidRecords, TransformedRecords),
+    write('Transformed '), length(TransformedRecords), write(' records.'), nl,
+    
+    % Step 4: Report
+    generate_report(File, TransformedRecords),
+    
+    % Process next file
+    process_files(Rest).
+
+file_exists(File) :-
+    exists_file(File).

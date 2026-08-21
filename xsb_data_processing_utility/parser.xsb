@@ -1,0 +1,59 @@
+:- module(parser).
+
+:- export(parse_file/2).
+:- export(parse_csv/2).
+:- export(parse_json/2).
+:- export(parse_txt/2).
+
+parse_file(File, Records) :-
+    % Determine file type and parse accordingly
+    file_name_extension(_, Ext, File),
+    
+    (   atom(Ext),
+        atom_concat('csv', Ext)
+    ->  parse_csv(File, Records)
+    ;   atom(Ext),
+        atom_concat('json', Ext)
+    ->  parse_json(File, Records)
+    ;   atom(Ext),
+        atom_concat('txt', Ext)
+    ->  parse_txt(File, Records)
+    ;   % Default to CSV
+        parse_csv(File, Records)
+    ).
+
+parse_csv(File, Records) :-
+    csv_read_file(File, Records).
+
+parse_json(File, Records) :-
+    open(File, read, Stream),
+    read_json_data(Stream, Records),
+    close(Stream).
+
+parse_txt(File, Records) :-
+    open(File, read, Stream),
+    read_all_lines(Stream, Lines),
+    close(Stream),
+    
+    % Split lines into records
+    maplist(split_tabs, Lines, Records).
+
+read_json_data(Stream, Records) :-
+    (   read_json(Stream, Item) ->
+        (   is_list(Item) ->
+            Records = Item
+        ;   Records = [Item]
+        )
+    ;   Records = []
+    ).
+
+read_all_lines(Stream, Lines) :-
+    (   read_line_to_string(Stream, Line) ->
+        Lines = [Line|RestLines],
+        read_all_lines(Stream, RestLines)
+    ;   Lines = []
+    ).
+
+split_tabs(Line, Record) :-
+    split_string(Line, '\t', '', Fields),
+    Record = Fields.

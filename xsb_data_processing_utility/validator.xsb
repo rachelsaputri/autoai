@@ -1,0 +1,21 @@
+:- module(validator).
+
+:- export(validate_data/3).
+:- export(validate_record/2).
+
+validate_data([], [], []).
+validate_data([Record|Rest], [ValidRecord|ValidRecords], InvalidRecords) :-
+    validate_record(Record, Valid),
+    (   Valid == true
+    ->  ValidRecord = Record,
+        validate_data(Rest, ValidRecords, InvalidRecords)
+    ;   ValidRecord = Record,
+        InvalidRecords = [Record|RestInvalid],
+        validate_data(Rest, ValidRecords, RestInvalid)
+    ).
+
+validate_record([_|_], true) :-
+    % Basic validation: non-empty list
+    true.
+
+validate_record([], false).
