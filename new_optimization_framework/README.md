@@ -1,31 +1,16 @@
-# AMPL Optimization Framework
+# New Optimization Framework
 
 ## Overview
-This project is a complete, fully functional mathematical programming optimization framework built **strictly in AMPL**. It is designed to solve complex supply chain and resource allocation problems with formal constraint satisfaction and objective minimization.
+This folder contains the AMPL model and scripts for the New Optimization Framework. It is designed to perform robust data processing, policy validation, and compliance auditing.
 
-## Features
-- Dynamic model generation
-- Linear and nonlinear solver integration
-- Scenario analysis and sensitivity testing
-- Automated data parsing and output reporting
-
-## Directory Structure
-```
-new_optimization_framework/
-├── README.md
-├── model.mod
-├── data.dat
-├── solve.ampl
-└── output.log
-```
+## Contents
+- `model.mod`: The main AMPL data processing and compliance logic.
+- `data.dat`: The data instance file containing input parameters.
+- `solve.ampl`: The script file to execute the optimization.
+- `data.dat`: (See separate file entry) 
 
 ## Usage
-1. Ensure AMPL is installed and accessible in your system PATH.
-2. Navigate to the project directory.
-3. Run the solver using: `ampl solve.ampl`
-4. View results in `output.log` or via AMPL's display commands.
-
-## Constraints
-- **Language**: Strictly AMPL. No external scripting or placeholder code.
-- **Completeness**: Fully functional model, data, and solver execution files.
-- **Folder**: Self-contained within this dedicated directory.
+Run the optimization using the AMPL interpreter:
+```bash
+ampl solve.ampl
+```
