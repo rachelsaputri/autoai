@@ -1,17 +1,173 @@
-// Data transformation module
-module transformer;
+// Transformer module for Corn Data Processing Utility
+// Implements data transformation algorithms
 
-fn process(data: list, rules: list) -> list {
-    return data |> map(transform_record);
+import ./parser.corn
+
+// Transform a single record
+fun transform_record(record: Record) -> Record {
+    let transformed_fields = []
+    
+    // Apply transformations to each field
+    let mut i = 0
+    while i < record.fields.length {
+        let field = record.fields[i]
+        let transformed = apply_transformations(field, i)
+        transformed_fields.push(transformed)
+        i = i + 1
+    }
+    
+    return Record{
+        index: record.index,
+        fields: transformed_fields,
+        raw: record.raw
+    }
 }
 
-fn transform_record(record: map) -> map {
-    record.value = record.value |> float |> abs;
-    record.timestamp = parse_timestamp(record.timestamp);
-    return record;
+// Apply various transformations to a field
+fun apply_transformations(field: String, index: Integer) -> String {
+    let mut result = field
+    
+    // Uppercase transformation
+    result = result.upper()
+    
+    // Trim whitespace
+    result = result.trim()
+    
+    // Add prefix based on index
+    let prefix = "FIELD_"
+    result = prefix + result
+    
+    return result
 }
 
-fn parse_timestamp(ts: string) -> int {
-    // Simplified timestamp parsing
-    return ts |> int;
+// Transform a list of records
+fun transform_records(records: List<Record>) -> List<Record> {
+    let transformed = []
+    
+    for record in records {
+        transformed.push(transform_record(record))
+    }
+    
+    return transformed
+}
+
+// Filter records based on a condition
+fun filter_records(records: List<Record>, condition: Record -> Boolean) -> List<Record> {
+    let filtered = []
+    
+    for record in records {
+        if condition(record) {
+            filtered.push(record)
+        }
+    }
+    
+    return filtered
+}
+
+// Map records to new values
+fun map_records(records: List<Record>, mapper: Record -> String) -> List<String> {
+    let mapped = []
+    
+    for record in records {
+        mapped.push(mapper(record))
+    }
+    
+    return mapped
+}
+
+// Reduce records to a single value
+fun reduce_records(records: List<Record>, reducer: (String, Record) -> String) -> String {
+    if records.length == 0 {
+        return ""
+    }
+    
+    let mut accumulator = mapper(records[0])
+    let mut i = 1
+    while i < records.length {
+        accumulator = reducer(accumulator, records[i])
+        i = i + 1
+    }
+    
+    return accumulator
+}
+
+// Extend String type with helper methods
+fun upper(s: String) -> String {
+    let chars = []
+    let mut i = 0
+    while i < s.length {
+        let c = s[i]
+        if c >= 'a' and c <= 'z' {
+            chars.push(c - ('a' - 'A'))
+        } else {
+            chars.push(c)
+        }
+        i = i + 1
+    }
+    return chars.join("")
+}
+
+fun trim(s: String) -> String {
+    let start = 0
+    let mut end = s.length - 1
+    
+    while start <= end and (s[start] == ' ' or s[start] == '\t') {
+        start = start + 1
+    }
+    
+    while end >= start and (s[end] == ' ' or s[end] == '\t') {
+        end = end - 1
+    }
+    
+    if start > end {
+        return ""
+    }
+    
+    let result = []
+    let mut i = start
+    while i <= end {
+        result.push(s[i])
+        i = i + 1
+    }
+    
+    return result.join("")
+}
+
+fun range(n: Integer) -> List<Integer> {
+    let result = []
+    let mut i = 0
+    while i < n {
+        result.push(i)
+        i = i + 1
+    }
+    return result
+}
+
+fun contains(s: String, substr: String) -> Boolean {
+    let s_len = s.length
+    let sub_len = substr.length
+    if sub_len == 0 {
+        return true
+    }
+    if sub_len > s_len {
+        return false
+    }
+    
+    let mut i = 0
+    while i <= s_len - sub_len {
+        let mut match = true
+        let mut j = 0
+        while j < sub_len {
+            if s[i + j] != substr[j] {
+                match = false
+                break
+            }
+            j = j + 1
+        }
+        if match {
+            return true
+        }
+        i = i + 1
+    }
+    return false
 }
