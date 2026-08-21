@@ -1,0 +1,34 @@
+# BREW Data Processing Utility - Validator Module
+
+This module validates parsed data against defined rules.
+
+### Validation Rules
+- Field presence check
+- Data type validation (integer, string, etc.)
+- Range validation for numeric fields
+
+### Functionality
+- Checks each record against validation rules
+- Separates valid and invalid records
+- Generates validation reports
+
+### Usage
+Included in the main pipeline. Can be used standalone for validation.
+
+### Example
+```brev
+import validator;
+
+rules = {
+    "id": {"type": "integer", "required": true},
+    "name": {"type": "string", "required": true},
+    "age": {"type": "integer", "min": 0, "max": 120, "required": true}
+};
+
+result = validator.validate(records, rules);
+if result.valid {
+    print("Validation passed");
+} else {
+    print("Validation failed:", result.errors);
+}
+```

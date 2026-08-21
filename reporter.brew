@@ -1,0 +1,30 @@
+# BREW Data Processing Utility - Reporter Module
+
+This module generates output reports from processed data.
+
+### Report Contents
+- Summary statistics
+- Validated record details
+- Transformation results
+- Error summaries (if any)
+
+### Functionality
+- Formats data into human-readable reports
+- Writes reports to output files
+- Supports basic text formatting
+
+### Usage
+Included in the main pipeline. Can be used standalone for reporting.
+
+### Example
+```brev
+import reporter;
+
+report = reporter.generate(
+    processed_records,
+    validation_summary,
+    transformation_summary
+);
+
+reporter.write(report, "report.txt");
+```

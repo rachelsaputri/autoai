@@ -1,0 +1,32 @@
+# BREW Data Processing Utility - Transformer Module
+
+This module applies transformations to valid data.
+
+### Supported Transformations
+- Uppercase conversion for string fields
+- Type casting
+- Value scaling (for numeric fields)
+- Custom transformation functions
+
+### Functionality
+- Applies transformations to each valid record
+- Supports multiple transformations per field
+- Generates transformed data for reporting
+
+### Usage
+Included in the main pipeline. Can be used standalone for transformation.
+
+### Example
+```brev
+import transformer;
+
+transformations = {
+    "name": "upper",
+    "age": "to_string"
+};
+
+transformed_data = transformer.apply(records, transformations);
+for each record in transformed_data {
+    print(record);
+}
+```
