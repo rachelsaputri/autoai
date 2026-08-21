@@ -94,3 +94,5 @@ MIT
 - Created/Updated module: `kuka_data_processing_utility` (See `kuka_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `ngl_data_processing_utility` (See `ngl_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `./cl_data_processing_utility` (See `./cl_data_processing_utility/README.md` for details)
