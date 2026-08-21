@@ -1,0 +1,51 @@
+// Validator Module: Enforces data integrity and schema compliance
+
+struct ValidationResult {
+    is_valid: Boolean,
+    errors: Array<String>
+}
+
+fn check(records: Array<Record>, schema: Map<String, String>): ValidationResult {
+    let errors: Array<String> = [];
+    let mut valid_count = 0;
+    
+    for record in records {
+        let mut record_errors: Array<String> = [];
+        
+        for (field, type_req) in schema {
+            if !record.fields.has_key(field) {
+                record_errors.append("Missing field: " + field);
+            } else {
+                if !validate_type(record.fields[field], type_req) {
+                    record_errors.append("Invalid type for field: " + field);
+                }
+            }
+        }
+        
+        if record_errors.length > 0 {
+            errors.append("Record " + record.id + ": " + record_errors.join(", "));
+        } else {
+            valid_count += 1;
+        }
+    }
+    
+    return ValidationResult {
+        is_valid: errors.length == 0,
+        errors: errors
+    };
+}
+
+fn validate_type(value: String, type_req: String): Boolean {
+    switch type_req {
+        case "string":
+            return value.length > 0;
+        case "integer":
+            return value.to_int() is not Null;
+        case "float":
+            return value.to_float() is not Null;
+        case "email":
+            return value.contains("@") && value.contains(".");
+        default:
+            return true;
+    }
+}

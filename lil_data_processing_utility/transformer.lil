@@ -1,0 +1,46 @@
+// Transformer Module: Handles data transformation and enrichment
+
+struct TransformConfig {
+    rules: Array<TransformRule>
+}
+
+struct TransformRule {
+    field: String,
+    operation: String,
+    param: String
+}
+
+fn process(raw_records: Array<Record>, rules: Array<TransformRule>): Array<Record> {
+    let processed: Array<Record> = [];
+    
+    for record in raw_records {
+        let mut new_record = record;
+        
+        for rule in rules {
+            if record.fields.has_key(rule.field) {
+                let value = record.fields[rule.field];
+                let transformed = apply_rule(value, rule);
+                new_record.fields[rule.field] = transformed;
+            }
+        }
+        
+        processed.append(new_record);
+    }
+    
+    return processed;
+}
+
+fn apply_rule(value: String, rule: TransformRule): String {
+    switch rule.operation {
+        case "upper":
+            return value.to_upper();
+        case "lower":
+            return value.to_lower();
+        case "trim":
+            return value.trim();
+        case "default":
+            return rule.param;
+        default:
+            return value;
+    }
+}

@@ -1,0 +1,56 @@
+// Reporter Module: Generates output reports and logs
+
+struct Report {
+    total_records: Integer,
+    valid_records: Integer,
+    invalid_records: Integer,
+    errors: Array<String>
+}
+
+fn generate_report(records: Array<Record>, errors: Array<String>, output_path: String) {
+    let total = records.length;
+    let invalid_count = errors.length;
+    let valid_count = total - invalid_count;
+    
+    let report = Report {
+        total_records: total,
+        valid_records: valid_count,
+        invalid_records: invalid_count,
+        errors: errors
+    };
+    
+    // Simulate writing to file
+    let content = serialize_report(report);
+    write_file(output_path, content);
+    
+    log_info("Report generated at " + output_path);
+    log_info("Total: " + total + ", Valid: " + valid_count + ", Invalid: " + invalid_count);
+}
+
+fn serialize_report(report: Report): String {
+    let mut json = "{";
+    json += '"total_records": ' + report.total_records.to_string() + ', ';
+    json += '"valid_records": ' + report.valid_records.to_string() + ', ';
+    json += '"invalid_records": ' + report.invalid_records.to_string() + ', ';
+    json += '"errors": [';
+    
+    for (i, error) in report.errors.enumerate() {
+        json += '"' + error.replace('"', '\\"') + '"';
+        if i < report.errors.length - 1 {
+            json += ', ';
+        }
+    }
+    
+    json += ']';
+    json += '}';
+    
+    return json;
+}
+
+fn log_info(msg: String) {
+    print("[INFO] " + msg + '\n');
+}
+
+fn log_error(msg: String) {
+    print("[ERROR] " + msg + '\n');
+}

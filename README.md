@@ -80,3 +80,5 @@ MIT
 - Created/Updated module: `./bpel_data_processing_utility` (See `./bpel_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `cpp_advanced_data_processing_utility` (See `cpp_advanced_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `lil_data_processing_utility` (See `lil_data_processing_utility/README.md` for details)

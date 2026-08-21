@@ -1,0 +1,39 @@
+// Main Orchestrator for LIL Data Processing Utility
+// Handles the flow: Ingest -> Transform -> Validate -> Report
+
+import parser;
+import transformer;
+import validator;
+import reporter;
+
+fn main(args: Array<String>): Integer {
+    let config = load_config(args);
+    let raw_data = parser::ingest(config.source_path);
+    
+    if raw_data is Empty {
+        reporter::log_error("No data found at source: " + config.source_path);
+        return 1;
+    }
+
+    let transformed_data = transformer::process(raw_data, config.transform_rules);
+    let validation_result = validator::check(transformed_data, config.schema);
+
+    if !validation_result.is_valid {
+        reporter::log_warning("Validation failed for some records. Generating partial report.");
+        reporter::generate_report(transformed_data, validation_result.errors, config.output_path);
+        return 2;
+    }
+
+    reporter::generate_report(transformed_data, Empty, config.output_path);
+    return 0;
+}
+
+fn load_config(args: Array<String>): Config {
+    // Placeholder for actual config parsing logic
+    return Config {
+        source_path: "/tmp/input.dat",
+        output_path: "/tmp/output.json",
+        transform_rules: [],
+        schema: {}
+    };
+}
