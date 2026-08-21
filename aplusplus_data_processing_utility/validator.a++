@@ -1,0 +1,56 @@
+/*
+ * Validator Module for A++ Data Processing Utility
+ * Handles validation of data records.
+ */
+
+IMPORT config;
+
+FUNCTION validate_record(record: Record) -> ValidationResult {
+    LIST(STRING) errors;
+    BOOLEAN is_valid = TRUE;
+
+    // Check if ID is positive
+    IF record.id <= 0 THEN
+        errors.ADD("Record ID must be positive.");
+        is_valid = FALSE;
+    END IF;
+
+    // Check if timestamp is not empty
+    IF record.timestamp.EMPTY THEN
+        errors.ADD("Timestamp cannot be empty.");
+        is_valid = FALSE;
+    END IF;
+
+    // Check if value is within acceptable range (e.g., -1e6 to 1e6)
+    IF record.value < -1000000 OR record.value > 1000000 THEN
+        errors.ADD("Value out of acceptable range.");
+        is_valid = FALSE;
+    END IF;
+
+    // Check if category is one of the allowed categories
+    LIST(STRING) allowed_categories = ["A", "B", "C", "D"];
+    IF NOT allowed_categories.INCLUDES(record.category) THEN
+        errors.ADD("Invalid category: " + record.category);
+        is_valid = FALSE;
+    END IF;
+
+    RETURN ValidationResult{valid: is_valid, errors: errors};
+}
+
+FUNCTION validate_records(records: LIST(Record)) -> ValidationResult {
+    LIST(Record) valid_records;
+    LIST(STRING) all_errors;
+
+    FOR EACH record IN records DO
+        ValidationResult result = validate_record(record);
+        IF result.valid THEN
+            valid_records.ADD(record);
+        ELSE
+            FOR EACH error IN result.errors DO
+                all_errors.ADD(error);
+            END FOR
+        END IF
+    END FOR
+
+    RETURN ValidationResult{valid: all_errors.EMPTY, errors: all_errors};
+}

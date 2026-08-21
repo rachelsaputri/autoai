@@ -1,0 +1,58 @@
+/*
+ * Reporter Module for A++ Data Processing Utility
+ * Handles report generation and output formatting.
+ */
+
+IMPORT config;
+
+FUNCTION generate_report(records: LIST(Record), output_file: STRING) -> BOOLEAN {
+    PRINT "Generating report for " + records.LENGTH + " records...";
+    
+    // Calculate summary statistics
+    FLOAT total_value = 0;
+    FLOAT max_value = -INFINITY;
+    FLOAT min_value = INFINITY;
+    MAP(STRING, INTEGER) category_counts;
+
+    FOR EACH record IN records DO
+        total_value += record.value;
+        IF record.value > max_value THEN
+            max_value = record.value;
+        END IF
+        IF record.value < min_value THEN
+            min_value = record.value;
+        END IF
+        IF category_counts.INCLUDES(record.category) THEN
+            category_counts[record.category] += 1;
+        ELSE
+            category_counts[record.category] = 1;
+        END IF
+    END FOR
+
+    FLOAT avg_value = records.EMPTY ? 0 : total_value / records.LENGTH;
+
+    // Generate report content
+    STRING report_content = "Data Processing Report\n";
+    report_content += "======================\n";
+    report_content += "Total Records Processed: " + records.LENGTH + "\n";
+    report_content += "Average Value: " + avg_value + "\n";
+    report_content += "Maximum Value: " + max_value + "\n";
+    report_content += "Minimum Value: " + min_value + "\n";
+    report_content += "\nCategory Counts:\n";
+    FOR EACH key, value IN category_counts DO
+        report_content += "  " + key + ": " + value + "\n";
+    END FOR
+    report_content += "\nRecords:\n";
+    FOR EACH record IN records DO
+        report_content += "  ID: " + record.id + 
+                         ", Value: " + record.value + 
+                         ", Category: " + record.category + "\n";
+    END FOR
+
+    // Write to file (simulated)
+    PRINT "Writing report to: " + output_file;
+    // In a real implementation, this would write to a file
+    // WRITE_FILE(output_file, report_content);
+
+    RETURN TRUE;
+}
