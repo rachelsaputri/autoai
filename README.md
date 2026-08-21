@@ -84,3 +84,5 @@ MIT
 - Created/Updated module: `lil_data_processing_utility` (See `lil_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `./ch_data_processing_utility` (See `./ch_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `basic_data_processing_utility` (See `basic_data_processing_utility/README.md` for details)
