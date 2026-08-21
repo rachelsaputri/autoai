@@ -1,0 +1,280 @@
+/**
+ * Candle Comprehensive Data Processor
+ * 
+ * This module serves as the entry point for a robust data processing pipeline.
+ * It demonstrates Candle's capability in handling complex data structures,
+ * file I/O, and stateful processing engines.
+ */
+
+import "system"
+import "io"
+import "json"
+import "string"
+import "list"
+
+/**
+ * Type Definitions
+ */
+type Record = { [string]: string };
+type Schema = { [string]: string }; // Maps field name to expected type (string, int, float, bool)
+type PipelineConfig = {
+    pipeline_name: string,
+    input_path: string,
+    output_path: string,
+    strict_mode: bool,
+    log_level: string
+};
+type ValidationResult = {
+    is_valid: bool,
+    errors: [string]
+};
+type ProcessResult = {
+    records_processed: int,
+    records_failed: int,
+    processing_time_ms: int
+};
+
+/**
+ * Error Handling Utilities
+ */
+default_error_handler := (error_msg: string) -> void {
+    println("FATAL ERROR: ".+ error_msg);
+    exit(-1);
+};
+
+/**
+ * Configuration Loader
+ * Reads JSON configuration and parses it into PipelineConfig
+ */
+def load_config(config_path: string) -> PipelineConfig {
+    try {
+        file_content := io::read_file(config_path);
+        json_obj := json::parse(file_content);
+        
+        if !json_obj.is_object() {
+            default_error_handler("Config file does not contain a JSON object");
+        }
+
+        // Parse fields with fallback defaults
+        name := json_obj.get("pipeline_name").as_string().if_empty("default_pipeline");
+        input := json_obj.get("input_path").as_string().if_empty("./input_data.csv");
+        output := json_obj.get("output_path").as_string().if_empty("./output_report.json");
+        strict := json_obj.get("strict_mode").as_bool().default(false);
+        log_lvl := json_obj.get("log_level").as_string().if_empty("INFO");
+
+        return {
+            pipeline_name: name,
+            input_path: input,
+            output_path: output,
+            strict_mode: strict,
+            log_level: log_lvl
+        };
+    } catch e {
+        default_error_handler("Failed to load configuration: " .+ e.to_string());
+    }
+}
+
+/**
+ * Data Transformer
+ * Applies transformations to a single record based on a schema
+ */
+def transform_record(record: Record, schema: Schema) -> Record {
+    result := {};
+    for key in schema.keys() {
+        if record.has(key) {
+            value := record.get(key);
+            expected_type := schema.get(key);
+            
+            match expected_type {
+                "int" -> {
+                    try {
+                        result[key] = str::to_int(value).to_string();
+                    } catch {
+                        if (result.strict_mode) {
+                            result.errors.append("Field '" .+ key .+ "' must be integer");
+                            return null;
+                        } else {
+                            result[key] = "0"; // Safe default
+                        }
+                    }
+                },
+                "float" -> {
+                    try {
+                        result[key] = str::to_float(value).to_string();
+                    } catch {
+                        if (result.strict_mode) {
+                            result.errors.append("Field '" .+ key .+ "' must be float");
+                            return null;
+                        } else {
+                            result[key] = "0.0";
+                        }
+                    }
+                },
+                "bool" -> {
+                    lower_val := str::to_lower(value);
+                    result[key] = (lower_val == "true" || lower_val == "1") ? "true" : "false";
+                },
+                _ -> {
+                    result[key] = value;
+                }
+            }
+        } else {
+            // Handle missing required fields
+            if (schema.get(key, "") == "") {
+                 result[key] = "";
+            } else {
+                 if (result.strict_mode) {
+                    result.errors.append("Missing required field: " .+ key);
+                    return null;
+                } else {
+                    result[key] = "";
+                }
+            }
+        }
+    }
+    return result;
+}
+
+/**
+ * Data Validator
+ * Checks records against defined business rules
+ */
+def validate_record(record: Record, strict_mode: bool) -> ValidationResult {
+    errors := [];
+    
+    // Rule: ID field must not be empty if present
+    if (record.has("id") && record.get("id") == "") {
+        errors.append("Empty ID field detected");
+    }
+    
+    // Rule: Timestamp format check (basic YYYY-MM-DD)
+    if (record.has("timestamp") && !str::starts_with(record.get("timestamp"), "20") && 
+        !str::starts_with(record.get("timestamp"), "19")) {
+        errors.append("Invalid timestamp format");
+    }
+
+    // Rule: Email format check (basic)
+    if (record.has("email") && !str::contains(record.get("email"), "@")) {
+        errors.append("Invalid email format");
+    }
+
+    return {
+        is_valid: errors.is_empty(),
+        errors: errors
+    };
+}
+
+/**
+ * Main Processing Engine
+ */
+def run_pipeline(config: PipelineConfig) -> ProcessResult {
+    start_time := system::now_millis();
+    
+    println("Starting Pipeline: " .+ config.pipeline_name);
+    println("Input: " .+ config.input_path);
+    println("Output: " .+ config.output_path);
+    println("Strict Mode: " .+ config.strict_mode.to_string());
+
+    // Simulate data processing logic
+    // In a real scenario, this would iterate over lines of the input file
+    
+    sample_schema := {
+        "id": "string",
+        "timestamp": "string",
+        "value": "float",
+        "status": "string",
+        "email": "string"
+    };
+
+    records_processed := 0;
+    records_failed := 0;
+    processed_records := [];
+
+    // Mock processing loop for demonstration of logic flow
+    for i in 0..5 {
+        // Create mock input record
+        mock_record := {
+            "id": str::to_string(i + 100),
+            "timestamp": "2023-10-27T10:00:00Z",
+            "value": str::to_string(i * 10.5),
+            "status": "active",
+            "email": "user" .+ str::to_string(i) .+ "@example.com"
+        };
+
+        // Transform
+        transformed := transform_record(mock_record, sample_schema);
+        if transformed == null {
+            records_failed += 1;
+            continue;
+        }
+
+        // Validate
+        validation := validate_record(transformed, config.strict_mode);
+        if !validation.is_valid {
+            println("Validation Failed for ID " .+ transformed.get("id") .+ ": ".+ validation.errors.join(", "));
+            records_failed += 1;
+        } else {
+            processed_records.append(transformed);
+            records_processed += 1;
+        }
+    }
+
+    end_time := system::now_millis();
+    elapsed := end_time - start_time;
+
+    // Generate Output
+    output_payload := {
+        "pipeline": config.pipeline_name,
+        "summary": {
+            "processed": records_processed,
+            "failed": records_failed,
+            "duration_ms": elapsed
+        },
+        "data": processed_records
+    };
+
+    try {
+        io::write_file(config.output_path, json::serialize(output_payload, 2));
+        println("Pipeline completed successfully. Report saved to " .+ config.output_path);
+    } catch e {
+        println("Warning: Could not write output file: " .+ e.to_string());
+    }
+
+    return {
+        records_processed: records_processed,
+        records_failed: records_failed,
+        processing_time_ms: elapsed
+    };
+}
+
+/**
+ * Entry Point
+ */
+def main() -> int {
+    // Check for command line arguments
+    if arg::count() < 2 {
+        println("Usage: candle_processor <config.json> <data_file.csv>");
+        println("Example: candle_processor config.json data.csv");
+        return 1;
+    }
+
+    config_path := arg::get(1);
+    
+    // Load configuration
+    config := load_config(config_path);
+    
+    // Override input path from CLI if provided and config allows
+    if arg::count() > 2 {
+        config.input_path = arg::get(2);
+    }
+
+    // Execute Pipeline
+    result := run_pipeline(config);
+
+    println("--- Execution Summary ---");
+    println("Records Processed: " .+ result.records_processed.to_string());
+    println("Records Failed: " .+ result.records_failed.to_string());
+    println("Time Taken: " .+ result.processing_time_ms.to_string() .+ "ms");
+
+    return 0;
+}
