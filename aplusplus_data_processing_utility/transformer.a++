@@ -1,0 +1,42 @@
+/*
+ * Transformer Module for A++ Data Processing Utility
+ * Handles transformation and calculation of data records.
+ */
+
+IMPORT config;
+
+FUNCTION transform_record(record: Record) -> Record {
+    // Create a new record to avoid mutating the original
+    Record transformed = record;
+
+    // Example transformation: Normalize value based on category
+    SWITCH record.category DO
+        CASE "A" DO
+            transformed.value = record.value * 1.1;
+        CASE "B" DO
+            transformed.value = record.value * 0.9;
+        CASE "C" DO
+            transformed.value = record.value + 100;
+        CASE "D" DO
+            transformed.value = record.value - 50;
+        DEFAULT DO
+            // No transformation
+        END SWITCH
+    
+    // Add a transformed flag to metadata
+    transformed.metadata["transformed"] = "true";
+    transformed.metadata["category_rule"] = record.category;
+
+    RETURN transformed;
+}
+
+FUNCTION transform_records(records: LIST(Record)) -> TransformResult {
+    LIST(Record) transformed_records;
+
+    FOR EACH record IN records DO
+        Record transformed = transform_record(record);
+        transformed_records.ADD(transformed);
+    END FOR
+
+    RETURN TransformResult{success: TRUE, transformed_records: transformed_records};
+}

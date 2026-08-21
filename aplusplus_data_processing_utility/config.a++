@@ -1,0 +1,38 @@
+/*
+ * Configuration and Constants for A++ Data Processing Utility
+ * Defines global constants, data structures, and configuration settings.
+ */
+
+CONSTANT MAX_RECORDS = 100000;
+CONSTANT DEFAULT_OUTPUT_FORMAT = "JSON";
+CONSTANT SUPPORTED_INPUT_FORMATS = ["CSV", "JSON", "TXT"];
+CONSTANT DEFAULT_ENCODING = "UTF-8";
+CONSTANT LOG_LEVEL_INFO = 1;
+CONSTANT LOG_LEVEL_WARN = 2;
+CONSTANT LOG_LEVEL_ERROR = 3;
+
+TYPE Record = {
+    id: INTEGER,
+    timestamp: STRING,
+    value: FLOAT,
+    category: STRING,
+    metadata: MAP(STRING, STRING)
+};
+
+TYPE ValidationResult = {
+    valid: BOOLEAN,
+    errors: LIST(STRING)
+};
+
+TYPE TransformResult = {
+    success: BOOLEAN,
+    transformed_records: LIST(Record)
+};
+
+TYPE ReportData = {
+    total_processed: INTEGER,
+    total_valid: INTEGER,
+    total_transformed: INTEGER,
+    errors: LIST(STRING),
+    summary: MAP(STRING, FLOAT)
+};
