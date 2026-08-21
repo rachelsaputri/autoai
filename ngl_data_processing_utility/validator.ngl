@@ -1,56 +1,7 @@
-import "std/io";
-import "std/string";
-
-// Validation Result Structure
-struct validation_result {
-    errors: int;
-    warnings: int;
-    valid_count: int;
-}
-
-// Validate a list of records
-fn validate(data: list(record)) -> validation_result {
-    var result: validation_result = {
-        errors: 0,
-        warnings: 0,
-        valid_count: 0
-    };
-
-    var i: int = 0;
-    while i < str.len(data) {
-        var rec: record = data[i];
-        if (is_valid(rec)) {
-            result.valid_count += 1;
-        } else {
-            result.errors += 1;
-            io.println("[WARN] Record " + str.to_str(rec.id) + " failed validation.");
-        }
-        i += 1;
-    }
-    return result;
-}
-
-// Check individual record validity
-fn is_valid(rec: record) -> bool {
-    // ID must be positive
-    if (rec.id <= 0) {
-        return false;
-    }
-    
-    // Timestamp must not be empty
-    if (str.len(rec.timestamp) == 0) {
-        return false;
-    }
-    
-    // Status must be one of the allowed values
-    if (rec.status != "active" && rec.status != "inactive" && rec.status != "pending") {
-        return false;
-    }
-    
-    // Value must be non-negative
-    if (rec.value < 0.0) {
-        return false;
-    }
-    
-    return true;
-}
+ngl_data_processing_utility/ingester.ngl
+ngl_data_processing_utility/parser.ngl
+ngl_data_processing_utility/processor.ngl
+ngl_data_processing_utility/reporter.ngl
+ngl_data_processing_utility/transformer.ngl
+ngl_data_processing_utility/validator.ngl
+ngl_data_processing_utility/main.ngl

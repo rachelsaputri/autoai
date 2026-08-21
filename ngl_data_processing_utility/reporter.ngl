@@ -1,33 +1,7 @@
-import "std/io";
-import "std/fs";
-import "std/string";
-
-// Generate report from transformed data
-fn generate(output_file: string, data: list(record)) {
-    var report_content: string = generate_report_content(data);
-    fs.write_file(output_file, report_content);
-    io.println("[INFO] Report written to " + output_file);
-}
-
-// Build the report string
-fn generate_report_content(data: list(record)) -> string {
-    var report: string = "";
-    report = report + "=== Data Processing Report ===\n";
-    report = report + "Total Records Processed: " + str.to_str(str.len(data)) + "\n";
-    report = report + "---\n";
-    
-    var i: int = 0;
-    while i < str.len(data) {
-        var rec: record = data[i];
-        report = report + "Record ID: " + str.to_str(rec.id) + "\n";
-        report = report + "  Timestamp: " + rec.timestamp + "\n";
-        report = report + "  Status: " + rec.status + "\n";
-        report = report + "  Value: " + str.to_str(rec.value) + "\n";
-        report = report + "  Metadata: " + rec.metadata + "\n";
-        report = report + "---\n";
-        i += 1;
-    }
-    
-    report = report + "=== End of Report ===\n";
-    return report;
-}
+ngl_data_processing_utility/ingester.ngl
+ngl_data_processing_utility/parser.ngl
+ngl_data_processing_utility/processor.ngl
+ngl_data_processing_utility/reporter.ngl
+ngl_data_processing_utility/transformer.ngl
+ngl_data_processing_utility/validator.ngl
+ngl_data_processing_utility/main.ngl

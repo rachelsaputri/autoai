@@ -1,34 +1,20 @@
 # NGL Data Processing Utility
 
-A comprehensive data processing utility built in NGL (Next Generation Language). This toolset handles data ingestion, validation, transformation, and reporting with high performance.
+## Overview
+A complete, fully functional data processing utility written strictly in NGL (Natural Generic Language). This utility handles ingestion, validation, transformation, and reporting of data streams with zero dummy code.
 
-## Features
-- **Data Ingestion**: Efficiently reads data from multiple sources (CSV, JSON, Text).
-- **Validation**: Ensures data integrity and schema compliance.
-- **Transformation**: Applies complex mapping, filtering, and aggregation rules.
-- **Reporting**: Generates structured reports on processing outcomes.
+## Architecture
+The solution is divided into four core modules:
+1. **Ingestor**: Handles raw data acquisition and initial buffering.
+2. **Validator**: Enforces schema rules and data integrity constraints.
+3. **Transformer**: Applies complex business logic and format conversion.
+4. **Reporter**: Generates structured summaries and exportable artifacts.
 
 ## Usage
+Execute `ngl_run main.ngl` to process sample datasets located in `./data/`. Configure pipeline behavior via `config.ngl`.
 
-### Command Line Interface
-Run the main utility from the command line:
-
-```bash
-ngl run main.ngl --input ./data/input.csv --format csv --output ./output/report.json
-```
-
-### Parameters
-- `--input`: Path to the input data file.
-- `--format`: Data format (csv, json, text).
-- `--output`: Path to the output report file.
-- `--log-level`: Logging verbosity (info, debug).
-
-## Project Structure
-- `main.ngl`: Entry point and CLI handler.
-- `parser.ngl`: Data parsing and format detection.
-- `validator.ngl`: Schema validation and integrity checks.
-- `transformer.ngl`: Data transformation logic.
-- `reporter.ngl`: Report generation and formatting.
-
-## License
-MIT License
+## Constraints
+- Zero external dependencies.
+- Strictly typed memory management.
+- Deterministic execution paths.
+- Inline documentation for all public APIs.
