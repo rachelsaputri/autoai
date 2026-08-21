@@ -872,3 +872,5 @@
 - Created/Updated module: `xpp_data_processing_utility` (See `xpp_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `./vjpp_data_processing_utility` (See `./vjpp_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `tads_data_processing_utility` (See `tads_data_processing_utility/README.md` for details)
