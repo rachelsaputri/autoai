@@ -1,0 +1,17 @@
+class DataIngestor
+{
+    public container ingestData()
+    {
+        // Placeholder for data ingestion logic
+        // In a real scenario, this might read from a file, database, or API
+        
+        // Sample data structure: [RecordID, Field1, Field2, Field3]
+        container sampleData = [
+            [1, "Alpha", "Beta", 100],
+            [2, "Gamma", "Delta", 200],
+            [3, "Epsilon", "Zeta", 300]
+        ];
+        
+        return sampleData;
+    }
+}

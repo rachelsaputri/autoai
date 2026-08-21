@@ -1,0 +1,32 @@
+class Reporter
+{
+    public void reportSuccess(container data)
+    {
+        info("Data processing completed successfully.");
+        info(strFmt("Processed %1 records.", conLen(data)));
+        
+        // Optional: Display sample data
+        if (conLen(data) > 0)
+        {
+            container sampleRecord = conPeek(data, 1);
+            info(strFmt("Sample Record ID: %1", conPeek(sampleRecord, 1)));
+        }
+    }
+
+    public void reportErrors(container errorList)
+    {
+        error("Data processing encountered errors.");
+        int errorCount = conLen(errorList);
+        int i;
+        
+        for (i = 1; i <= errorCount; i++)
+        {
+            error(conPeek(errorList, i));
+        }
+    }
+
+    public void reportEmpty()
+    {
+        warning("No data to process.");
+    }
+}

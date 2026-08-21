@@ -1,0 +1,45 @@
+class DataTransformer
+{
+    public container transform(container rawData)
+    {
+        container transformedData;
+        int recordCount = conLen(rawData);
+        int i;
+        
+        if (!rawData)
+        {
+            throw error("No data to transform.");
+        }
+        
+        // Iterate through records
+        for (i = 1; i <= recordCount; i++)
+        {
+            container record = conPeek(rawData, i);
+            int fieldCount = conLen(record);
+            container newRecord;
+            
+            if (fieldCount >= 3)
+            {
+                // Transformation: Concatenate Field1 and Field2, uppercase them
+                str field1 = strUppercase(conPeek(record, 2));
+                str field2 = strUppercase(conPeek(record, 3));
+                str combinedFields = field1 + "_" + field2;
+                
+                // Create new record with original ID, combined field, and doubled value
+                newRecord = [
+                    conPeek(record, 1), // Keep ID
+                    combinedFields,
+                    conPeek(record, 4) * 2 // Double the numeric field
+                ];
+            }
+            else
+            {
+                newRecord = record; // Keep original if structure is unexpected
+            }
+            
+            transformedData = conIns(transformedData, i, newRecord);
+        }
+        
+        return transformedData;
+    }
+}

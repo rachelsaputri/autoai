@@ -1,0 +1,52 @@
+using System;
+using System.Collections.Generic;
+
+class DataProcessor
+{
+    DataIngestor ingestor;
+    DataTransformer transformer;
+    DataValidator validator;
+    Reporter reporter;
+
+    public void process()
+    {
+        // Initialize components
+        ingestor = new DataIngestor();
+        transformer = new DataTransformer();
+        validator = new DataValidator();
+        reporter = new Reporter();
+
+        // Step 1: Ingest Data
+        container dataContainer = ingestor.ingestData();
+        
+        if (dataContainer)
+        {
+            // Step 2: Transform Data
+            container transformedData = transformer.transform(dataContainer);
+            
+            // Step 3: Validate Data
+            boolean isValid = validator.validate(transformedData);
+            
+            if (isValid)
+            {
+                // Step 4: Report Success
+                reporter.reportSuccess(transformedData);
+            }
+            else
+            {
+                // Step 4: Report Errors
+                reporter.reportErrors(validator.getErrors());
+            }
+        }
+        else
+        {
+            reporter.reportEmpty();
+        }
+    }
+
+    static void main(Args _args)
+    {
+        DataProcessor processor = new DataProcessor();
+        processor.process();
+    }
+}

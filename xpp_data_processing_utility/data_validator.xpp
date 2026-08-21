@@ -1,0 +1,47 @@
+class DataValidator
+{
+    private container errors;
+    private boolean hasErrors;
+
+    public boolean validate(container data)
+    {
+        errors = [];
+        hasErrors = false;
+        int recordCount = conLen(data);
+        int i;
+        
+        for (i = 1; i <= recordCount; i++)
+        {
+            container record = conPeek(data, i);
+            this.validateRecord(record, i);
+        }
+        
+        return !hasErrors;
+    }
+
+    private void validateRecord(container record, int recordIndex)
+    {
+        if (conLen(record) < 3)
+        {
+            hasErrors = true;
+            errors += [strFmt("Record %1 is missing required fields.", recordIndex)];
+        }
+        
+        if (!conPeek(record, 1)) // Check for empty ID
+        {
+            hasErrors = true;
+            errors += [strFmt("Record %1 has an empty ID.", recordIndex)];
+        }
+        
+        if (!isNumeric(conPeek(record, 3))) // Check if numeric field is valid
+        {
+            hasErrors = true;
+            errors += [strFmt("Record %1 has an invalid numeric value.", recordIndex)];
+        }
+    }
+
+    public container getErrors()
+    {
+        return errors;
+    }
+}
