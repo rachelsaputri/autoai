@@ -1,61 +1,30 @@
-A0 SYSTEM VALIDATOR
+// Data validation checks for A-0 Data Processing Utility
 
-* DESCRIPTION:
-    * Handles data validation and integrity checks.
-    * Verifies field counts and value ranges.
+// Validate the current data set
+FUNCTION ValidateData()
+    // Check if data_length is zero
+    IF data_length == 0 THEN
+        Log("No data to validate.")
+        RETURN FALSE
+    END_IF
 
-* INTERFACE:
-    IN: Parsed record.
-    OUT: Validation status.
+    DECLARE i: INTEGER
 
-* CONSTANTS:
-    MIN_FIELDS EQU 3
-    MAX_FIELDS EQU 10
-    MAX_VALUE EQU 65535
+    // Validate each record
+    FOR i := 0 TO data_length - 1 DO
+        // Check for negative IDs
+        IF current_data[i].id < 0 THEN
+            Log("Invalid ID at index " + TO_STRING(i))
+            RETURN FALSE
+        END_IF
 
-VALIDATE_RECORD PROC
-    ; Input: AX = Record pointer
-    PUSH BP
-    MOV BP, SP
-    PUSH AX
-    
-    ; Check field count (stored in FIELD_COUNT from processor)
-    CMP FIELD_COUNT, MIN_FIELDS
-    JL INVALID_FIELDS
-    CMP FIELD_COUNT, MAX_FIELDS
-    JG INVALID_FIELDS
-    
-    ; Check value ranges (simplified)
-    MOV SI, AX
-    MOV CX, FIELD_COUNT
-    XOR BX, BX
+        // Check for missing timestamps
+        IF current_data[i].timestamp == 0 THEN
+            Log("Missing timestamp at index " + TO_STRING(i))
+            RETURN FALSE
+        END_IF
+    END_FOR
 
-VALUE_LOOP:
-    CMP CX, 0
-    JE VALIDATION_SUCCESS
-    
-    MOV AX, [SI]
-    CMP AX, MAX_VALUE
-    JG INVALID_VALUE
-    
-    ADD SI, 2
-    DEC CX
-    JMP VALUE_LOOP
-
-INVALID_FIELDS:
-    MOV AX, ERROR_INVALID_STRUCTURE
-    JMP VALIDATION_EXIT
-
-INVALID_VALUE:
-    MOV AX, ERROR_INVALID_RANGE
-    JMP VALIDATION_EXIT
-
-VALIDATION_SUCCESS:
-    MOV AX, SUCCESS_CODE
-
-VALIDATION_EXIT:
-    POP AX
-    POP BP
-    RET
-VALIDATE_RECORD ENDP
-END VALIDATOR
+    Log("Data validation passed.")
+    RETURN TRUE
+END_FUNCTION
