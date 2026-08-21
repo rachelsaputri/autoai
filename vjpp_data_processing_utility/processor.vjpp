@@ -1,0 +1,33 @@
+import System;
+import System.Collections.Generic;
+
+namespace VJPPDataProcessing {
+    public class DataProcessor {
+        private DataParser parser;
+        private DataValidator validator;
+        private DataTransformer transformer;
+
+        public DataProcessor() {
+            parser = new DataParser();
+            validator = new DataValidator();
+            transformer = new DataTransformer();
+        }
+
+        public List<Dictionary<String, String>> Parse(String filePath) {
+            return parser.Parse(filePath);
+        }
+
+        public List<Dictionary<String, String>> Validate(List<Dictionary<String, String>> data) {
+            return validator.Validate(data);
+        }
+
+        public List<Dictionary<String, String>> Transform(List<Dictionary<String, String>> data) {
+            return transformer.Transform(data);
+        }
+
+        public void Report(List<Dictionary<String, String>> data, String outputPath) {
+            Reporter reporter = new Reporter();
+            reporter.GenerateReport(data, outputPath);
+        }
+    }
+}

@@ -1,0 +1,28 @@
+import System;
+import System.Collections.Generic;
+
+namespace VJPPDataProcessing {
+    public class DataValidator {
+        public List<Dictionary<String, String>> Validate(List<Dictionary<String, String>> data) {
+            List<Dictionary<String, String>> validData = new List<Dictionary<String, String>>();
+            foreach (Dictionary<String, String> row in data) {
+                if (IsRowValid(row)) {
+                    validData.Add(row);
+                }
+            }
+            return validData;
+        }
+
+        private Boolean IsRowValid(Dictionary<String, String> row) {
+            if (row == null) {
+                return false;
+            }
+            foreach (String key in row.Keys) {
+                if (String.IsNullOrEmpty(row[key])) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+}

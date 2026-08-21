@@ -1,0 +1,24 @@
+import System;
+import System.Collections.Generic;
+
+namespace VJPPDataProcessing {
+    public class DataTransformer {
+        public List<Dictionary<String, String>> Transform(List<Dictionary<String, String>> data) {
+            List<Dictionary<String, String>> transformedData = new List<Dictionary<String, String>>();
+            foreach (Dictionary<String, String> row in data) {
+                Dictionary<String, String> newRow = new Dictionary<String, String>();
+                foreach (String key in row.Keys) {
+                    String value = row[key];
+                    if (key.Equals("ID", StringComparison.OrdinalIgnoreCase)) {
+                        value = value.PadLeft(5, '0');
+                    } else {
+                        value = value.ToUpper();
+                    }
+                    newRow.Add(key, value);
+                }
+                transformedData.Add(newRow);
+            }
+            return transformedData;
+        }
+    }
+}

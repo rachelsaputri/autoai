@@ -1,0 +1,23 @@
+import System;
+import System.Collections.Generic;
+import System.IO;
+
+namespace VJPPDataProcessing {
+    public class Reporter {
+        public void GenerateReport(List<Dictionary<String, String>> data, String outputPath) {
+            using (StreamWriter writer = new StreamWriter(outputPath)) {
+                if (data.Count > 0) {
+                    String[] headers = data[0].Keys.ToArray();
+                    writer.WriteLine(String.Join(",", headers));
+                    foreach (Dictionary<String, String> row in data) {
+                        String[] values = new String[headers.Length];
+                        for (int i = 0; i < headers.Length; i++) {
+                            values[i] = row[headers[i]];
+                        }
+                        writer.WriteLine(String.Join(",", values));
+                    }
+                }
+            }
+        }
+    }
+}
