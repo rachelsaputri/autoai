@@ -896,3 +896,5 @@
 - Created/Updated module: `./agora_data_processing_utility` (See `./agora_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `godiva_data_processing_utility` (See `godiva_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `algol60_data_processing_utility` (See `algol60_data_processing_utility/README.md` for details)
