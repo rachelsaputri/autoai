@@ -882,3 +882,5 @@
 - Created/Updated module: `scratch_data_processing_utility` (See `scratch_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `cpl_data_processing_utility` (See `cpl_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `euslisp_data_processing_utility` (See `euslisp_data_processing_utility/README.md` for details)
