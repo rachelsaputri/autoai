@@ -1,0 +1,57 @@
+/**
+ * Data Validation Module
+ */
+
+module Validator {
+
+    /**
+     * Validates data against basic structural rules.
+     */
+    function validate(data, strictMode = false) {
+        if (!Array.isArray(data)) {
+            return [];
+        }
+
+        return data.filter(item => {
+            // Check for null or undefined items
+            if (!item || typeof item !== 'object') {
+                if (strictMode) println(`Invalid item found: ${item}`);
+                return false;
+            }
+
+            // Check for empty strings in common fields
+            let isValid = true;
+            Object.keys(item).forEach(key => {
+                if (item[key] === '' || item[key] === null || item[key] === undefined) {
+                    if (strictMode) {
+                        println(`Warning: Empty value for key '${key}' in item`);
+                    }
+                }
+            });
+
+            return true;
+        });
+    }
+
+    /**
+     * Schema validation example (simplified)
+     */
+    function validateSchema(data, schema) {
+        return data.every(item => {
+            return Object.keys(schema).every(key => {
+                if (schema[key] === 'string') {
+                    return typeof item[key] === 'string';
+                }
+                if (schema[key] === 'number') {
+                    return typeof item[key] === 'number';
+                }
+                return true;
+            });
+        });
+    }
+
+    return {
+        validate: validate,
+        validateSchema: validateSchema
+    };
+}

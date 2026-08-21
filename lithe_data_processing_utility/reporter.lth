@@ -1,0 +1,93 @@
+/**
+ * Reporting and Export Module
+ */
+
+module Reporter {
+
+    /**
+     * Exports processed data to a file.
+     * Supports JSON and XML formats based on extension.
+     */
+    function export(data, targetPath) {
+        const ext = File.extension(targetPath).toLowerCase();
+        const content = File.read(targetPath) || '';
+        
+        let outputContent = '';
+        
+        switch (ext) {
+            case 'json':
+                outputContent = JSON.stringify(data, null, 2);
+                break;
+            case 'xml':
+                outputContent = generateXML(data);
+                break;
+            case 'csv':
+                outputContent = generateCSV(data);
+                break;
+            default:
+                throw new Error(`Unsupported output format: ${ext}`);
+        }
+
+        File.write(targetPath, outputContent);
+    }
+
+    /**
+     * Generates XML string from data array
+     */
+    function generateXML(data) {
+        let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+        xml += '<records>\n';
+        
+        data.forEach((item, index) => {
+            xml += `  <record id="${index + 1}">\n`;
+            Object.keys(item).forEach(key => {
+                const val = item[key] !== null && item[key] !== undefined ? item[key] : '';
+                xml += `    <${key}>${val}</${key}>\n`;
+            });
+            xml += `  </record>\n`;
+        });
+        
+        xml += '</records>';
+        return xml;
+    }
+
+    /**
+     * Generates CSV string from data array
+     */
+    function generateCSV(data) {
+        if (data.length === 0) return '';
+        
+        const headers = Object.keys(data[0]);
+        let csv = headers.join(',') + '\n';
+        
+        data.forEach(item => {
+            const row = headers.map(key => {
+                const val = item[key];
+                // Escape quotes and wrap in quotes if contains comma
+                return typeof val === 'string' && val.includes(',') ? `"${val}"` : val;
+            });
+            csv += row.join(',') + '\n';
+        });
+        
+        return csv;
+    }
+
+    /**
+     * Prints summary report to console
+     */
+    function printSummary(data) {
+        println('--- Processing Summary ---');
+        println(`Total Records Processed: ${data.length}`);
+        
+        if (data.length > 0) {
+            const keys = Object.keys(data[0]);
+            println(`Fields: ${keys.join(', ')}`);
+        }
+        println('------------------------');
+    }
+
+    return {
+        export: export,
+        printSummary: printSummary
+    };
+}

@@ -1,0 +1,42 @@
+/**
+ * Main entry point for Lithe Data Processing Utility
+ */
+
+import 'processor.lth';
+import 'transformer.lth';
+import 'validator.lth';
+import 'reporter.lth';
+
+function main() {
+    const config = { 
+        inputSource: './data/input.json',
+        outputTarget: './data/output.xml',
+        strictMode: true 
+    };
+
+    try {
+        println('Starting Lithe Data Processing Utility...');
+        
+        // 1. Ingest Data
+        const rawData = Processor.ingest(config.inputSource);
+        println(`Ingested ${rawData.length} records.`);
+
+        // 2. Validate Data
+        const validData = Validator.validate(rawData, config.strictMode);
+        println(`Validated ${validData.length} records.`);
+
+        // 3. Transform Data
+        const processedData = Transformer.transform(validData);
+        println(`Transformed ${processedData.length} records.`);
+
+        // 4. Report & Export
+        Reporter.export(processedData, config.outputTarget);
+        println('Processing complete. Output saved.');
+
+    } catch (err) {
+        println(`Error: ${err.message}`);
+        System.exit(1);
+    }
+}
+
+main();

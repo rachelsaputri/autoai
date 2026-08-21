@@ -88,3 +88,5 @@ MIT
 - Created/Updated module: `basic_data_processing_utility` (See `basic_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `./opencl_data_processing_utility` (See `./opencl_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `./lithe_data_processing_utility` (See `./lithe_data_processing_utility/README.md` for details)

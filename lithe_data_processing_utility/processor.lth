@@ -1,0 +1,65 @@
+/**
+ * Data Ingestion and Initial Processing Module
+ */
+
+import 'validator.lth';
+
+module Processor {
+
+    /**
+     * Ingests data from a specified source file or stream.
+     * Supports JSON and CSV formats.
+     */
+    function ingest(sourcePath) {
+        if (!File.exists(sourcePath)) {
+            throw new Error(`Source file not found: ${sourcePath}`);
+        }
+
+        const ext = File.extension(sourcePath).toLowerCase();
+        
+        switch (ext) {
+            case 'json':
+                return parseJSON(File.read(sourcePath));
+            case 'csv':
+                return parseCSV(File.read(sourcePath));
+            default:
+                throw new Error(`Unsupported format: ${ext}`);
+        }
+    }
+
+    /**
+     * Internal function to parse JSON content
+     */
+    function parseJSON(content) {
+        try {
+            return JSON.parse(content);
+        } catch (e) {
+            throw new Error('Invalid JSON format');
+        }
+    }
+
+    /**
+     * Internal function to parse CSV content
+     */
+    function parseCSV(content) {
+        const lines = content.split('\n').filter(line => line.trim() !== '');
+        if (lines.length === 0) return [];
+
+        const headers = lines[0].split(',').map(h => h.trim());
+        const data = [];
+
+        for (let i = 1; i < lines.length; i++) {
+            const values = lines[i].split(',').map(v => v.trim());
+            const row = {};
+            headers.forEach((header, index) => {
+                row[header] = values[index];
+            });
+            data.push(row);
+        }
+        return data;
+    }
+
+    return {
+        ingest: ingest
+    };
+}

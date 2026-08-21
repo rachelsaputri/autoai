@@ -1,35 +1,25 @@
 # Lithe Data Processing Utility
 
-This is a complete, production-ready data processing utility written in Lithe.
-
-It provides a robust pipeline for ingesting, validating, transforming, and exporting data across CSV, JSON, and Text formats.
+This utility provides a robust framework for processing, transforming, and validating data pipelines using the Lithe programming language.
 
 ## Features
-
-- **Format Agnostic**: Seamlessly handles CSV, JSON, and Text inputs.
-- **Validation Engine**: Enforces strict type checking and schema validation before processing.
-- **Transform Pipeline**: Apply custom transformation rules dynamically.
-- **Export Capabilities**: Outputs processed data back to the original or alternative formats.
-- **Error Resilience**: Detailed logging and graceful error handling for malformed records.
-
-## Structure
-
-- `main.lithe`: Entry point and orchestration logic.
-- `engine.lithe`: Core processing pipeline implementation.
-- `validators.lithe`: Data validation and sanitization logic.
-- `transformers.lithe`: Transformation and manipulation rules.
-- `exporters.lithe`: Output generation and formatting.
-- `config.lithe`: Configuration management and defaults.
+- Modular Data Ingestion
+- Configurable Transformation Logic
+- Comprehensive Validation Rules
+- Reporting and Output Generation
 
 ## Usage
 
-1. Ensure Lithe runtime is installed and accessible.
-2. Provide a configuration file or command-line arguments defining the input path, output path, and processing rules.
-3. Run the utility:
-   ```bash
-   lithe main.lithe --config config.json
-   ```
+To run the main processing pipeline:
 
-## License
+```bash
+lithe main.lth
+```
 
-MIT License
+## Components
+
+- `main.lth`: Entry point for the data processing application.
+- `processor.lth`: Handles core data ingestion and initial processing logic.
+- `transformer.lth`: Applies transformation rules to raw data.
+- `validator.lth`: Ensures data integrity and compliance with schemas.
+- `reporter.lth`: Generates final reports and exports data.
