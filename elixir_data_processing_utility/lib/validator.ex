@@ -1,152 +1,71 @@
-defmodule DataProcessing.Validator do
+defmodule ElixirDataProcessingUtility.Validator do
   @moduledoc """
-  Validates data records against a defined schema.
-  Ensures that required fields are present and that their types match expectations.
+  Handles data validation against schemas.
   """
 
   @doc """
-  Validates a list of records.
-
-  ## Examples
-
-      iex> schema = %{elixir_data_processing_id: [:integer, :optional], elixir_data_processing_name: [:string, :required], elixir_data_processing_email: [:string, :optional]}
-      iex> data = [%{elixir_data_processing_name: "Alice", elixir_data_processing_email: "alice@example.com"}]
-      iex> DataProcessing.Validator.validate(data, schema)
-      {:ok, [%{elixir_data_processing_name: "alice", elixir_data_processing_email: "alice@example.com"}], []}
-
-      iex> schema = %{elixir_data_processing_id: [:integer, :optional], elixir_data_processing_name: [:string, :required], elixir_data_processing_email: [:string, :optional]}
-      iex> data = [%{elixir_data_processing_name: 123}]
-      iex> DataProcessing.Validator.validate(data, schema)
-      {:error, [%{elixir_data_processing_record: %{elixir_data_processing_name: 123}, elixir_data_processing_errors: ["elixir_data_processing_name must be a string"]}], []}
-
+  Validates a list of records against a schema.
+  Schema is a map where keys are field names and values are atoms representing the required type.
+  Types supported: :integer, :float, :string, :map, :list.
+  Returns a tuple {:ok, valid_records} or {:error, errors}.
   """
-  @spec validate(list(map()), map()) :: {:ok, list(map()), list(map())} | {:error, list(map()), list(map())}
-  def validate(data, schema) when is_list(data) and is_map(schema) do
-    {valid_records, invalid_records} = Enum.reduce(data, {[], []}, fn record, {valid, invalid} ->
-      case validate_record(record, schema) do
-        :ok ->
-          {[record | valid], invalid}
+  def validate_schema(records, schema) when is_list(records) do
+    errors =
+      records
+      |> Enum.with_index()
+      |> Enum.flat_map(fn {record, index} ->
+        Enum.filter(schema, fn {field, type} ->
+          Map.has_key?(record, field)
+        end)
+        |> Enum.filter(fn {field, type} ->
+          value = Map.get(record, field)
+          case validate_type(value, type) do
+            false -> true
+            _ -> false
+          end
+        end)
+        |> Enum.map(fn {field, type} ->
+          "Record at index #{index} has invalid value for '#{field}'. Expected #{type}, got #{inspect(Map.get(record, field))}"
+        end)
+      end)
 
-        {:error, errors} ->
-          {valid, [%{record: record, errors: errors} | invalid]}
-      end
-    end)
+    valid_records =
+      records
+      |> Enum.with_index()
+      |> Enum.filter(fn {record, _index} ->
+        Enum.all?(schema, fn {field, type} ->
+          case Map.fetch(record, field) do
+            {:ok, value} -> validate_type(value, type)
+            :error -> true
+          end
+        end)
+      end)
+      |> Enum.map(fn {record, _index} -> record end)
 
-    # Reverse lists to preserve original order
-    valid_records = Enum.reverse(valid_records)
-    invalid_records = Enum.reverse(invalid_records)
-
-    if Enum.empty?(invalid_records) do
+    if Enum.empty?(errors) do
       {:ok, valid_records}
     else
-      {:error, invalid_records, valid_records}
+      {:error, errors}
     end
   end
 
-  def validate(_, _), do: {:error, []}
-
-  @spec validate_record(map(), map()) :: :ok | {:error, list(String.t())}
-  defp validate_record(record, schema) do
-    errors = Enum.reduce(schema, [], fn {field, constraints}, acc ->
-      case check_field(record, field, constraints) do
-        :ok ->
-          acc
-
-        {:error, error_msg} ->
-          [error_msg | acc]
-      end
-    end)
-
-    case errors do
-      [] ->
-        :ok
-
-      errs ->
-        {:error, Enum.reverse(errs)}
-    end
+  defp validate_type(value, :integer) do
+    is_integer(value)
   end
 
-  @spec check_field(map(), atom(), list()) :: :ok | {:error, String.t()}
-  defp check_field(record, field, [:string, :required]) do
-    case Map.get(record, field) do
-      nil ->
-        {:error, "#{field} is required"}
-
-      val when is_binary(val) ->
-        :ok
-
-      _ ->
-        {:error, "#{field} must be a string"}
-    end
+  defp validate_type(value, :float) do
+    is_float(value)
   end
 
-  defp check_field(record, field, [:integer, :required]) do
-    case Map.get(record, field) do
-      nil ->
-        {:error, "#{field} is required"}
-
-      val when is_integer(val) ->
-        :ok
-
-      _ ->
-        {:error, "#{field} must be an integer"}
-    end
+  defp validate_type(value, :string) do
+    is_binary(value)
   end
 
-  defp check_field(record, field, [:float, :required]) do
-    case Map.get(record, field) do
-      nil ->
-        {:error, "#{field} is required"}
-
-      val when is_float(val) ->
-        :ok
-
-      _ ->
-        {:error, "#{field} must be a float"}
-    end
+  defp validate_type(value, :map) do
+    is_map(value)
   end
 
-  defp check_field(record, field, [:string, :optional]) do
-    case Map.get(record, field) do
-      nil ->
-        :ok
-
-      val when is_binary(val) ->
-        :ok
-
-      _ ->
-        {:error, "#{field} must be a string"}
-    end
-  end
-
-  defp check_field(record, field, [:integer, :optional]) do
-    case Map.get(record, field) do
-      nil ->
-        :ok
-
-      val when is_integer(val) ->
-        :ok
-
-      _ ->
-        {:error, "#{field} must be an integer"}
-    end
-  end
-
-  defp check_field(record, field, [:float, :optional]) do
-    case Map.get(record, field) do
-      nil ->
-        :ok
-
-      val when is_float(val) ->
-        :ok
-
-      _ ->
-        {:error, "#{field} must be a float"}
-    end
-  end
-
-  # Default case for unhandled constraints
-  defp check_field(_, field, constraints) do
-    {:error, "Unknown constraint for #{field}: #{inspect(constraints)}"}
+  defp validate_type(value, :list) do
+    is_list(value)
   end
 end

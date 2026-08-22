@@ -1,51 +1,52 @@
-defmodule DataProcessing.Transformer do
+defmodule ElixirDataProcessingUtility.Transformer do
   @moduledoc """
-  Transforms ingested data. Applies default transformations such as
-  trimming strings, downcasing strings, and removing empty values.
-
-  Can be extended with custom transformation rules.
+  Handles data transformation operations.
+  Provides functions to map, filter, and convert data.
   """
 
   @doc """
-  Transforms a list of data records.
-
-  ## Examples
-
-      iex> DataProcessing.Transformer.transform([%{elixir_data_processing_name: " Alice ", elixir_data_processing_age: 30}])
-      [%{elixir_data_processing_name: "alice", elixir_data_processing_age: 30}]
-
+  Maps each record in the data using the provided function.
   """
-  @spec transform(list(map())) :: list(map())
-  def transform(data) when is_list(data) do
-    Enum.map(data, &transform_record/1)
-  end
-
-  def transform(_) do
-    []
-  end
-
-  @spec transform_record(map()) :: map()
-  defp transform_record(record) do
-    Enum.reduce(record, %{}, fn {key, value}, acc ->
-      new_value = apply_transformations(value)
-      Map.put(acc, key, new_value)
+  def map_records(data, mapper_func) when is_list(data) do
+    Enum.map(data, fn record ->
+      mapper_func.(record)
     end)
   end
 
-  @spec apply_transformations(any()) :: any()
-  defp apply_transformations(value) when is_binary(value) do
-    value
-    |> String.trim()
-    |> String.downcase()
-    |> maybe_empty_to_nil()
+  def map_records(data, mapper_func) when is_map(data) do
+    Map.new(data, fn {key, value} ->
+      mapper_func.({key, value})
+    end)
   end
 
-  defp apply_transformations(value) when is_integer(value), do: value
-  defp apply_transformations(value) when is_float(value), do: value
-  defp apply_transformations(nil), do: nil
-  defp apply_transformations(value), do: value
+  @doc """
+  Filters records in the data based on a predicate function.
+  """
+  def filter_records(data, predicate) when is_list(data) do
+    Enum.filter(data, predicate)
+  end
 
-  @spec maybe_empty_to_nil(String.t()) :: String.t() | nil
-  defp maybe_empty_to_nil(""), do: nil
-  defp maybe_empty_to_nil(val), do: val
+  def filter_records(data, predicate) when is_map(data) do
+    Map.filter(data, predicate)
+  end
+
+  @doc """
+  Converts a list of maps to a map of lists, grouped by a key.
+  Useful for pivot-style transformations.
+  """
+  def group_by(data, key) when is_list(data) do
+    data
+    |> Enum.group_by(fn record ->
+      record[key]
+    end)
+  end
+
+  @doc """
+  Sanitizes a string by trimming whitespace and converting to lowercase.
+  """
+  def sanitize_string(string) do
+    string
+    |> String.trim()
+    |> String.downcase()
+  end
 end
