@@ -1,0 +1,49 @@
+// Validator Module
+// Enforces data integrity, schema compliance, and business rules.
+
+package cel.data.processing.validator;
+
+import "cel.data.processing.transformer";
+
+// Validation result container
+message ValidationReport {
+  list<transformer.EnrichedRecord> valid_records = 1;
+  list<transformer.EnrichedRecord> failed_records = 2;
+  int32 invalid_count = 3;
+}
+
+// Defines the validation expression for an enriched record
+func is_valid_record(record: transformer.EnrichedRecord) -> bool {
+  return record.user_id != "" && 
+         record.username != "" && 
+         record.access_level != "" &&
+         record.user_id.toUInt32() > 0;
+}
+
+// Validates a batch of records
+func validate_batch(records: list<transformer.EnrichedRecord>) -> ValidationReport {
+  var valid = [];
+  var invalid = [];
+  
+  for (record in records) {
+    if (is_valid_record(record)) {
+      valid.add(record);
+    } else {
+      invalid.add(record);
+      log.error("Record failed validation: {}", record.user_id);
+    }
+  }
+
+  return ValidationReport {
+    valid_records: valid,
+    failed_records: invalid,
+    invalid_count: invalid.size()
+  };
+}
+
+// Logs specific error details for failed records
+func log_errors(failed_records: list<transformer.EnrichedRecord>) {
+  for (record in failed_records) {
+    log.warning("Failed record details - ID: {}, Username: {}", record.user_id, record.username);
+  }
+}

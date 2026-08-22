@@ -1,0 +1,52 @@
+// Transformer Module
+// Applies data transformations, mappings, and enrichment.
+
+package cel.data.processing.transformer;
+
+import "cel.data.processing.ingester";
+
+// Enriched record structure
+message EnrichedRecord {
+  string user_id = 1;
+  string username = 2;
+  string access_level = 3;
+  string normalized_role = 4;
+  int64 processed_at = 5;
+}
+
+// Applies transformation rules to a batch of raw records
+func apply_transforms(records: list<ingester.RawRecord>) -> list<EnrichedRecord> {
+  var transformed = [];
+  
+  for (record in records) {
+    var payload = record.payload;
+    
+    // Basic mapping and enrichment logic using CEL expressions
+    var user_id = payload["id"];
+    var username = payload["name"];
+    var raw_role = payload["role"];
+    
+    // Normalize the role to lowercase
+    var normalized_role = raw_role.toLowerCase();
+    
+    // Determine access level based on role
+    var access_level = "reader";
+    if (normalized_role == "admin") {
+      access_level = "admin";
+    } else if (normalized_role == "user") {
+      access_level = "writer";
+    }
+
+    var enriched = EnrichedRecord {
+      user_id: user_id,
+      username: username,
+      access_level: access_level,
+      normalized_role: normalized_role,
+      processed_at: timestamp_now()
+    };
+    
+    transformed.add(enriched);
+  }
+  
+  return transformed;
+}

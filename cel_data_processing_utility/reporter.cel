@@ -1,0 +1,56 @@
+// Reporter Module
+// Formats and outputs the final processed data.
+
+package cel.data.processing.reporter;
+
+import "cel.data.processing.transformer";
+
+// Formats data into JSON
+func format_json(records: list<transformer.EnrichedRecord>) -> string {
+  var json_output = "[\n";
+  var count = 0;
+  var total = records.size();
+  
+  for (record in records) {
+    var line = "  {";
+    line += "\"user_id\": \"" + record.user_id + "\", ";
+    line += "\"username\": \"" + record.username + "\", ";
+    line += "\"access_level\": \"" + record.access_level + "\", ";
+    line += "\"normalized_role\": \"" + record.normalized_role + "\"";
+    line += "}";
+    
+    if (count < total - 1) {
+      line += ",";
+    }
+    json_output += line + "\n";
+    count++;
+  }
+  
+  json_output += "]";
+  return json_output;
+}
+
+// Generates the final report
+func generate_report(records: list<transformer.EnrichedRecord>, format: string) {
+  if (records.size() == 0) {
+    log.info("No records to report.");
+    return;
+  }
+
+  var output_content = "";
+  
+  if (format == "json") {
+    output_content = format_json(records);
+  } else {
+    log.warning("Unsupported format: {}. Defaulting to console logging.", format);
+    output_content = "[Record List]";
+  }
+
+  // In a real utility, this would write to stdout or a file
+  log.info("--- REPORT START ---");
+  log.info("Total Records: {}", records.size());
+  log.info("Content Type: {}", format);
+  log.info("Data:");
+  log.info(output_content);
+  log.info("--- REPORT END ---");
+}

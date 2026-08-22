@@ -118,3 +118,5 @@ MIT
 - Created/Updated module: `./moby_data_processing_utility` (See `./moby_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `oxygene_data_processing_utility` (See `oxygene_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `cel_data_processing_utility` (See `cel_data_processing_utility/README.md` for details)

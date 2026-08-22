@@ -1,0 +1,52 @@
+// Ingester Module
+// Handles the retrieval and initial loading of data from sources.
+
+package cel.data.processing.ingester;
+
+// Represents a raw data record
+message RawRecord {
+  map<string, string> payload = 1;
+  string source_id = 2;
+  int64 timestamp = 3;
+}
+
+// Ingests data from a specified source URI
+func fetch_data(source_uri: string, batch_size: int) -> list<RawRecord> {
+  var records = [];
+  
+  // Simulate file-based ingestion for this utility example
+  if (source_uri.startsWith("file://")) {
+    var path = source_uri.removePrefix("file://");
+    log.debug("Opening file: {}", path);
+    
+    // Mock data generation for demonstration purposes
+    // In a real implementation, this would read from a CSV/JSON file
+    records = [ 
+      RawRecord({
+        payload: {"id": "101", "name": "Alice", "role": "admin"},
+        source_id: "file_mock", 
+        timestamp: 1715000000
+      }),
+      RawRecord({
+        payload: {"id": "102", "name": "Bob", "role": "user"},
+        source_id: "file_mock",
+        timestamp: 1715000001
+      }),
+      RawRecord({
+        payload: {"id": "103", "name": "Charlie", "role": "guest"},
+        source_id: "file_mock",
+        timestamp: 1715000002
+      })
+    ];
+  } else if (source_uri.startsWith("http://") || source_uri.startsWith("https://")) {
+    log.debug("Fetching from URL: {}", source_uri);
+    // Placeholder for HTTP request logic
+    log.warning("HTTP ingestion is mocked in this utility.");
+  } else {
+    log.error("Unsupported source URI scheme: {}", source_uri);
+    return [];
+  }
+
+  log.info("Successfully ingested {} records from {}", records.size(), source_uri);
+  return records;
+}

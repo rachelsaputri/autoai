@@ -1,0 +1,73 @@
+// Main Orchestrator for CEL Data Processing Utility
+// This script initializes the pipeline, invokes sub-modules, and manages the execution flow.
+
+package cel.data.processing;
+
+import "cel.data.processing.ingester"; 
+import "cel.data.processing.transformer";
+import "cel.data.processing.validator";
+import "cel.data.processing.reporter";
+
+// Global configuration object
+message PipelineConfig {
+  string input_source = 1;
+  string output_format = 2;
+  bool enable_strict_validation = 3;
+  int32 batch_size = 4;
+}
+
+// Main execution function
+func run_pipeline(config: PipelineConfig) {
+  if (config == null) {
+    error("Pipeline configuration is required.");
+  }
+
+  log.info("Starting CEL Data Processing Pipeline...");
+  log.info("Input Source: {}", config.input_source);
+  log.info("Output Format: {}", config.output_format);
+
+  // 1. Ingest Data
+  var raw_data = ingester.fetch_data(config.input_source, config.batch_size);
+  if (raw_data == null || raw_data.is_empty()) {
+    log.warning("No data found at source: {}", config.input_source);
+    reporter.generate_report({});
+    return;
+  }
+  log.info("Ingested {} records.", raw_data.size());
+
+  // 2. Transform Data
+  var processed_data = transformer.apply_transforms(raw_data);
+  log.info("Processed {} records.", processed_data.size());
+
+  // 3. Validate Data
+  var validated_data = [];
+  if (config.enable_strict_validation) {
+    var results = validator.validate_batch(processed_data);
+    validated_data = results.valid_records;
+    if (results.invalid_count > 0) {
+      log.warning("{} records failed validation and were dropped.", results.invalid_count);
+      validator.log_errors(results.failed_records);
+    }
+  } else {
+    validated_data = processed_data;
+    log.info("Strict validation skipped.");
+  }
+  log.info("Validated {} records for reporting.", validated_data.size());
+
+  // 4. Report Output
+  reporter.generate_report(validated_data, config.output_format);
+  log.info("Pipeline execution completed successfully.");
+}
+
+// Entry point execution
+func main() {
+  // Default configuration for demonstration
+  var default_config = PipelineConfig {
+    input_source: "file://./data/input.csv",
+    output_format: "json",
+    enable_strict_validation: true,
+    batch_size: 1000
+  };
+
+  run_pipeline(default_config);
+}
