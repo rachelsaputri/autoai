@@ -1,0 +1,13 @@
+;; reporter.ipt
+;; Generates reports from processed data
+
+(defn log [message]
+    (print "[LOG] " message))
+
+(defn generate_report [data]
+    (let [count (length data)]
+        (log "Report generated successfully.")
+        (log "Total records processed: " count)
+        (if (> count 0)
+            (let [first (nth data 0)]
+                (log "Sample Record: " first))))

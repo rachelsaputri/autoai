@@ -1,0 +1,16 @@
+;; validator.ipt
+;; Performs data validation checks
+
+(defn is_valid? [data]
+    (every? identity (map validate_record data)))
+
+(defn validate_record [record]
+    (and 
+        (not (null? record))
+        (not (string/empty? record->field1))
+        (not (string/empty? record->field2))
+        (not (string/empty? record->field3))
+        (number? (string/parse_int record->field2))))
+
+(defn validate [data]
+    (filter validate_record data))

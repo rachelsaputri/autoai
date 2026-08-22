@@ -1,0 +1,16 @@
+;; parser.ipt
+;; Handles data ingestion and parsing
+
+(defrecord DataRecord [field1 field2 field3])
+
+(defn- parse_line [line]
+    (let [parts (split line ",")]
+        (if (>= (length parts) 3)
+            (DataRecord -> [0] (string/trim (nth parts 0))
+                         [1] (string/trim (nth parts 1))
+                         [2] (string/trim (nth parts 2)))
+            nil)))
+
+(defn parse_file [filepath]
+    (let [lines (file/read_lines filepath)]
+        (map parse_line lines)))
