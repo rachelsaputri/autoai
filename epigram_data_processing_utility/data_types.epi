@@ -1,0 +1,29 @@
+; data_types.epi
+; Defines the dependent types for the data processing pipeline.
+
+; A record representing a generic data field with a value and a validation status
+(record data-field
+  (value : string)
+  (is-valid : bool))
+
+; A record representing a complete data record
+(record data-record
+  (id : nat)
+  (fields : list data-field)
+  (processed : bool))
+
+; The state of the data pipeline
+; States: Initial, Ingested, Transformed, Validated, Reported
+(claim pipeline-state : type)
+(define pipeline-state
+  (sum-type
+    (initial : string)
+    (ingested : list data-record)
+    (transformed : list data-record)
+    (validated : list data-record)
+    (reported : nat)))
+
+; A type-safe transformation function
+; Input: List of data-records
+; Output: List of data-records with transformed fields
+(claim transform-all (-> (list data-record) (list data-record)))

@@ -102,3 +102,5 @@ MIT
 - Created/Updated module: `jcl_data_processing_utility` (See `jcl_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `./elixir_data_processing_utility` (See `./elixir_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `epigram_data_processing_utility` (See `epigram_data_processing_utility/README.md` for details)

@@ -1,0 +1,35 @@
+; main.epi
+; Entry point for the data processing utility.
+
+(import data-types)
+(import processor)
+
+(define main
+  (lambda () -> nat
+    ; Initialize sample data
+    (let ((initial-data
+           (list
+            (make-data-record 1
+              (list (make-data-field "john" true) (make-data-field "admin" true))
+              false)
+            (make-data-record 2
+              (list (make-data-field "jane" true) (make-data-field "" false))
+              false))))
+      
+      ; Step 1: Ingest (Already done in initialization)
+      (echo "Data ingested.")
+      
+      ; Step 2: Transform
+      (let ((transformed (transform-all initial-data)))
+        (echo "Data transformed.")
+        
+        ; Step 3: Validate
+        (let ((valid-count (validate-pipeline transformed)))
+          (echo (concat "Validation complete. " (show valid-count) " valid records."))
+          
+          ; Step 4: Report
+          (echo "Pipeline finished successfully.")
+          valid-count)))
+
+; Start execution
+(main)
