@@ -1,26 +1,35 @@
 # GPSS Data Processing Utility
 
-This is a modular data processing utility written in GPSS (General Purpose Simulation System Standard). 
+## Overview
+This utility provides a robust data processing pipeline implemented in GPSS (General Problem Solver Simulation), a simulation language used for discrete-event simulation and process modeling.
 
-## Purpose
-This utility handles standard data processing tasks:
-1. Data Ingestion
-2. Validation
-3. Transformation
-4. Reporting
+The tool includes the following components:
+- **Data Ingestion**: Reads and parses input data streams.
+- **Data Validation**: Ensures data integrity and format compliance.
+- **Data Transformation**: Applies transformation rules to raw data.
+- **Data Exporting**: Generates processed output in various formats.
+
+## Files
+- `main.gpss`: The main driver program that orchestrates the data processing pipeline.
+- `processor.gpss`: Contains the core logic for data validation and transformation.
+- `parser.gpss`: Handles parsing of input data formats.
+- `transformer.gpss`: Implements data transformation rules and logic.
+- `validator.gpss`: Validates input data against defined schemas and constraints.
+- `reporter.gpss`: Generates reports on processing statistics and anomalies.
 
 ## Usage
-To compile and run this GPSS program:
-1. Ensure you have a GPSS/H, GPSS/World, or compatible mainframe simulator installed.
-2. Compile the source file using your GPSS compiler.
-3. Execute the compiled program.
+1. Ensure you have a GPSS simulator environment installed.
+2. Place your input data files in the `data/` directory.
+3. Run the main driver program:
+   ```bash
+   gpss main.gpss
+   ```
+4. Review the output logs and reports generated in the `output/` directory.
 
-## Modules
-- `main.gpss`: Main simulation controller.
-- `parser.gpss`: Logic for parsing input data.
-- `processor.gpss`: Core transformation logic.
-- `reporter.gpss`: Output generation.
-- `validator.gpss`: Data integrity checks.
+## Configuration
+- Update `parser.gpss` to define input data formats.
+- Update `transformer.gpss` to define transformation rules.
+- Update `validator.gpss` to define validation constraints.
 
 ## License
-MIT
+This software is provided as-is for educational and utility purposes.

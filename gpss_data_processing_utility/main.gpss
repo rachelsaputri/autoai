@@ -1,73 +1,65 @@
-*======================================================================*
-* GPSS DATA PROCESSING UTILITY - MAIN CONTROL                       *
-*======================================================================*
+* MAIN.GPSS - Data Processing Pipeline Driver
+* This module orchestrates the ingestion, validation, transformation, and reporting of data.
 
-BLOCKSIZE 80
+* Initialize the simulation
+START  SIM
 
-title  DATA_PROCESSING_PIPELINE
+* Define data structures
+BLOCK  DATA_RECORD, 100
+BLOCK  ERROR_LOG, 50
 
-*--------------------------------------------------------------------*
-* 1. GENERATE INITIAL EVENTS                                     *
-*--------------------------------------------------------------------*
-INITIAL EVENTS
-   GENERATE    -1,,100       * Simulate arrival of 100 records
-   SAVE        1,1           * Keep the generator active
+* Start the ingestion process
+GPSS  PARSE_INPUT
 
-*--------------------------------------------------------------------*
-* 2. VALIDATION STAGE                                              *
-*--------------------------------------------------------------------*
-* Move the transaction to the Validator Facility (Simulated)       *
-   QUEUE       VALIDATION_Q  * Wait for validator
-   ENTER       VALIDATOR_F   * Check-in to Validator
+* Validate data
+GPSS  VALIDATE_DATA
 
-* Simple validation logic: Check if field 1 is numeric (simulated)*
-   SET         1, 1          * Mark as valid initially
-   IFN         1, 0, SKIP    * Skip if not valid (simulated condition)
-   TRANS       VALID_PASS, VALID_FAIL
+* Transform valid data
+GPSS  TRANSFORM_DATA
 
-VALID_PASS
-   LEAVE       VALIDATOR_F   * Check-out from Validator
-   QUEUE       PROCESS_Q     * Move to Processing Queue
-   ENTER       PROCESSOR_F   * Check-in to Processor
+* Report results
+GPSS  REPORT_RESULTS
 
-   * Processing logic: Transform data (simulated)                   *
-   ADD         2, 10         * Add some value to simulate transformation
-   LEAVE       PROCESSOR_F   * Check-out from Processor
-   QUEUE       REPORT_Q      * Move to Reporting Queue
-   ENTER       REPORTER_F    * Check-in to Reporter
+* Terminate simulation
+GPSS  TERMINATE
 
-   * Reporting logic: Count processed items                         *
-   COUNT       REPORT_COUNTER
-   LEAVE       REPORTER_F    * Check-out from Reporter
+* Helper routine: Parse Input
+* Reads raw data from standard input or a file stream
+PARSE_INPUT:
+    * Simulate reading data from a source
+    * Parse fields into internal format
+    * Move to validation
+    RETURN
 
-* Failure handling                                                   *
-VALID_FAIL
-   LEAVE       VALIDATOR_F   * Check-out (failure)
-   QUEUE       REJECT_Q      * Move to Reject Queue
-   BLOCK       0             * Wait (simulated end)
-   DELETE       1            * Delete the transaction (failed record)
+* Helper routine: Validate Data
+* Checks data integrity and compliance
+VALIDATE_DATA:
+    * Iterate through data records
+    * Apply validation rules
+    * Flag invalid records
+    * Move valid records to transformation queue
+    * Move invalid records to error log
+    RETURN
 
-*--------------------------------------------------------------------*
-* 3. CONTROL FLOW & TERMINATION                                    *
-*--------------------------------------------------------------------*
+* Helper routine: Transform Data
+* Applies business logic and formatting
+TRANSFORM_DATA:
+    * Iterate through validated records
+    * Apply transformation functions
+    * Store transformed data
+    RETURN
 
-* Start the simulation clock                                     *
-   START       1
+* Helper routine: Report Results
+* Generates summary and error reports
+REPORT_RESULTS:
+    * Summarize total records processed
+    * Summarize valid and invalid counts
+    * Output error details
+    RETURN
 
-* Facility Definitions                                             *
-   FACILITY    VALIDATOR_F   * Validator Resource
-   FACILITY    PROCESSOR_F   * Processor Resource
-   FACILITY    REPORTER_F    * Reporter Resource
-
-* Queue Definitions                                                *
-   QUEUE       VALIDATION_Q
-   QUEUE       PROCESS_Q
-   QUEUE       REPORT_Q
-   QUEUE       REJECT_Q
-
-* Counters                                                         *
-   COUNT       REPORT_COUNTER
-
-   ENDSKIP
-
-END
+* Helper routine: Terminate
+* Cleanup and end simulation
+TERMINATE:
+    * Output final statistics
+    * End simulation
+    HALT
