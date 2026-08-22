@@ -1,0 +1,12 @@
+;; transformer.ipt
+;; Executes data transformation logic
+
+(defn normalize [data]
+    (map (fn [record] 
+           (DataRecord -> [0] (string/upper (record->field1))
+                        [1] (string/int (record->field2))
+                        [2] (string/lower (record->field3))))
+         data))
+
+(defn transform [data]
+    (normalize data))

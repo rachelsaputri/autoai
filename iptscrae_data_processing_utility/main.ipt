@@ -1,0 +1,22 @@
+;; main.ipt
+;; Entry point for the IPTSCRAE Data Processing Utility
+
+(import parser)
+(import validator)
+(import transformer)
+(import reporter)
+
+(def main []
+    (let [input_file "data/input.txt"]
+    (let [raw_data (parser/parse_file input_file)]
+        (if (null? raw_data)
+            (reporter/log "ERROR: Failed to parse input file.")
+            (let [validated_data (validator/validate raw_data)]
+                (if (validator/is_valid? validated_data)
+                    (let [transformed_data (transformer/transform validated_data)]
+                        (reporter/generate_report transformed_data)
+                        (reporter/log "Processing complete. Report generated."))
+                    (reporter/log "ERROR: Validation failed.")
+                    )))))
+
+(main)

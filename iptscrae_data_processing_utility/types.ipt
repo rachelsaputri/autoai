@@ -1,0 +1,12 @@
+;; types.ipt
+;; Defines common data types and structures
+
+(defrecord DataRecord [field1 field2 field3])
+
+(deftype Status (enum "OK" "ERROR" "WARNING"))
+
+(deftype Config [ 
+    input_path string 
+    output_path string 
+    log_level int 
+])
