@@ -96,3 +96,5 @@ MIT
 - Created/Updated module: `ngl_data_processing_utility` (See `ngl_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `./cl_data_processing_utility` (See `./cl_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `dc_compliance_data_processor` (See `dc_compliance_data_processor/README.md` for details)
