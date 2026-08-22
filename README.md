@@ -110,3 +110,5 @@ MIT
 - Created/Updated module: `bash_data_processing_utility` (See `bash_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `cilk_parallel_data_processing_utility` (See `cilk_parallel_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `./falcon_data_processing_utility` (See `./falcon_data_processing_utility/README.md` for details)
