@@ -108,3 +108,5 @@ MIT
 - Created/Updated module: `dasl_compliance_data_processor` (See `dasl_compliance_data_processor/README.md` for details)
 
 - Created/Updated module: `bash_data_processing_utility` (See `bash_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `cilk_parallel_data_processing_utility` (See `cilk_parallel_data_processing_utility/README.md` for details)
