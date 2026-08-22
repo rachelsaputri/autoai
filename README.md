@@ -146,3 +146,5 @@ MIT
 - Created/Updated module: `provide_x_data_processing_utility` (See `provide_x_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `msl_data_processing_utility` (See `msl_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `chapel_security_anomaly_detector` (See `chapel_security_anomaly_detector/README.md` for details)
