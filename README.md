@@ -120,3 +120,5 @@ MIT
 - Created/Updated module: `oxygene_data_processing_utility` (See `oxygene_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `cel_data_processing_utility` (See `cel_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `gcode_data_processing_utility` (See `gcode_data_processing_utility/README.md` for details)
