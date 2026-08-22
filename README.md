@@ -150,3 +150,5 @@ MIT
 - Created/Updated module: `chapel_security_anomaly_detector` (See `chapel_security_anomaly_detector/README.md` for details)
 
 - Created/Updated module: `axiom_crypto_protocol_verifier` (See `axiom_crypto_protocol_verifier/README.md` for details)
+
+- Created/Updated module: `ici_compliance_auditor` (See `ici_compliance_auditor/README.md` for details)
