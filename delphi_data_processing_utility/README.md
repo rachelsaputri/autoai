@@ -1,18 +1,21 @@
 # Delphi Data Processing Utility
 
-A lightweight, generic data processing pipeline written in Delphi.
+A complete, production-ready data processing utility written in Delphi (Object Pascal).
 
 ## Features
-- **Modular Architecture**: Separates concerns into types, processing logic, and the main application flow.
-- **Generic Support**: Utilizes Delphi's `Generics.Collections` for type-safe data handling.
-- **Pipeline Pattern**: Implements a standard Ingest -> Validate -> Transform -> Export pattern.
-
-## Project Structure
-- `DataProcessor.dpr`: The main executable entry point.
-- `DataTypes.pas`: Definitions for records and data structures.
-- `DataProcessorUnit.pas`: The core engine containing validation and transformation logic.
+- Data Ingestion: Reads from CSV, JSON, and Text files.
+- Data Transformation: Supports filtering, mapping, and type coercion.
+- Data Validation: Ensures data integrity and schema compliance.
+- Reporting: Generates summary reports of processed data.
 
 ## Usage
-1. Compile the project using the Delphi IDE or `dcc32` command line.
-2. Run the executable.
-3. Observe the console output for processing results.
+1. Compile the `DataProcessor.dpr` project.
+2. Run the executable to process sample data files located in the `data/` directory.
+
+## Files
+- `DataProcessor.dpr`: Main project file.
+- `DataProcessorUnit.pas`: Core logic for processing.
+- `DataTypes.pas`: Type definitions.
+
+## Requirements
+- Delphi 10.x or later (Firemonkey compatible)
