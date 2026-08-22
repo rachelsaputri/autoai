@@ -1,0 +1,41 @@
+*======================================================================*
+* GPSS DATA PROCESSING UTILITY - REPORTER LOGIC                   *
+*======================================================================*
+
+BLOCKSIZE 80
+
+title  DATA_REPORTER_MODULE
+
+*--------------------------------------------------------------------*
+* 1. REPORTING STAGE                                               *
+*--------------------------------------------------------------------*
+* Transactions arrive from Processor (simulated by initial generate)*
+   GENERATE    -1,,100       * 100 processed records
+
+* Check-in to Reporter Facility                                *
+   ENTER       REPORTER_F
+
+* Count the transactions                                         *
+   COUNT       TOTAL_RECORDS
+
+* Simulate Writing Report                                        *
+* In GPSS, this is often done via FILE statements in extensions  *
+* or by logging to standard output if supported by the specific  *
+* GPSS implementation. Here we just wait a bit to simulate I/O.  *
+   BLOCK       10
+
+* Check-out from Facility                                      *
+   LEAVE       REPORTER_F
+
+* End Simulation                                                 *
+   TERMINATE     0
+
+*--------------------------------------------------------------------*
+* 2. FACILITIES & QUEUES                                         *
+*--------------------------------------------------------------------*
+   FACILITY    REPORTER_F
+   COUNT       TOTAL_RECORDS
+
+   START       1
+
+END

@@ -1,0 +1,73 @@
+*======================================================================*
+* GPSS DATA PROCESSING UTILITY - MAIN CONTROL                       *
+*======================================================================*
+
+BLOCKSIZE 80
+
+title  DATA_PROCESSING_PIPELINE
+
+*--------------------------------------------------------------------*
+* 1. GENERATE INITIAL EVENTS                                     *
+*--------------------------------------------------------------------*
+INITIAL EVENTS
+   GENERATE    -1,,100       * Simulate arrival of 100 records
+   SAVE        1,1           * Keep the generator active
+
+*--------------------------------------------------------------------*
+* 2. VALIDATION STAGE                                              *
+*--------------------------------------------------------------------*
+* Move the transaction to the Validator Facility (Simulated)       *
+   QUEUE       VALIDATION_Q  * Wait for validator
+   ENTER       VALIDATOR_F   * Check-in to Validator
+
+* Simple validation logic: Check if field 1 is numeric (simulated)*
+   SET         1, 1          * Mark as valid initially
+   IFN         1, 0, SKIP    * Skip if not valid (simulated condition)
+   TRANS       VALID_PASS, VALID_FAIL
+
+VALID_PASS
+   LEAVE       VALIDATOR_F   * Check-out from Validator
+   QUEUE       PROCESS_Q     * Move to Processing Queue
+   ENTER       PROCESSOR_F   * Check-in to Processor
+
+   * Processing logic: Transform data (simulated)                   *
+   ADD         2, 10         * Add some value to simulate transformation
+   LEAVE       PROCESSOR_F   * Check-out from Processor
+   QUEUE       REPORT_Q      * Move to Reporting Queue
+   ENTER       REPORTER_F    * Check-in to Reporter
+
+   * Reporting logic: Count processed items                         *
+   COUNT       REPORT_COUNTER
+   LEAVE       REPORTER_F    * Check-out from Reporter
+
+* Failure handling                                                   *
+VALID_FAIL
+   LEAVE       VALIDATOR_F   * Check-out (failure)
+   QUEUE       REJECT_Q      * Move to Reject Queue
+   BLOCK       0             * Wait (simulated end)
+   DELETE       1            * Delete the transaction (failed record)
+
+*--------------------------------------------------------------------*
+* 3. CONTROL FLOW & TERMINATION                                    *
+*--------------------------------------------------------------------*
+
+* Start the simulation clock                                     *
+   START       1
+
+* Facility Definitions                                             *
+   FACILITY    VALIDATOR_F   * Validator Resource
+   FACILITY    PROCESSOR_F   * Processor Resource
+   FACILITY    REPORTER_F    * Reporter Resource
+
+* Queue Definitions                                                *
+   QUEUE       VALIDATION_Q
+   QUEUE       PROCESS_Q
+   QUEUE       REPORT_Q
+   QUEUE       REJECT_Q
+
+* Counters                                                         *
+   COUNT       REPORT_COUNTER
+
+   ENDSKIP
+
+END

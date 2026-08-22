@@ -1,0 +1,43 @@
+*======================================================================*
+* GPSS DATA PROCESSING UTILITY - VALIDATOR LOGIC                  *
+*======================================================================*
+
+BLOCKSIZE 80
+
+title  DATA_VALIDATOR_MODULE
+
+*--------------------------------------------------------------------*
+* 1. VALIDATION STAGE                                              *
+*--------------------------------------------------------------------*
+* Transactions arrive at validator                                 *
+   GENERATE    -1,,100       * 100 raw records
+
+* Check-in to Validator Facility                               *
+   ENTER       VALIDATOR_F
+
+* Validation Logic (Simulated)                                   *
+* Check if Attribute 1 is within range (e.g., > 0)               *
+   IFN         1, 0, VALID_PASS
+
+   * If invalid, send to reject queue                             *
+   TRANS       VALID_FAIL
+
+VALID_PASS
+   * Check-out and proceed                                        *
+   LEAVE       VALIDATOR_F
+   TERMINATE     0
+
+VALID_FAIL
+   * Simulate Logging Failure                                     *
+   BLOCK       5
+   LEAVE       VALIDATOR_F
+   TERMINATE     0
+
+*--------------------------------------------------------------------*
+* 2. FACILITIES & QUEUES                                         *
+*--------------------------------------------------------------------*
+   FACILITY    VALIDATOR_F
+
+   START       1
+
+END

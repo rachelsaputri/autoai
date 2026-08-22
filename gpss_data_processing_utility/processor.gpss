@@ -1,0 +1,42 @@
+*======================================================================*
+* GPSS DATA PROCESSING UTILITY - PROCESSOR LOGIC                  *
+*======================================================================*
+
+BLOCKSIZE 80
+
+title  DATA_PROCESSOR_MODULE
+
+*--------------------------------------------------------------------*
+* 1. PROCESSING STAGE                                              *
+*--------------------------------------------------------------------*
+* Transactions arrive from Parser (simulated by initial generate)  *
+   GENERATE    -1,,100       * 100 records to process
+
+* Check-in to Processing Facility                                *
+   ENTER       PROCESS_F
+
+* Core Transformation Logic                                      *
+* Multiply attribute 2 by 1.1 (simulate tax/interest calculation)*
+   MULTIPLY    2, 1.1
+
+* Add a processing timestamp (simulated current time)            *
+   ASSIGN      3, SIMTIME
+
+* Check-out from Facility                                      *
+   LEAVE       PROCESS_F
+
+* Send to Reporter                                             *
+   QUEUE       REPORT_Q
+   ENTER       REPORTER_F
+   LEAVE       REPORTER_F
+
+*--------------------------------------------------------------------*
+* 2. FACILITIES & QUEUES                                         *
+*--------------------------------------------------------------------*
+   FACILITY    PROCESS_F
+   QUEUE       REPORT_Q
+   FACILITY    REPORTER_F
+
+   START       1
+
+END
