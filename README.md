@@ -106,3 +106,5 @@ MIT
 - Created/Updated module: `epigram_data_processing_utility` (See `epigram_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `dasl_compliance_data_processor` (See `dasl_compliance_data_processor/README.md` for details)
+
+- Created/Updated module: `bash_data_processing_utility` (See `bash_data_processing_utility/README.md` for details)
