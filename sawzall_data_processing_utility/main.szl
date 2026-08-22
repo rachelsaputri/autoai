@@ -1,0 +1,52 @@
+# Sawzall Data Processing Utility - Main Script
+# This script demonstrates a basic data processing pipeline using Sawzall.
+# It parses log lines, extracts specific fields, and aggregates them.
+
+# Define the input log line format.
+# Assuming a hypothetical log format: timestamp IP method url status bytes
+logline {
+  timestamp: string;
+  ip: string;
+  method: string;
+  url: string;
+  status: int;
+  bytes: int;
+}
+
+# Define the output schema for aggregated data.
+output {
+  url: string;
+  total_requests: int;
+  total_bytes: int;
+  avg_bytes: double;
+}
+
+# Processing logic.
+# For each input log line, we extract the relevant fields.
+url := logline.url
+status := logline.status
+bytes := logline.bytes
+
+# Output a record for each log line to be aggregated by the Sawzall runtime.
+# The key is the URL, and the value is the raw data we want to aggregate.
+output := {
+  url := url,
+  total_requests := 1,
+  total_bytes := bytes,
+  avg_bytes := bytes # Initial avg is just the value itself
+}
+
+# Finalize block to compute the final aggregations.
+# Sawzall collects all values for a given key and allows us to compute summaries.
+finalize {
+  total_requests := sum(output.total_requests)
+  total_bytes := sum(output.total_bytes)
+  avg_bytes := double(total_bytes) / double(total_requests)
+  
+  output := {
+    url := url,
+    total_requests := total_requests,
+    total_bytes := total_bytes,
+    avg_bytes := avg_bytes
+  }
+}
