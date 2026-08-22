@@ -1,0 +1,41 @@
+;; validator.pvx - Schema Validation
+
+GLOBAL g_error_count INTEGER
+GLOBAL g_errors ARRAY
+
+FUNCTION validateAll() RETURNS INTEGER
+  SET g_error_count = 0
+  SET g_errors = ARRAY()
+
+  ;; Import records from parser module
+  IMPORT parser
+  LOCAL rec ARRAY
+  LOCAL i INTEGER
+
+  FOR i = 1 TO ARRAY_LENGTH(parser.g_records) DO
+    SET rec = parser.g_records[i]
+    CALL validateRecord(rec, i)
+  ENDFOR
+
+  RETURN g_error_count
+ENDFUNCTION
+
+FUNCTION validateRecord(record ARRAY, index INTEGER)
+  ;; Example validation: Check if field 3 is numeric
+  IF INDEX == 3 AND TYPEOF(record[3]) != "NUMERIC" THEN
+    ;; Note: ProvideX type checking might vary by dialect, simplified here
+    ;; Assuming record is parsed as strings, check length or format
+    IF LENGTH(TRIM(record[3])) == 0 THEN
+      SET g_error_count = g_error_count + 1
+      PUT "Invalid data at row " + STRING(index) + ": Missing value" INTO g_errors + 1
+    ENDIF
+  ENDIF
+ENDFUNCTION
+
+FUNCTION hasErrors() RETURNS BOOLEAN
+  RETURN g_error_count > 0
+ENDFUNCTION
+
+FUNCTION getErrorCount() RETURNS INTEGER
+  RETURN g_error_count
+ENDFUNCTION

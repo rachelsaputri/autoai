@@ -1,0 +1,40 @@
+;; main.pvx - ProvideX Data Processing Utility
+;; Entry Point
+
+IMPORT parser
+IMPORT validator
+IMPORT transformer
+IMPORT reporter
+
+FUNCTION main()
+  DEFINE input_file STRING
+  DEFINE output_file STRING
+  DEFINE status INTEGER
+
+  SET input_file = "./data/input.csv"
+  SET output_file = "./data/output_report.txt"
+
+  ;; Step 1: Parse
+  CALL parser.parseFile(input_file)
+  IF parser.getError() != 0 THEN
+    PRINT "Error parsing input file: " + parser.getErrorMessage()
+    STOP
+  ENDIF
+
+  ;; Step 2: Validate
+  CALL validator.validateAll()
+  IF validator.hasErrors() THEN
+    PRINT "Validation errors found: " + STRING(validator.getErrorCount())
+    ;; Continue with valid records or stop based on policy
+  ENDIF
+
+  ;; Step 3: Transform
+  CALL transformer.applyRules()
+
+  ;; Step 4: Report
+  CALL reporter.generateReport(output_file)
+  PRINT "Processing complete. Report saved to " + output_file
+
+ENDFUNCTION
+
+CALL main()

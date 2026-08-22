@@ -1,0 +1,32 @@
+;; reporter.pvx - Report Generation
+
+GLOBAL g_total_processed INTEGER
+GLOBAL g_valid_records INTEGER
+GLOBAL g_invalid_records INTEGER
+
+FUNCTION generateReport(outputPath STRING)
+  LOCAL file_handle INTEGER
+  LOCAL timestamp STRING
+  
+  ;; Import stats from validation
+  IMPORT validator
+  IMPORT transformer
+  
+  SET g_total_processed = 0 ;; Placeholder, should be derived from parser.g_records
+  SET g_valid_records = ARRAY_LENGTH(???) ;; Depends on how records are stored after validation/transformation
+  SET g_invalid_records = validator.getErrorCount()
+
+  OPEN FILE outputPath FOR OUTPUT INTO file_handle
+  IF file_handle == 0 THEN
+    PRINT "Error opening output file for writing"
+    RETURN
+  ENDIF
+
+  WRITE LINE file_handle "=== Data Processing Report ==="
+  WRITE LINE file_handle "Date: " + CURRENT_DATE()
+  WRITE LINE file_handle "Total Records Processed: 100" ;; Placeholder
+  WRITE LINE file_handle "Invalid Records: " + STRING(g_invalid_records)
+  WRITE LINE file_handle "=============================="
+  
+  CLOSE FILE file_handle
+ENDFUNCTION

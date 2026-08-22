@@ -142,3 +142,5 @@ MIT
 - Created/Updated module: `ispf_data_processing_utility` (See `ispf_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `latex_data_processing_utility` (See `latex_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `provide_x_data_processing_utility` (See `provide_x_data_processing_utility/README.md` for details)

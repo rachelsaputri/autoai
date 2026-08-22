@@ -1,0 +1,50 @@
+;; parser.pvx - Data Ingestion and Parsing
+
+GLOBAL g_records ARRAY
+GLOBAL g_last_error STRING
+
+FUNCTION parseFile(filePath STRING) RETURNS INTEGER
+  LOCAL file_handle INTEGER
+  LOCAL line STRING
+  LOCAL fields ARRAY
+
+  SET g_last_error = ""
+  SET g_records = ARRAY()
+
+  IF NOT FILE_EXISTS(filePath) THEN
+    SET g_last_error = "File not found: " + filePath
+    RETURN -1
+  ENDIF
+
+  OPEN FILE filePath FOR INPUT INTO file_handle
+  IF file_handle == 0 THEN
+    SET g_last_error = "Could not open file"
+    RETURN -1
+  ENDIF
+
+  ;; Skip header
+  READ LINE file_handle INTO line
+
+  WHILE NOT EOF(file_handle) DO
+    READ LINE file_handle INTO line
+    ;; Simple CSV split by comma
+    SET fields = SPLIT(line, ",")
+    IF ARRAY_LENGTH(fields) > 0 THEN
+      PUT g_records INTO g_records + 1 USING fields
+    ENDIF
+  ENDWHILE
+
+  CLOSE FILE file_handle
+  RETURN 0
+ENDFUNCTION
+
+FUNCTION getError() RETURNS INTEGER
+  IF g_last_error != "" THEN
+    RETURN -1
+  ENDIF
+  RETURN 0
+ENDFUNCTION
+
+FUNCTION getErrorMessage() RETURNS STRING
+  RETURN g_last_error
+ENDFUNCTION

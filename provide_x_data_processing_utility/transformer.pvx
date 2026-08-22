@@ -1,0 +1,32 @@
+;; transformer.pvx - Data Transformation
+
+IMPORT parser
+
+FUNCTION applyRules()
+  LOCAL rec ARRAY
+  LOCAL i INTEGER
+
+  FOR i = 1 TO ARRAY_LENGTH(parser.g_records) DO
+    SET rec = parser.g_records[i]
+    
+    ;; Rule 1: Trim whitespace from all fields
+    CALL trimFields(rec)
+    
+    ;; Rule 2: Convert specific field to uppercase
+    IF ARRAY_LENGTH(rec) > 1 THEN
+      SET rec[1] = UPPER(rec[1])
+    ENDIF
+    
+    ;; Update record in place (if supported by dialect, else rebuild array)
+    SET parser.g_records[i] = rec
+  ENDFOR
+ENDFUNCTION
+
+FUNCTION trimFields(record ARRAY)
+  LOCAL i INTEGER
+  FOR i = 1 TO ARRAY_LENGTH(record) DO
+    IF TYPEOF(record[i]) == "STRING" THEN
+      SET record[i] = TRIM(record[i])
+    ENDIF
+  ENDFOR
+ENDFUNCTION
