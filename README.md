@@ -130,3 +130,5 @@ MIT
 - Created/Updated module: `tex_data_processing_utility` (See `tex_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `hal_data_processing_utility` (See `hal_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `vb_data_processing_utility` (See `vb_data_processing_utility/README.md` for details)
