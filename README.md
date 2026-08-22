@@ -140,3 +140,5 @@ MIT
 - Created/Updated module: `iptscrae_data_processing_utility` (See `iptscrae_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `ispf_data_processing_utility` (See `ispf_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `latex_data_processing_utility` (See `latex_data_processing_utility/README.md` for details)

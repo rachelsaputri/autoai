@@ -1,0 +1,51 @@
+\documentclass{article}
+\usepackage{xstring}
+\usepackage{pgffor}
+\usepackage{array}
+\usepackage{datatool}
+\usepackage{booktabs}
+\usepackage{graphicx}
+
+\begin{document}
+
+\title{\ReportTitle}
+\author{\Author}
+\date{} % Empty date
+
+\maketitle
+
+\section{Data Processing Overview}
+
+This document outlines the results of the data processing pipeline.
+
+\section{Data Transformation}
+
+We process the raw data into a structured format suitable for analysis.
+
+\begin{itemize}
+    \item Step 1: Ingest data from \DataSrc.
+    \item Step 2: Clean and validate entries.
+    \item Step 3: Transform data types as required.
+\end{itemize}
+
+\section{Report}
+
+The following table summarizes the processed data:
+
+\begin{center}
+    \begin{tabular}{lll}
+        \toprule
+        ID & Value & Status \\
+        \midrule
+        1 & Alpha & Pass \\
+        2 & Beta & Fail \\
+        3 & Gamma & Pass \\
+        \bottomrule
+    \end{tabular}
+\end{center}
+
+\section{Conclusion}
+
+Data processing completed successfully.
+
+\end{document}
