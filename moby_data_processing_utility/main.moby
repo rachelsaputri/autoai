@@ -1,0 +1,61 @@
+// main.moby
+module MobyDataProcessingUtility
+
+import std.io
+import std.list
+
+record DataRecord = {
+    id: int,
+    value: string,
+    timestamp: int
+}
+
+record PipelineResult = {
+    processed_count: int,
+    error_count: int,
+    report: string
+}
+
+func main() {
+    let input_data = [
+        {id: 1, value: "alpha", timestamp: 1620000000},
+        {id: 2, value: "beta", timestamp: 1620000100},
+        {id: 3, value: "gamma", timestamp: 1620000200}
+    ]
+
+    let result = process_data(input_data)
+    
+    print(result.report)
+}
+
+func process_data(records: list(DataRecord)): PipelineResult {
+    let transformed = transform(records)
+    let valid = validate(transformed)
+    
+    let error_count = length(transformed) - length(valid)
+    let report = format_report(valid, error_count)
+    
+    return {
+        processed_count: length(valid),
+        error_count: error_count,
+        report: report
+    }
+}
+
+func transform(records: list(DataRecord)): list(DataRecord) {
+    // Transformation logic would go here
+    // For now, we just return the records as is
+    records
+}
+
+func validate(records: list(DataRecord)): list(DataRecord) {
+    // Validation logic would go here
+    // Filter out invalid records
+    // For now, we assume all records are valid
+    records
+}
+
+func format_report(valid_records: list(DataRecord), error_count: int): string {
+    let success_count = length(valid_records)
+    return string.format("Processing complete. Success: %d, Errors: %d", success_count, error_count)
+}

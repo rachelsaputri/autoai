@@ -114,3 +114,5 @@ MIT
 - Created/Updated module: `./falcon_data_processing_utility` (See `./falcon_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `plus_data_processing_utility` (See `plus_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `./moby_data_processing_utility` (See `./moby_data_processing_utility/README.md` for details)
