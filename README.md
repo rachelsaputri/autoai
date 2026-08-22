@@ -154,3 +154,5 @@ MIT
 - Created/Updated module: `ici_compliance_auditor` (See `ici_compliance_auditor/README.md` for details)
 
 - Created/Updated module: `splus_data_processing_utility` (See `splus_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `./gpss_data_processing_utility` (See `./gpss_data_processing_utility/README.md` for details)

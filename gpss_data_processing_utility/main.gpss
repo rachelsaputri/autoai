@@ -1,65 +1,21 @@
-* MAIN.GPSS - Data Processing Pipeline Driver
-* This module orchestrates the ingestion, validation, transformation, and reporting of data.
+* GPSS DATA PROCESSING UTILITY - MAIN ENTRY POINT
+* This program initializes the data processing pipeline.
+* It loads data, validates it, transforms it, and generates a report.
 
-* Initialize the simulation
-START  SIM
+GENERATE ID
+LOAD ID
+PUT IN QUEUE DATA_QUEUE
 
-* Define data structures
-BLOCK  DATA_RECORD, 100
-BLOCK  ERROR_LOG, 50
+* Parse Data
+CALL PARSER
 
-* Start the ingestion process
-GPSS  PARSE_INPUT
+* Validate Data
+CALL VALIDATOR
 
-* Validate data
-GPSS  VALIDATE_DATA
+* Transform Data
+CALL TRANSFORMER
 
-* Transform valid data
-GPSS  TRANSFORM_DATA
+* Generate Report
+CALL REPORTER
 
-* Report results
-GPSS  REPORT_RESULTS
-
-* Terminate simulation
-GPSS  TERMINATE
-
-* Helper routine: Parse Input
-* Reads raw data from standard input or a file stream
-PARSE_INPUT:
-    * Simulate reading data from a source
-    * Parse fields into internal format
-    * Move to validation
-    RETURN
-
-* Helper routine: Validate Data
-* Checks data integrity and compliance
-VALIDATE_DATA:
-    * Iterate through data records
-    * Apply validation rules
-    * Flag invalid records
-    * Move valid records to transformation queue
-    * Move invalid records to error log
-    RETURN
-
-* Helper routine: Transform Data
-* Applies business logic and formatting
-TRANSFORM_DATA:
-    * Iterate through validated records
-    * Apply transformation functions
-    * Store transformed data
-    RETURN
-
-* Helper routine: Report Results
-* Generates summary and error reports
-REPORT_RESULTS:
-    * Summarize total records processed
-    * Summarize valid and invalid counts
-    * Output error details
-    RETURN
-
-* Helper routine: Terminate
-* Cleanup and end simulation
-TERMINATE:
-    * Output final statistics
-    * End simulation
-    HALT
+GENERATE

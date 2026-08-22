@@ -1,45 +1,8 @@
-*======================================================================*
-* GPSS DATA PROCESSING UTILITY - PARSER LOGIC                       *
-*======================================================================*
+* GPSS DATA PROCESSING UTILITY - PARSER MODULE
+* Handles ingestion and parsing of raw data.
 
-* NOTE: In GPSS, parsing is typically handled via attribute manipulation
-* or by splitting the transaction (SPLIT/ASSIGN). This block demonstrates
-* how a parser might initialize transaction attributes.
-
-BLOCKSIZE 80
-
-title  DATA_PARSER_MODULE
-
-*--------------------------------------------------------------------*
-* 1. TRANSACTION ARRIVAL & PARSING                                 *
-*--------------------------------------------------------------------*
-   GENERATE    -1,,50        * Arriving 50 raw records
-
-* Simulate Parsing: Extract fields into attributes                 *
-* In a real GPSS system, this might involve SPLIT or ASSIGN        *
-* Here we simulate reading data into Attribute 1 and 2            *
-
-   ASSIGN      1, 10         * Simulate Field 1 (e.g., ID)
-   ASSIGN      2, 20         * Simulate Field 2 (e.g., Value)
-
-* Validate Data Structure (Simulated)                             *
-   IFN         1, 0, PARSE_FAIL
-
-* Move to Processing Queue                                       *
-   QUEUE       DATA_Q
-   ENTER       PROCESS_F
-   LEAVE       PROCESS_F
-   TERMINATE     0           * End simulation (or continue to next stage)
-
-PARSE_FAIL
-   TERMINATE     0
-
-*--------------------------------------------------------------------*
-* 2. FACILITIES & QUEUES                                         *
-*--------------------------------------------------------------------*
-   QUEUE       DATA_Q
-   FACILITY    PROCESS_F
-
-   START       1
-
-END
+BLOCK PARSE_START
+GET FROM SOURCE
+SET CURRENT_RECORD
+PUT IN QUEUE PARSED_QUEUE
+BLOCK PARSE_END

@@ -1,35 +1,23 @@
 # GPSS Data Processing Utility
 
-## Overview
-This utility provides a robust data processing pipeline implemented in GPSS (General Problem Solver Simulation), a simulation language used for discrete-event simulation and process modeling.
+This utility provides a robust framework for data processing using GPSS (General Purpose Simulation System) programming language.
+It includes modules for data ingestion, validation, transformation, reporting, and core orchestration.
 
-The tool includes the following components:
-- **Data Ingestion**: Reads and parses input data streams.
-- **Data Validation**: Ensures data integrity and format compliance.
-- **Data Transformation**: Applies transformation rules to raw data.
-- **Data Exporting**: Generates processed output in various formats.
-
-## Files
-- `main.gpss`: The main driver program that orchestrates the data processing pipeline.
-- `processor.gpss`: Contains the core logic for data validation and transformation.
-- `parser.gpss`: Handles parsing of input data formats.
-- `transformer.gpss`: Implements data transformation rules and logic.
-- `validator.gpss`: Validates input data against defined schemas and constraints.
-- `reporter.gpss`: Generates reports on processing statistics and anomalies.
+## Features
+- **Data Ingestion**: Load data from simulated sources.
+- **Validation**: Ensure data integrity and format compliance.
+- **Transformation**: Apply standard transformations (e.g., cleaning, normalization).
+- **Reporting**: Generate summary reports of processed data.
 
 ## Usage
-1. Ensure you have a GPSS simulator environment installed.
-2. Place your input data files in the `data/` directory.
-3. Run the main driver program:
-   ```bash
-   gpss main.gpss
-   ```
-4. Review the output logs and reports generated in the `output/` directory.
+To run the utility, execute the main GPSS program file:
+```bash
+gpss main.gpss
+```
 
-## Configuration
-- Update `parser.gpss` to define input data formats.
-- Update `transformer.gpss` to define transformation rules.
-- Update `validator.gpss` to define validation constraints.
-
-## License
-This software is provided as-is for educational and utility purposes.
+## Structure
+- `main.gpss`: Entry point that coordinates the pipeline.
+- `parser.gpss`: Handles data ingestion and parsing.
+- `transformer.gpss`: Performs data transformation logic.
+- `validator.gpss`: Validates data against defined rules.
+- `reporter.gpss`: Generates final reports.
