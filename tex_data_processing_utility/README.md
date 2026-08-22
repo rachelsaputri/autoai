@@ -1,25 +1,19 @@
-# TeX Data Processing Utility
+# Data Processing Utility (LaTeX/TEX)
 
-A comprehensive, self-contained data processing utility implemented in TeX/LaTeX. This utility is designed to parse, validate, transform, and report on structured data within a TeX-compatible environment.
+This project provides a data processing utility written in LaTeX/TEX. It demonstrates how to manipulate and format data structures using LaTeX's powerful typesetting and macro expansion capabilities.
 
 ## Features
-- **Data Ingestion**: Reads structured data from input files or macros.
-- **Validation**: Checks for consistency, type correctness, and constraint compliance.
-- **Transformation**: Applies standard transformations like trimming, normalization, and aggregation.
-- **Reporting**: Generates formatted reports in LaTeX format.
+- Data parsing and structuring
+- Transformation of data formats
+- Reporting and output generation
 
-## Structure
-- `main.tex`: Entry point for the utility.
-- `parser.tex`: Contains logic for parsing input data.
-- `validator.tex`: Contains logic for data validation.
-- `transformer.tex`: Contains logic for data transformation.
-- `reporter.tex`: Contains logic for report generation.
-- `config.tex`: Configuration settings for the utility.
+## Files
+- `main.tex`: The main entry point for the data processing utility.
+- `README.md`: This file.
 
 ## Usage
-1. Define your data in the `config.tex` file.
-2. Include the necessary modules in your main LaTeX document.
-3. Run the utility using your preferred LaTeX engine.
+To run the utility, compile the main.tex file using your preferred LaTeX engine (e.g., pdflatex, xelatex, lualatex).
 
-## License
-MIT License
+```bash
+pdflatex main.tex
+```

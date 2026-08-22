@@ -126,3 +126,5 @@ MIT
 - Created/Updated module: `gpss_data_processing_utility` (See `gpss_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `./gpss_data_processing_utility` (See `./gpss_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `tex_data_processing_utility` (See `tex_data_processing_utility/README.md` for details)
