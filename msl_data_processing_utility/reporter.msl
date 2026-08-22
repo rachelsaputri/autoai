@@ -1,0 +1,41 @@
+module reporter;
+
+function generateReport(records, outputPath)
+{
+    let output = createFile(outputPath, "write");
+    let total = length(records);
+    let summary = {};
+    
+    summary.totalRecords = total;
+    summary.processingDate = getCurrentTimestamp();
+    summary.status = "SUCCESS";
+    
+    // Generate summary statistics
+    if total > 0
+        summary.averageValue = calculateAverage(records);
+    end
+    
+    // Write output
+    writeHeader(output, summary);
+    writeRecords(output, records);
+    closeFile(output);
+    
+    return summary;
+end
+
+function calculateAverage(records)
+{
+    let sum = 0;
+    let count = 0;
+    
+    for record in records
+        let val = getNumericValue(record);
+        if not isNaN(val)
+            sum += val;
+            count += 1;
+        end
+    end
+    
+    if count == 0 return 0;
+    return sum / count;
+end

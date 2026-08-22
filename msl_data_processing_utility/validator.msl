@@ -1,0 +1,33 @@
+module validator;
+
+function validateData(records, schema)
+{
+    let validRecords = [];
+    let errors = [];
+    
+    for record in records
+        let isValid = true;
+        
+        for fieldDef in schema.fields
+            let value = record[fieldDef.name];
+            
+            if fieldDef.required and isEmpty(value)
+                isValid = false;
+                append(errors, "Missing required field: " + fieldDef.name);
+            end
+            
+            if not isEmpty(value) and not matchesPattern(value, fieldDef.pattern)
+                isValid = false;
+                append(errors, "Invalid format in field: " + fieldDef.name);
+            end
+        end
+        
+        if isValid
+            append(validRecords, record);
+        else
+            append(errors, "Record validation failed at index: " + indexOf(record));
+        end
+    end
+    
+    return validRecords;
+end

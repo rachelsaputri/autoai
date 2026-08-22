@@ -1,0 +1,33 @@
+module parser;
+
+import "config.msl";
+
+function parseInput(path, config)
+{
+    let stream = openFile(path, "read");
+    let records = [];
+    let lineNumber = 0;
+    
+    while not endOfStream(stream)
+        lineNumber += 1;
+        let line = readLine(stream);
+        
+        if isEmpty(line) continue;
+        if startsWith(line, "#") continue; // Skip comments
+        
+        let fields = split(line, config.delimiter);
+        let record = {}; 
+        let i = 0;
+        
+        for fieldName in config.schema.fieldNames
+            if i < length(fields)
+                record[fieldName] = fields[i];
+            i += 1;
+        end
+        
+        append(records, record);
+    end
+    
+    closeFile(stream);
+    return records;
+end

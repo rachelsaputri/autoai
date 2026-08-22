@@ -1,0 +1,39 @@
+module config;
+
+const DELIMITER = ",";
+const INPUT_ENCODING = "UTF-8";
+const OUTPUT_FORMAT = "JSON";
+
+function loadConfig()
+{
+    let schema = {
+        fieldNames: ["id", "name", "value", "date"],
+        fields: [
+            { name: "id", required: true, pattern: "^[A-Z]{3}-\\d{4}$" },
+            { name: "name", required: true, pattern: ".+" },
+            { name: "value", required: true, pattern: "^-?[0-9]+(\\.[0-9]+)?$" },
+            { name: "date", required: false, pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" }
+        ]
+    };
+    
+    let transformRules = [
+        {
+            targetField: "value",
+            type: "float",
+            value: "1.0"
+        },
+        {
+            targetField: "status",
+            type: "string",
+            value: "PROCESSED"
+        }
+    ];
+    
+    return {
+        delimiter: DELIMITER,
+        schema: schema,
+        transformRules: transformRules,
+        encoding: INPUT_ENCODING,
+        format: OUTPUT_FORMAT
+    };
+}

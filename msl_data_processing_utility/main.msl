@@ -1,0 +1,34 @@
+module main;
+
+import "config.msl";
+import "parser.msl";
+import "validator.msl";
+import "transformer.msl";
+import "reporter.msl";
+
+function runPipeline(inputPath, outputPath)
+{
+    let config = loadConfig();
+    let rawData = parseInput(inputPath, config);
+    let validData = validateData(rawData, config.schema);
+    let transformedData = transformData(validData, config.transformRules);
+    let report = generateReport(transformedData, outputPath);
+    
+    return report;
+end
+
+function main()
+{
+    let args = getCommandLineArgs();
+    let inputPath = getArgValue(args, "--input");
+    let outputPath = getArgValue(args, "--output");
+    
+    if (isEmpty(inputPath) || isEmpty(outputPath))
+        haltError("Usage: msl_run main.msl --input <path> --output <path>");
+    
+    let result = runPipeline(inputPath, outputPath);
+    print("Processing complete. " + result.recordCount + " records processed.");
+    print("Report saved to: " + outputPath);
+end
+
+start main();
