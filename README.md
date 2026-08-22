@@ -134,3 +134,5 @@ MIT
 - Created/Updated module: `vb_data_processing_utility` (See `vb_data_processing_utility/README.md` for details)
 
 - Created/Updated module: `sawzall_data_processing_utility` (See `sawzall_data_processing_utility/README.md` for details)
+
+- Created/Updated module: `./io_data_processing_utility` (See `./io_data_processing_utility/README.md` for details)
