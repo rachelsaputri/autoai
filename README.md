@@ -152,3 +152,5 @@ MIT
 - Created/Updated module: `axiom_crypto_protocol_verifier` (See `axiom_crypto_protocol_verifier/README.md` for details)
 
 - Created/Updated module: `ici_compliance_auditor` (See `ici_compliance_auditor/README.md` for details)
+
+- Created/Updated module: `splus_data_processing_utility` (See `splus_data_processing_utility/README.md` for details)
