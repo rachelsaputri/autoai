@@ -1,0 +1,58 @@
+/* JCL DATA PROCESSING UTILITY
+   Description: Demonstrates batch data processing steps using JCL. */
+
+//JDPPJCL JOB (ACCT),'JCL DATA PROCESS',CLASS=A,MSGCLASS=H,
+//             REGION=0M,NOTIFY=&SYSUID
+
+/* STEP 1: CREATE SAMPLE INPUT DATASET */
+//CREATE   EXEC PGM=IEFBR14
+//SYSPRINT DD  SYSOUT=A
+//INDD     DD  DSN=&&SYSDUMP,UNIT=SYSDA,DISP=(,PASS),
+//             SPACE=(TRK,(5,5),RLSE),DCB=(RECFM=FB,LRECL=80)
+//         DD  DSN=JCL.DATA.PROCESS.INPUT,UNIT=SYSDA,
+//             DISP=(,CATLG),SPACE=(TRK,(10,10)),
+//             DCB=(RECFM=FB,LRECL=80,BLKSIZE=0)
+
+/* STEP 2: SORT THE DATA */
+//SORT     EXEC PGM=SORT
+//SYSOUT   DD  SYSOUT=A
+//SYSPRINT DD  SYSOUT=A
+//SORTIN   DD  DSN=JCL.DATA.PROCESS.INPUT,DISP=SHR
+//SORTOUT  DD  DSN=JCL.DATA.PROCESS.OUTPUT,UNIT=SYSDA,
+//             DISP=(,CATLG),SPACE=(TRK,(10,10)),
+//             DCB=(RECFM=FB,LRECL=80)
+//SYSIN    DD  *
+  SORT FIELDS=(1,10,CH,A)
+/*
+  NOTE: SORT parameters depend on actual record layout.
+  This example sorts by the first 10 characters.
+*/
+
+/* STEP 3: FILTER/TRANSFORM DATA (Simulated via SORT or REXX) */
+//FILTER   EXEC PGM=ICEMAN
+//SYSOUT   DD  SYSOUT=A
+//SYSPRINT DD  SYSOUT=A
+//SORTIN   DD  DSN=JCL.DATA.PROCESS.OUTPUT,DISP=SHR
+//SORTOUT  DD  DSN=JCL.DATA.PROCESS.FILTERED,UNIT=SYSDA,
+//             DISP=(,CATLG),SPACE=(TRK,(10,10)),
+//             DCB=(RECFM=FB,LRECL=80)
+//SYSIN    DD  *
+  OMIT COND=(11,4,CH,EQ,C'ABCD')
+/*
+  NOTE: OMIT/INCLUDE conditions depend on actual data structure.
+  This example omits records where positions 11-14 equal 'ABCD'.
+*/
+
+/* STEP 4: FORMAT OUTPUT FOR REPORTING */
+//REPORT   EXEC PGM=ICEMAN
+//SYSOUT   DD  SYSOUT=A
+//SYSPRINT DD  SYSOUT=A
+//SORTIN   DD  DSN=JCL.DATA.PROCESS.FILTERED,DISP=SHR
+//SORTOUT  DD  SYSOUT=A
+//SYSIN    DD  *
+  INREC FIELDS=(1:1,80)
+/*
+  NOTE: INREC/OUTREC transformations depend on formatting needs.
+*/
+
+//ENDJOB   EXEC PGM=IEFBR14
