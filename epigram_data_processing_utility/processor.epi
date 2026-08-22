@@ -1,0 +1,49 @@
+; processor.epi
+; Implements core transformation and validation logic.
+
+; Import types from data_types.epi
+(import data-types)
+
+; Helper function to capitalize a string
+(define capitalize-string
+  (lambda (s : string) -> string
+    (if (null? s)
+        s
+        (concat (uppercase (head s)) (substring (tail s))))))
+
+; Helper function to validate if a field is non-empty
+(define validate-field
+  (lambda (field : data-field) -> data-field
+    (if (empty? (field-value field))
+        (set-data-field-is-valid field false)
+        (set-data-field-is-valid field true))))
+
+; Transform all records: Capitalize 'name' field if it exists
+(define transform-all
+  (lambda (records : (list data-record)) -> (list data-record)
+    (map
+      (lambda (record : data-record) -> data-record
+        (let ((fields (record-fields record)))
+          (set-data-record-fields
+            record
+            (map validate-field fields))))
+      records)))
+
+; Validate the entire pipeline state
+; Returns the count of valid records
+(define validate-pipeline
+  (lambda (records : (list data-record)) -> nat
+    (foldl
+      (lambda (acc : nat) (record : data-record) -> nat
+        (let ((valid-count (foldl
+          (lambda (count : nat) (field : data-field) -> nat
+            (if (data-field-is-valid field)
+                (+ count 1)
+                count))
+          0
+          (record-fields record))))
+          (if (> valid-count 0)
+              (+ acc 1)
+              acc)))
+      0
+      records)))
